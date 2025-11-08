@@ -467,8 +467,13 @@ Consistency: 100% (declarative config)
 - Catppuccin Latte (light mode)
 - Catppuccin Mocha (dark mode)
 - Auto-switch based on macOS system appearance
-- Apply to: Terminal, shell, supported apps
-- Acceptance: Colors consistent across terminal, apps switch with system
+- Apply to: Ghostty (terminal), Zed (editor), shell, and other Stylix-supported apps
+- Consistent theming across all tools (same colors, same font)
+- Acceptance:
+  - Colors consistent across Ghostty and Zed
+  - Both apps switch light/dark with macOS system appearance
+  - JetBrains Mono font in both Ghostty and Zed
+  - Visual consistency when switching between terminal and editor
 
 **REQ-THEME-002**: Font Installation
 - JetBrains Mono Nerd Font (primary)
@@ -499,9 +504,16 @@ Consistency: 100% (declarative config)
 - Acceptance: `podman run hello-world` works, podman-desktop launches
 
 **REQ-DEV-004**: Editor Configuration
-- Zed with default settings (no custom config in MVP)
+- Zed themed via Stylix (Catppuccin Latte/Mocha, JetBrains Mono font)
+- Zed configuration managed by Home Manager
+- Auto-update disabled for Zed
 - VSCode for Claude Code extension (manual extension install documented)
-- Acceptance: Both editors launch, can open files
+- VSCode themed via Stylix if possible, otherwise manual theme install
+- Acceptance:
+  - Zed launches with Catppuccin theme matching Ghostty
+  - Zed uses JetBrains Mono font with ligatures
+  - Zed theme switches with macOS system appearance
+  - VSCode launches and can open files
 
 #### 7. Maintenance & Monitoring
 
@@ -699,6 +711,7 @@ Consistency: 100% (declarative config)
 
 **Apps requiring auto-update disable configuration:**
 - Homebrew: `HOMEBREW_NO_AUTO_UPDATE=1` in environment
+- Zed: Disable auto-update in settings (`"auto_update": false` in config)
 - VSCode: `"update.mode": "none"`
 - Arc browser: Disable auto-update in settings
 - Firefox: `app.update.auto = false`
@@ -1102,8 +1115,8 @@ Consistency: 100% (declarative config)
 | Git | Nix (nixpkgs.git) | Core tool, Nix-managed |
 | Git LFS | Nix (nixpkgs.git-lfs) | Extension of git |
 | **Editors & IDEs** | | |
-| Zed | Homebrew Cask | GUI app, fast release cycle |
-| VSCode | Homebrew Cask (visual-studio-code) | GUI app, extensions ecosystem |
+| Zed | Homebrew Cask | GUI app, themed via Stylix (Catppuccin + JetBrains Mono) |
+| VSCode | Homebrew Cask (visual-studio-code) | GUI app, extensions ecosystem, themed via Stylix if possible |
 | **Terminals** | | |
 | Ghostty | Homebrew Cask | GUI app, bleeding-edge |
 | **Browsers** | | |

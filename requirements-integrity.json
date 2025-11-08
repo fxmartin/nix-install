@@ -1,0 +1,21 @@
+{
+  "document": "REQUIREMENTS.md",
+  "approval_timestamp": "2025-11-08T19:57:24Z",
+  "document_version": "v1.0",
+  "approved_by": "FX (Product Owner)",
+  "hashes": {
+    "baseline_content": "ce361319ff8ba7d2865cbe08942b64baf805a3cbbb5b5a33fc2df5d6ebc5cc51",
+    "final_document": "3c27f641de4ae3c3fe899a7af00501debc80a9f19f5d68f16b4e9f20f30a5cb2",
+    "approval_section": "calculated_on_verification"
+  },
+  "validation": {
+    "method": "SHA-256",
+    "creation_date": "2025-11-08T19:57:24Z",
+    "status": "APPROVED"
+  },
+  "change_control": {
+    "baseline_locked": true,
+    "change_process_required": true,
+    "next_version": "v1.1"
+  }
+}

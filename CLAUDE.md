@@ -173,6 +173,56 @@ programs.vscode.userSettings."update.mode" = "none";
 
 **When implementing**: Cross-reference requirements (e.g., REQ-BOOT-001, REQ-APP-002) in code comments and commit messages.
 
+### Requirements Change Control
+
+**Baseline Protection**
+Once requirements are approved via `/approve-requirements` command:
+- Requirements document is considered baselined
+- External integrity file provides tamper-evident validation
+- All changes require formal change control process
+- Document hash validation prevents unauthorized modifications
+
+**External Integrity Validation**
+- **Integrity File**: `requirements-integrity.json` contains validation hashes
+- **Verification Script**: `verify-requirements-integrity.sh` validates document integrity
+- **Separation of Concerns**: Validation data stored externally to prevent circular dependencies
+- **Tamper Detection**: Any modification to requirements invalidates stored hash
+
+**Change Request Process**
+1. **Identify Change Need**: Document business justification
+2. **Impact Assessment**: Analyze effect on timeline, budget, scope
+3. **Stakeholder Review**: Present change to approval stakeholders
+4. **Approval Decision**: Formal approval/rejection with rationale
+5. **Document Update**: Update REQUIREMENTS.md with change log entry
+6. **Integrity Update**: Regenerate external integrity validation
+7. **Communication**: Notify all stakeholders of approved changes
+
+**Change Control Authority**
+- **Minor Changes** (clarifications, typos): Technical Lead approval
+- **Major Changes** (scope, timeline, budget): Stakeholder approval required
+- **Critical Changes** (fundamental approach): Full stakeholder committee approval
+
+**Change Tracking**
+All changes tracked in the Post-Approval Change Log in REQUIREMENTS.md with:
+- Change description and rationale
+- Impact assessment results
+- Approval authority and date
+- Updated document version
+- New integrity validation hash
+
+**Integrity Verification Commands**
+```bash
+# Quick integrity check
+./verify-requirements-integrity.sh
+
+# Manual verification
+STORED=$(grep '"final_document"' requirements-integrity.json | cut -d'"' -f4)
+CURRENT=$(shasum -a 256 REQUIREMENTS.md | cut -d' ' -f1)
+echo "Stored: $STORED"
+echo "Current: $CURRENT"
+[ "$STORED" = "$CURRENT" ] && echo "✅ VERIFIED" || echo "❌ COMPROMISED"
+```
+
 ## Configuration Preferences
 
 ### User Expectations (from ~/.claude/CLAUDE.md)
@@ -227,9 +277,96 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 7. **Public repo**: Configuration is public (exclude secrets, use SOPS/age for P1 phase).
 
+## Story Management Protocol
+
+### Single Source of Truth Declaration
+The `/stories/` directory and its epic files constitute the **single source of truth** for:
+- All epic, feature, and user story definitions
+- Story progress tracking and completion status
+- Sprint planning and delivery milestones
+- Acceptance criteria and definition of done status
+- Cross-epic dependencies and risk management
+
+### Mandatory Usage Requirements
+- **Development Teams**: Must reference epic files for story details and acceptance criteria
+- **Product Owners**: Must update story status and acceptance in epic files
+- **Scrum Masters**: Must track sprint progress and dependencies in epic files
+- **Stakeholders**: Must consult epic files for current story status and progress
+- **QA Teams**: Must validate against acceptance criteria defined in epic files
+
+### Story File Hierarchy
+```
+STORIES.md (overview and navigation)
+└── stories/
+    ├── epic-01-bootstrap-installation.md (detailed epic stories and progress)
+    ├── epic-02-application-installation.md (detailed epic stories and progress)
+    ├── epic-03-system-configuration.md (detailed epic stories and progress)
+    ├── epic-04-development-environment.md (detailed epic stories and progress)
+    ├── epic-05-theming-visual-consistency.md (detailed epic stories and progress)
+    ├── epic-06-maintenance-monitoring.md (detailed epic stories and progress)
+    ├── epic-07-documentation-user-experience.md (detailed epic stories and progress)
+    └── non-functional-requirements.md (NFR stories and progress)
+```
+
+### Progress Update Protocol
+**All story progress MUST be updated in the individual epic files:**
+
+1. **Story Status Updates**: Update story completion checkboxes in epic files
+2. **Sprint Progress**: Update sprint breakdown tables in each epic
+3. **Acceptance Criteria**: Mark completed criteria in story definitions
+4. **Dependency Status**: Update dependency tracking in epic files
+5. **Risk Mitigation**: Update risk status and mitigation progress
+6. **Story Point Burndown**: Track completed story points in epic progress sections
+
+### Development Workflow Integration
+- **Sprint Planning**: Use epic files for detailed story selection and estimation
+- **Daily Standups**: Reference story IDs from epic files for progress updates
+- **Code Reviews**: Link PRs to specific story IDs in epic files (e.g., "Implements Story 01.2-001")
+- **Testing**: Use acceptance criteria from epic files for test validation
+- **Deployment**: Update story completion status in epic files post-deployment
+- **Retrospectives**: Reference epic file progress for velocity and improvement insights
+
+### Documentation Maintenance
+- **Story Updates**: Always update in the source epic file first, then communicate changes
+- **Cross-References**: Maintain links between STORIES.md overview and epic files
+- **Version Control**: Commit epic file changes with story completion and progress updates
+- **Progress Reporting**: Generate stakeholder reports from epic file status data
+- **Dependency Tracking**: Update cross-epic dependencies when stories complete
+
+### Integration Points
+- **GitHub Issues**: Link to specific Story IDs from epic files in issue descriptions
+- **PR Reviews**: Reference epic file story acceptance criteria in pull request descriptions
+- **Sprint Reports**: Generate velocity and burndown from epic file completion status
+- **Stakeholder Updates**: Source all progress data from epic file metrics
+- **Release Planning**: Use epic file story completion for release readiness assessment
+
+### Prohibited Actions
+❌ **DO NOT**:
+- Update story details outside of the epic files
+- Track progress in separate spreadsheets or project management tools
+- Create duplicate story documentation in other formats
+- Update STORIES.md overview with detailed story changes (only update metrics/summaries)
+- Maintain story status in external systems without updating epic files first
+
+✅ **DO**:
+- Use epic files as the authoritative source for all story information
+- Update story status directly in epic files immediately upon completion
+- Reference story IDs from epic files in all project communications
+- Maintain story history through git commits on epic files
+- Generate all reports and metrics from epic file data
+
+### Quality Assurance
+- **Story Integrity**: Regular audits to ensure epic files reflect actual development status
+- **Cross-Reference Validation**: Verify all story dependencies are accurately tracked
+- **Progress Accuracy**: Ensure story completion status matches deployed functionality
+- **Documentation Currency**: Keep epic files updated within 24 hours of story completion
+
+**CRITICAL**: This story structure is now the project's single source of truth for all epic, feature, and story information. All progress tracking, status updates, detailed planning, and stakeholder communication must reference and update these files directly. Violation of this protocol undermines project tracking integrity and delivery predictability.
+
 ## Reference Documentation
 
 - **Primary**: `REQUIREMENTS.md` (comprehensive PRD)
+- **Stories**: `STORIES.md` (epic overview) + `/stories/epic-*.md` (detailed stories)
 - **Reference**: `mlgruby-repo-for-reference/dotfile-nix/` (production example)
 - **User preferences**: `~/.claude/CLAUDE.md`, `~/.claude/docs/*.md`
 - **Ghostty config**: `config/config.ghostty` (template for Home Manager)

@@ -14,7 +14,7 @@
 
 ## Epic Scope
 **Total Stories**: 22
-**Total Story Points**: 110
+**Total Story Points**: 113
 **MVP Stories**: 22 (100% of epic)
 **Priority Level**: Must Have
 **Target Release**: Phase 2-3 (Week 2-3)
@@ -1223,68 +1223,78 @@
 
 ---
 
-### Feature 02.9: Office 365 (Manual Installation)
-**Feature Description**: Document Office 365 manual installation process
-**User Value**: Clear guidance for installing Microsoft Office suite
+### Feature 02.9: Office 365 (Homebrew Cask Installation)
+**Feature Description**: Automated installation of Microsoft Office 365 suite via Homebrew cask
+**User Value**: Office apps installed automatically, only requires sign-in for activation
 **Story Count**: 1
-**Story Points**: 2
+**Story Points**: 5
 **Priority**: Must Have
-**Complexity**: Low
+**Complexity**: Medium
 
 #### Stories in This Feature
 
-##### Story 02.9-001: Office 365 Documentation
-**User Story**: As FX, I want clear documentation for installing Office 365 manually so that I can complete work setup after bootstrap
+##### Story 02.9-001: Office 365 Installation via Homebrew
+**User Story**: As FX, I want Office 365 installed automatically via Homebrew cask so that I can start work immediately after signing in
 
 **Priority**: Must Have
-**Story Points**: 2
+**Story Points**: 5
 **Sprint**: Sprint 3
 
 **Acceptance Criteria**:
-- **Given** bootstrap completes successfully
-- **When** I read the post-install documentation
-- **Then** it includes step-by-step Office 365 installation instructions
-- **And** it notes that Office 365 cannot be automated (Microsoft account required)
-- **And** it provides download link (office.com or company portal)
-- **And** it notes sign-in requirements
-- **And** it's marked as manual installation in summary
+- **Given** nix-darwin homebrew configuration
+- **When** the system is rebuilt
+- **Then** Office 365 cask (microsoft-office-businesspro) is installed via Homebrew
+- **And** Word, Excel, PowerPoint, Outlook, OneNote, and Teams are available in /Applications
+- **And** apps launch successfully (but require sign-in)
+- **And** licensed-apps.md documents the sign-in activation process
+- **And** bootstrap summary notes Office 365 requires Microsoft account sign-in
 
 **Additional Requirements**:
-- No automated installation (requires Microsoft account, company policy)
-- Documentation only (no Nix/Homebrew config)
-- Link to official Microsoft download
-- Note about company vs personal installation
+- Homebrew cask: `microsoft-office-businesspro`
+- Automated installation via nix-darwin homebrew module
+- Manual activation: User must sign in with Microsoft account
+- No license key needed (subscription-based)
+- All Office apps included: Word, Excel, PowerPoint, Outlook, OneNote, Teams
 
 **Technical Notes**:
-- Add to docs/licensed-apps.md or post-install.md:
-  ```markdown
-  ## Office 365 (Manual Installation)
-
-  Office 365 requires manual installation due to Microsoft account requirements:
-
-  1. Visit https://office.com or your company's Office 365 portal
-  2. Sign in with your Microsoft/company account
-  3. Download and run the installer
-  4. Follow the installation wizard
-  5. Sign in to activate your subscription
-
-  Note: Installation method depends on whether you have a personal or company Office 365 subscription.
+- Add to darwin/homebrew.nix casks list:
+  ```nix
+  homebrew.casks = [
+    # ... other casks
+    "microsoft-office-businesspro"  # Office 365 suite
+  ];
   ```
-- Mark in bootstrap summary as "Manual Installation Required"
+- Add to docs/licensed-apps.md:
+  ```markdown
+  ## Office 365 (Sign-In Required)
+
+  Office 365 is installed automatically but requires activation:
+
+  1. Launch any Office app (Word, Excel, PowerPoint, etc.)
+  2. Click "Sign In" when prompted
+  3. Enter your Microsoft account (personal) or company Office 365 email
+  4. Follow the authentication prompts
+  5. Your subscription will activate automatically
+
+  Note: Requires active Office 365 subscription (personal or company).
+  ```
+- Mark in bootstrap summary as "Installed - Activation Required"
 
 **Definition of Done**:
-- [ ] Documentation written in licensed-apps.md or post-install.md
-- [ ] Download link provided
-- [ ] Sign-in process explained
-- [ ] Marked as manual in bootstrap summary
-- [ ] Reviewed for clarity
-- [ ] Tested by following instructions
+- [ ] Homebrew cask added to darwin/homebrew.nix
+- [ ] Office 365 apps install successfully via darwin-rebuild
+- [ ] All apps (Word, Excel, PowerPoint, Outlook, OneNote, Teams) launch
+- [ ] Sign-in documentation added to licensed-apps.md
+- [ ] Bootstrap summary updated
+- [ ] Tested in VM with successful installation
+- [ ] Tested activation flow (sign-in) on physical hardware
 
 **Dependencies**:
+- Story 02.2-001 (Homebrew cask configuration)
 - Epic-07, Story 07.2-001 (Licensed apps documentation)
 
 **Risk Level**: Low
-**Risk Mitigation**: N/A
+**Risk Mitigation**: Standard Homebrew cask, widely tested
 
 ---
 
@@ -1310,7 +1320,7 @@
 | Sprint | Stories | Story Points | Sprint Goal |
 |--------|---------|--------------|-------------|
 | Sprint 3 | 02.1-001 to 02.4-007 | 85 | AI tools, dev environment, browsers, productivity apps, utilities |
-| Sprint 4 | 02.5-001 to 02.9-001 | 25 | Communication tools, media apps, security, Parallels, Office 365 docs |
+| Sprint 4 | 02.5-001 to 02.9-001 | 28 | Communication tools, media apps, security, Parallels, Office 365 installation |
 
 ### Delivery Milestones
 - **Milestone 1**: End Sprint 3 - Core apps installed (AI, dev tools, browsers, productivity)

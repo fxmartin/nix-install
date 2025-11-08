@@ -375,10 +375,11 @@ Consistency: 100% (declarative config)
 - **Power Only**: Parallels Desktop 🔒
 - Acceptance: Parallels NOT installed on Standard, IS installed on Power
 
-**REQ-APP-010**: Office 365 (Manual Installation)
-- Document in post-install instructions
-- Not automated (requires Microsoft account, company policy)
-- Acceptance: Clear instructions provided
+**REQ-APP-010**: Office 365 (Homebrew Cask Installation)
+- Install via Homebrew cask: `microsoft-office-businesspro`
+- Automated installation, manual activation required (Microsoft account)
+- Includes: Word, Excel, PowerPoint, Outlook, OneNote, Teams
+- Acceptance: Apps installed and launchable, require manual sign-in for activation
 
 #### 3. System Configuration (macOS Preferences)
 
@@ -941,8 +942,7 @@ Consistency: 100% (declarative config)
 - [ ] Fresh macOS reinstall on MacBook Pro M3 Max
 - [ ] Run bootstrap script (should be identical to VM experience)
 - [ ] Verify all workflows functional (work + dev)
-- [ ] Install Office 365 manually (if needed for work)
-- [ ] Activate licensed apps (1Password, iStat Menus, NordVPN, Parallels, etc.)
+- [ ] Activate licensed apps (1Password, iStat Menus, NordVPN, Parallels, Office 365, etc.)
 - [ ] Use as daily driver for 1 week minimum
 - [ ] Document any hardware-specific issues (vs VM)
 
@@ -1227,13 +1227,12 @@ Consistency: 100% (declarative config)
 | **Fonts** | | |
 | JetBrains Mono Nerd Font | Nix (nixpkgs.nerdfonts) | Managed with system |
 | **Office & Work** | | |
-| Office 365 | Manual Installation | Requires Microsoft account, company policy |
+| Office 365 | Homebrew Cask (microsoft-office-businesspro) | GUI suite, requires manual sign-in for activation |
 
 **Installation Method Priority:**
 1. ✅ **Nix** - For CLI tools, development tools, reproducible packages
 2. ✅ **Homebrew Cask** - For GUI apps, apps with frequent updates
 3. ✅ **mas** (Mac App Store) - Only when no Homebrew/Nix option
-4. ✅ **Manual** - For licensed/corporate software (Office 365)
 
 ---
 
@@ -1374,10 +1373,10 @@ Consistency: 100% (declarative config)
 │  │     - 1Password (sign in)                            │  │
 │  │     - NordVPN (sign in)                              │  │
 │  │     - iStat Menus (enter license)                    │  │
+│  │     - Office 365 (sign in with Microsoft account)    │  │
 │  │     - [Full list: ~/Documents/nix-install/docs/       │  │
 │  │        licensed-apps.md]                             │  │
-│  │  3. Install Office 365 manually (if needed for work) │  │
-│  │  4. Verify Ollama: ollama list (should show models)  │  │
+│  │  3. Verify Ollama: ollama list (should show models)  │  │
 │  │                                                       │  │
 │  │ Useful Commands:                                     │  │
 │  │  • rebuild - Apply config changes                    │  │
@@ -1692,7 +1691,8 @@ This PRD defines a comprehensive, automated MacBook configuration system using N
 ### Post-Approval Change Log
 | Date | Change Description | Impact Assessment | Approved By | Version |
 |------|-------------------|-------------------|-------------|---------|
-| - | No changes since baseline | - | - | v1.0 |
+| 2025-11-08 | Change Office 365 from manual to Homebrew cask installation (microsoft-office-businesspro) | Low impact - simplifies installation, maintains manual activation requirement | FX | v1.1 |
+| - | Baseline established | - | - | v1.0 |
 
 ## Development Authorization
 **Authorization to Proceed**: ✅ GRANTED

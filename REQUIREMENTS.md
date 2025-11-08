@@ -201,7 +201,7 @@ Consistency: 100% (declarative config)
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                     GitHub Public Repo                      │
-│                  github.com/fxmartin/nix-config              │
+│                  github.com/fxmartin/nix-install              │
 │                                                             │
 │  flake.nix (system definition)                              │
 │  user-config.nix (personal info - filled during bootstrap)  │
@@ -273,7 +273,7 @@ Consistency: 100% (declarative config)
 #### 1. Bootstrap Installation System
 
 **REQ-BOOT-001**: One-command installation
-- User runs: `curl -sSL https://raw.githubusercontent.com/fxmartin/nix-config/main/bootstrap.sh | bash`
+- User runs: `curl -sSL https://raw.githubusercontent.com/fxmartin/nix-install/main/bootstrap.sh | bash`
 - Script must be idempotent (safe to re-run)
 - Clear progress indicators at each phase
 - Acceptance: Complete system setup from fresh macOS in <30 minutes
@@ -453,8 +453,8 @@ Consistency: 100% (declarative config)
 
 **REQ-SHELL-005**: Useful Aliases
 - `ll` → `ls -lah` (detailed list)
-- `rebuild` → `darwin-rebuild switch --flake ~/.config/nix-config#$(hostname)`
-- `update` → `cd ~/.config/nix-config && nix flake update && rebuild`
+- `rebuild` → `darwin-rebuild switch --flake ~/.config/nix-install#$(hostname)`
+- `update` → `cd ~/.config/nix-install && nix flake update && rebuild`
 - `gc` → `nix-collect-garbage -d`
 - `cleanup` → garbage collection + store optimization
 - Acceptance: Aliases work in fresh terminal
@@ -693,7 +693,7 @@ Consistency: 100% (declarative config)
 | **Bootstrap Success Rate** | >90% first-time success | User survey + error logs |
 | **Time to Configured System** | <30 minutes | Timed from bootstrap start to ready state |
 | **MacBooks Migrated** | 3/3 within 30 days | Manual tracking |
-| **Rebuild Frequency** | 2+ per week (active usage) | Git commit count to nix-config repo |
+| **Rebuild Frequency** | 2+ per week (active usage) | Git commit count to nix-install repo |
 | **User Confidence Score** | >8/10 "I can rebuild my Mac confidently" | Post-migration survey |
 
 ### Lagging Indicators (Value & Quality)
@@ -733,7 +733,7 @@ Consistency: 100% (declarative config)
 #### Phase 0: Foundation (Week 1)
 **Goal**: Set up repository structure and basic Nix flake
 
-- [ ] Create GitHub repo: `fxmartin/nix-config`
+- [ ] Create GitHub repo: `fxmartin/nix-install`
 - [ ] Initialize flake.nix based on mlgruby reference
 - [ ] Create user-config.nix template
 - [ ] Define Standard and Power profiles in flake
@@ -1175,7 +1175,7 @@ Consistency: 100% (declarative config)
 ┌─────────────────────────────────────────────────────────────┐
 │  Phase 4: Fetch Flake from GitHub                           │
 │  - URL: https://raw.githubusercontent.com/fxmartin/         │
-│         nix-config/main/flake.nix                           │
+│         nix-install/main/flake.nix                           │
 │  - curl flake.nix to /tmp/nix-bootstrap/                    │
 │  - curl user-config.template.nix                            │
 │  - Populate user-config.nix with user inputs                │
@@ -1230,17 +1230,17 @@ Consistency: 100% (declarative config)
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  Phase 8: Clone Full Dotfiles Repository                    │
-│  - git clone git@github.com:fxmartin/nix-config.git         │
-│         ~/Documents/nix-config/                             │
+│  - git clone git@github.com:fxmartin/nix-install.git         │
+│         ~/Documents/nix-install/                             │
 │  - Copy user-config.nix from /tmp to repo                   │
-│  - cd ~/Documents/nix-config                                │
+│  - cd ~/Documents/nix-install                                │
 └────────────────────┬────────────────────────────────────────┘
                      │
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  Phase 9: Final System Rebuild                              │
 │  - darwin-rebuild switch --flake                            │
-│         ~/Documents/nix-config#standard (or #power)         │
+│         ~/Documents/nix-install#standard (or #power)         │
 │  - Applies complete configuration with all modules          │
 │  - Symlinks configs: ~/.config/ghostty, ~/.zshrc, etc.      │
 │  - Duration: 2-5 minutes (most cached from Phase 6)         │
@@ -1266,7 +1266,7 @@ Consistency: 100% (declarative config)
 │  │     - 1Password (sign in)                            │  │
 │  │     - NordVPN (sign in)                              │  │
 │  │     - iStat Menus (enter license)                    │  │
-│  │     - [Full list: ~/Documents/nix-config/docs/       │  │
+│  │     - [Full list: ~/Documents/nix-install/docs/       │  │
 │  │        licensed-apps.md]                             │  │
 │  │  3. Install Office 365 manually (if needed for work) │  │
 │  │  4. Verify Ollama: ollama list (should show models)  │  │
@@ -1277,7 +1277,7 @@ Consistency: 100% (declarative config)
 │  │  • health-check - Verify system health               │  │
 │  │  • cleanup - Run garbage collection                  │  │
 │  │                                                       │  │
-│  │ Documentation: ~/Documents/nix-config/README.md      │  │
+│  │ Documentation: ~/Documents/nix-install/README.md      │  │
 │  └──────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
                      │
@@ -1438,7 +1438,7 @@ esac
 
 **Directory structure:**
 ```
-nix-config/
+nix-install/
 ├── flake.nix                    # Main system definition (profiles)
 ├── flake.lock                   # Dependency lock file
 ├── user-config.nix              # User personal info (git-ignored or template)

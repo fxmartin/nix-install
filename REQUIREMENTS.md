@@ -249,11 +249,12 @@ Consistency: 100% (declarative config)
 
 **Package Management Strategy** (Preference Order):
 
-1. **Nix First** (via nixpkgs)
+1. **Nix First** (via nixpkgs-unstable)
    - CLI tools: curl, wget, git, python, etc.
    - Dev tools: uv, ruff, mypy, etc.
    - System utilities: btop, fzf, ripgrep, fd, jq, yq
-   - Maximum reproducibility, version pinning
+   - Using nixpkgs-unstable for latest packages
+   - Maximum reproducibility via flake.lock, despite "unstable" name
 
 2. **Homebrew Casks** (for GUI apps that don't work well in Nix)
    - Applications: Arc, Firefox, Zed, Claude Desktop, etc.
@@ -697,6 +698,12 @@ Consistency: 100% (declarative config)
 - macOS Sonoma (14.x) minimum
 - Apple Silicon (M-series) primary, Intel secondary
 - Nix 2.18+ with flakes
+- **nixpkgs-unstable channel** (not stable releases)
+  - Rationale: Latest packages, faster updates, better macOS support
+  - Apps like Zed, Ghostty, AI tools update frequently
+  - Unstable is actually very stable for most packages
+  - Flake lock provides reproducibility even with unstable channel
+  - Trade-off: Occasional breaking changes vs stale packages
 
 **REQ-NFR-007**: Update Control & Reproducibility
 - **All app updates controlled via rebuild only** - no automatic updates
@@ -1449,11 +1456,17 @@ esac
   description = "FX's macOS Nix-Darwin Configuration";
 
   inputs = {
+    # Use nixpkgs-unstable for latest packages and best macOS support
+    # Provides newer versions of Zed, Ghostty, Python, and other fast-moving tools
+    # Flake lock ensures reproducibility despite using "unstable"
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+
     nix-darwin.url = "github:LnL7/nix-darwin";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
+
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
     stylix.url = "github:danth/stylix";
   };
 

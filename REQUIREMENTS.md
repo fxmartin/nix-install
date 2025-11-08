@@ -453,11 +453,13 @@ Consistency: 100% (declarative config)
 
 **REQ-SHELL-005**: Useful Aliases
 - `ll` → `ls -lah` (detailed list)
-- `rebuild` → `darwin-rebuild switch --flake ~/.config/nix-install#$(hostname)`
-- `update` → `cd ~/.config/nix-install && nix flake update && rebuild`
-- `gc` → `nix-collect-garbage -d`
+- `rebuild` → `darwin-rebuild switch --flake ~/.config/nix-install#$(hostname)` (apply config changes)
+- `update` → `cd ~/.config/nix-install && nix flake update && rebuild` (update ALL apps and system)
+- `gc` → `nix-collect-garbage -d` (garbage collection)
 - `cleanup` → garbage collection + store optimization
+- `HOMEBREW_NO_AUTO_UPDATE=1` → environment variable (disable Homebrew auto-update)
 - Acceptance: Aliases work in fresh terminal
+- Note: `update` is the ONLY way to update apps (no auto-updates)
 
 #### 5. Theming & Fonts
 
@@ -532,6 +534,8 @@ Consistency: 100% (declarative config)
 - Profile descriptions (Standard vs Power)
 - Post-install checklist (license activation)
 - Common commands (rebuild, update, rollback)
+- **Update philosophy**: All app updates ONLY via `update` command, no auto-updates
+- Explain: `rebuild` (apply config) vs `update` (update apps + apply)
 - Acceptance: Non-technical user can follow and complete install
 
 **REQ-DOC-002**: Licensed App Activation Guide
@@ -681,6 +685,37 @@ Consistency: 100% (declarative config)
 - macOS Sonoma (14.x) minimum
 - Apple Silicon (M-series) primary, Intel secondary
 - Nix 2.18+ with flakes
+
+**REQ-NFR-007**: Update Control & Reproducibility
+- **All app updates controlled via rebuild only** - no automatic updates
+- Disable auto-update for all apps where possible
+- Updates happen when user runs `rebuild` command (pulls latest from flake)
+- Ensures reproducibility: same config version = same app versions
+- Acceptance criteria:
+  - Homebrew auto-update disabled globally
+  - macOS App Store auto-update disabled
+  - Individual app auto-updates disabled via configuration
+  - `rebuild` is the ONLY way apps update (except manual user intervention)
+
+**Apps requiring auto-update disable configuration:**
+- Homebrew: `HOMEBREW_NO_AUTO_UPDATE=1` in environment
+- VSCode: `"update.mode": "none"`
+- Arc browser: Disable auto-update in settings
+- Firefox: `app.update.auto = false`
+- Dropbox: Preferences → General → Disable auto-update
+- 1Password: Preferences → Advanced → Disable auto-update
+- Zoom: Preferences → Disable auto-update
+- Webex: Preferences → Disable auto-update
+- Raycast: Preferences → Advanced → Disable auto-update
+- Ghostty: `auto-update = off` (already in config)
+- Claude Desktop, ChatGPT Desktop, Perplexity: Disable in app preferences if available
+- macOS system updates: Manual only (not automated)
+
+**Implementation:**
+- System-level: `defaults write` commands for apps
+- Homebrew: Environment variable in shell config
+- App-specific: Configuration files managed by Home Manager
+- Documentation: README explains update philosophy and how to update
 
 ---
 

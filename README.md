@@ -80,21 +80,45 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 
 > **Note**: The automated bootstrap script is currently under development. See [Epic-01](./stories/epic-01-bootstrap-installation.md) for implementation progress.
 
-Once implementation is complete, setup will be as simple as:
+### System Requirements
+
+Before running the bootstrap script, ensure your system meets these prerequisites:
+
+#### Prerequisites
+- **macOS Version**: Sonoma (14.0) or newer
+- **Internet Connection**: Required for package downloads from nixos.org and github.com
+- **User Permissions**: Run as regular user (not root) - script will request sudo when needed
+- **Disk Space**:
+  - Standard Profile: ~35GB free
+  - Power Profile: ~120GB free
+
+#### Pre-flight Validation
+The bootstrap script automatically validates:
+- ✅ macOS version compatibility (Sonoma 14.0+)
+- ✅ Internet connectivity to nixos.org and github.com
+- ✅ User is not running as root
+- ✅ System meets minimum requirements
+
+If any check fails, the script will display clear, actionable error messages and exit gracefully.
+
+### Installation (Once Complete)
+
+Setup will be as simple as:
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/fxmartin/nix-install/main/bootstrap.sh | bash
 ```
 
 This will:
-1. Install Xcode Command Line Tools
-2. Prompt for user information (name, email, GitHub username)
-3. Select installation profile (Standard or Power)
-4. Install Nix package manager with flakes enabled
-5. Install nix-darwin and Homebrew (managed declaratively)
-6. Generate SSH key and guide GitHub upload
-7. Clone this repository and apply full configuration
-8. Display post-install checklist (license activations, etc.)
+1. **Pre-flight Validation**: Check system requirements (Story 01.1-001 ✅)
+2. Install Xcode Command Line Tools
+3. Prompt for user information (name, email, GitHub username)
+4. Select installation profile (Standard or Power)
+5. Install Nix package manager with flakes enabled
+6. Install nix-darwin and Homebrew (managed declaratively)
+7. Generate SSH key and guide GitHub upload
+8. Clone this repository and apply full configuration
+9. Display post-install checklist (license activations, etc.)
 
 **Estimated Time**: <30 minutes (mostly hands-off)
 

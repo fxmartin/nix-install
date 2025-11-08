@@ -1,0 +1,13 @@
+# ABOUTME: Shellcheck configuration for bootstrap and utility scripts
+# ABOUTME: Ensures shell script quality and catches common errors
+
+# Enable all optional checks
+enable=all
+
+# Disable specific checks that conflict with our style
+# SC2155: Declare and assign separately to avoid masking return values
+# (We're okay with this pattern for simple variable assignments)
+disable=SC2155
+
+# Source directive for better path resolution
+source-path=SCRIPTDIR

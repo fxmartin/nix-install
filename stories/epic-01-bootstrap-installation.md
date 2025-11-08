@@ -1,0 +1,994 @@
+# Epic 01: Bootstrap & Installation System
+
+## Epic Overview
+**Epic ID**: Epic-01
+**Epic Description**: Automated one-command bootstrap system that transforms a fresh macOS installation into a fully configured development environment with zero manual intervention (except license activations). The bootstrap handles Xcode CLI tools installation, Nix package manager setup, nix-darwin configuration, SSH key generation with GitHub integration, profile selection (Standard vs Power), and complete repository cloning.
+**Business Value**: Reduces setup time from 4-6 hours to <30 minutes, eliminates manual errors, ensures reproducibility across all machines
+**User Impact**: Enables FX to reinstall any MacBook quickly and confidently, knowing the result will be identical to previous installations
+**Success Metrics**:
+- Bootstrap completion time <30 minutes
+- First-time success rate >90%
+- Zero manual intervention except SSH key upload and license activations
+
+## Epic Scope
+**Total Stories**: 15
+**Total Story Points**: 89
+**MVP Stories**: 15 (100% of epic)
+**Priority Level**: Must Have
+**Target Release**: Phase 0-2 (Week 1-2)
+
+## Features in This Epic
+
+### Feature 01.1: Pre-flight System Validation
+**Feature Description**: Validate system requirements and prerequisites before beginning installation
+**User Value**: Prevents installation failures by catching issues early
+**Story Count**: 3
+**Story Points**: 11
+**Priority**: High
+**Complexity**: Medium
+
+#### Stories in This Feature
+
+##### Story 01.1-001: Pre-flight Environment Checks
+**User Story**: As FX, I want the bootstrap script to validate my system meets all requirements so that I know the installation will succeed before it starts
+
+**Priority**: Must Have
+**Story Points**: 5
+**Sprint**: Sprint 1
+
+**Acceptance Criteria**:
+- **Given** a fresh macOS installation
+- **When** I run the bootstrap script
+- **Then** it checks macOS version is Sonoma (14.x) or newer
+- **And** it verifies internet connectivity (ping test or curl test)
+- **And** it ensures script is not running as root user
+- **And** it displays clear error messages for any failed check
+- **And** it exits gracefully if pre-flight checks fail
+
+**Additional Requirements**:
+- Minimum macOS version: Sonoma 14.0
+- Internet connectivity test: Must reach nixos.org or github.com
+- Root check: Script must refuse to run as root
+- Error messages must be actionable (tell user what to do)
+
+**Technical Notes**:
+- Use `sw_vers -productVersion` for macOS version check
+- Use `ping -c 1 nixos.org` or `curl -Is https://nixos.org` for connectivity
+- Use `[ "$EUID" -ne 0 ]` for root check
+- Display system info summary before proceeding
+
+**Definition of Done**:
+- [ ] Code implemented and peer reviewed
+- [ ] All pre-flight checks functional
+- [ ] Error messages clear and actionable
+- [ ] Script exits gracefully on failures
+- [ ] Tested in VM with various failure scenarios
+- [ ] Documentation updated with system requirements
+
+**Dependencies**:
+- None (first story in bootstrap flow)
+
+**Risk Level**: Low
+**Risk Mitigation**: N/A
+
+---
+
+##### Story 01.1-002: Idempotency Check
+**User Story**: As FX, I want the bootstrap script to detect partial installations so that I can safely re-run it if something goes wrong
+
+**Priority**: Must Have
+**Story Points**: 3
+**Sprint**: Sprint 1
+
+**Acceptance Criteria**:
+- **Given** the bootstrap script has been run previously
+- **When** I run it again
+- **Then** it detects existing Xcode CLI tools and skips installation
+- **And** it detects existing Nix installation and offers to skip/reinstall
+- **And** it detects existing nix-darwin config and offers to rebuild
+- **And** it preserves user-config.nix if it already exists
+- **And** it displays what will be skipped vs what will run
+
+**Technical Notes**:
+- Check for Xcode: `xcode-select -p`
+- Check for Nix: `command -v nix`
+- Check for existing config: `[ -d ~/Documents/nix-install ]`
+- Prompt user before overwriting existing configurations
+
+**Definition of Done**:
+- [ ] Idempotency checks implemented for all phases
+- [ ] User prompted before overwriting existing files
+- [ ] Re-runs complete successfully
+- [ ] Tested with partial installations in VM
+- [ ] Documentation notes script is safe to re-run
+
+**Dependencies**:
+- Story 01.1-001 (pre-flight checks)
+
+**Risk Level**: Medium
+**Risk Mitigation**: Backup existing configs before overwriting
+
+---
+
+##### Story 01.1-003: Progress Indicators
+**User Story**: As FX, I want clear progress indicators during installation so that I know the script is working and how long to wait
+
+**Priority**: Must Have
+**Story Points**: 3
+**Sprint**: Sprint 1
+
+**Acceptance Criteria**:
+- **Given** the bootstrap script is running
+- **When** each phase starts
+- **Then** it displays phase number and name (e.g., "Phase 2/10: Installing Xcode CLI Tools")
+- **And** it shows estimated time for long-running operations
+- **And** it displays success/failure status after each phase
+- **And** it shows a final summary when complete
+- **And** progress indicators work in both interactive and non-interactive modes
+
+**Technical Notes**:
+- Use echo with formatting for phase headers
+- Display timestamps for long operations
+- Use checkmarks (✓) for success, X for failures
+- Consider using tput for colored output (optional)
+
+**Definition of Done**:
+- [ ] Progress indicators for all 10 bootstrap phases
+- [ ] Estimated time displayed for downloads/builds
+- [ ] Success/failure status clear
+- [ ] Final summary shows what was installed
+- [ ] Tested in VM with full bootstrap run
+- [ ] Output is readable and professional
+
+**Dependencies**:
+- Story 01.1-001 (pre-flight checks)
+
+**Risk Level**: Low
+**Risk Mitigation**: N/A
+
+---
+
+### Feature 01.2: User Configuration & Profile Selection
+**Feature Description**: Interactive prompts to gather user information and select installation profile (Standard vs Power)
+**User Value**: Personalizes installation and ensures correct apps/models installed for each machine type
+**Story Count**: 3
+**Story Points**: 16
+**Priority**: High
+**Complexity**: Medium
+
+#### Stories in This Feature
+
+##### Story 01.2-001: User Information Prompts
+**User Story**: As FX, I want to provide my personal information during bootstrap so that Git, SSH, and other tools are configured with my details
+
+**Priority**: Must Have
+**Story Points**: 5
+**Sprint**: Sprint 1
+
+**Acceptance Criteria**:
+- **Given** pre-flight checks have passed
+- **When** I reach the user configuration phase
+- **Then** the script prompts for my full name
+- **And** it prompts for my email address
+- **And** it prompts for my GitHub username
+- **And** it validates email format (contains @ and domain)
+- **And** it validates GitHub username (no special characters except dash/underscore)
+- **And** it confirms my inputs before proceeding
+- **And** it stores validated inputs in variables for later use
+
+**Additional Requirements**:
+- Email validation: Basic format check with regex
+- Name validation: Allow spaces and common punctuation
+- GitHub username: Alphanumeric plus dash and underscore only
+- Confirmation prompt: Display all inputs and ask "Is this correct? (y/n)"
+
+**Technical Notes**:
+- Use `read -p` for interactive prompts
+- Email regex: `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+- GitHub username regex: `^[a-zA-Z0-9-_]+$`
+- Store in variables: `USER_FULLNAME`, `USER_EMAIL`, `GITHUB_USERNAME`
+
+**Definition of Done**:
+- [ ] All prompts functional and clear
+- [ ] Input validation working correctly
+- [ ] Confirmation prompt implemented
+- [ ] Invalid inputs rejected with helpful messages
+- [ ] Variables stored for later phases
+- [ ] Tested in VM with valid and invalid inputs
+
+**Dependencies**:
+- Story 01.1-001 (pre-flight checks complete)
+
+**Risk Level**: Low
+**Risk Mitigation**: N/A
+
+---
+
+##### Story 01.2-002: Profile Selection System
+**User Story**: As FX, I want to choose between Standard and Power profiles during bootstrap so that the correct apps and models are installed for each MacBook type
+
+**Priority**: Must Have
+**Story Points**: 8
+**Sprint**: Sprint 1
+
+**Acceptance Criteria**:
+- **Given** user information has been collected
+- **When** I reach the profile selection phase
+- **Then** the script displays two profile options with clear descriptions
+- **And** it shows Standard profile: "MacBook Air - essential apps, 1 Ollama model, no virtualization (~35GB disk)"
+- **And** it shows Power profile: "MacBook Pro M3 Max - all apps, 4 Ollama models, Parallels Desktop (~120GB disk)"
+- **And** it prompts me to enter 1 or 2
+- **And** it validates my selection and defaults to Standard if invalid
+- **And** it stores profile choice in a variable for later use
+- **And** it confirms my profile choice before proceeding
+
+**Additional Requirements**:
+- Profile descriptions must be clear and concise
+- Disk usage estimates help user make informed choice
+- Default to Standard profile if user enters invalid choice
+- Store profile in variable: `INSTALL_PROFILE` (values: "standard" or "power")
+
+**Technical Notes**:
+- Use case statement for profile selection
+- Display disk usage estimates to help decision
+- Confirm choice: "You selected Power profile. Continue? (y/n)"
+- Profile variable used in nix-darwin flake selection
+
+**Definition of Done**:
+- [ ] Profile selection prompt implemented
+- [ ] Clear descriptions for both profiles
+- [ ] Input validation and default handling
+- [ ] Confirmation prompt working
+- [ ] Profile variable stored correctly
+- [ ] Tested selecting both profiles in VM
+- [ ] Documentation explains profile differences
+
+**Dependencies**:
+- Story 01.2-001 (user information collected)
+
+**Risk Level**: Low
+**Risk Mitigation**: N/A
+
+---
+
+##### Story 01.2-003: User Config File Generation
+**User Story**: As FX, I want the bootstrap to generate user-config.nix from my inputs so that my personal information is used throughout the Nix configuration
+
+**Priority**: Must Have
+**Story Points**: 3
+**Sprint**: Sprint 1
+
+**Acceptance Criteria**:
+- **Given** user information and profile have been collected
+- **When** the script generates user-config.nix
+- **Then** it fetches user-config.template.nix from GitHub
+- **And** it replaces placeholders with actual user values (name, email, GitHub username)
+- **And** it writes the file to /tmp/nix-bootstrap/user-config.nix
+- **And** it validates the generated Nix file syntax
+- **And** it displays the generated config for user review
+
+**Additional Requirements**:
+- Template URL: `https://raw.githubusercontent.com/fxmartin/nix-install/main/user-config.template.nix`
+- Placeholders: `@FULL_NAME@`, `@EMAIL@`, `@GITHUB_USERNAME@`
+- Syntax validation: Use `nix-instantiate --parse` if Nix is already installed
+- Display generated config so user can verify
+
+**Technical Notes**:
+- Use sed or awk to replace placeholders
+- Example: `sed "s/@FULL_NAME@/$USER_FULLNAME/g"`
+- Validate before proceeding to avoid Nix build failures
+- Store in /tmp/nix-bootstrap/ (temporary directory)
+
+**Definition of Done**:
+- [ ] Template fetched successfully from GitHub
+- [ ] Placeholder replacement working
+- [ ] Generated file syntax is valid Nix
+- [ ] File written to correct location
+- [ ] User can review generated config
+- [ ] Tested with various user inputs in VM
+
+**Dependencies**:
+- Story 01.2-001 (user info collected)
+- Story 01.2-002 (profile selected)
+
+**Risk Level**: Low
+**Risk Mitigation**: Validate Nix syntax before proceeding
+
+---
+
+### Feature 01.3: Xcode Command Line Tools Installation
+**Feature Description**: Automated installation of Xcode CLI tools required for compilation
+**User Value**: Ensures build dependencies are available for Nix and Homebrew
+**Story Count**: 1
+**Story Points**: 5
+**Priority**: High
+**Complexity**: Low
+
+#### Stories in This Feature
+
+##### Story 01.3-001: Xcode CLI Tools Installation
+**User Story**: As FX, I want Xcode Command Line Tools installed automatically so that build dependencies are available for Nix
+
+**Priority**: Must Have
+**Story Points**: 5
+**Sprint**: Sprint 1
+
+**Acceptance Criteria**:
+- **Given** pre-flight checks have passed
+- **When** the bootstrap reaches the Xcode installation phase
+- **Then** it checks if Xcode CLI tools are already installed
+- **And** if not installed, it runs `xcode-select --install`
+- **And** it waits for user to complete the installation dialog
+- **And** it accepts the license with `sudo xcodebuild -license accept`
+- **And** it verifies installation succeeded
+- **And** it displays success message and proceeds
+
+**Additional Requirements**:
+- Check for existing installation: `xcode-select -p` returns path
+- Installation requires user interaction (system dialog)
+- License acceptance requires sudo
+- Verify with `xcode-select -p` after installation
+
+**Technical Notes**:
+- Xcode check: `xcode-select -p &>/dev/null`
+- Install command: `xcode-select --install`
+- Wait for user: Display message and `read -p "Press ENTER when installation is complete..."`
+- License: `sudo xcodebuild -license accept`
+- Verification: Ensure `xcode-select -p` returns a valid path
+
+**Definition of Done**:
+- [ ] Existing installation detection working
+- [ ] Installation triggers system dialog
+- [ ] Script waits for user completion
+- [ ] License acceptance functional
+- [ ] Verification confirms installation
+- [ ] Tested in VM without existing Xcode tools
+- [ ] Skip logic works for existing installations
+
+**Dependencies**:
+- Story 01.1-001 (pre-flight checks)
+- Story 01.2-003 (user config generated)
+
+**Risk Level**: Medium
+**Risk Mitigation**: Provide clear instructions if installation fails, allow re-run
+
+---
+
+### Feature 01.4: Nix Package Manager Installation
+**Feature Description**: Install Nix package manager with flakes support enabled
+**User Value**: Foundation for all declarative package management
+**Story Count**: 2
+**Story Points**: 13
+**Priority**: High
+**Complexity**: High
+
+#### Stories in This Feature
+
+##### Story 01.4-001: Nix Multi-User Installation
+**User Story**: As FX, I want Nix package manager installed with flakes enabled so that I can use declarative system configuration
+
+**Priority**: Must Have
+**Story Points**: 8
+**Sprint**: Sprint 1
+
+**Acceptance Criteria**:
+- **Given** Xcode CLI tools are installed
+- **When** the bootstrap reaches the Nix installation phase
+- **Then** it checks if Nix is already installed
+- **And** if not, it downloads the Nix installer from nixos.org
+- **And** it runs the multi-user installation (requires sudo)
+- **And** it enables experimental features (flakes, nix-command) in nix.conf
+- **And** it sources the Nix environment for the current session
+- **And** it verifies `nix --version` works
+- **And** it displays Nix version installed
+
+**Additional Requirements**:
+- Multi-user installation: More robust for macOS
+- Experimental features required for flakes support
+- Source environment: `. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh`
+- Minimum Nix version: 2.18+ (for flakes stability)
+
+**Technical Notes**:
+- Check existing: `command -v nix`
+- Install command: `curl -L https://nixos.org/nix/install | sh -s -- --daemon`
+- Enable flakes in ~/.config/nix/nix.conf or /etc/nix/nix.conf:
+  ```
+  experimental-features = nix-command flakes
+  ```
+- Source Nix: `. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh`
+- Verify: `nix --version` should return 2.18+
+
+**Definition of Done**:
+- [ ] Existing installation detection working
+- [ ] Multi-user installation completes successfully
+- [ ] Flakes and nix-command enabled
+- [ ] Nix environment sourced in current shell
+- [ ] Version verification works
+- [ ] Tested in VM without existing Nix
+- [ ] Skip logic works for existing installations
+
+**Dependencies**:
+- Story 01.3-001 (Xcode CLI tools installed)
+
+**Risk Level**: High
+**Risk Mitigation**: Provide rollback instructions, validate installation before proceeding
+
+---
+
+##### Story 01.4-002: Nix Configuration for macOS
+**User Story**: As FX, I want Nix optimized for macOS so that builds are fast and use available binary caches
+
+**Priority**: Must Have
+**Story Points**: 5
+**Sprint**: Sprint 1
+
+**Acceptance Criteria**:
+- **Given** Nix is installed
+- **When** the bootstrap configures Nix
+- **Then** it enables the NixOS binary cache (cache.nixos.org)
+- **And** it sets max-jobs to number of CPU cores
+- **And** it configures trusted users to include the current user
+- **And** it sets sandbox mode appropriate for macOS
+- **And** it writes configuration to /etc/nix/nix.conf
+- **And** it restarts nix-daemon to apply changes
+
+**Additional Requirements**:
+- Binary cache: Speeds up builds significantly
+- Max jobs: Parallel builds for faster execution
+- Trusted users: Allows current user to manage Nix store
+- Sandbox: May need relaxed settings for macOS
+
+**Technical Notes**:
+- Configuration file: /etc/nix/nix.conf (requires sudo)
+- Binary cache: `substituters = https://cache.nixos.org`
+- Max jobs: `max-jobs = auto` or `max-jobs = $(sysctl -n hw.ncpu)`
+- Trusted users: `trusted-users = root <current-user>`
+- Restart daemon: `sudo launchctl kickstart -k system/org.nixos.nix-daemon`
+
+**Definition of Done**:
+- [ ] Configuration written to correct file
+- [ ] Binary cache enabled and tested
+- [ ] Max jobs set appropriately
+- [ ] Trusted users configured
+- [ ] Daemon restarted successfully
+- [ ] Tested in VM, builds use binary cache
+- [ ] Documentation notes configuration choices
+
+**Dependencies**:
+- Story 01.4-001 (Nix installed)
+
+**Risk Level**: Medium
+**Risk Mitigation**: Backup existing nix.conf if present, validate syntax before restart
+
+---
+
+### Feature 01.5: Nix-Darwin System Installation
+**Feature Description**: Install nix-darwin to manage macOS system configuration declaratively
+**User Value**: Enables declarative management of Homebrew, apps, and system preferences
+**Story Count**: 2
+**Story Points**: 18
+**Priority**: High
+**Complexity**: Very High
+
+#### Stories in This Feature
+
+##### Story 01.5-001: Initial Nix-Darwin Build
+**User Story**: As FX, I want nix-darwin installed from my flake configuration so that my system is managed declaratively
+
+**Priority**: Must Have
+**Story Points**: 13
+**Sprint**: Sprint 2
+
+**Acceptance Criteria**:
+- **Given** Nix is installed and configured
+- **When** the bootstrap runs nix-darwin for the first time
+- **Then** it fetches the flake.nix from GitHub to /tmp/nix-bootstrap/
+- **And** it copies user-config.nix to the same directory
+- **And** it runs `nix run nix-darwin -- switch --flake /tmp/nix-bootstrap#<profile>`
+- **And** it uses the correct profile (standard or power) based on user selection
+- **And** it installs Homebrew as a dependency (managed by nix-darwin)
+- **And** it completes the build successfully (10-20 minutes)
+- **And** it displays progress and estimated time remaining
+
+**Additional Requirements**:
+- First build takes 10-20 minutes (downloads, compilation)
+- Homebrew installed automatically by nix-darwin (no pre-installation needed)
+- Build may show many download messages (expected)
+- Flake must be in a Git directory or use --impure flag
+
+**Technical Notes**:
+- Fetch flake: `curl -O https://raw.githubusercontent.com/fxmartin/nix-install/main/flake.nix`
+- Profile selection: `--flake .#standard` or `--flake .#power`
+- First-time build command:
+  ```bash
+  nix run nix-darwin -- switch --flake /tmp/nix-bootstrap#${INSTALL_PROFILE}
+  ```
+- Git directory requirement: Initialize git in /tmp/nix-bootstrap or use --impure
+- Display progress: Show Nix build output (verbose mode)
+
+**Definition of Done**:
+- [ ] Flake fetched successfully
+- [ ] User config copied correctly
+- [ ] nix-darwin build completes without errors
+- [ ] Homebrew installed and functional
+- [ ] Correct profile applied (standard or power)
+- [ ] Build time within 10-20 minute estimate
+- [ ] Tested in VM with both profiles
+- [ ] Error handling for build failures
+
+**Dependencies**:
+- Story 01.4-002 (Nix configured)
+- Story 01.2-003 (user config generated)
+- Story 01.2-002 (profile selected)
+
+**Risk Level**: Very High
+**Risk Mitigation**: Clear error messages, allow restart from this phase, validate flake before build
+
+---
+
+##### Story 01.5-002: Post-Darwin System Validation
+**User Story**: As FX, I want to verify nix-darwin installation succeeded so that I can proceed with confidence
+
+**Priority**: Must Have
+**Story Points**: 5
+**Sprint**: Sprint 2
+
+**Acceptance Criteria**:
+- **Given** nix-darwin build has completed
+- **When** the bootstrap validates the installation
+- **Then** it checks `darwin-rebuild` command is available
+- **And** it verifies Homebrew is installed at /opt/homebrew
+- **And** it confirms core apps from flake are present
+- **And** it checks nix-darwin launchd service is running
+- **And** it displays validation summary
+- **And** it proceeds to next phase only if all checks pass
+
+**Additional Requirements**:
+- darwin-rebuild: Should be in PATH
+- Homebrew: Expected at /opt/homebrew/bin/brew
+- Core apps: Check for at least one app (e.g., Ghostty or Zed)
+- Launchd service: org.nixos.nix-daemon should be running
+
+**Technical Notes**:
+- Check darwin-rebuild: `command -v darwin-rebuild`
+- Check Homebrew: `[ -x /opt/homebrew/bin/brew ]`
+- Check apps: Look in /Applications or ~/Applications
+- Check service: `launchctl list | grep nix-daemon`
+- Display summary with checkmarks for each validation
+
+**Definition of Done**:
+- [ ] All validation checks implemented
+- [ ] Checks pass after successful build
+- [ ] Clear error messages if validation fails
+- [ ] Script exits gracefully on validation failure
+- [ ] Tested in VM after darwin-rebuild
+- [ ] Documentation notes validation steps
+
+**Dependencies**:
+- Story 01.5-001 (nix-darwin installed)
+
+**Risk Level**: Medium
+**Risk Mitigation**: Provide troubleshooting steps for each failed check
+
+---
+
+### Feature 01.6: SSH Key Setup & GitHub Integration
+**Feature Description**: Generate SSH key, display to user for GitHub upload, test connection
+**User Value**: Enables GitHub authentication for private repo cloning
+**Story Count**: 3
+**Story Points**: 21
+**Priority**: High
+**Complexity**: High
+
+#### Stories in This Feature
+
+##### Story 01.6-001: SSH Key Generation
+**User Story**: As FX, I want an SSH key generated during bootstrap so that I can authenticate with GitHub
+
+**Priority**: Must Have
+**Story Points**: 5
+**Sprint**: Sprint 2
+
+**Acceptance Criteria**:
+- **Given** nix-darwin installation is validated
+- **When** the bootstrap reaches SSH key setup
+- **Then** it checks for existing ~/.ssh/id_ed25519 key
+- **And** if existing key found, it asks "Use existing key? (y/n)"
+- **And** if no key or user chooses new key, it generates ed25519 key
+- **And** it uses user email for key comment
+- **And** it sets appropriate permissions (600 for private, 644 for public)
+- **And** it starts ssh-agent and adds the key
+- **And** it confirms key generation succeeded
+
+**Additional Requirements**:
+- Key type: ed25519 (modern, secure, small)
+- Key location: ~/.ssh/id_ed25519
+- No passphrase for automation (document security trade-off)
+- Comment: User's email address
+
+**Technical Notes**:
+- Check existing: `[ -f ~/.ssh/id_ed25519 ]`
+- Generate key:
+  ```bash
+  ssh-keygen -t ed25519 -C "$USER_EMAIL" -f ~/.ssh/id_ed25519 -N ""
+  ```
+- Permissions: `chmod 600 ~/.ssh/id_ed25519` and `chmod 644 ~/.ssh/id_ed25519.pub`
+- Start agent: `eval "$(ssh-agent -s)"`
+- Add key: `ssh-add ~/.ssh/id_ed25519`
+
+**Definition of Done**:
+- [ ] Existing key detection working
+- [ ] User prompted to use existing or generate new
+- [ ] Key generation successful
+- [ ] Permissions set correctly
+- [ ] ssh-agent running with key added
+- [ ] Tested in VM without existing keys
+- [ ] Documentation notes no passphrase choice
+
+**Dependencies**:
+- Story 01.5-002 (nix-darwin validated)
+- Story 01.2-001 (user email available)
+
+**Risk Level**: Medium
+**Risk Mitigation**: Document no-passphrase trade-off, offer to use existing key
+
+---
+
+##### Story 01.6-002: GitHub SSH Key Upload Instructions
+**User Story**: As FX, I want clear instructions to upload my SSH key to GitHub so that I can authenticate for repo cloning
+
+**Priority**: Must Have
+**Story Points**: 8
+**Sprint**: Sprint 2
+
+**Acceptance Criteria**:
+- **Given** SSH key has been generated
+- **When** the bootstrap displays upload instructions
+- **Then** it shows the public key content in a formatted box
+- **And** it displays step-by-step instructions: "1. Go to: https://github.com/settings/keys"
+- **And** it shows: "2. Click 'New SSH key'"
+- **And** it shows: "3. Paste the above key"
+- **And** it shows: "4. Click 'Add SSH key'"
+- **And** it waits with message: "Press ENTER when you've added the key..."
+- **And** it allows user time to complete the upload
+
+**Additional Requirements**:
+- Public key displayed clearly (copy-paste friendly)
+- Instructions numbered and easy to follow
+- Wait indefinitely for user (no timeout)
+- GitHub URL direct to SSH keys page
+
+**Technical Notes**:
+- Display public key: `cat ~/.ssh/id_ed25519.pub`
+- Format with box drawing or clear separators
+- Use `read -p "Press ENTER when you've added the key..."` to wait
+- Consider copying key to clipboard if `pbcopy` available:
+  ```bash
+  cat ~/.ssh/id_ed25519.pub | pbcopy
+  echo "Public key copied to clipboard!"
+  ```
+
+**Definition of Done**:
+- [ ] Public key displayed clearly
+- [ ] Instructions numbered and complete
+- [ ] Wait mechanism implemented
+- [ ] Optional clipboard copy working
+- [ ] Tested in VM, instructions verified
+- [ ] Documentation includes screenshots (optional)
+
+**Dependencies**:
+- Story 01.6-001 (SSH key generated)
+
+**Risk Level**: Low
+**Risk Mitigation**: N/A
+
+---
+
+##### Story 01.6-003: GitHub SSH Connection Test
+**User Story**: As FX, I want the bootstrap to test GitHub SSH connection so that I know the key upload worked before proceeding
+
+**Priority**: Must Have
+**Story Points**: 8
+**Sprint**: Sprint 2
+
+**Acceptance Criteria**:
+- **Given** user has pressed ENTER after uploading key
+- **When** the bootstrap tests the connection
+- **Then** it runs `ssh -T git@github.com`
+- **And** if connection succeeds, it displays success message and proceeds
+- **And** if connection fails, it displays troubleshooting help
+- **And** it offers to retry the connection test
+- **And** it allows up to 3 retry attempts
+- **And** after 3 failures, it asks user if they want to continue anyway or abort
+
+**Additional Requirements**:
+- Successful test: "Hi <username>! You've successfully authenticated"
+- Failed test: Clear error message and troubleshooting steps
+- Retry mechanism: Up to 3 attempts
+- Abort option: Allow user to exit if key upload not working
+
+**Technical Notes**:
+- Test command: `ssh -T git@github.com` (returns exit code 1 but displays success message)
+- Success detection: Look for "successfully authenticated" in output
+- Troubleshooting tips:
+  - "Ensure you clicked 'Add SSH key' on GitHub"
+  - "Verify the key was pasted correctly"
+  - "Check GitHub personal access token if private repo"
+- Retry loop with counter
+- Allow abort: "Continue without SSH test? (y/n) [not recommended]"
+
+**Definition of Done**:
+- [ ] SSH connection test working
+- [ ] Success detection accurate
+- [ ] Failure handling with troubleshooting help
+- [ ] Retry mechanism (up to 3 attempts)
+- [ ] Abort option available
+- [ ] Tested in VM with successful and failed uploads
+- [ ] Documentation notes common issues
+
+**Dependencies**:
+- Story 01.6-002 (user uploaded key to GitHub)
+
+**Risk Level**: High
+**Risk Mitigation**: Clear troubleshooting, retry mechanism, abort option
+
+---
+
+### Feature 01.7: Repository Cloning & Final Rebuild
+**Feature Description**: Clone full dotfiles repository and run final system rebuild
+**User Value**: Completes installation with full configuration from Git
+**Story Count**: 2
+**Story Points**: 13
+**Priority**: High
+**Complexity**: Medium
+
+#### Stories in This Feature
+
+##### Story 01.7-001: Full Repository Clone
+**User Story**: As FX, I want the bootstrap to clone the complete nix-install repository so that I have the full configuration locally
+
+**Priority**: Must Have
+**Story Points**: 5
+**Sprint**: Sprint 2
+
+**Acceptance Criteria**:
+- **Given** GitHub SSH connection test passed
+- **When** the bootstrap clones the repository
+- **Then** it clones git@github.com:fxmartin/nix-install.git to ~/Documents/nix-install
+- **And** it copies the generated user-config.nix from /tmp to the repo
+- **And** it preserves the generated user-config.nix (do not overwrite with template)
+- **And** it changes directory to ~/Documents/nix-install
+- **And** it displays clone success message
+- **And** it shows repository path for user reference
+
+**Additional Requirements**:
+- Clone location: ~/Documents/nix-install (configurable)
+- Preserve user-config.nix: Copy from /tmp, do not overwrite
+- Create ~/Documents if it doesn't exist
+- Handle case where directory already exists (offer to remove or skip)
+
+**Technical Notes**:
+- Clone command: `git clone git@github.com:fxmartin/nix-install.git ~/Documents/nix-install`
+- Copy config: `cp /tmp/nix-bootstrap/user-config.nix ~/Documents/nix-install/`
+- Check existing directory: `[ -d ~/Documents/nix-install ]`
+- If exists: Prompt "Directory exists. Remove and re-clone? (y/n)"
+
+**Definition of Done**:
+- [ ] Repository cloned successfully
+- [ ] user-config.nix copied correctly
+- [ ] Clone location configurable
+- [ ] Existing directory handled gracefully
+- [ ] Tested in VM with SSH auth working
+- [ ] Documentation notes repository location
+
+**Dependencies**:
+- Story 01.6-003 (GitHub SSH connection tested)
+- Story 01.2-003 (user-config.nix generated)
+
+**Risk Level**: Medium
+**Risk Mitigation**: Handle existing directory case, validate clone succeeded
+
+---
+
+##### Story 01.7-002: Final Darwin Rebuild
+**User Story**: As FX, I want the bootstrap to run a final darwin-rebuild with the complete configuration so that all modules and settings are applied
+
+**Priority**: Must Have
+**Story Points**: 8
+**Sprint**: Sprint 2
+
+**Acceptance Criteria**:
+- **Given** repository has been cloned
+- **When** the bootstrap runs final rebuild
+- **Then** it runs `darwin-rebuild switch --flake ~/Documents/nix-install#<profile>`
+- **And** it uses the correct profile (standard or power)
+- **And** it completes faster than initial build (2-5 minutes due to caching)
+- **And** it symlinks configs to home directory (~/.config/ghostty, ~/.zshrc, etc.)
+- **And** it applies all Home Manager modules
+- **And** it displays success message with next steps
+- **And** it shows summary of what was configured
+
+**Additional Requirements**:
+- Build time: 2-5 minutes (most packages cached from initial build)
+- Symlinks: Home Manager creates symlinks automatically
+- Success validation: Check for at least one symlink created
+- Display next steps: License activation, terminal restart, etc.
+
+**Technical Notes**:
+- Rebuild command:
+  ```bash
+  darwin-rebuild switch --flake ~/Documents/nix-install#${INSTALL_PROFILE}
+  ```
+- Verify symlinks: Check `ls -la ~/.config/ghostty` or `ls -la ~/.zshrc`
+- Display summary of configured items
+- Show path to documentation: ~/Documents/nix-install/README.md
+
+**Definition of Done**:
+- [ ] Final rebuild completes successfully
+- [ ] Correct profile applied
+- [ ] Symlinks created in home directory
+- [ ] Build time within 2-5 minute estimate
+- [ ] Success message and next steps displayed
+- [ ] Tested in VM with both profiles
+- [ ] Documentation notes rebuild command
+
+**Dependencies**:
+- Story 01.7-001 (repository cloned)
+- Story 01.2-002 (profile selected)
+
+**Risk Level**: Medium
+**Risk Mitigation**: Validate build before displaying success, provide rollback instructions
+
+---
+
+### Feature 01.8: Post-Installation Summary & Next Steps
+**Feature Description**: Display comprehensive summary and guide user to next actions
+**User Value**: Clear understanding of what was installed and what to do next
+**Story Count**: 1
+**Story Points**: 3
+**Priority**: Medium
+**Complexity**: Low
+
+#### Stories in This Feature
+
+##### Story 01.8-001: Installation Summary
+**User Story**: As FX, I want a comprehensive summary after bootstrap completes so that I know what was installed and what to do next
+
+**Priority**: Must Have
+**Story Points**: 3
+**Sprint**: Sprint 2
+
+**Acceptance Criteria**:
+- **Given** final darwin-rebuild completed successfully
+- **When** the bootstrap displays summary
+- **Then** it shows total installation time
+- **And** it displays what was installed (Nix, nix-darwin, app count, profile name)
+- **And** it lists next steps: restart terminal, activate licenses, install Office 365
+- **And** it shows useful commands (rebuild, update, health-check, cleanup)
+- **And** it displays path to documentation
+- **And** it lists apps requiring manual license activation
+- **And** it suggests running `ollama list` to verify models (Power profile)
+
+**Additional Requirements**:
+- Summary must be comprehensive but concise
+- Next steps numbered and actionable
+- Command list with brief descriptions
+- Documentation path prominent
+
+**Technical Notes**:
+- Track start time at beginning of script, calculate total duration
+- App count: Standard ~47, Power ~51 (adjust if different)
+- Next steps:
+  1. Restart terminal or `source ~/.zshrc`
+  2. Activate licensed apps (link to docs)
+  3. Install Office 365 manually if needed
+  4. Verify Ollama models (Power only)
+- Useful commands:
+  - `rebuild` - Apply config changes
+  - `update` - Update packages and rebuild
+  - `health-check` - Verify system health
+  - `cleanup` - Run garbage collection
+
+**Definition of Done**:
+- [ ] Summary displays all required information
+- [ ] Installation time calculated correctly
+- [ ] Next steps clear and numbered
+- [ ] Command list helpful
+- [ ] Documentation path shown
+- [ ] Tested in VM with both profiles
+- [ ] Summary is professional and complete
+
+**Dependencies**:
+- Story 01.7-002 (final rebuild complete)
+
+**Risk Level**: Low
+**Risk Mitigation**: N/A
+
+---
+
+## Epic Dependencies
+
+### Dependencies on Other Epics
+- **Epic-02 (Applications)**: Bootstrap must complete before apps can be configured
+- **Epic-03 (System Config)**: Bootstrap must complete before system preferences applied
+- **Epic-04 (Dev Environment)**: Bootstrap must complete before dev tools configured
+- **NFR (Infrastructure)**: Flake structure and Nix settings must be defined before bootstrap can run
+
+### Stories This Epic Enables
+- Epic-02, Story 02.X-XXX: All application installation stories (requires bootstrap complete)
+- Epic-03, Story 03.X-XXX: All system configuration stories (requires bootstrap complete)
+- Epic-04, Story 04.X-XXX: All development environment stories (requires bootstrap complete)
+- Epic-05, Story 05.X-XXX: All theming stories (requires bootstrap complete)
+- Epic-06, Story 06.X-XXX: All maintenance stories (requires bootstrap complete)
+- Epic-07, Story 07.X-XXX: All documentation stories (documents bootstrap process)
+
+### Stories This Epic Blocks
+- ALL other epics (Epic-02 through Epic-07) are blocked until Epic-01 completes
+- VM testing (Phase 9) cannot start until Epic-01 stories are implemented and tested
+
+## Epic Delivery Planning
+
+### Sprint Breakdown
+| Sprint | Stories | Story Points | Sprint Goal |
+|--------|---------|--------------|-------------|
+| Sprint 1 | 01.1-001 to 01.4-002 | 44 | Pre-flight checks, user prompts, Xcode, Nix installation |
+| Sprint 2 | 01.5-001 to 01.8-001 | 45 | nix-darwin, SSH key setup, repo clone, final rebuild |
+
+### Delivery Milestones
+- **Milestone 1**: End Sprint 1 - Nix installed and configured
+- **Milestone 2**: End Sprint 2 - Complete bootstrap working in VM
+- **Epic Complete**: Week 2 - Bootstrap tested on physical hardware (MacBook Pro M3 Max)
+
+### Risk Assessment
+**High Risk Items**:
+- Story 01.5-001 (Initial nix-darwin build): Complex, many dependencies, long execution time
+  - Mitigation: Comprehensive error handling, validate flake before build, allow restart
+- Story 01.6-003 (GitHub SSH test): Depends on external service (GitHub), user action required
+  - Mitigation: Retry mechanism, clear troubleshooting, abort option
+
+**Dependencies Timeline**:
+- Week 1 Sprint 1: Stories 01.1-001 through 01.4-002 must complete sequentially
+- Week 2 Sprint 2: Stories 01.5-001 through 01.8-001 build on Sprint 1 foundation
+
+## Epic Progress Tracking
+
+### Completion Status
+- **Stories Completed**: 0 of 15 (0%)
+- **Story Points Completed**: 0 of 89 (0%)
+- **MVP Stories Completed**: 0 of 15 (0%)
+
+### Sprint Progress
+| Sprint | Planned Points | Completed Points | Stories Done | Status |
+|--------|----------------|------------------|--------------|--------|
+| Sprint 1 | 44 | 0 | 0/9 | Not Started |
+| Sprint 2 | 45 | 0 | 0/6 | Not Started |
+
+## Epic Acceptance Criteria
+- [ ] All MVP stories (15/15) completed and accepted
+- [ ] Bootstrap completes in <30 minutes on fresh macOS
+- [ ] First-time success rate >90% in VM testing
+- [ ] Zero manual intervention except SSH key upload and license activations
+- [ ] Both Standard and Power profiles tested and working
+- [ ] Error handling comprehensive and helpful
+- [ ] User can re-run script safely (idempotent)
+- [ ] Documentation complete for bootstrap process
+- [ ] VM testing successful (Phase 9)
+- [ ] Physical hardware migration successful (Phase 10)
+
+## Story Validation Checklist
+
+### Quality Assurance for Each Story
+- [ ] Follows proper user story format ("As [persona], I want [functionality] so that [benefit]")
+- [ ] Has clear, testable acceptance criteria (Given/When/Then format)
+- [ ] Includes all necessary context and constraints
+- [ ] Sized appropriately for single sprint
+- [ ] Dependencies clearly identified
+- [ ] Business value articulated
+- [ ] Persona alignment verified (FX as primary user)
+- [ ] Technical feasibility confirmed
+
+### Epic Health Metrics
+- **Story Readiness**: 100% of stories meet definition of ready
+- **Dependency Coverage**: All dependencies identified and managed
+- **Estimation Confidence**: High confidence in story point estimates based on reference implementation
+- **Acceptance Criteria Quality**: Clear, testable, and complete criteria for all stories

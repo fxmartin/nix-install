@@ -1670,22 +1670,33 @@ This PRD defines a comprehensive, automated MacBook configuration system using N
 
 ## Approval Status
 **Status**: ✅ APPROVED
-**Approval Date**: 2025-11-08T19:57:24Z
+**Approval Date**: 2025-11-08T20:23:31Z
 **Approved By**: FX (Product Owner)
-**Document Version**: v1.0
+**Document Version**: v1.1
+**Approval Type**: CHANGE CONTROL RE-APPROVAL
+**Previous Version**: v1.0
 
-## Approval Criteria Met
-- [x] Business objectives clearly defined
-- [x] Functional requirements complete and testable
-- [x] Non-functional requirements specified
-- [x] User personas and journeys documented
-- [x] Technical constraints identified
-- [x] Success criteria measurable
-- [x] Dependencies and assumptions documented
-- [x] Risk assessment completed
+## Change Control Re-Approval
+**Change Request Date**: 2025-11-08
+**Change Description**: Modified Office 365 installation method from manual to Homebrew cask (microsoft-office-businesspro)
+**Business Justification**: Simplifies bootstrap automation, reduces manual steps, maintains existing manual activation requirement
+**Impact Assessment**: Low impact - installation automated, activation still manual, no timeline/budget/scope changes
+**Change Authority**: FX (Product Owner)
+**Change Scope**: Minor
+
+## Change Approval Criteria Met
+- [x] Changes documented and justified
+- [x] Impact assessment completed
+- [x] Proper change authority approval obtained
+- [x] Stakeholder review conducted
+- [x] Technical feasibility confirmed
+- [x] Updated requirements complete and testable
+- [x] Dependencies updated as needed
+- [x] Risk assessment updated
 
 ## Change Control
-**Baseline Established**: 2025-11-08T19:57:24Z
+**Previous Baseline**: 2025-11-08T19:57:24Z
+**New Baseline Established**: 2025-11-08T20:23:31Z
 **Change Control Process**: Any modifications to these requirements after approval must follow the change control process defined in CLAUDE.md
 
 ### Post-Approval Change Log
@@ -1696,57 +1707,63 @@ This PRD defines a comprehensive, automated MacBook configuration system using N
 
 ## Development Authorization
 **Authorization to Proceed**: ✅ GRANTED
-**Story Development**: Authorized to proceed with STORIES.md generation
-**Sprint Planning**: Authorized to begin sprint planning activities
-**Development Start**: Authorized to begin development work
+**Story Development**: ✅ AUTHORIZED
+**Sprint Planning**: ✅ CONTINUE
+**Development Work**: ✅ CONTINUE
 
 ## Approval Signatures
-**Stakeholder Approval**:
+**Stakeholder Re-Approval**:
 - Name: FX
 - Role: Product Owner & Engineering Lead
-- Date: 2025-11-08T19:57:24Z
-- Digital Signature: ce361319ff8ba7d2865cbe08942b64baf805a3cbbb5b5a33fc2df5d6ebc5cc51
+- Date: 2025-11-08T20:23:31Z
+- Digital Signature: ed51883bb71d31dbae500606ac42ed9e81f853ff8ed3e720c3e9a5ac1be6d5b0
+- Change Authority: Minor approval level
 
 **Technical Review**:
 - Name: Claude
 - Role: Technical Implementation Assistant
-- Date: 2025-11-08T19:57:24Z
-- Digital Signature: ce361319ff8ba7d2865cbe08942b64baf805a3cbbb5b5a33fc2df5d6ebc5cc51
+- Date: 2025-11-08T20:23:31Z
+- Digital Signature: ed51883bb71d31dbae500606ac42ed9e81f853ff8ed3e720c3e9a5ac1be6d5b0
+- Technical Impact: Low - installation method only, no functional changes
 
 ## Cryptographic Integrity
-**Baseline Hash**: ce361319ff8ba7d2865cbe08942b64baf805a3cbbb5b5a33fc2df5d6ebc5cc51
-**Approval Timestamp**: 2025-11-08T19:57:24Z
-**Integrity Validation**: External hash validation stored in `requirements-integrity.json`
+**Previous Baseline Hash**: ce361319ff8ba7d2865cbe08942b64baf805a3cbbb5b5a33fc2df5d6ebc5cc51
+**New Baseline Hash**: ed51883bb71d31dbae500606ac42ed9e81f853ff8ed3e720c3e9a5ac1be6d5b0
+**Approval Timestamp**: 2025-11-08T20:23:31Z
+**Integrity Validation**: External hash validation updated in `requirements-integrity.json`
 
 ### Hash Generation Commands
 ```bash
-# Generate baseline hash (current requirements content)
-sha256sum REQUIREMENTS.md | cut -d' ' -f1
+# Generate new baseline hash (requirements content only)
+sed '/^# STAKEHOLDER APPROVAL/,$d' REQUIREMENTS.md | shasum -a 256 | cut -d' ' -f1
 
 # Generate current timestamp
 date -u +"%Y-%m-%dT%H:%M:%SZ"
+
+# Update integrity validation
+./update-requirements-integrity.sh
 
 # Verify document integrity
 ./verify-requirements-integrity.sh
 ```
 
-### Cryptographic Protection
-- **Tamper Detection**: External hash validation detects any modifications
-- **Audit Verification**: Separate validation file prevents circular dependencies
-- **Baseline Protection**: Original requirements content cryptographically sealed
-- **Change Control**: Post-approval modifications invalidate external hash
+### Change Control Protection
+- **Change Tracking**: All modifications tracked in change log
+- **Version Control**: Document version incremented appropriately
+- **Integrity Update**: New external hash validation generated
+- **Audit Trail**: Complete history of changes and approvals maintained
 
 ## Next Steps
-1. ✅ Requirements approved and baselined
-2. ✅ External integrity validation established
-3. 🔄 Generate STORIES.md using modular stories prompt
-4. 🔄 Begin sprint planning with epic prioritization
-5. 🔄 Set up development environment and repository
-6. 🔄 Create initial project structure
+1. ✅ Change control re-approval completed
+2. ✅ Updated external integrity validation established
+3. 🔄 Update STORIES.md if requirements changes affect stories
+4. 🔄 Assess impact on current sprint planning
+5. 🔄 Communicate changes to development team
+6. 🔄 Update project timeline if needed
 
 ## Compliance Notes
-- This approval establishes the requirements baseline for change control
-- All subsequent changes require formal change requests
-- Development activities may proceed based on this approval
-- Regular stakeholder reviews scheduled for milestone checkpoints
-- External hash validation provides tamper-evident protection
+- This re-approval establishes new requirements baseline for change control
+- Previous baseline superseded by this approval
+- Development activities may continue based on impact assessment
+- Additional stakeholder reviews may be required for major changes
+- Updated external hash validation provides tamper-evident protection

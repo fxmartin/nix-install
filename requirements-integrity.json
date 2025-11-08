@@ -1,21 +1,41 @@
 {
   "document": "REQUIREMENTS.md",
-  "approval_timestamp": "2025-11-08T19:57:24Z",
-  "document_version": "v1.0",
+  "approval_timestamp": "2025-11-08T20:23:31Z",
+  "document_version": "v1.1",
   "approved_by": "FX (Product Owner)",
+  "approval_type": "CHANGE_CONTROL_RE_APPROVAL",
+  "previous_version": "v1.0",
   "hashes": {
-    "baseline_content": "ce361319ff8ba7d2865cbe08942b64baf805a3cbbb5b5a33fc2df5d6ebc5cc51",
-    "final_document": "3c27f641de4ae3c3fe899a7af00501debc80a9f19f5d68f16b4e9f20f30a5cb2",
-    "approval_section": "calculated_on_verification"
+    "baseline_content": "ed51883bb71d31dbae500606ac42ed9e81f853ff8ed3e720c3e9a5ac1be6d5b0",
+    "final_document": "a4e61321f4c46657988a3dbce21342b97a9dce5ed451c24424ba136dcd8a467a",
+    "approval_section": "f18a7057722abee192fd4945f22ce12e83804e52eae77bccbbdacaeeb2dfce65"
   },
   "validation": {
     "method": "SHA-256",
-    "creation_date": "2025-11-08T19:57:24Z",
+    "creation_date": "2025-11-08T20:23:31Z",
     "status": "APPROVED"
   },
   "change_control": {
     "baseline_locked": true,
     "change_process_required": true,
-    "next_version": "v1.1"
+    "next_version": "v1.2",
+    "change_description": "Office 365 installation method changed from manual to Homebrew cask",
+    "change_scope": "Minor",
+    "previous_baseline_hash": "ce361319ff8ba7d2865cbe08942b64baf805a3cbbb5b5a33fc2df5d6ebc5cc51"
+  },
+  "audit_trail": {
+    "v1.0": {
+      "timestamp": "2025-11-08T19:57:24Z",
+      "baseline_hash": "ce361319ff8ba7d2865cbe08942b64baf805a3cbbb5b5a33fc2df5d6ebc5cc51",
+      "approval_type": "INITIAL_APPROVAL"
+    },
+    "v1.1": {
+      "timestamp": "2025-11-08T20:23:31Z",
+      "baseline_hash": "ed51883bb71d31dbae500606ac42ed9e81f853ff8ed3e720c3e9a5ac1be6d5b0",
+      "approval_type": "CHANGE_CONTROL_RE_APPROVAL",
+      "changes": [
+        "Office 365 installation method: manual -> Homebrew cask (microsoft-office-businesspro)"
+      ]
+    }
   }
 }

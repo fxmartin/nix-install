@@ -30,7 +30,7 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 | Epic ID | Epic Name | Business Value | Story Count | Total Points | Priority |
 |---------|-----------|----------------|-------------|--------------|----------|
 | Epic-01 | Bootstrap & Installation System | Automated one-command installation | 15 | 89 | Must Have |
-| Epic-02 | Application Installation & Configuration | Declarative app management across profiles | 22 | 110 | Must Have |
+| Epic-02 | Application Installation & Configuration | Declarative app management across profiles | 22 | 113 | Must Have |
 | Epic-03 | System Configuration & macOS Preferences | Automated macOS system preferences | 12 | 68 | Must Have |
 | Epic-04 | Development Environment & Shell | Complete dev tooling setup | 18 | 97 | Must Have |
 | Epic-05 | Theming & Visual Consistency | System-wide consistent theming | 8 | 42 | Should Have |
@@ -58,14 +58,14 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 
 ### MVP Scope
 **Total MVP Stories**: 93
-**Total MVP Points**: 495
+**Total MVP Points**: 498
 **Estimated Duration**: 6-8 weeks (implementation) + 2 weeks (migrations)
 
 ### MVP Epic Breakdown
 | Epic | MVP Stories | MVP Points | % of Epic |
 |------|-------------|------------|-----------|
 | Epic-01 | 15/15 | 89/89 | 100% |
-| Epic-02 | 22/22 | 110/110 | 100% |
+| Epic-02 | 22/22 | 113/113 | 100% |
 | Epic-03 | 12/12 | 68/68 | 100% |
 | Epic-04 | 18/18 | 97/97 | 100% |
 | Epic-05 | 8/8 | 42/42 | 100% |
@@ -75,7 +75,7 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 
 ## Project Metrics
 - **Total Stories**: 108
-- **Total Story Points**: 574
+- **Total Story Points**: 577
 - **Average Story Size**: 5.3 points
 - **Ready for Development**: 0% (stories being defined)
 - **MVP Completion**: 0% (implementation starting)
@@ -129,13 +129,13 @@ graph TD
 | Story Points | Complexity Level | Story Count | Total Points |
 |--------------|------------------|-------------|--------------|
 | 1 | Trivial | 8 | 8 |
-| 2 | Simple | 18 | 36 |
+| 2 | Simple | 17 | 34 |
 | 3 | Medium | 35 | 105 |
-| 5 | Complex | 28 | 140 |
+| 5 | Complex | 29 | 145 |
 | 8 | Very Complex | 15 | 120 |
 | 13 | Highly Complex | 4 | 52 |
 
-**Total Story Points**: 574
+**Total Story Points**: 577
 **Estimated Sprints** (assuming 25-30 points per sprint): 19-23 sprints (9-11 weeks with 2-week sprints)
 
 ### Sprint Planning Notes

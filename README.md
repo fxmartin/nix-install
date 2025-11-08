@@ -52,14 +52,14 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
    - 8-week implementation plan
 
 2. **[STORIES.md](./STORIES.md)** - User story overview and epic navigation
-   - 108 total stories, 574 story points
+   - 108 total stories, 577 story points
    - Epic summaries and metrics
    - Sprint planning guidance
    - Cross-epic dependencies
 
 3. **[/stories/](./stories/)** - Detailed epic files (single source of truth)
    - Epic-01: Bootstrap & Installation (15 stories, 89 points)
-   - Epic-02: Application Installation (22 stories, 110 points)
+   - Epic-02: Application Installation (22 stories, 113 points)
    - Epic-03: System Configuration (12 stories, 68 points)
    - Epic-04: Development Environment (18 stories, 97 points)
    - Epic-05: Theming & Visual Consistency (8 stories, 42 points)
@@ -119,9 +119,8 @@ This will:
 ### Package Management Strategy
 
 1. **Nix First** (via nixpkgs-unstable): CLI tools, dev tools, Python 3.12, uv, ruff, Podman
-2. **Homebrew Casks**: GUI apps (Zed, Ghostty, Arc, Firefox, Claude Desktop)
+2. **Homebrew Casks**: GUI apps (Zed, Ghostty, Arc, Firefox, Claude Desktop, Office 365)
 3. **Mac App Store (mas)**: Only when no alternative (Kindle, WhatsApp)
-4. **Manual**: Licensed software (Office 365)
 
 ### Key Features
 

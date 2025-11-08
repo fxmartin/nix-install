@@ -24,7 +24,7 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - **Requirements Definition** ([REQUIREMENTS.md](./REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
 - **User Story Breakdown** ([STORIES.md](./STORIES.md)) - 108 stories across 7 epics + NFR
 - **Story Management Protocol** - Modular epic structure with detailed acceptance criteria
-- **Requirements Baseline** - Cryptographically approved and change-controlled
+- **Requirements Baseline** - v1.1 approved (change control re-approval completed)
 - **Project Architecture** - Two-tier profiles (Standard/Power), Stylix theming, nixpkgs-unstable
 
 ### 🔄 In Progress
@@ -119,8 +119,10 @@ This will:
 ### Package Management Strategy
 
 1. **Nix First** (via nixpkgs-unstable): CLI tools, dev tools, Python 3.12, uv, ruff, Podman
-2. **Homebrew Casks**: GUI apps (Zed, Ghostty, Arc, Firefox, Claude Desktop, Office 365)
+2. **Homebrew Casks**: GUI apps (Zed, Ghostty, Arc, Firefox, Claude Desktop, Office 365 via microsoft-office-businesspro)
 3. **Mac App Store (mas)**: Only when no alternative (Kindle, WhatsApp)
+
+**Recent Change (v1.1)**: Office 365 installation method changed from manual to Homebrew cask (`microsoft-office-businesspro`). Installation is now automated, but activation still requires manual Microsoft account sign-in.
 
 ### Key Features
 
@@ -162,10 +164,17 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ### Requirements Change Control
 
 Requirements are baselined and change-controlled:
-- **Baseline Hash**: Cryptographically sealed in `requirements-integrity.json`
-- **Verification**: Run `./verify-requirements-integrity.sh` to validate
+- **Current Version**: v1.1 (Change Control Re-Approval completed 2025-11-08)
+- **Baseline Hash**: `ed51883bb71d31dbae500606ac42ed9e81f853ff8ed3e720c3e9a5ac1be6d5b0`
+- **Verification**: Run `./verify-requirements-integrity.sh` to validate integrity
 - **Changes**: Must follow change control process (see CLAUDE.md)
 - **Tracking**: All changes logged in REQUIREMENTS.md Post-Approval Change Log
+- **Audit Trail**: Complete version history maintained in `requirements-integrity.json`
+
+**Latest Change (v1.1)**:
+- Office 365 installation method: Manual → Homebrew cask (`microsoft-office-businesspro`)
+- Impact: Low - simplifies installation, activation still manual
+- Approved by: FX (Product Owner)
 
 ---
 

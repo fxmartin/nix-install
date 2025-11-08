@@ -758,12 +758,14 @@ Consistency: 100% (declarative config)
 
 **✅ MVP Complete When:**
 
-1. **All 3 MacBooks migrated** to Nix-based config
-2. **Bootstrap script works** on fresh macOS without manual intervention (except license entry)
-3. **Documentation complete**: Non-technical user can follow README and succeed
-4. **All P0 requirements met**: Apps installed, system configured, shell working
-5. **First rebuild successful**: User can make a config change and rebuild without help
-6. **No blockers**: All critical workflows functional (Python dev, Office 365 work, AI tools)
+1. **VM testing successful**: Bootstrap works in fresh VM with zero manual intervention
+2. **All 3 MacBooks migrated** to Nix-based config (MacBook Pro M3 Max + 2 MacBook Airs)
+3. **Bootstrap script proven** on both VM and physical hardware without manual intervention (except license entry)
+4. **Documentation complete**: Non-technical user can follow README and succeed
+5. **All P0 requirements met**: Apps installed, system configured, shell working
+6. **First rebuild successful**: User can make a config change and rebuild without help
+7. **No blockers**: All critical workflows functional (Python dev, Office 365 work, AI tools)
+8. **Profile verification**: Power vs Standard profiles correctly differentiated
 
 **🎯 Success Declared When:**
 
@@ -900,32 +902,76 @@ Consistency: 100% (declarative config)
 
 ---
 
-#### Phase 9: First MacBook Migration (Week 6)
-**Goal**: Migrate MacBook #1 (choose Standard or Power)
+#### Phase 9: VM Testing (Week 6)
+**Goal**: Test complete setup in Parallels macOS VM before touching real hardware
 
-- [ ] Backup current MacBook (Time Machine + manual)
-- [ ] Fresh macOS reinstall
-- [ ] Run bootstrap script
-- [ ] Document any issues encountered
-- [ ] Fix issues, update config
-- [ ] Verify all workflows functional (work + dev)
-- [ ] Use for 1 week, iterate on issues
+- [ ] Create fresh macOS VM in Parallels Desktop
+- [ ] Configure VM with adequate resources (4+ CPU cores, 8+ GB RAM, 100+ GB disk)
+- [ ] Test Power profile (matches MacBook Pro M3 Max target)
+- [ ] Run bootstrap script from start to finish
+- [ ] Document every issue, error, and manual step required
+- [ ] Fix issues, update config, re-test in fresh VM
+- [ ] Verify all P0 requirements work in VM
+- [ ] Test key workflows: Python dev, Podman, shell environment
+- [ ] Iterate until bootstrap succeeds without manual intervention
+- [ ] Final test: Destroy VM, create new one, run bootstrap again (should be flawless)
 
-**Deliverable**: First MacBook fully migrated, stable for daily use
+**Deliverable**: Bootstrap script works perfectly in VM with zero manual intervention
+
+**Why VM testing:**
+- ✅ Safe sandbox - no risk to production machines
+- ✅ Fast iteration - destroy and rebuild VM quickly
+- ✅ Reproducibility testing - prove it works from scratch
+- ✅ Catch issues before they impact real hardware
 
 ---
 
-#### Phase 10: Remaining MacBooks Migration (Week 7-8)
-**Goal**: Migrate MacBooks #2 and #3
+#### Phase 10: MacBook Pro M3 Max Migration (Week 7)
+**Goal**: Migrate first physical machine (Power profile)
 
-- [ ] Apply learnings from MacBook #1
-- [ ] Migrate MacBook #2 (opposite profile from #1)
-- [ ] Test profile differences (Parallels, Ollama models)
-- [ ] Migrate MacBook #3
-- [ ] Verify consistency across machines
+- [ ] Backup MacBook Pro M3 Max (Time Machine + manual backup of critical data)
+- [ ] Verify VM testing successful and config stable
+- [ ] Fresh macOS reinstall on MacBook Pro M3 Max
+- [ ] Run bootstrap script (should be identical to VM experience)
+- [ ] Verify all workflows functional (work + dev)
+- [ ] Install Office 365 manually (if needed for work)
+- [ ] Activate licensed apps (1Password, iStat Menus, NordVPN, Parallels, etc.)
+- [ ] Use as daily driver for 1 week minimum
+- [ ] Document any hardware-specific issues (vs VM)
+
+**Deliverable**: MacBook Pro M3 Max fully migrated, stable for daily use
+
+**Acceptance Criteria:**
+- Bootstrap completes in <30 minutes
+- All P0 requirements met
+- Can do weekend Python development
+- Can do Office 365 work
+- No show-stopper issues for 1 week of daily use
+
+---
+
+#### Phase 11: Remaining MacBooks Migration (Week 8)
+**Goal**: Migrate MacBook Air #1 and MacBook Air #2 (Standard profile)
+
+- [ ] Apply learnings from MacBook Pro M3 Max migration
+- [ ] Consider testing Standard profile in VM first (quick validation)
+- [ ] Migrate MacBook Air #1
+  - [ ] Backup, fresh macOS install, run bootstrap with Standard profile
+  - [ ] Verify profile differences (no Parallels, only 1 Ollama model)
+  - [ ] Use for daily tasks to verify stability
+- [ ] Migrate MacBook Air #2
+  - [ ] Same process as MacBook Air #1
+  - [ ] Verify consistency with MacBook Air #1
+- [ ] Compare all 3 machines: verify Standard vs Power differences correct
 - [ ] Document any machine-specific quirks
 
-**Deliverable**: All 3 MacBooks migrated and consistent
+**Deliverable**: All 3 MacBooks migrated and consistent within their profiles
+
+**Final Verification:**
+- MacBook Pro M3 Max (Power): Has Parallels, 4 Ollama models
+- MacBook Air #1 (Standard): No Parallels, 1 Ollama model
+- MacBook Air #2 (Standard): Identical to MacBook Air #1
+- All machines have identical config within their profile
 
 ---
 
@@ -939,8 +985,9 @@ Consistency: 100% (declarative config)
 | **M4: System Config Done** | End Week 3 | M3 | All REQ-SYS-* requirements met |
 | **M5: Shell Perfected** | End Week 4 | M4 | Shell startup <500ms, features work |
 | **M6: Dev Env Ready** | End Week 4 | M5 | Python + Podman workflows functional |
-| **M7: First Mac Migrated** | End Week 6 | M1-M6 | Daily use for 1 week without issues |
-| **M8: All Macs Migrated** | End Week 8 | M7 | 3/3 MacBooks on Nix config |
+| **M7: VM Testing Complete** | End Week 6 | M1-M6 | Bootstrap works in VM with zero manual steps |
+| **M8: First Physical Mac** | End Week 7 | M7 | MacBook Pro M3 Max migrated, daily use stable |
+| **M9: All Macs Migrated** | End Week 8 | M8 | 3/3 MacBooks on Nix config, profiles verified |
 
 ---
 
@@ -957,8 +1004,14 @@ Consistency: 100% (declarative config)
 
 **Infrastructure:**
 - GitHub account (free tier sufficient)
-- 3 MacBooks for testing (already owned)
-- Optional: macOS VM for testing (UTM or Parallels)
+- 3 MacBooks for migration (already owned):
+  - MacBook Pro M3 Max (Power profile target)
+  - MacBook Air #1 (Standard profile)
+  - MacBook Air #2 (Standard profile)
+- **Required**: macOS VM in Parallels Desktop for testing
+  - Configured with 4+ CPU cores, 8+ GB RAM, 100+ GB disk
+  - Used for safe iteration before touching physical hardware
+  - Can be destroyed and recreated quickly for reproducibility testing
 
 **Knowledge Requirements:**
 - Nix/NixOS basics (can learn during implementation)

@@ -66,9 +66,14 @@ Apps requiring auto-update disable: Homebrew, Zed, VSCode, Arc, Firefox, Dropbox
 
 ### Testing Strategy (CRITICAL)
 
-**DO NOT TEST ON PHYSICAL HARDWARE FIRST**. Always follow this sequence:
+**⚠️ CLAUDE DOES NOT PERFORM TESTING ⚠️**
 
-1. **VM Testing (Required)**: Test in Parallels macOS VM first
+Claude's role: Write code, configuration, and documentation ONLY.
+FX's role: ALL testing, execution, and validation.
+
+**Testing sequence (performed by FX manually)**:
+
+1. **VM Testing (Required)**: FX tests in Parallels macOS VM first
    - Create fresh macOS VM (4+ CPU cores, 8+ GB RAM, 100+ GB disk)
    - Test Power profile (matches MacBook Pro M3 Max complexity)
    - Iterate until bootstrap succeeds with zero manual intervention
@@ -77,6 +82,12 @@ Apps requiring auto-update disable: Homebrew, Zed, VSCode, Arc, Firefox, Dropbox
 2. **Physical Hardware**: Only after VM testing successful
    - First: MacBook Pro M3 Max (Power profile)
    - Then: MacBook Air #1 and #2 (Standard profile)
+
+**Claude must NEVER**:
+- Run bootstrap.sh, setup.sh, or any installation scripts
+- Execute nix-darwin, darwin-rebuild, or Nix commands that modify the system
+- Test configurations on any machine (VM or physical)
+- Assume code works without FX's manual testing
 
 ### Key Files
 
@@ -196,12 +207,25 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ## Important Constraints
 
-1. **No auto-updates**: Every app must have auto-update disabled. `rebuild` is the ONLY update mechanism.
-2. **VM testing required**: Never test directly on physical MacBooks until VM testing passes.
-3. **nixpkgs-unstable**: Use unstable channel for latest packages, flake.lock ensures reproducibility.
-4. **Stylix theming**: Ghostty and Zed must use matching Catppuccin themes via Stylix.
-5. **Two profiles only**: Standard (Air) and Power (Pro M3 Max). Don't create additional profiles without approval.
-6. **Public repo**: Configuration is public (exclude secrets, use SOPS/age for P1 phase).
+1. **CRITICAL - NO AUTOMATED TESTING**: Claude must NEVER run tests, execute bootstrap scripts, or perform any system configuration changes. ALL testing is done MANUALLY by FX only. This includes:
+   - ❌ Do NOT run bootstrap.sh or setup.sh
+   - ❌ Do NOT run `nix-darwin` commands
+   - ❌ Do NOT run `darwin-rebuild`
+   - ❌ Do NOT execute any installation or configuration scripts
+   - ✅ Only write code, documentation, and configuration files
+   - ✅ FX will test manually in VM and on hardware
+
+2. **No auto-updates**: Every app must have auto-update disabled. `rebuild` is the ONLY update mechanism.
+
+3. **VM testing required**: Never test directly on physical MacBooks until VM testing passes. (FX performs this testing, not Claude)
+
+4. **nixpkgs-unstable**: Use unstable channel for latest packages, flake.lock ensures reproducibility.
+
+5. **Stylix theming**: Ghostty and Zed must use matching Catppuccin themes via Stylix.
+
+6. **Two profiles only**: Standard (Air) and Power (Pro M3 Max). Don't create additional profiles without approval.
+
+7. **Public repo**: Configuration is public (exclude secrets, use SOPS/age for P1 phase).
 
 ## Reference Documentation
 

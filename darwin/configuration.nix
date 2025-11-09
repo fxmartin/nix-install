@@ -10,6 +10,15 @@
   # Nix package manager settings
   nix.enable = true;
 
+  # Nix configuration settings
+  nix.settings = {
+    # Enable modern Nix features (required for flakes)
+    experimental-features = ["nix-command" "flakes"];
+
+    # Trust specific users
+    trusted-users = ["root" userConfig.username];
+  };
+
   # Set correct GID for nixbld group
   ids.gids.nixbld = 350;
 

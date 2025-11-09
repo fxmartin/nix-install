@@ -3,6 +3,47 @@
 
 # Development Log
 
+## Epic Overview Progress Table
+
+| Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
+|---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
+| **Epic-01** | Bootstrap & Installation System | 15 | 89 | **4** | **21** | 26.7% | 23.6% | 🟡 In Progress |
+| **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **TOTAL** | **All Epics** | **108** | **577** | **4** | **21** | **3.7%** | **3.6%** | 🟡 In Progress |
+
+### Epic-01 Completed Stories (4/15)
+
+| Story ID | Story Name | Points | Status | Branch | Date Completed |
+|----------|------------|--------|--------|--------|----------------|
+| 01.1-001 | Pre-flight Environment Checks | 5 | ✅ Complete | feature/01.1-001 | 2025-11-08 |
+| 01.2-001 | User Information Prompts | 5 | ✅ Complete | feature/01.2-001-user-prompts | 2025-11-09 |
+| 01.2-002 | Profile Selection System | 8 | ✅ Complete | feature/01.2-002-profile-selection | 2025-11-09 |
+| 01.2-003 | User Config File Generation | 3 | ✅ Complete | feature/01.2-003-user-config-generation | 2025-11-09 |
+
+### Overall Project Status
+
+- **Total Project Scope**: 108 stories, 577 story points
+- **Completed**: 4 stories (3.7%), 21 points (3.6%)
+- **In Progress**: Epic-01 Bootstrap & Installation (26.7% complete)
+- **Current Phase**: Phase 0-2 (Foundation + Bootstrap, Week 1-2)
+- **Next Story**: 01.3-001 (Xcode CLI Tools Installation - 5 points)
+
+### Recent Activity
+
+- **2025-11-09**: Fixed critical bootstrap template file bug (#8)
+- **2025-11-09**: Completed Story 01.2-003 (User Config Generation) - VM tested ✅
+- **2025-11-09**: Completed Story 01.2-002 (Profile Selection) - VM tested ✅
+- **2025-11-09**: Completed Story 01.2-001 (User Prompts) - VM tested ✅
+- **2025-11-08**: Completed Story 01.1-001 (Pre-flight Checks) ✅
+
+---
+
 ## Story 01.1-001: Pre-flight Environment Checks
 **Status**: ✅ Implemented (Pending FX Testing)
 **Date**: 2025-11-08

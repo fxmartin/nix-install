@@ -7,7 +7,7 @@
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 18 | 108 | **9** | **60** | 50.0% | 55.6% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 18 | 108 | **10** | **67** | 55.6% | 62.0% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -15,9 +15,9 @@
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **111** | **596** | **9** | **60** | **8.1%** | **10.1%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **111** | **596** | **10** | **67** | **9.0%** | **11.2%** | 🟡 In Progress |
 
-### Epic-01 Completed Stories (9/18)
+### Epic-01 Completed Stories (10/18)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -29,22 +29,28 @@
 | 01.4-001 | Nix Multi-User Installation | 8 | ✅ Complete | main | 2025-11-09 |
 | 01.4-002 | Nix Configuration for macOS | 5 | ✅ Complete | feature/01.4-002-nix-configuration | 2025-11-09 |
 | 01.4-003 | Flake Infrastructure Setup | 8 | ✅ Complete | main | 2025-11-09 |
-| 01.5-001 | Initial Nix-Darwin Build | 13 | ✅ Implemented (Pending VM Test) | feature/01.5-001-nix-darwin-build | 2025-11-09 |
+| 01.5-001 | Initial Nix-Darwin Build | 13 | ✅ Complete | feature/01.5-001-nix-darwin-build | 2025-11-09 |
 
 ### Overall Project Status
 
 - **Total Project Scope**: 111 stories, 596 story points
-- **Completed**: 9 stories (8.1%), 60 points (10.1%)
-- **In Progress**: Epic-01 Bootstrap & Installation (50.0% complete by stories, 55.6% by points)
+- **Completed**: 10 stories (9.0%), 67 points (11.2%)
+- **In Progress**: Epic-01 Bootstrap & Installation (55.6% complete by stories, 62.0% by points)
 - **Current Phase**: Phase 0-2 (Foundation + Bootstrap, Week 1-2)
-- **Next Story**: 01.6-001 (SSH Key Generation & GitHub Setup - 5 points) - BLOCKED UNTIL 01.5-001 VM TESTED
+- **Next Story**: 01.5-002 (Post-Darwin System Validation - 5 points) - READY TO START
 
 ### Recent Activity
 
-- **2025-11-09**: ✅ Implemented Story 01.5-001 (Initial Nix-Darwin Build - 13 points) - PENDING FX VM TESTING
+- **2025-11-09**: ✅ **COMPLETED Story 01.5-001** (Initial Nix-Darwin Build - 13 points) - **VM TESTED & VALIDATED**
+  - Full clean VM test from snapshot: **10 minutes** (within 10-20min estimate!)
+  - Standard profile tested and working
+  - All acceptance criteria met: darwin-rebuild, Homebrew, experimental features
+  - Fixed nix.settings configuration for experimental-features
+  - 10 bug fix iterations during VM testing (all resolved)
+  - Epic-01 now **62% complete** (67/108 points) 🎉
+- **2025-11-09**: ✅ Implemented Story 01.5-001 (Initial Nix-Darwin Build - 13 points)
   - Added Phase 5 to bootstrap.sh (6 functions, ~400 lines)
   - 86 automated BATS tests + 7 manual VM scenarios
-  - Epic-01 now 50% complete! (🎉 Milestone)
 - **2025-11-09**: ✅ Completed Story 01.4-003 (Flake Infrastructure Setup - 8 points) - VM TESTED & VALIDATED
   - Created flake.nix with Standard and Power profiles
   - Fixed invalid system.profile bug (commit fca880d)

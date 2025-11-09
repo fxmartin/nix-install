@@ -48,6 +48,9 @@ bats tests/bootstrap_user_prompts.bats
 # Phase 2: Profile selection
 bats tests/bootstrap_profile_selection.bats
 
+# Phase 3: User config file generation
+bats tests/bootstrap_user_config.bats
+
 # Run all test suites
 bats tests/*.bats
 ```
@@ -179,7 +182,102 @@ The `bootstrap_profile_selection.bats` test suite validates:
    - Phase 2 execution order
    - Profile value format validation
 
-**Total: 150 automated tests** (54 Phase 2 user prompts + 96 Phase 2 profile selection)
+### Phase 3: User Config File Generation
+
+The `bootstrap_user_config.bats` test suite validates:
+
+1. **Function Existence** (6 tests)
+   - create_bootstrap_workdir()
+   - get_macos_username()
+   - get_macos_hostname()
+   - validate_nix_syntax()
+   - display_generated_config()
+   - generate_user_config()
+
+2. **Template File Structure** (8 tests)
+   - Template file exists in project root
+   - Contains ABOUTME documentation comments
+   - Contains all 6 required placeholders (@MACOS_USERNAME@, @FULL_NAME@, @EMAIL@, @GITHUB_USERNAME@, @HOSTNAME@, @DOTFILES_PATH@)
+
+3. **Work Directory Creation** (5 tests)
+   - Creates /tmp/nix-bootstrap directory
+   - Idempotent (safe to run multiple times)
+   - Sets correct permissions (755)
+   - Returns 0 on success
+   - Handles existing directory gracefully
+
+4. **macOS Username Extraction** (8 tests)
+   - Returns non-empty string
+   - Returns current user from $USER
+   - Returns alphanumeric username
+   - No whitespace
+   - Consistent results
+   - Not root user
+   - Matches whoami output
+   - Returns exit code 0
+
+5. **Hostname Extraction and Sanitization** (8 tests)
+   - Returns non-empty string
+   - Only alphanumeric and hyphens
+   - No underscores (converts to hyphens)
+   - No periods (removes)
+   - No spaces
+   - Converts uppercase to lowercase
+   - Consistent results
+   - Returns exit code 0
+
+6. **Placeholder Replacement** (15 tests)
+   - Creates output file
+   - Replaces all 6 placeholders correctly
+   - No placeholders remain in output
+   - Handles special characters (apostrophes, accented characters, hyphens)
+   - Handles plus-addressing in email
+   - Handles hyphens and underscores in GitHub username
+   - Output file has proper Nix structure
+
+7. **Nix Syntax Validation** (10 tests)
+   - Accepts valid Nix config
+   - Rejects empty file
+   - Rejects unbalanced braces (missing closing, extra closing)
+   - Accepts nested braces
+   - Accepts comments
+   - Rejects non-existent file
+   - Accepts empty strings in values
+   - Accepts semicolons
+   - Displays error message for invalid syntax
+   - Returns consistent exit codes
+
+8. **Config Display** (5 tests)
+   - Outputs file contents
+   - Handles non-existent file
+   - Preserves formatting
+   - Handles special characters
+   - Adds header/footer for clarity
+
+9. **Integration Tests** (5 tests)
+   - Creates work directory
+   - Creates user-config.nix file
+   - Sets USER_CONFIG_PATH global variable
+   - Produces valid Nix syntax
+   - Uses values from global variables
+
+10. **Error Handling** (10 tests)
+    - Fails gracefully if USER_FULLNAME not set
+    - Fails gracefully if USER_EMAIL not set
+    - Fails gracefully if GITHUB_USERNAME not set
+    - Fails if template file does not exist
+    - Handles permission errors gracefully
+    - Provides helpful error for missing file
+    - Handles hostname command failure gracefully
+    - Handles sed failures gracefully
+    - Returns consistent exit codes
+
+11. **Global Variable Tests** (3 tests)
+    - USER_CONFIG_PATH variable is declared
+    - Points to /tmp/nix-bootstrap/user-config.nix
+    - File exists after generation
+
+**Total: 233 automated tests** (54 Phase 2 user prompts + 96 Phase 2 profile selection + 83 Phase 3 user config generation)
 
 ## Manual Testing
 
@@ -288,6 +386,87 @@ FX should perform these manual tests in a VM to validate profile selection funct
    - Select a profile and confirm
    - Verify INSTALL_PROFILE variable is set correctly in subsequent phases
    - Expected: Variable persists throughout bootstrap execution
+
+### Phase 3 User Config Generation Manual Tests
+
+FX should perform these manual tests in a VM to validate user config generation functionality:
+
+1. **Normal Config Generation Test**
+   ```bash
+   ./bootstrap.sh
+   # Complete user info phase (name, email, GitHub username)
+   # Complete profile selection phase (Standard or Power)
+   # Expected: Config file generated at /tmp/nix-bootstrap/user-config.nix
+   # Expected: Config displayed for review
+   # Expected: All placeholders replaced with actual values
+   # Expected: No errors reported
+   ```
+
+2. **Verify Generated Config File**
+   ```bash
+   # After running bootstrap.sh through config generation
+   cat /tmp/nix-bootstrap/user-config.nix
+   # Expected: Valid Nix syntax
+   # Expected: All personal information present (name, email, GitHub username)
+   # Expected: macOS username matches current user
+   # Expected: Hostname is sanitized (lowercase, no special chars except hyphens)
+   # Expected: Dotfiles path set to "Documents/nix-install"
+   ```
+
+3. **Special Characters in Name Test**
+   - Enter name with special characters: `François O'Brien-Smith, Jr.`
+   - Complete bootstrap through config generation
+   - Verify generated config preserves special characters correctly
+   - Expected: Name appears in config exactly as entered
+
+4. **Complex Hostname Test**
+   - Test on a Mac with hostname containing underscores or periods
+   - Example hostname: `MacBook_Pro.local`
+   - Expected: Hostname sanitized to `macbook-pro` (lowercase, hyphens only)
+   - Verify in generated config file
+
+5. **Work Directory Creation Test**
+   ```bash
+   # Before running bootstrap
+   ls -la /tmp/nix-bootstrap
+   # Expected: Directory does not exist (or empty from previous run)
+
+   ./bootstrap.sh
+   # Complete through config generation
+
+   ls -la /tmp/nix-bootstrap
+   # Expected: Directory exists with correct permissions (755)
+   # Expected: user-config.nix file present
+   ```
+
+6. **Config File Permissions Test**
+   ```bash
+   # After config generation
+   ls -la /tmp/nix-bootstrap/user-config.nix
+   # Expected: File is readable (644 or similar)
+   # Expected: Owner is current user
+   ```
+
+7. **Idempotent Run Test**
+   ```bash
+   # Run bootstrap twice in succession
+   ./bootstrap.sh  # First run
+   # Complete all phases
+
+   ./bootstrap.sh  # Second run
+   # Complete all phases again
+   # Expected: No errors about existing work directory
+   # Expected: Config file overwritten successfully
+   # Expected: No permission issues
+   ```
+
+8. **Config Display Formatting Test**
+   - Run bootstrap through config generation
+   - Verify config display is readable and well-formatted
+   - Expected: Clear header "Generated User Configuration"
+   - Expected: Proper indentation preserved
+   - Expected: Clear footer separators
+   - Expected: All values visible and correct
 
 ## Testing Unmerged Branches in VM
 

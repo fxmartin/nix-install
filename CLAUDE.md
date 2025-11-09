@@ -367,6 +367,139 @@ STORIES.md (overview and navigation)
 
 **CRITICAL**: This story structure is now the project's single source of truth for all epic, feature, and story information. All progress tracking, status updates, detailed planning, and stakeholder communication must reference and update these files directly. Violation of this protocol undermines project tracking integrity and delivery predictability.
 
+## GitHub Labels
+
+### Available Labels for Issue Tracking
+
+The project uses a comprehensive labeling system to categorize and track issues. All labels are managed via `scripts/setup-github-labels.sh`.
+
+**🔴 Severity Levels** (4 labels)
+- `critical` - Critical issues requiring immediate attention
+- `high` - High priority issues, fix soon
+- `medium` - Medium priority issues, normal timeline
+- `low` - Low priority issues, fix when convenient
+
+**🟠 Issue Types** (7 labels)
+- `bug` - Something isn't working correctly
+- `enhancement` - New feature or improvement
+- `performance` - Performance optimization needed
+- `security` - Security vulnerability or concern
+- `documentation` - Documentation needs update
+- `refactor` - Code refactoring needed
+- `code-quality` - Code quality improvements (linting, style)
+
+**🔵 Technology Stack** (6 labels)
+- `bash/shell` - Bash/Shell scripting related
+- `nix` - Nix package manager related
+- `nix-darwin` - nix-darwin system configuration
+- `homebrew` - Homebrew package management
+- `macos` - macOS system preferences/settings
+- `testing` - BATS tests, shellcheck, testing framework
+
+**🎯 Epic Tracking** (8 labels)
+- `epic-01` - Epic 01: Bootstrap & Installation System
+- `epic-02` - Epic 02: Application Installation & Configuration
+- `epic-03` - Epic 03: System Configuration & macOS Preferences
+- `epic-04` - Epic 04: Development Environment & Shell
+- `epic-05` - Epic 05: Theming & Visual Consistency
+- `epic-06` - Epic 06: Maintenance & Monitoring
+- `epic-07` - Epic 07: Documentation & User Experience
+- `epic-nfr` - Non-Functional Requirements
+
+**🟢 Component Areas** (7 labels)
+- `bootstrap` - Bootstrap script and pre-flight checks
+- `system-config` - macOS system preferences (Finder, security, etc.)
+- `dev-environment` - Development tools (Zsh, Git, Python, Podman)
+- `theming` - Stylix, Catppuccin, visual consistency
+- `monitoring` - Health checks, garbage collection, optimization
+- `apps` - Application installation (GUI, CLI, Mac App Store)
+- `dotfiles` - Home Manager dotfiles configuration
+
+**🟣 Agent Assignment** (4 labels)
+- `bash-zsh-macos` - For bash-zsh-macos-engineer agent
+- `code-review` - For senior-code-reviewer agent
+- `qa-expert` - For qa-expert agent (testing strategy)
+- `multi-agent` - Requires multiple agents
+
+**🟡 Workflow Status** (5 labels)
+- `in-progress` - Currently being worked on
+- `blocked` - Blocked by dependencies or external factors
+- `needs-review` - Ready for code review
+- `vm-testing` - Ready for VM testing by FX
+- `needs-info` - More information required
+
+**⭐ Special Labels** (4 labels)
+- `good-first-issue` - Good for newcomers or quick wins
+- `help-wanted` - Extra attention needed
+- `breaking-change` - Introduces breaking changes to config
+- `hotfix` - Urgent fix needed
+
+**📏 Story Points** (6 labels - matching REQUIREMENTS.md estimation)
+- `points/1` - 1 story point (Trivial complexity)
+- `points/2` - 2 story points (Simple complexity)
+- `points/3` - 3 story points (Medium complexity)
+- `points/5` - 5 story points (Complex)
+- `points/8` - 8 story points (Very Complex)
+- `points/13` - 13 story points (Highly Complex)
+
+**🚀 Implementation Phases** (6 labels)
+- `phase-0-2` - Phase 0-2: Foundation + Bootstrap (Week 1-2)
+- `phase-3-5` - Phase 3-5: Apps, System Config, Dev Env (Week 3-5)
+- `phase-6-8` - Phase 6-8: Theming, Monitoring, Docs (Week 5-6)
+- `phase-9` - Phase 9: VM Testing (Week 6)
+- `phase-10-11` - Phase 10-11: Hardware Migration (Week 7-8)
+- `mvp` - Minimum viable product - Must have for P0
+
+**💻 Profile Targets** (3 labels)
+- `profile/standard` - MacBook Air - Standard profile (~35GB)
+- `profile/power` - MacBook Pro M3 Max - Power profile (~120GB)
+- `profile/both` - Affects both Standard and Power profiles
+
+### Label Usage Guidelines
+
+**Issue Creation Examples**:
+```bash
+# Bootstrap bug
+gh issue create --title "[Story 01.1-001] Fix pre-flight checks" \
+  --label "bug,high,bootstrap,epic-01,bash-zsh-macos,points/5,phase-0-2"
+
+# System configuration enhancement
+gh issue create --title "Add Finder preferences automation" \
+  --label "enhancement,medium,system-config,epic-03,points/3"
+
+# Testing/QA issue
+gh issue create --title "Add integration test suite" \
+  --label "testing,qa-expert,points/8,code-quality"
+
+# VM testing ready
+gh issue create --title "Bootstrap ready for VM validation" \
+  --label "vm-testing,phase-9,profile/both,epic-01"
+```
+
+**Story Tracking Pattern**:
+- Use story ID in issue title: `[Story 01.1-001]` or `[Story 04.2-003]`
+- Tag with corresponding epic: `epic-01` through `epic-07` or `epic-nfr`
+- Add story points: `points/1` through `points/13`
+- Include phase label: `phase-0-2`, `phase-3-5`, etc.
+- Tag appropriate agent: `bash-zsh-macos`, `code-review`, `qa-expert`
+- Add profile if relevant: `profile/standard`, `profile/power`, `profile/both`
+
+**Multi-Agent Story Example**:
+```bash
+# Full-stack feature requiring multiple agents
+gh issue create --title "[Story 04.3-002] Configure Zsh with Starship" \
+  --label "epic-04,dev-environment,multi-agent,bash-zsh-macos,code-review,points/8,phase-3-5"
+```
+
+### Label Maintenance
+
+To recreate or update all labels:
+```bash
+bash scripts/setup-github-labels.sh
+```
+
+The script is idempotent - safe to run multiple times. It uses `|| true` to ignore errors if labels already exist.
+
 ## Reference Documentation
 
 - **Primary**: `REQUIREMENTS.md` (comprehensive PRD)

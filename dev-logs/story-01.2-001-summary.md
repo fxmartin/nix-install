@@ -376,12 +376,17 @@ These will be used in:
 
 **IMPORTANT**: Test via `setup.sh` to validate the two-stage bootstrap pattern and stdin fix.
 
-1. **Normal Flow Test (Recommended Method - Curl Pipe)**
+**Feature Branch Testing Note**: When testing feature branches, you MUST use the `NIX_INSTALL_BRANCH` environment variable. Without it, setup.sh will download bootstrap.sh from the `main` branch instead of the feature branch, causing the old version to run.
+
+1. **Normal Flow Test (Recommended Method - Curl Pipe with Feature Branch)**
    ```bash
    # This tests the PRIMARY installation method (curl | bash)
-   curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/feature/01.2-001/setup.sh | bash
+   # CRITICAL: Use NIX_INSTALL_BRANCH to download bootstrap.sh from feature branch
+   NIX_INSTALL_BRANCH=feature/01.2-001 \
+     curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/feature/01.2-001/setup.sh | bash
    # Verify pre-flight checks pass
-   # Verify bootstrap.sh downloads
+   # Verify bootstrap.sh downloads from feature/01.2-001 (not main)
+   # Verify Phase 2 user prompts appear (Name, Email, GitHub username)
    # Enter valid inputs, confirm with 'y'
    ```
 
@@ -557,7 +562,58 @@ These will be used in:
 
 ---
 
+## Lessons Learned from Issue #5
+
+### Discovery Process
+
+1. **First VM Test Revealed Branch Issue**: During first VM testing attempt, setup.sh downloaded bootstrap.sh from `main` instead of `feature/01.2-001`, causing the old version (Story 01.1-001) to run instead of the new Phase 2 implementation.
+
+2. **Evidence in Warning Messages**: The old warning message "only pre-flight checks implemented (Story 01.1-001)" immediately revealed that the wrong version was executing.
+
+### Root Cause
+
+**File**: `setup.sh:42`
+```bash
+readonly BRANCH="${NIX_INSTALL_BRANCH:-main}"  # Always defaults to "main"
+```
+
+When piped via `curl | bash`, there's no way for setup.sh to auto-detect which branch it was downloaded from. This is a fundamental limitation of piped execution.
+
+### Solution: Environment Variable Override
+
+**Feature Branch Testing**:
+```bash
+NIX_INSTALL_BRANCH=feature/01.2-001 \
+  curl -fsSL .../feature/01.2-001/setup.sh | bash
+```
+
+**Production Use**: No environment variable needed - always uses `main` branch.
+
+### Impact
+
+- **Development**: Requires extra step for feature branch testing (environment variable)
+- **Production**: No impact - users always install from `main` branch
+- **Documentation**: Added to README.md and story testing instructions
+
+### Resolution Actions
+
+1. ✅ Documented `NIX_INSTALL_BRANCH` environment variable in README.md (lines 147-160)
+2. ✅ Updated VM testing instructions in this story summary (line 379-391)
+3. ✅ Issue #5 closed with documented workaround
+4. ✅ VM testing unblocked and successful
+
+### Lessons
+
+1. **Piped Execution Limitations**: Cannot auto-detect source URL when executing `curl | bash`
+2. **Environment Variables as Override**: Acceptable workaround for development workflows
+3. **Production Unaffected**: Limitation only affects contributor testing, not end users
+4. **Documentation Matters**: Clear instructions prevent confusion for future contributors
+
+---
+
 **Implementation Date**: 2025-11-09
 **Implemented By**: bash-zsh-macos-engineer (Claude Code)
-**Issue #4 Resolved**: 2025-11-09 (same day as discovery)
-**Ready for**: VM Testing by FX
+**Issue #4 Resolved**: 2025-11-09 (stdin redirection - two-stage pattern)
+**Issue #5 Resolved**: 2025-11-09 (branch detection - documented workaround)
+**VM Testing**: ✅ Successful (2025-11-09)
+**Ready for**: Merge to main

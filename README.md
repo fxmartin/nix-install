@@ -144,6 +144,20 @@ The installation uses a **two-stage bootstrap pattern** for reliability:
 
 > **Technical Note**: The two-stage pattern solves stdin redirection issues when scripts are executed via `curl | bash`. This ensures interactive prompts can properly read user input without requiring `/dev/tty` workarounds.
 
+#### Environment Variables
+
+**For Contributors/Developers**: When testing feature branches, use the `NIX_INSTALL_BRANCH` environment variable to ensure setup.sh downloads bootstrap.sh from the same branch:
+
+```bash
+# Testing a feature branch
+NIX_INSTALL_BRANCH=feature/my-branch \
+  curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/feature/my-branch/setup.sh | bash
+```
+
+**Why this is needed**: When setup.sh is executed via `curl | bash`, it cannot auto-detect which branch it was downloaded from. By default, it downloads bootstrap.sh from the `main` branch. The environment variable overrides this behavior for feature branch testing.
+
+**Production users**: No environment variable needed - always use `main` branch as shown in installation instructions above.
+
 ---
 
 ## 🏗️ Architecture Overview

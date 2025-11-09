@@ -127,28 +127,28 @@
     # Helper function to create darwin configuration
     mkDarwinConfiguration = {
       system,
+      isPowerProfile,
       modules,
     }:
       darwin.lib.darwinSystem {
         inherit system;
         specialArgs = {
           userConfig = validatedConfig;
-          inherit nixpkgsConfig self;
+          inherit nixpkgsConfig self isPowerProfile;
         };
         modules = commonModules ++ modules;
       };
   in {
     # Standard Profile - MacBook Air
     # Minimal configuration: Core apps, no Parallels, single Ollama model
+    # Profile differentiation: modules can check `isPowerProfile` from specialArgs
     darwinConfigurations.standard = mkDarwinConfiguration {
       system = "aarch64-darwin"; # Apple Silicon (can also support x86_64-darwin)
+      isPowerProfile = false;
       modules = [
         {
-          # Profile identifier
-          system.profile = "standard";
-
           # Standard profile specific settings (to be expanded in Epic-02)
-          # - No Parallels Desktop
+          # - No Parallels Desktop (isPowerProfile = false)
           # - Minimal app set
           # - Single Ollama model (gpt-oss:20b)
         }
@@ -157,15 +157,14 @@
 
     # Power Profile - MacBook Pro M3 Max
     # Full configuration: All apps, Parallels enabled, multiple Ollama models
+    # Profile differentiation: modules can check `isPowerProfile` from specialArgs
     darwinConfigurations.power = mkDarwinConfiguration {
       system = "aarch64-darwin"; # Apple Silicon only
+      isPowerProfile = true;
       modules = [
         {
-          # Profile identifier
-          system.profile = "power";
-
           # Power profile specific settings (to be expanded in Epic-02)
-          # - Parallels Desktop enabled
+          # - Parallels Desktop enabled (isPowerProfile = true)
           # - Full app set
           # - Multiple Ollama models (gpt-oss:20b, qwen2.5-coder:32b, llama3.1:70b, deepseek-r1:32b)
         }

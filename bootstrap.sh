@@ -170,6 +170,9 @@ main() {
 }
 
 # Only run main if script is executed directly (not sourced for testing)
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+# When piped (curl | bash): BASH_SOURCE is unbound → run main
+# When executed directly: BASH_SOURCE[0] == $0 → run main
+# When sourced for testing: BASH_SOURCE[0] != $0 → skip main
+if [[ -z "${BASH_SOURCE[0]:-}" ]] || [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
 fi

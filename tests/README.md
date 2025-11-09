@@ -45,6 +45,9 @@ bats tests/bootstrap_preflight.bats
 # Phase 2: User information prompts
 bats tests/bootstrap_user_prompts.bats
 
+# Phase 2: Profile selection
+bats tests/bootstrap_profile_selection.bats
+
 # Run all test suites
 bats tests/*.bats
 ```
@@ -136,7 +139,47 @@ The `bootstrap_user_prompts.bats` test suite validates:
    - Leading/trailing hyphen enforcement
    - Global variable declarations
 
-**Total: 54 automated tests**
+### Phase 2: Profile Selection
+
+The `bootstrap_profile_selection.bats` test suite validates:
+
+1. **Function Existence** (4 tests)
+   - select_installation_profile()
+   - display_profile_options()
+   - confirm_profile_choice()
+   - get_profile_display_name()
+
+2. **Profile Choice Validation** (11 tests)
+   - Valid choices: 1 (Standard), 2 (Power)
+   - Invalid choices: 0, 3, negative numbers, decimals, non-numeric, empty, whitespace
+   - Special character rejection
+
+3. **Profile Name Conversion** (5 tests)
+   - Choice 1 → "standard"
+   - Choice 2 → "power"
+   - Invalid input defaults to "standard"
+   - Empty input defaults to "standard"
+   - Non-numeric defaults to "standard"
+
+4. **Profile Description Display** (10 tests)
+   - Standard profile description shown
+   - Power profile description shown
+   - Disk usage estimates (~35GB for Standard, ~120GB for Power)
+   - Target hardware (MacBook Air vs MacBook Pro M3 Max)
+   - Ollama model counts (1 vs 4)
+   - Virtualization differences (no virtualization vs Parallels Desktop)
+
+5. **Confirmation Flow** (3 tests)
+   - Standard profile confirmation message
+   - Power profile confirmation message
+   - Unknown profile handling
+
+6. **Integration Tests** (3 tests)
+   - INSTALL_PROFILE variable declaration
+   - Phase 2 execution order
+   - Profile value format validation
+
+**Total: 150 automated tests** (54 Phase 2 user prompts + 96 Phase 2 profile selection)
 
 ## Manual Testing
 
@@ -202,6 +245,49 @@ FX should perform these manual tests in a VM to validate Phase 2 functionality:
    - Try leaving name empty (just press Enter)
    - Try entering only spaces for name
    - Expected: Error message requiring non-empty name
+
+### Phase 2 Profile Selection Manual Tests
+
+FX should perform these manual tests in a VM to validate profile selection functionality:
+
+1. **Standard Profile Selection Test**
+   ```bash
+   ./bootstrap.sh
+   # Complete user info phase
+   # Profile prompt: Enter 1
+   # Confirm: y
+   # Expected: INSTALL_PROFILE set to "standard", proceed to Phase 3
+   ```
+
+2. **Power Profile Selection Test**
+   ```bash
+   ./bootstrap.sh
+   # Complete user info phase
+   # Profile prompt: Enter 2
+   # Confirm: y
+   # Expected: INSTALL_PROFILE set to "power", proceed to Phase 3
+   ```
+
+3. **Invalid Profile Choice Test**
+   - Try entering invalid choices: `0`, `3`, `99`, `-1`, `abc`, `1.5`
+   - Expected: Error message "Invalid choice. Please enter 1 for Standard or 2 for Power."
+   - Finally enter valid choice: `1` or `2`
+
+4. **Profile Confirmation Rejection Test**
+   - Enter valid choice: `1`
+   - At confirmation prompt, enter: `n`
+   - Expected: Re-prompt for profile selection from beginning
+
+5. **Profile Display Validation Test**
+   - Verify profile descriptions are clear and accurate:
+     - Standard: MacBook Air, 1 Ollama model, no virtualization, ~35GB
+     - Power: MacBook Pro M3 Max, 4 Ollama models, Parallels Desktop, ~120GB
+   - Expected: All information matches REQUIREMENTS.md specifications
+
+6. **Profile Variable Persistence Test**
+   - Select a profile and confirm
+   - Verify INSTALL_PROFILE variable is set correctly in subsequent phases
+   - Expected: Variable persists throughout bootstrap execution
 
 ## Testing Unmerged Branches in VM
 

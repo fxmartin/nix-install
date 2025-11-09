@@ -875,6 +875,252 @@ FX should perform these manual tests in a VM to validate Nix configuration funct
    # Expected: Comments indicating Story 01.4-002
    ```
 
+### Phase 5: Nix-Darwin Installation
+
+The `bootstrap_nix_darwin.bats` test suite validates:
+
+1. **Function Existence** (6 tests)
+   - fetch_flake_from_github()
+   - copy_user_config()
+   - initialize_git_for_flake()
+   - run_nix_darwin_build()
+   - verify_nix_darwin_installed()
+   - install_nix_darwin_phase()
+
+2. **GitHub Fetch Logic** (15 tests)
+   - Creates darwin/ directory
+   - Creates home-manager/modules/ directory structure
+   - Fetches flake.nix from GitHub main branch
+   - Fetches flake.lock from GitHub main branch
+   - Fetches all darwin/*.nix configuration files
+   - Fetches all home-manager/*.nix files
+   - Validates all downloaded files are non-empty
+   - Handles curl failures gracefully with clear error messages
+   - Uses correct GitHub repository URLs (fxmartin/nix-install)
+   - Exits on fetch failure (CRITICAL)
+   - Logs progress messages during downloads
+   - Validates all required files present after fetch
+   - Fetches from main branch specifically
+   - Logs errors with actionable guidance
+
+3. **User Config Copy** (10 tests)
+   - Validates source file exists before copying
+   - Copies user-config.nix to flake directory correctly
+   - Preserves file permissions during copy
+   - Validates destination file is readable
+   - Handles missing source file with clear error
+   - Exits on copy failure (CRITICAL)
+   - Logs success message with source/destination paths
+   - Validates file content preserved (checks for expected content)
+   - Handles existing destination file (overwrites)
+   - Logs error with helpful guidance on failure
+
+4. **Git Initialization** (8 tests)
+   - Runs git init in correct directory ($WORK_DIR)
+   - Adds all files with git add .
+   - Creates initial commit with descriptive message
+   - Handles git command not found (warning, not failure)
+   - Idempotent - safe to run multiple times
+   - Logs warning on git failure (NON-CRITICAL)
+   - Continues execution even if git fails
+   - Logs success message when git initialized
+
+5. **Nix-Darwin Build** (12 tests)
+   - Uses correct profile (standard) from $INSTALL_PROFILE
+   - Uses correct profile (power) from $INSTALL_PROFILE
+   - Changes to work directory before build
+   - Runs nix run nix-darwin -- switch command
+   - Uses flake path format (.#standard or .#power)
+   - Displays progress messages during 10-20 minute build
+   - Shows Nix build output (not suppressed)
+   - Exits on build failure (CRITICAL)
+   - Returns 0 on successful build
+   - Displays build duration estimate prominently
+   - Mentions Homebrew installation in progress output
+   - Logs clear error with troubleshooting guidance on failure
+
+6. **Verification Logic** (10 tests)
+   - Checks darwin-rebuild command exists
+   - Checks Homebrew exists at /opt/homebrew/bin/brew
+   - Exits on missing darwin-rebuild (CRITICAL)
+   - Exits on missing Homebrew (CRITICAL)
+   - Logs success message when all verifications pass
+   - Uses command -v for darwin-rebuild detection
+   - Checks executable flag on Homebrew binary
+   - Logs clear error on darwin-rebuild missing
+   - Logs clear error on Homebrew missing
+   - Returns 0 only when all verifications succeed
+
+7. **Orchestration** (10 tests)
+   - Calls fetch_flake_from_github first
+   - Calls copy_user_config second
+   - Calls initialize_git_for_flake third
+   - Calls run_nix_darwin_build fourth
+   - Calls verify_nix_darwin_installed fifth
+   - Logs phase start with timestamp
+   - Logs phase end with duration and summary
+   - Exits on any CRITICAL function failure
+   - Returns 0 on all functions succeeding
+   - Includes phase duration calculation and display
+
+8. **Error Handling** (10 tests)
+   - fetch_flake_from_github is CRITICAL (exits on failure)
+   - copy_user_config is CRITICAL (exits on failure)
+   - initialize_git_for_flake is NON-CRITICAL (logs warning)
+   - run_nix_darwin_build is CRITICAL (exits on failure)
+   - verify_nix_darwin_installed is CRITICAL (exits on failure)
+   - Clear error messages for all failure scenarios
+   - Actionable guidance in all error messages
+   - Error messages include troubleshooting steps
+   - Exit codes consistently indicate success/failure
+
+9. **Integration Tests** (5 tests)
+   - Phase 5 variables available ($INSTALL_PROFILE, etc.)
+   - Work directory accessible and writable
+   - user-config.nix available from Phase 2
+   - All functions callable from main()
+   - End-to-end phase execution succeeds
+
+**Total Phase 5 Tests: 86**
+
+### Phase 5 Nix-Darwin Installation Manual Tests
+
+FX should perform these manual tests in a VM to validate Phase 5 functionality:
+
+1. **Standard Profile Build Test**
+   ```bash
+   ./bootstrap.sh
+   # Complete Phases 1-4 (user info, profile selection, Xcode, Nix)
+   # Profile selection: Enter 1 (Standard)
+   # Expected: Fetches flake configuration from GitHub
+   # Expected: Displays "Estimated time: 10-20 minutes" warning
+   # Expected: Shows Nix build progress with download messages
+   # Expected: Installs Homebrew automatically
+   # Expected: darwin-rebuild command available after completion
+   # Expected: /opt/homebrew/bin/brew exists and is executable
+   # Expected: Phase completes in 10-25 minutes
+   # Expected: Success message with phase duration displayed
+   ```
+
+2. **Power Profile Build Test**
+   ```bash
+   ./bootstrap.sh
+   # Complete Phases 1-4
+   # Profile selection: Enter 2 (Power)
+   # Expected: Builds with Power profile (.#power)
+   # Expected: All Standard profile expectations apply
+   # Expected: May take longer due to additional packages
+   ```
+
+3. **GitHub Fetch Validation Test**
+   ```bash
+   # After Phase 5 starts
+   ls -la /tmp/nix-bootstrap/
+   # Expected: Directory structure created:
+   #   - flake.nix
+   #   - flake.lock
+   #   - user-config.nix
+   #   - darwin/configuration.nix
+   #   - darwin/homebrew.nix
+   #   - darwin/macos-defaults.nix
+   #   - home-manager/home.nix
+   #   - home-manager/modules/shell.nix
+   #   - .git/ (Git repository initialized)
+   ```
+
+4. **Build Progress Observation Test**
+   - Watch build output carefully
+   - Expected messages:
+     - "Fetching flake configuration from GitHub..."
+     - "Starting nix-darwin build (this will take 10-20 minutes)..."
+     - "Downloading packages from cache.nixos.org..."
+     - "Building system configuration..."
+     - "Installing Homebrew and applications..."
+     - Many "building..." and "downloading..." messages (normal)
+     - "nix-darwin build completed successfully!"
+
+5. **Build Failure Recovery Test**
+   ```bash
+   # Simulate network disconnection during Phase 5
+   # Turn off Wi-Fi or disconnect ethernet after build starts
+   # Expected: Build fails with clear error message
+   # Expected: Error indicates network connectivity issue
+   # Expected: Troubleshooting guidance displayed
+   # Expected: Bootstrap exits cleanly with error code
+
+   # Reconnect network and retry
+   ./bootstrap.sh
+   # Expected: Resumes from Phase 5 (previous phases completed)
+   # Expected: Build succeeds on retry
+   ```
+
+6. **Installation Verification Test**
+   ```bash
+   # After Phase 5 completes successfully
+
+   # Check darwin-rebuild availability
+   which darwin-rebuild
+   # Expected: /run/current-system/sw/bin/darwin-rebuild
+
+   darwin-rebuild --version
+   # Expected: Version information displayed
+
+   # Check Homebrew installation
+   /opt/homebrew/bin/brew --version
+   # Expected: Homebrew version displayed
+
+   # Check system configuration
+   ls -la /run/current-system/
+   # Expected: System generation directories visible
+
+   # Verify nix-darwin flake
+   cd /tmp/nix-bootstrap
+   nix flake show
+   # Expected: Shows darwinConfigurations.standard and .power
+   ```
+
+7. **Git Repository Validation Test**
+   ```bash
+   # After Phase 5 completes
+   cd /tmp/nix-bootstrap
+
+   # Check Git status
+   git status
+   # Expected: Clean working tree, initial commit exists
+
+   # Check Git log
+   git log --oneline
+   # Expected: "Initial flake setup for nix-darwin installation"
+
+   # Verify all files tracked
+   git ls-files
+   # Expected: All .nix files listed
+   ```
+
+## Test Summary
+
+**Total Automated Tests: 485 tests** (399 + 86 Phase 5 tests)
+
+**Test Distribution:**
+- Phase 1 (Pre-flight): 65 tests (bootstrap_preflight.bats)
+- Phase 2 (User Prompts): 61 tests (bootstrap_user_prompts.bats)
+- Phase 2 (Profile Selection): 51 tests (bootstrap_profile_selection.bats)
+- Phase 2 (User Config): 63 tests (bootstrap_user_config.bats)
+- Phase 3 (Xcode CLI Tools): 65 tests (bootstrap_xcode.bats)
+- Phase 4 (Nix Installation): 52 tests (bootstrap_nix.bats)
+- Phase 4 (Nix Configuration): 62 tests (bootstrap_nix_config.bats)
+- Phase 5 (Nix-Darwin Installation): 86 tests (bootstrap_nix_darwin.bats)
+
+**Manual VM Test Scenarios: 46 scenarios**
+- Phase 1: 5 scenarios
+- Phase 2 (User Info): 6 scenarios
+- Phase 2 (Profile Selection): 6 scenarios
+- Phase 2 (User Config): 7 scenarios
+- Phase 3 (Xcode): 7 scenarios
+- Phase 4 (Nix Installation): 5 scenarios
+- Phase 4 (Nix Configuration): 7 scenarios
+- Phase 5 (Nix-Darwin): 7 scenarios
+
 ## Testing Unmerged Branches in VM
 
 To test the bootstrap script from a feature branch (before merging to main) in a VM:

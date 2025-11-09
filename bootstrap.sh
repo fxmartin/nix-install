@@ -1431,6 +1431,396 @@ configure_nix_phase() {
     return 0
 }
 
+# =============================================================================
+# PHASE 5: NIX-DARWIN INSTALLATION (Story 01.5-001)
+# =============================================================================
+
+# Function: fetch_flake_from_github
+# Purpose: Download all required Nix configuration files from GitHub repository
+# Downloads: flake.nix, flake.lock, darwin/*.nix, home-manager/*.nix
+# Arguments: None (uses $WORK_DIR environment variable)
+# Returns: 0 on success, 1 on failure (CRITICAL - exits on failure)
+fetch_flake_from_github() {
+    local github_repo="https://raw.githubusercontent.com/fxmartin/nix-install"
+    local github_branch="main"
+    local base_url="${github_repo}/${github_branch}"
+
+    log_info "Fetching flake configuration from GitHub..."
+    log_info "Repository: ${github_repo}"
+    log_info "Branch: ${github_branch}"
+    echo ""
+
+    # Create directory structure
+    log_info "Creating directory structure..."
+    mkdir -p "${WORK_DIR}/darwin" || {
+        log_error "Failed to create darwin/ directory"
+        return 1
+    }
+    mkdir -p "${WORK_DIR}/home-manager/modules" || {
+        log_error "Failed to create home-manager/modules/ directory"
+        return 1
+    }
+
+    # Change to work directory
+    cd "${WORK_DIR}" || {
+        log_error "Failed to change to work directory: ${WORK_DIR}"
+        return 1
+    }
+
+    # Fetch root-level files
+    log_info "Fetching flake.nix..."
+    if ! curl -fsSL -o flake.nix "${base_url}/flake.nix"; then
+        log_error "Failed to fetch flake.nix from GitHub"
+        return 1
+    fi
+    [[ -s flake.nix ]] || {
+        log_error "Downloaded flake.nix is empty"
+        return 1
+    }
+
+    log_info "Fetching flake.lock..."
+    if ! curl -fsSL -o flake.lock "${base_url}/flake.lock"; then
+        log_error "Failed to fetch flake.lock from GitHub"
+        return 1
+    fi
+    [[ -s flake.lock ]] || {
+        log_error "Downloaded flake.lock is empty"
+        return 1
+    }
+
+    # Fetch darwin configuration files
+    log_info "Fetching darwin configuration files..."
+    local darwin_files=(
+        "configuration.nix"
+        "homebrew.nix"
+        "macos-defaults.nix"
+    )
+
+    for file in "${darwin_files[@]}"; do
+        log_info "  - darwin/${file}"
+        if ! curl -fsSL -o "darwin/${file}" "${base_url}/darwin/${file}"; then
+            log_error "Failed to fetch darwin/${file}"
+            return 1
+        fi
+        [[ -s "darwin/${file}" ]] || {
+            log_error "Downloaded darwin/${file} is empty"
+            return 1
+        }
+    done
+
+    # Fetch home-manager configuration files
+    log_info "Fetching home-manager configuration files..."
+    log_info "  - home-manager/home.nix"
+    if ! curl -fsSL -o "home-manager/home.nix" "${base_url}/home-manager/home.nix"; then
+        log_error "Failed to fetch home-manager/home.nix"
+        return 1
+    fi
+    [[ -s "home-manager/home.nix" ]] || {
+        log_error "Downloaded home-manager/home.nix is empty"
+        return 1
+    }
+
+    log_info "  - home-manager/modules/shell.nix"
+    if ! curl -fsSL -o "home-manager/modules/shell.nix" "${base_url}/home-manager/modules/shell.nix"; then
+        log_error "Failed to fetch home-manager/modules/shell.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/shell.nix" ]] || {
+        log_error "Downloaded home-manager/modules/shell.nix is empty"
+        return 1
+    }
+
+    echo ""
+    log_success "All configuration files fetched successfully"
+    log_info "Files downloaded:"
+    log_info "  • flake.nix"
+    log_info "  • flake.lock"
+    log_info "  • darwin/configuration.nix"
+    log_info "  • darwin/homebrew.nix"
+    log_info "  • darwin/macos-defaults.nix"
+    log_info "  • home-manager/home.nix"
+    log_info "  • home-manager/modules/shell.nix"
+    echo ""
+
+    return 0
+}
+
+# Function: copy_user_config
+# Purpose: Copy user-config.nix to flake directory
+# Arguments: None (uses $USER_CONFIG_FILE and $WORK_DIR environment variables)
+# Returns: 0 on success, 1 on failure (CRITICAL - exits on failure)
+copy_user_config() {
+    log_info "Copying user configuration to flake directory..."
+
+    # Validate source file exists
+    if [[ ! -f "${USER_CONFIG_FILE}" ]]; then
+        log_error "User configuration file not found: ${USER_CONFIG_FILE}"
+        log_error "This file should have been created in Phase 2"
+        return 1
+    fi
+
+    # Validate source file is readable
+    if [[ ! -r "${USER_CONFIG_FILE}" ]]; then
+        log_error "User configuration file is not readable: ${USER_CONFIG_FILE}"
+        return 1
+    fi
+
+    # Copy to work directory
+    if ! cp "${USER_CONFIG_FILE}" "${WORK_DIR}/user-config.nix"; then
+        log_error "Failed to copy user-config.nix to ${WORK_DIR}"
+        return 1
+    fi
+
+    # Validate destination file
+    if [[ ! -r "${WORK_DIR}/user-config.nix" ]]; then
+        log_error "Copied user-config.nix is not readable"
+        return 1
+    fi
+
+    log_success "User configuration copied successfully"
+    log_info "Source: ${USER_CONFIG_FILE}"
+    log_info "Destination: ${WORK_DIR}/user-config.nix"
+    echo ""
+
+    return 0
+}
+
+# Function: initialize_git_for_flake
+# Purpose: Initialize Git repository in flake directory to satisfy nix-darwin requirements
+# Flakes require a Git repository to track changes and ensure reproducibility
+# Arguments: None (uses $WORK_DIR environment variable)
+# Returns: 0 always (NON-CRITICAL - logs warning on failure)
+initialize_git_for_flake() {
+    log_info "Initializing Git repository for flake..."
+
+    # Change to work directory
+    if ! cd "${WORK_DIR}"; then
+        log_warn "Failed to change to work directory: ${WORK_DIR}"
+        log_warn "Git initialization skipped (will use --impure flag)"
+        return 0
+    fi
+
+    # Check if Git is available
+    if ! command -v git >/dev/null 2>&1; then
+        log_warn "Git command not found"
+        log_warn "This is unexpected since Git was required for Xcode CLI Tools"
+        log_warn "nix-darwin build will use --impure flag as fallback"
+        return 0
+    fi
+
+    # Initialize Git repository (idempotent)
+    if [[ -d "${WORK_DIR}/.git" ]]; then
+        log_info "Git repository already initialized"
+    else
+        if ! git init; then
+            log_warn "Failed to initialize Git repository"
+            log_warn "nix-darwin build will use --impure flag as fallback"
+            return 0
+        fi
+        log_info "✓ Git repository initialized"
+    fi
+
+    # Add all files
+    if ! git add .; then
+        log_warn "Failed to add files to Git"
+        log_warn "nix-darwin build may fail, will use --impure flag as fallback"
+        return 0
+    fi
+
+    # Create initial commit
+    if ! git commit -m "Initial flake setup for nix-darwin installation" >/dev/null 2>&1; then
+        log_warn "Failed to create initial commit"
+        log_warn "This is non-critical, continuing anyway"
+        return 0
+    fi
+
+    log_success "Git repository initialized and files committed"
+    echo ""
+
+    return 0
+}
+
+# Function: run_nix_darwin_build
+# Purpose: Execute initial nix-darwin build using flake configuration
+# This is the CORE operation of Phase 5 - builds system from declarative config
+# Arguments: None (uses $INSTALL_PROFILE and $WORK_DIR environment variables)
+# Returns: 0 on success, 1 on failure (CRITICAL - exits on failure)
+run_nix_darwin_build() {
+    local flake_ref=".#${INSTALL_PROFILE}"
+
+    echo ""
+    log_info "========================================"
+    log_info "STARTING NIX-DARWIN INITIAL BUILD"
+    log_info "========================================"
+    log_info "Profile: ${INSTALL_PROFILE}"
+    log_info "Flake reference: ${flake_ref}"
+    log_info "Work directory: ${WORK_DIR}"
+    echo ""
+    log_warn "⏱️  ESTIMATED TIME: 10-20 MINUTES"
+    log_warn "This is normal for the first build"
+    echo ""
+    log_info "What's happening during this build:"
+    log_info "  1. Evaluating flake configuration"
+    log_info "  2. Downloading packages from cache.nixos.org"
+    log_info "  3. Installing Homebrew (managed by nix-darwin)"
+    log_info "  4. Building system configuration"
+    log_info "  5. Activating new system generation"
+    echo ""
+    log_info "You will see many download messages - this is expected!"
+    log_info "The build output will be displayed below..."
+    echo ""
+
+    # Change to work directory
+    if ! cd "${WORK_DIR}"; then
+        log_error "Failed to change to work directory: ${WORK_DIR}"
+        return 1
+    fi
+
+    # Run nix-darwin build
+    # Note: We use 'nix run nix-darwin -- switch' for first-time installation
+    # After installation, we'll use 'darwin-rebuild switch' for updates
+    log_info "Executing: nix run nix-darwin -- switch --flake ${flake_ref}"
+    echo ""
+
+    if ! nix run nix-darwin -- switch --flake "${flake_ref}"; then
+        log_error "nix-darwin build failed"
+        log_error "This is a critical error - system configuration could not be applied"
+        echo ""
+        log_info "Common causes:"
+        log_info "  • Network connectivity issues (check internet connection)"
+        log_info "  • Invalid flake configuration (syntax errors in Nix files)"
+        log_info "  • Insufficient disk space (check with 'df -h')"
+        log_info "  • Permission issues (ensure user is in trusted-users)"
+        echo ""
+        log_info "Troubleshooting:"
+        log_info "  1. Check /var/log/nix-daemon.log for detailed errors"
+        log_info "  2. Verify flake syntax: cd ${WORK_DIR} && nix flake check"
+        log_info "  3. Try manual build: cd ${WORK_DIR} && nix run nix-darwin -- switch --flake ${flake_ref}"
+        echo ""
+        return 1
+    fi
+
+    echo ""
+    log_success "nix-darwin build completed successfully!"
+    log_info "System configuration has been activated"
+    log_info "Homebrew has been installed and is managed by nix-darwin"
+    echo ""
+
+    return 0
+}
+
+# Function: verify_nix_darwin_installed
+# Purpose: Verify nix-darwin and Homebrew are properly installed
+# Arguments: None
+# Returns: 0 on success, 1 on failure (CRITICAL - exits on failure)
+verify_nix_darwin_installed() {
+    log_info "Verifying nix-darwin installation..."
+
+    # Check darwin-rebuild command
+    if ! command -v darwin-rebuild >/dev/null 2>&1; then
+        log_error "darwin-rebuild command not found"
+        log_error "nix-darwin installation appears to have failed"
+        log_info "Expected location: /run/current-system/sw/bin/darwin-rebuild"
+        return 1
+    fi
+    log_info "✓ darwin-rebuild command available"
+
+    # Check Homebrew installation
+    if [[ ! -x /opt/homebrew/bin/brew ]]; then
+        log_error "Homebrew not found at /opt/homebrew/bin/brew"
+        log_error "Homebrew should have been installed automatically by nix-darwin"
+        return 1
+    fi
+    log_info "✓ Homebrew installed at /opt/homebrew/bin/brew"
+
+    echo ""
+    log_success "nix-darwin installation verified successfully"
+    log_info "Your system is now managed declaratively!"
+    echo ""
+
+    return 0
+}
+
+# Function: install_nix_darwin_phase
+# Purpose: Orchestrate Phase 5 - nix-darwin installation from flake
+# Coordinates: fetch files, copy config, git init, build, verify
+# Arguments: None
+# Returns: 0 on success, 1 on critical failure
+install_nix_darwin_phase() {
+    local phase_start
+    phase_start=$(date +%s)
+
+    echo ""
+    log_info "========================================"
+    log_info "PHASE 5: NIX-DARWIN INSTALLATION"
+    log_info "Story 01.5-001: Install nix-darwin"
+    log_info "========================================"
+    log_info "This phase will:"
+    log_info "  1. Fetch flake configuration from GitHub"
+    log_info "  2. Copy user configuration"
+    log_info "  3. Initialize Git repository"
+    log_info "  4. Run initial nix-darwin build (10-20 minutes)"
+    log_info "  5. Verify installation"
+    echo ""
+    log_warn "Estimated total time: 10-25 minutes"
+    log_warn "Most time is spent downloading and building packages"
+    echo ""
+
+    # Step 1: Fetch flake configuration from GitHub (CRITICAL)
+    if ! fetch_flake_from_github; then
+        log_error "Failed to fetch flake configuration from GitHub"
+        return 1
+    fi
+
+    # Step 2: Copy user configuration (CRITICAL)
+    if ! copy_user_config; then
+        log_error "Failed to copy user configuration"
+        return 1
+    fi
+
+    # Step 3: Initialize Git repository (NON-CRITICAL)
+    # This helps satisfy nix-darwin's Git requirement but isn't essential
+    initialize_git_for_flake || true
+
+    # Step 4: Run nix-darwin build (CRITICAL)
+    if ! run_nix_darwin_build; then
+        log_error "nix-darwin build failed"
+        return 1
+    fi
+
+    # Step 5: Verify installation (CRITICAL)
+    if ! verify_nix_darwin_installed; then
+        log_error "nix-darwin verification failed"
+        return 1
+    fi
+
+    local phase_end
+    phase_end=$(date +%s)
+    local phase_duration=$((phase_end - phase_start))
+    local phase_minutes=$((phase_duration / 60))
+    local phase_seconds=$((phase_duration % 60))
+
+    echo ""
+    log_success "========================================"
+    log_success "PHASE 5 COMPLETE: NIX-DARWIN INSTALLED"
+    log_success "========================================"
+    log_info "Phase duration: ${phase_minutes}m ${phase_seconds}s"
+    log_info "Profile: ${INSTALL_PROFILE}"
+    echo ""
+    log_info "What was accomplished:"
+    log_info "  ✓ Flake configuration fetched from GitHub"
+    log_info "  ✓ User configuration integrated"
+    log_info "  ✓ Git repository initialized"
+    log_info "  ✓ nix-darwin installed and activated"
+    log_info "  ✓ Homebrew installed and configured"
+    echo ""
+    log_info "Your system is now managed declaratively by nix-darwin!"
+    log_info "Future updates: darwin-rebuild switch --flake ${WORK_DIR}#${INSTALL_PROFILE}"
+    echo ""
+
+    return 0
+}
+
 # Main execution flow
 main() {
     echo ""
@@ -1527,10 +1917,24 @@ main() {
     fi
 
     # ==========================================================================
-    # FUTURE PHASES (5-10)
+    # PHASE 5: NIX-DARWIN INSTALLATION
+    # ==========================================================================
+    # Story 01.5-001: Install nix-darwin from flake configuration
+    # Downloads flake from GitHub, runs initial build, installs Homebrew
+    # ==========================================================================
+
+    # shellcheck disable=SC2310  # Intentional: Using ! to handle installation failure
+    if ! install_nix_darwin_phase; then
+        log_error "Nix-darwin installation failed"
+        log_error "Bootstrap process terminated."
+        exit 1
+    fi
+
+    # ==========================================================================
+    # FUTURE PHASES (6-10)
     # ==========================================================================
     # Future phases will be added here in subsequent stories
-    log_warn "Bootstrap implementation incomplete - Phases 5-10 not yet implemented"
+    log_warn "Bootstrap implementation incomplete - Phases 6-10 not yet implemented"
     log_warn "Remaining phases will be added in future stories"
 
     exit 0

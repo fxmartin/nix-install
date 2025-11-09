@@ -620,17 +620,33 @@
   ```
 
 **Definition of Done**:
-- [ ] flake.nix created with Standard and Power profiles
-- [ ] darwin/configuration.nix created with minimal system config
-- [ ] darwin/homebrew.nix created (empty or minimal Homebrew setup)
-- [ ] darwin/macos-defaults.nix stub created
-- [ ] home-manager/home.nix created with user config integration
-- [ ] home-manager/modules/shell.nix stub created
-- [ ] `nix flake check` passes validation
-- [ ] `nix flake show` displays both profiles correctly
-- [ ] ABOUTME comments on all new files
-- [ ] All new files committed to repository
-- [ ] Documentation updated with flake structure explanation
+- [x] flake.nix created with Standard and Power profiles ✅
+- [x] darwin/configuration.nix created with minimal system config ✅
+- [x] darwin/homebrew.nix created (empty or minimal Homebrew setup) ✅
+- [x] darwin/macos-defaults.nix stub created ✅
+- [x] home-manager/home.nix created with user config integration ✅
+- [x] home-manager/modules/shell.nix stub created ✅
+- [x] `nix flake check` passes validation ✅
+- [x] `nix flake show` displays both profiles correctly ✅
+- [x] ABOUTME comments on all new files ✅
+- [x] All new files committed to repository ✅
+- [x] Documentation updated with flake structure explanation ✅
+
+**Implementation Notes**:
+- Story completed on main branch (2025-11-09)
+- 6 files created (545 total lines): flake.nix (180), darwin/configuration.nix (120), darwin/homebrew.nix (60), darwin/macos-defaults.nix (53), home-manager/home.nix (66), home-manager/modules/shell.nix (66)
+- All files include comprehensive ABOUTME comments and stub documentation for future epics
+- Profile differentiation via isPowerProfile boolean parameter in specialArgs
+- Auto-updates disabled for Homebrew (onActivation.autoUpdate = false, HOMEBREW_NO_AUTO_UPDATE = 1)
+- Validation with `nix flake update`, `nix flake check`, `nix flake show`
+- ✅ **VM TESTED - ALL VALIDATION PASSED** (2025-11-09)
+  - nix flake update: Successfully generated flake.lock
+  - nix flake check: Passed (expected warning about x86_64-darwin)
+  - nix flake show: Displayed standard and power configurations
+  - nix build --dry-run: Both profiles validated successfully
+- **Bug Fixed**: Removed invalid system.profile option, replaced with isPowerProfile pattern (commit fca880d)
+- Dev-log summary created: dev-logs/story-01.4-003-summary.md (975 lines)
+- All progress synchronized in DEVELOPMENT.md, README.md, STORIES.md, and epic files
 
 **Dependencies**:
 - Story 01.4-001 (Nix installed) ✅ COMPLETED

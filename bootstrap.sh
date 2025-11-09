@@ -762,28 +762,10 @@ wait_for_xcode_installation() {
     return 0
 }
 
-# Accept Xcode license agreement
-# Requires sudo password
-# Returns: 0 if license accepted, 1 on failure
-accept_xcode_license() {
-    log_info "Accepting Xcode license agreement..."
-    echo ""
-
-    sudo xcodebuild -license accept 2>/dev/null
-    local exit_code=$?
-
-    if [[ ${exit_code} -eq 0 ]]; then
-        log_info "✓ Xcode license accepted"
-        return 0
-    elif [[ ${exit_code} -eq 69 ]]; then
-        log_warn "License already accepted or not required"
-        return 0
-    else
-        log_error "Failed to accept Xcode license (exit code: ${exit_code})"
-        log_error "You may need to run: sudo xcodebuild -license accept"
-        return 1
-    fi
-}
+# Note: License acceptance function removed
+# The 'xcodebuild' command requires full Xcode.app, not just CLI Tools
+# Xcode CLI Tools do not require license acceptance and work immediately
+# If full Xcode is installed later, license is handled by Xcode.app itself
 
 # Verify Xcode CLI Tools installation succeeded
 # Returns: 0 if verified, 1 on failure
@@ -838,11 +820,10 @@ install_xcode_phase() {
         return 1
     fi
 
-    # Accept license
-    if ! accept_xcode_license; then
-        log_warn "License acceptance failed, but installation succeeded"
-        log_warn "You may need to accept manually later"
-    fi
+    # Note: License acceptance NOT needed for CLI Tools only
+    # The 'xcodebuild' command requires full Xcode.app, not CLI Tools
+    # CLI Tools work perfectly without any license acceptance
+    # If full Xcode is installed later, license acceptance happens separately
 
     log_info "✓ Xcode CLI Tools installation phase complete"
     echo ""

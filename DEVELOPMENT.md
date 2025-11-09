@@ -7,7 +7,7 @@
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 15 | 89 | **7** | **39** | 46.7% | 43.8% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 16 | 97 | **7** | **39** | 43.8% | 40.2% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -15,9 +15,9 @@
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **108** | **577** | **7** | **39** | **6.5%** | **6.8%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **109** | **585** | **7** | **39** | **6.4%** | **6.7%** | 🟡 In Progress |
 
-### Epic-01 Completed Stories (7/15)
+### Epic-01 Completed Stories (7/16)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -31,14 +31,15 @@
 
 ### Overall Project Status
 
-- **Total Project Scope**: 108 stories, 577 story points
-- **Completed**: 7 stories (6.5%), 39 points (6.8%)
-- **In Progress**: Epic-01 Bootstrap & Installation (46.7% complete)
+- **Total Project Scope**: 109 stories, 585 story points
+- **Completed**: 7 stories (6.4%), 39 points (6.7%)
+- **In Progress**: Epic-01 Bootstrap & Installation (43.8% complete by stories, 40.2% by points)
 - **Current Phase**: Phase 0-2 (Foundation + Bootstrap, Week 1-2)
-- **Next Story**: 01.3-002 (Homebrew Installation - 5 points) or 01.5-001 (SSH Key Generation - 5 points)
+- **Next Story**: 01.4-003 (Flake Infrastructure Setup - 8 points) - CRITICAL BLOCKER for nix-darwin
 
 ### Recent Activity
 
+- **2025-11-09**: 📝 Created Story 01.4-003 (Flake Infrastructure Setup - 8 points) - CRITICAL BLOCKER identified and documented
 - **2025-11-09**: ✅ Completed Story 01.4-002 (Nix Configuration for macOS) - VM tested, all scenarios passed
 - **2025-11-09**: ✅ Completed Story 01.4-001 (Nix Multi-User Installation) - VM tested, all scenarios passed
 - **2025-11-09**: ✅ Completed Story 01.3-001 (Xcode CLI Tools) - VM tested, all scenarios passed
@@ -723,17 +724,18 @@ git push -u origin feature/STORY-ID
 - [ ] Story 01.3-002: Homebrew Installation (5 points)
 - [ ] Story 01.3-003: Git Configuration (8 points)
 
-#### Feature 01.4: Nix Installation (3 stories, 24 points)
+#### Feature 01.4: Nix Installation (4 stories, 29 points)
 - [x] Story 01.4-001: Nix Package Manager Installation (8 points) ✅
 - [x] Story 01.4-002: Nix Configuration for macOS (5 points) ✅
-- [ ] Story 01.4-003: Home Manager Integration (8 points)
+- [ ] Story 01.4-003: Flake Infrastructure Setup (8 points) ⏳ NEXT STORY
+- [ ] Story 01.4-004: Home Manager Integration (8 points) [RENUMBERED]
 
 #### Feature 01.5: Repository Setup (3 stories, 20 points)
 - [ ] Story 01.5-001: SSH Key Generation (5 points)
 - [ ] Story 01.5-002: GitHub SSH Upload Flow (8 points)
 - [ ] Story 01.5-003: Repository Clone & Initial Build (7 points)
 
-**Total**: 7/15 stories (39/89 points) = **43.8% complete**
+**Total**: 7/16 stories (39/97 points) = **40.2% complete**
 
 ---
 
@@ -809,9 +811,9 @@ Stories are implemented using specialized Claude Code agents for optimal results
 ---
 
 **Last Updated**: 2025-11-09
-**Current Story**: 01.4-002 (✅ Complete - Implementation done, VM testing pending)
-**Next Story**: 01.3-002 (Homebrew Installation - 5 points) or 01.5-001 (SSH Key Generation - 5 points)
-**Epic-01 Progress**: 7/15 stories (39/89 points) = 43.8% complete
+**Current Story**: Story 01.4-003 (Flake Infrastructure Setup - 8 points) - STARTING NOW
+**Next Story**: Story 01.5-001 (Initial Nix-Darwin Build - 13 points) - BLOCKED until 01.4-003 complete
+**Epic-01 Progress**: 7/16 stories (39/97 points) = 40.2% complete
 **Phase 2 Status**: 100% complete (User Configuration & Profile Selection)
 **Phase 3 Status**: Started (Xcode CLI Tools complete, Homebrew and Git pending)
-**Phase 4 Status**: In Progress (Nix installation and configuration complete, nix-darwin pending)
+**Phase 4 Status**: In Progress (Nix installation and configuration complete, flake infrastructure next)

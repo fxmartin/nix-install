@@ -1749,11 +1749,12 @@ run_nix_darwin_build() {
     # Note: We use 'nix run nix-darwin -- switch' for first-time installation
     # After installation, we'll use 'darwin-rebuild switch' for updates
     # IMPORTANT: Requires sudo for system activation (launchd, system files)
+    # IMPORTANT: Must pass --extra-experimental-features since /etc/nix/nix.conf was backed up
     log_warn "This step requires sudo privileges for system activation"
-    log_info "Executing: sudo nix run nix-darwin -- switch --flake ${flake_ref}"
+    log_info "Executing: sudo nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake ${flake_ref}"
     echo ""
 
-    if ! sudo nix run nix-darwin -- switch --flake "${flake_ref}"; then
+    if ! sudo nix --extra-experimental-features "nix-command flakes" run nix-darwin -- switch --flake "${flake_ref}"; then
         log_error "nix-darwin build failed"
         log_error "This is a critical error - system configuration could not be applied"
         echo ""
@@ -1766,7 +1767,7 @@ run_nix_darwin_build() {
         log_info "Troubleshooting:"
         log_info "  1. Check /var/log/nix-daemon.log for detailed errors"
         log_info "  2. Verify flake syntax: cd ${WORK_DIR} && nix flake check"
-        log_info "  3. Try manual build: cd ${WORK_DIR} && sudo nix run nix-darwin -- switch --flake ${flake_ref}"
+        log_info "  3. Try manual build: cd ${WORK_DIR} && sudo nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake ${flake_ref}"
         echo ""
         return 1
     fi

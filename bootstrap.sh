@@ -285,6 +285,220 @@ prompt_user_info() {
 }
 
 # =============================================================================
+# PHASE 2: USER CONFIG FILE GENERATION FUNCTIONS
+# =============================================================================
+# Story 01.2-003: User Config File Generation
+# These functions generate user-config.nix from collected user information
+# Template placeholders are replaced with actual values for personalization
+# =============================================================================
+
+# Global variable for user config file path
+USER_CONFIG_PATH="/tmp/nix-bootstrap/user-config.nix"
+
+# Create bootstrap work directory for temporary files
+# Creates /tmp/nix-bootstrap/ if it doesn't exist
+# Returns: 0 on success
+create_bootstrap_workdir() {
+    local work_dir="/tmp/nix-bootstrap"
+
+    # Create directory with proper permissions (755)
+    if ! mkdir -p "${work_dir}"; then
+        log_error "Failed to create bootstrap work directory: ${work_dir}"
+        return 1
+    fi
+
+    return 0
+}
+
+# Get current macOS username
+# Returns: Current user from $USER variable
+get_macos_username() {
+    echo "${USER}"
+}
+
+# Get and sanitize macOS hostname
+# Removes special characters, converts to lowercase
+# Only allows: alphanumeric and hyphens
+# Returns: Sanitized hostname
+get_macos_hostname() {
+    local raw_hostname
+    raw_hostname=$(hostname)
+
+    # Sanitize hostname:
+    # - Convert to lowercase
+    # - Replace underscores with hyphens
+    # - Remove periods (dots)
+    # - Remove all characters except alphanumeric and hyphens
+    local sanitized
+    sanitized=$(echo "${raw_hostname}" | \
+        tr '[:upper:]' '[:lower:]' | \
+        tr '_' '-' | \
+        tr -d '.' | \
+        sed 's/[^a-z0-9-]//g')
+
+    echo "${sanitized}"
+}
+
+# Validate basic Nix file syntax
+# Checks: file exists, not empty, balanced braces
+# Input: path to .nix file
+# Returns: 0 if valid, 1 if invalid
+validate_nix_syntax() {
+    local nix_file="$1"
+
+    # Check file exists
+    if [[ ! -f "${nix_file}" ]]; then
+        log_error "Nix config file does not exist: ${nix_file}"
+        return 1
+    fi
+
+    # Check file is readable
+    if [[ ! -r "${nix_file}" ]]; then
+        log_error "Cannot read Nix config file: ${nix_file}"
+        return 1
+    fi
+
+    # Check file is not empty
+    if [[ ! -s "${nix_file}" ]]; then
+        log_error "Nix config file is empty: ${nix_file}"
+        return 1
+    fi
+
+    # Count opening and closing braces
+    local open_braces
+    local close_braces
+    open_braces=$(grep -o '{' "${nix_file}" | wc -l | tr -d ' ')
+    close_braces=$(grep -o '}' "${nix_file}" | wc -l | tr -d ' ')
+
+    # Check braces are balanced
+    if [[ "${open_braces}" -ne "${close_braces}" ]]; then
+        log_error "Nix config has unbalanced braces: ${open_braces} open, ${close_braces} close"
+        return 1
+    fi
+
+    # Basic validation passed
+    return 0
+}
+
+# Display generated config file for user review
+# Input: path to config file
+# Returns: 0 on success, 1 on error
+display_generated_config() {
+    local config_file="$1"
+
+    # Check file exists
+    if [[ ! -f "${config_file}" ]]; then
+        log_error "Config file does not exist: ${config_file}"
+        return 1
+    fi
+
+    echo ""
+    log_info "==================================="
+    log_info "Generated User Configuration"
+    log_info "==================================="
+    echo ""
+
+    # Display file contents
+    cat "${config_file}"
+
+    echo ""
+    log_info "==================================="
+    echo ""
+
+    return 0
+}
+
+# Generate user-config.nix from template
+# Replaces placeholders with actual user values
+# Sets global variable: USER_CONFIG_PATH
+# Returns: 0 on success, 1 on error
+generate_user_config() {
+    log_info "==================================="
+    log_info "Phase 3/10: User Config Generation"
+    log_info "==================================="
+    echo ""
+
+    # Verify required variables are set
+    if [[ -z "${USER_FULLNAME:-}" ]]; then
+        log_error "USER_FULLNAME is not set. Cannot generate config."
+        return 1
+    fi
+
+    if [[ -z "${USER_EMAIL:-}" ]]; then
+        log_error "USER_EMAIL is not set. Cannot generate config."
+        return 1
+    fi
+
+    if [[ -z "${GITHUB_USERNAME:-}" ]]; then
+        log_error "GITHUB_USERNAME is not set. Cannot generate config."
+        return 1
+    fi
+
+    # Create work directory
+    log_info "Creating bootstrap work directory..."
+    if ! create_bootstrap_workdir; then
+        log_error "Failed to create work directory"
+        return 1
+    fi
+    log_info "✓ Work directory created"
+
+    # Get system information
+    local macos_username
+    macos_username=$(get_macos_username)
+    log_info "macOS username: ${macos_username}"
+
+    local hostname
+    hostname=$(get_macos_hostname)
+    log_info "Hostname (sanitized): ${hostname}"
+
+    # Set dotfiles path
+    local dotfiles_path="Documents/nix-install"
+    log_info "Dotfiles path: ${dotfiles_path}"
+
+    echo ""
+    log_info "Generating user configuration file..."
+
+    # Check template exists
+    local template_file="user-config.template.nix"
+    if [[ ! -f "${template_file}" ]]; then
+        log_error "Template file not found: ${template_file}"
+        log_error "Please ensure you're running this script from the project root directory."
+        return 1
+    fi
+
+    # Replace placeholders and generate config file
+    if ! sed -e "s/@MACOS_USERNAME@/${macos_username}/g" \
+        -e "s/@FULL_NAME@/${USER_FULLNAME}/g" \
+        -e "s/@EMAIL@/${USER_EMAIL}/g" \
+        -e "s/@GITHUB_USERNAME@/${GITHUB_USERNAME}/g" \
+        -e "s/@HOSTNAME@/${hostname}/g" \
+        -e "s|@DOTFILES_PATH@|${dotfiles_path}|g" \
+        "${template_file}" > "${USER_CONFIG_PATH}"; then
+        log_error "Failed to generate user config file"
+        return 1
+    fi
+
+    log_info "✓ Config file generated: ${USER_CONFIG_PATH}"
+
+    # Validate generated file
+    echo ""
+    log_info "Validating generated config syntax..."
+    if ! validate_nix_syntax "${USER_CONFIG_PATH}"; then
+        log_error "Generated config file has invalid syntax"
+        return 1
+    fi
+    log_info "✓ Config file syntax validated"
+
+    # Display generated config for user review
+    display_generated_config "${USER_CONFIG_PATH}"
+
+    log_info "✓ User configuration generated successfully"
+    echo ""
+
+    return 0
+}
+
+# =============================================================================
 # PHASE 2: PROFILE SELECTION FUNCTIONS
 # =============================================================================
 # Story 01.2-002: Profile Selection System
@@ -537,11 +751,19 @@ main() {
     # Story 01.2-002: Select installation profile (Standard vs Power)
     select_installation_profile
 
+    # Story 01.2-003: Generate user-config.nix from collected information
+    # shellcheck disable=SC2310  # Intentional: Using ! to handle validation failure
+    if ! generate_user_config; then
+        log_error "Failed to generate user configuration file"
+        log_error "Bootstrap process terminated."
+        exit 1
+    fi
+
     # ==========================================================================
-    # FUTURE PHASES (3-10)
+    # FUTURE PHASES (4-10)
     # ==========================================================================
     # Future phases will be added here in subsequent stories
-    log_warn "Bootstrap implementation incomplete - Phases 3-10 not yet implemented"
+    log_warn "Bootstrap implementation incomplete - Phases 4-10 not yet implemented"
     log_warn "Remaining phases will be added in future stories"
 
     exit 0

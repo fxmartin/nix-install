@@ -11,9 +11,9 @@
 - Zero manual intervention except SSH key upload and license activations
 
 ## Epic Scope
-**Total Stories**: 16
-**Total Story Points**: 97
-**MVP Stories**: 16 (100% of epic)
+**Total Stories**: 18
+**Total Story Points**: 108
+**MVP Stories**: 18 (100% of epic)
 **Priority Level**: Must Have
 **Target Release**: Phase 0-2 (Week 1-2)
 

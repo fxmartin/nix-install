@@ -39,7 +39,14 @@ bats --version
 
 ### Run all tests
 ```bash
+# Phase 1: Pre-flight checks
 bats tests/bootstrap_preflight.bats
+
+# Phase 2: User information prompts
+bats tests/bootstrap_user_prompts.bats
+
+# Run all test suites
+bats tests/*.bats
 ```
 
 ### Run tests with verbose output
@@ -53,6 +60,8 @@ bats -f "bootstrap.sh exists" tests/bootstrap_preflight.bats
 ```
 
 ## Test Coverage
+
+### Phase 1: Pre-flight System Validation
 
 The `bootstrap_preflight.bats` test suite validates:
 
@@ -98,6 +107,37 @@ The `bootstrap_preflight.bats` test suite validates:
    - Displays clear, actionable error messages
    - Graceful failure handling
 
+### Phase 2: User Information Prompts
+
+The `bootstrap_user_prompts.bats` test suite validates:
+
+1. **Function Existence** (4 tests)
+   - validate_email()
+   - validate_github_username()
+   - validate_name()
+   - prompt_user_info()
+
+2. **Email Validation** (23 tests)
+   - Valid formats: simple, plus-addressing, dots, numbers, subdomains, multi-part TLDs
+   - Invalid formats: missing @, missing domain, missing TLD, spaces, special characters
+   - Edge cases: leading/trailing dots, multiple @ symbols
+
+3. **GitHub Username Validation** (17 tests)
+   - Valid formats: alphanumeric, hyphens, underscores, mixed case
+   - Invalid formats: special characters (@, ., /, #, spaces)
+   - Edge cases: leading/trailing hyphens (GitHub restriction)
+
+4. **Name Validation** (11 tests)
+   - Valid formats: simple names, accented characters, apostrophes, hyphens, periods, commas
+   - Invalid formats: empty strings, whitespace-only strings
+
+5. **Integration Tests** (3 tests)
+   - Regex pattern correctness
+   - Leading/trailing hyphen enforcement
+   - Global variable declarations
+
+**Total: 54 automated tests**
+
 ## Manual Testing
 
 Some tests require manual validation by FX in a VM or on physical hardware:
@@ -124,6 +164,44 @@ Some tests require manual validation by FX in a VM or on physical hardware:
 5. **Graceful Exit**
    - Trigger various failure scenarios
    - Verify clean exit with appropriate error messages
+
+### Phase 2 Manual Tests
+
+FX should perform these manual tests in a VM to validate Phase 2 functionality:
+
+1. **Normal Flow Test**
+   ```bash
+   ./bootstrap.sh
+   # Enter: François Martin
+   # Enter: fx@example.com
+   # Enter: fxmartin
+   # Confirm: y
+   # Expected: Success message, proceed to Phase 3
+   ```
+
+2. **Invalid Email Test**
+   - Try entering invalid emails: `invalid-email`, `user@`, `@example.com`
+   - Expected: Error message with retry prompt
+   - Finally enter valid email: `fx@example.com`
+
+3. **Invalid GitHub Username Test**
+   - Try entering invalid usernames: `user.name`, `user@name`, `-username`
+   - Expected: Error message explaining allowed characters
+   - Finally enter valid username: `fxmartin`
+
+4. **Confirmation Rejection Test**
+   - Enter all valid information
+   - At confirmation prompt, enter: `n`
+   - Expected: Re-prompt for all information from the beginning
+
+5. **Special Characters in Name Test**
+   - Enter names with special characters: `François Martin`, `John O'Brien`, `Dr. Smith, Jr.`
+   - Expected: All accepted as valid
+
+6. **Empty Input Test**
+   - Try leaving name empty (just press Enter)
+   - Try entering only spaces for name
+   - Expected: Error message requiring non-empty name
 
 ## Testing Unmerged Branches in VM
 

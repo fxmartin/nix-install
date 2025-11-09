@@ -98,6 +98,148 @@ display_system_info() {
     log_info "==================================="
 }
 
+# =============================================================================
+# PHASE 2: USER INFORMATION VALIDATION FUNCTIONS
+# =============================================================================
+
+# Validate email address format
+# Email regex: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+# Requires: @ symbol, domain name, and TLD (at least 2 characters)
+validate_email() {
+    local email="$1"
+    local email_regex='^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
+    if [[ ! "$email" =~ $email_regex ]]; then
+        return 1
+    fi
+
+    # Additional validation: reject leading/trailing dots
+    if [[ "$email" =~ ^\. ]] || [[ "$email" =~ \.$ ]]; then
+        return 1
+    fi
+
+    return 0
+}
+
+# Validate GitHub username format
+# GitHub allows: alphanumeric, hyphens, underscores
+# Does NOT allow: leading/trailing hyphens, special characters, periods
+validate_github_username() {
+    local username="$1"
+
+    # Reject empty string
+    if [[ -z "$username" ]]; then
+        return 1
+    fi
+
+    # Reject leading or trailing hyphens (GitHub restriction)
+    if [[ "$username" =~ ^- ]] || [[ "$username" =~ -$ ]]; then
+        return 1
+    fi
+
+    # Validate allowed characters only: alphanumeric, hyphen, underscore
+    local username_regex='^[a-zA-Z0-9_-]+$'
+    if [[ ! "$username" =~ $username_regex ]]; then
+        return 1
+    fi
+
+    return 0
+}
+
+# Validate user's full name
+# Allows: letters, spaces, apostrophes, hyphens, periods, commas, accented characters
+# Rejects: empty string, whitespace-only string
+validate_name() {
+    local name="$1"
+
+    # Reject empty string
+    if [[ -z "$name" ]]; then
+        return 1
+    fi
+
+    # Reject whitespace-only string (spaces, tabs, newlines)
+    if [[ "$name" =~ ^[[:space:]]*$ ]]; then
+        return 1
+    fi
+
+    # Name is valid if non-empty and not just whitespace
+    return 0
+}
+
+# Prompt user for personal information with validation
+# Sets global variables: USER_FULLNAME, USER_EMAIL, GITHUB_USERNAME
+prompt_user_info() {
+    log_info "==================================="
+    log_info "Phase 2/10: User Configuration"
+    log_info "==================================="
+    echo ""
+    log_info "Please provide your information for Git, SSH, and system configuration."
+    echo ""
+
+    local confirmed="n"
+
+    # Loop until user confirms all information
+    while [[ "$confirmed" != "y" ]]; do
+        # Prompt for full name with validation
+        while true; do
+            read -r -p "Full Name: " USER_FULLNAME
+            if validate_name "$USER_FULLNAME"; then
+                log_info "✓ Name validated"
+                break
+            else
+                log_error "Invalid name. Please enter your full name (cannot be empty)."
+            fi
+        done
+
+        echo ""
+
+        # Prompt for email with validation
+        while true; do
+            read -r -p "Email Address: " USER_EMAIL
+            if validate_email "$USER_EMAIL"; then
+                log_info "✓ Email validated"
+                break
+            else
+                log_error "Invalid email format. Please include @ and domain (e.g., user@example.com)"
+            fi
+        done
+
+        echo ""
+
+        # Prompt for GitHub username with validation
+        while true; do
+            read -r -p "GitHub Username: " GITHUB_USERNAME
+            if validate_github_username "$GITHUB_USERNAME"; then
+                log_info "✓ GitHub username validated"
+                break
+            else
+                log_error "Invalid GitHub username. Use only letters, numbers, hyphens, and underscores."
+                log_error "Username cannot start or end with a hyphen."
+            fi
+        done
+
+        echo ""
+
+        # Display confirmation summary
+        log_info "Please confirm your information:"
+        echo "  Name:          $USER_FULLNAME"
+        echo "  Email:         $USER_EMAIL"
+        echo "  GitHub:        $GITHUB_USERNAME"
+        echo ""
+
+        read -r -p "Is this correct? (y/n): " confirmed
+        echo ""
+
+        if [[ "$confirmed" != "y" ]]; then
+            log_warn "Let's try again. Please re-enter your information."
+            echo ""
+        fi
+    done
+
+    log_info "✓ User information collected successfully"
+    echo ""
+}
+
 # Run all pre-flight validation checks
 preflight_checks() {
     # shellcheck disable=SC2310  # Intentional: capture failures to show all errors
@@ -162,8 +304,11 @@ main() {
     log_info "System is ready for Nix-Darwin installation."
     echo ""
 
+    # Phase 2: Collect user information
+    prompt_user_info
+
     # Future phases will be added here in subsequent stories
-    log_warn "Bootstrap implementation incomplete - only pre-flight checks implemented (Story 01.1-001)"
+    log_warn "Bootstrap implementation incomplete - Phases 3-10 not yet implemented"
     log_warn "Remaining phases will be added in future stories"
 
     exit 0

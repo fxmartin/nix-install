@@ -125,6 +125,35 @@ Some tests require manual validation by FX in a VM or on physical hardware:
    - Trigger various failure scenarios
    - Verify clean exit with appropriate error messages
 
+## Testing Unmerged Branches in VM
+
+To test the bootstrap script from a feature branch (before merging to main) in a VM:
+
+### Option 1: Download and Inspect First (Recommended)
+```bash
+# Download the bootstrap script from feature branch
+curl -o bootstrap.sh https://raw.githubusercontent.com/fxmartin/nix-install/feature/01.1-001/bootstrap.sh
+
+# Make it executable
+chmod +x bootstrap.sh
+
+# Inspect it (optional but recommended for security)
+less bootstrap.sh
+
+# Run it
+./bootstrap.sh
+```
+
+### Option 2: Direct Execution (One-Liner)
+```bash
+# Download and run directly from feature branch
+curl -sSL https://raw.githubusercontent.com/fxmartin/nix-install/feature/01.1-001/bootstrap.sh | bash
+```
+
+**Note**: Replace `feature/01.1-001` with the appropriate branch name for the feature you're testing.
+
+**Security Best Practice**: Option 1 is recommended because it allows you to inspect the script before execution.
+
 ## Test Driven Development (TDD) Workflow
 
 1. Write tests first (tests fail - RED)

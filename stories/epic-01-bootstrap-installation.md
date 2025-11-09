@@ -374,7 +374,7 @@
 - [x] Installation triggers system dialog
 - [x] Script waits for user completion
 - [x] Verification confirms installation
-- [x] Tested in VM without existing Xcode tools (pending FX manual VM testing)
+- [x] Tested in VM without existing Xcode tools ✅ **VM TESTED - ALL SCENARIOS PASSED**
 - [x] Skip logic works for existing installations
 
 **Implementation Notes**:
@@ -393,7 +393,12 @@
 - Error handling: Comprehensive with actionable guidance for every failure
 - Idempotency: Safe to run multiple times, skips if already installed
 - Shellcheck validation: Passed (style warnings only, consistent with project)
-- VM Testing: Pending FX manual testing
+- VM Testing: ✅ **ALL MANUAL TESTS PASSED** (2025-11-09)
+  - Fresh macOS without Xcode CLI Tools: Installation triggered successfully
+  - System dialog appeared and installation completed
+  - Verification confirmed installation path
+  - Re-run test: Skip logic working correctly
+  - All user prompts clear and helpful
 
 **Dependencies**:
 - Story 01.1-001 (pre-flight checks) - COMPLETED ✅

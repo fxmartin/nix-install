@@ -24,7 +24,7 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 18 | 108 | **8** | **47** | 44.4% | 43.5% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 18 | 108 | **10** | **67** | 55.6% | 62.0% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -32,7 +32,7 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **111** | **596** | **8** | **47** | **7.2%** | **7.9%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **111** | **596** | **10** | **67** | **9.0%** | **11.2%** | 🟡 In Progress |
 
 ### ✅ Completed
 - **Requirements Definition** ([REQUIREMENTS.md](./REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
@@ -48,10 +48,11 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - **Story 01.4-001** - Nix Multi-User Installation (✅ Complete - 2025-11-09, 8 pts)
 - **Story 01.4-002** - Nix Configuration for macOS (✅ Complete - 2025-11-09, 5 pts)
 - **Story 01.4-003** - Flake Infrastructure Setup (✅ Complete - 2025-11-09, 8 pts)
+- **Story 01.5-001** - Initial Nix-Darwin Build (✅ Complete - 2025-11-09, 13 pts, VM TESTED)
 
 ### 🔄 In Progress
-- **Epic-01: Bootstrap System** (Week 1-2) - 8/18 stories complete (44.4%), 47/108 points (43.5%)
-- **Next Story**: 01.5-001 - Initial Nix-Darwin Build (13 points)
+- **Epic-01: Bootstrap System** (Week 1-2) - 10/18 stories complete (55.6%), 67/108 points (62.0%)
+- **Next Story**: 01.5-002 - Post-Darwin System Validation (5 points)
 
 ### 📅 Upcoming
 - **Phase 1-2**: Core bootstrap implementation (Week 2)

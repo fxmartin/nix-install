@@ -92,7 +92,13 @@ FX's role: ALL testing, execution, and validation.
 ### Key Files
 
 **Currently Implemented**:
-- `REQUIREMENTS.md`: Comprehensive PRD (1600+ lines) - **THE SOURCE OF TRUTH**
+- `REQUIREMENTS.md`: Comprehensive PRD (1600+ lines) - **THE SOURCE OF TRUTH** for requirements
+- `DEVELOPMENT.md`: Implementation log and progress tracking - **CHECK THIS FIRST** for:
+  - Story completion status and implementation details
+  - Current progress (stories completed, points tracked)
+  - Multi-agent workflow documentation
+  - Testing results and code quality metrics
+  - Next story to implement
 - `README.md`: Quick start guide
 - `config/config.ghostty`: Ghostty terminal configuration (Catppuccin theme)
 - `setup.sh`: Legacy setup script (will be replaced by new bootstrap)
@@ -503,7 +509,14 @@ The script is idempotent - safe to run multiple times. It uses `|| true` to igno
 ## Reference Documentation
 
 - **Primary**: `REQUIREMENTS.md` (comprehensive PRD)
+- **Progress**: `DEVELOPMENT.md` (implementation log, story progress, multi-agent workflow)
 - **Stories**: `STORIES.md` (epic overview) + `/stories/epic-*.md` (detailed stories)
 - **Reference**: `mlgruby-repo-for-reference/dotfile-nix/` (production example)
 - **User preferences**: `~/.claude/CLAUDE.md`, `~/.claude/docs/*.md`
 - **Ghostty config**: `config/config.ghostty` (template for Home Manager)
+
+**⚠️ IMPORTANT**: Always read `DEVELOPMENT.md` at the start of a session to check:
+- What stories have been completed
+- Current progress percentage (stories/points completed)
+- Implementation details and lessons learned
+- Which story to work on next

@@ -108,10 +108,28 @@ If any check fails, the script will display clear, actionable error messages and
 Setup will be as simple as:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/fxmartin/nix-install/main/bootstrap.sh | bash
+# Recommended: One-line installation via setup.sh wrapper
+curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh | bash
 ```
 
-This will:
+Or, if you prefer to inspect the script first:
+
+```bash
+# Download and inspect before running
+curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh -o setup.sh
+less setup.sh  # Review the script
+bash setup.sh  # Run it
+```
+
+#### What Happens During Installation
+
+The installation uses a **two-stage bootstrap pattern** for reliability:
+
+**Stage 1 (setup.sh)**: Curl-pipeable wrapper
+- Downloads the full bootstrap script to a temporary directory
+- Executes it locally (not piped) to ensure interactive prompts work correctly
+
+**Stage 2 (bootstrap.sh)**: Interactive installer
 1. **Pre-flight Validation**: Check system requirements (Story 01.1-001 ✅)
 2. **User Information**: Collect name, email, GitHub username with validation (Story 01.2-001 ✅)
 3. Install Xcode Command Line Tools
@@ -123,6 +141,8 @@ This will:
 9. Display post-install checklist (license activations, etc.)
 
 **Estimated Time**: <30 minutes (mostly hands-off)
+
+> **Technical Note**: The two-stage pattern solves stdin redirection issues when scripts are executed via `curl | bash`. This ensures interactive prompts can properly read user input without requiring `/dev/tty` workarounds.
 
 ---
 
@@ -212,7 +232,8 @@ nix-install/
 ├── flake.lock                   # Dependency lock file
 ├── user-config.nix              # User personal info (created during bootstrap)
 ├── user-config.template.nix     # Template for new users
-├── bootstrap.sh                 # One-command installation script
+├── setup.sh                     # Stage 1: Curl-pipeable wrapper script
+├── bootstrap.sh                 # Stage 2: Full interactive installer
 │
 ├── darwin/                      # System-level configs (nix-darwin)
 │   ├── configuration.nix        # Main darwin config

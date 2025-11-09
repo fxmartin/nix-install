@@ -24,7 +24,7 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 16 | 97 | **8** | **47** | 50.0% | 48.5% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 18 | 108 | **8** | **47** | 44.4% | 43.5% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -32,11 +32,11 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **109** | **585** | **8** | **47** | **7.3%** | **8.0%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **111** | **596** | **8** | **47** | **7.2%** | **7.9%** | 🟡 In Progress |
 
 ### ✅ Completed
 - **Requirements Definition** ([REQUIREMENTS.md](./REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
-- **User Story Breakdown** ([STORIES.md](./STORIES.md)) - 108 stories across 7 epics + NFR
+- **User Story Breakdown** ([STORIES.md](./STORIES.md)) - 111 stories across 7 epics + NFR
 - **Story Management Protocol** - Modular epic structure with detailed acceptance criteria
 - **Requirements Baseline** - v1.1 approved (change control re-approval completed)
 - **Project Architecture** - Two-tier profiles (Standard/Power), Stylix theming, nixpkgs-unstable
@@ -50,8 +50,7 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - **Story 01.4-003** - Flake Infrastructure Setup (✅ Complete - 2025-11-09, 8 pts)
 
 ### 🔄 In Progress
-- **Epic-01: Bootstrap System** (Week 1-2) - 8/16 stories complete (50.0%), 47/97 points (48.5%)
-- **Milestone**: 🎉 Epic-01 is 50% complete!
+- **Epic-01: Bootstrap System** (Week 1-2) - 8/18 stories complete (44.4%), 47/108 points (43.5%)
 - **Next Story**: 01.5-001 - Initial Nix-Darwin Build (13 points)
 
 ### 📅 Upcoming
@@ -75,13 +74,13 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
    - 8-week implementation plan
 
 2. **[STORIES.md](./STORIES.md)** - User story overview and epic navigation
-   - 109 total stories, 585 story points
+   - 111 total stories, 596 story points
    - Epic summaries and metrics
    - Sprint planning guidance
    - Cross-epic dependencies
 
 3. **[/stories/](./stories/)** - Detailed epic files (single source of truth)
-   - Epic-01: Bootstrap & Installation (16 stories, 97 points)
+   - Epic-01: Bootstrap & Installation (18 stories, 108 points)
    - Epic-02: Application Installation (22 stories, 113 points)
    - Epic-03: System Configuration (12 stories, 68 points)
    - Epic-04: Development Environment (18 stories, 97 points)

@@ -7,7 +7,7 @@
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 16 | 97 | **8** | **47** | 50.0% | 48.5% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 18 | 108 | **8** | **47** | 44.4% | 43.5% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -15,9 +15,9 @@
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **109** | **585** | **8** | **47** | **7.3%** | **8.0%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **111** | **596** | **8** | **47** | **7.2%** | **7.9%** | 🟡 In Progress |
 
-### Epic-01 Completed Stories (8/16)
+### Epic-01 Completed Stories (8/18)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -32,11 +32,10 @@
 
 ### Overall Project Status
 
-- **Total Project Scope**: 109 stories, 585 story points
-- **Completed**: 8 stories (7.3%), 47 points (8.0%)
-- **In Progress**: Epic-01 Bootstrap & Installation (50.0% complete by stories, 48.5% by points)
+- **Total Project Scope**: 111 stories, 596 story points
+- **Completed**: 8 stories (7.2%), 47 points (7.9%)
+- **In Progress**: Epic-01 Bootstrap & Installation (44.4% complete by stories, 43.5% by points)
 - **Current Phase**: Phase 0-2 (Foundation + Bootstrap, Week 1-2)
-- **Milestone**: 🎉 Epic-01 is 50% complete!
 - **Next Story**: 01.5-001 (Initial Nix-Darwin Build - 13 points) - READY TO START
 
 ### Recent Activity
@@ -46,7 +45,6 @@
   - Fixed invalid system.profile bug (commit fca880d)
   - nix flake check: PASSED
   - Both profiles build successfully in dry-run mode
-  - 🎉 **Milestone**: Epic-01 is now 50% complete!
 - **2025-11-09**: 📝 Created Story 01.4-003 (Flake Infrastructure Setup - 8 points) - CRITICAL BLOCKER identified and documented
 - **2025-11-09**: ✅ Completed Story 01.4-002 (Nix Configuration for macOS) - VM tested, all scenarios passed
 - **2025-11-09**: ✅ Completed Story 01.4-001 (Nix Multi-User Installation) - VM tested, all scenarios passed
@@ -715,7 +713,7 @@ git push -u origin feature/STORY-ID
 
 ## Story Progress Tracking
 
-### Epic-01: Bootstrap & Installation System (16 stories, 97 points)
+### Epic-01: Bootstrap & Installation System (18 stories, 108 points)
 
 #### Feature 01.1: Pre-flight System Validation (3 stories, 11 points)
 - [x] Story 01.1-001: Pre-flight Environment Checks (5 points) ✅
@@ -753,7 +751,7 @@ git push -u origin feature/STORY-ID
 #### Feature 01.8: Post-Installation Summary & Next Steps (1 story, 3 points)
 - [ ] Story 01.8-001: Installation Summary (3 points)
 
-**Total**: 8/16 stories completed (47/97 points) = **50.0% by stories, 48.5% by points** 🎉
+**Total**: 8/18 stories completed (47/108 points) = **44.4% by stories, 43.5% by points**
 
 ---
 

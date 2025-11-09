@@ -44,6 +44,7 @@ readonly REPO_NAME="nix-install"
 readonly BRANCH="${NIX_INSTALL_BRANCH:-main}"  # Allow override via env var
 readonly REPO_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}"
 readonly BOOTSTRAP_SCRIPT="bootstrap.sh"
+readonly USER_CONFIG_TEMPLATE="user-config.template.nix"
 readonly TEMP_DIR="/tmp/nix-install-setup-$$"
 
 # Minimum required macOS version
@@ -232,9 +233,9 @@ main() {
     echo ""
 
     # ==========================================================================
-    # PHASE 2: DOWNLOAD BOOTSTRAP SCRIPT
+    # PHASE 2: DOWNLOAD BOOTSTRAP SCRIPT AND DEPENDENCIES
     # ==========================================================================
-    # Pre-flight checks passed - now download the full installer
+    # Pre-flight checks passed - now download the full installer and required files
     # ==========================================================================
 
     # Create temporary directory
@@ -260,6 +261,26 @@ main() {
     log_info "Script information:"
     echo "  • Size: $(wc -c < "${TEMP_DIR}/${BOOTSTRAP_SCRIPT}") bytes"
     echo "  • Lines: $(wc -l < "${TEMP_DIR}/${BOOTSTRAP_SCRIPT}") lines"
+    echo ""
+
+    # Download user-config.template.nix (required by Phase 3 of bootstrap)
+    log_info "Downloading user config template..."
+    log_info "Source: ${REPO_URL}/${USER_CONFIG_TEMPLATE}"
+
+    if ! curl -fsSL "${REPO_URL}/${USER_CONFIG_TEMPLATE}" -o "${TEMP_DIR}/${USER_CONFIG_TEMPLATE}"; then
+        handle_error "Failed to download user config template from ${REPO_URL}/${USER_CONFIG_TEMPLATE}"
+    fi
+
+    # Verify the template was downloaded and is not empty
+    if [[ ! -s "${TEMP_DIR}/${USER_CONFIG_TEMPLATE}" ]]; then
+        handle_error "Downloaded template is empty or corrupted"
+    fi
+
+    log_success "User config template downloaded successfully"
+
+    # Display template information
+    echo "  • Size: $(wc -c < "${TEMP_DIR}/${USER_CONFIG_TEMPLATE}") bytes"
+    echo "  • Lines: $(wc -l < "${TEMP_DIR}/${USER_CONFIG_TEMPLATE}") lines"
     echo ""
 
     # Make the script executable

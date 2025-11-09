@@ -63,7 +63,7 @@ setup() {
 }
 
 @test "script checks for macOS 14 (Sonoma) or newer" {
-    run grep -E "\[\[ .* -lt 14 \]\]|\[ .* -lt 14 \]" "$BOOTSTRAP_SCRIPT"
+    run grep -E "MIN_MACOS_VERSION.*14|\[\[ .* -lt.*MIN_MACOS_VERSION" "$BOOTSTRAP_SCRIPT"
     [ "$status" -eq 0 ]
 }
 
@@ -153,7 +153,7 @@ setup() {
 }
 
 @test "main function calls preflight_checks" {
-    run grep -A 10 "^main()" "$BOOTSTRAP_SCRIPT" | grep "preflight_checks"
+    run bash -c "grep -A 20 '^main()' '$BOOTSTRAP_SCRIPT' | grep 'preflight_checks'"
     [ "$status" -eq 0 ]
 }
 

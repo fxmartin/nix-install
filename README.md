@@ -2,7 +2,7 @@
 
 > **Status**: 🔄 Planning Complete - Implementation Starting
 > **Version**: 0.1.0 (Pre-Release)
-> **Last Updated**: 2025-11-08
+> **Last Updated**: 2025-11-09
 
 Automated, declarative MacBook configuration system using Nix + nix-darwin + Home Manager. Transform a fresh macOS installation into a fully configured development environment in <30 minutes with zero manual intervention (except license activations).
 
@@ -20,18 +20,34 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 
 ## 📊 Current Status
 
+### Epic Overview Progress
+
+| Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
+|---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
+| **Epic-01** | Bootstrap & Installation System | 15 | 89 | **4** | **21** | 26.7% | 23.6% | 🟡 In Progress |
+| **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **TOTAL** | **All Epics** | **108** | **577** | **4** | **21** | **3.7%** | **3.6%** | 🟡 In Progress |
+
 ### ✅ Completed
 - **Requirements Definition** ([REQUIREMENTS.md](./REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
 - **User Story Breakdown** ([STORIES.md](./STORIES.md)) - 108 stories across 7 epics + NFR
 - **Story Management Protocol** - Modular epic structure with detailed acceptance criteria
 - **Requirements Baseline** - v1.1 approved (change control re-approval completed)
 - **Project Architecture** - Two-tier profiles (Standard/Power), Stylix theming, nixpkgs-unstable
-- **Story 01.1-001** - Phase 1: Pre-flight System Validation (✅ Merged to main)
-- **Story 01.2-001** - Phase 2: User Information Prompts (✅ Ready for VM testing)
+- **Story 01.1-001** - Pre-flight Environment Checks (✅ Complete - 2025-11-08)
+- **Story 01.2-001** - User Information Prompts (✅ Complete - 2025-11-09)
+- **Story 01.2-002** - Profile Selection System (✅ Complete - 2025-11-09)
+- **Story 01.2-003** - User Config File Generation (✅ Complete - 2025-11-09)
 
 ### 🔄 In Progress
-- **Story 01.2-001** - VM testing by FX (branch: `feature/01.2-001`)
-- **Epic-01: Bootstrap System** (Week 1-2) - 2/15 stories complete
+- **Epic-01: Bootstrap System** (Week 1-2) - 4/15 stories complete (26.7%)
+- **Next Story**: 01.3-001 - Xcode CLI Tools Installation (5 points)
 
 ### 📅 Upcoming
 - **Phase 1-2**: Core bootstrap implementation (Week 2)

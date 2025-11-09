@@ -54,6 +54,12 @@ bats tests/bootstrap_user_config.bats
 # Phase 3: Xcode CLI Tools installation
 bats tests/bootstrap_xcode.bats
 
+# Phase 4: Nix installation
+bats tests/bootstrap_nix_install.bats
+
+# Phase 4 (continued): Nix configuration
+bats tests/bootstrap_nix_config.bats
+
 # Run all test suites
 bats tests/*.bats
 ```
@@ -372,7 +378,131 @@ The `bootstrap_xcode.bats` test suite validates:
    - verify_xcode_installation can be called multiple times
    - accept_xcode_license handles already-accepted scenario
 
-**Total: 303 automated tests** (54 Phase 2 user prompts + 96 Phase 2 profile selection + 83 Phase 3 user config generation + 70 Phase 3 Xcode CLI Tools)
+### Phase 4 (Continued): Nix Configuration for macOS
+
+The `bootstrap_nix_config.bats` test suite validates:
+
+1. **Function Existence** (9 tests)
+   - backup_nix_config()
+   - get_cpu_cores()
+   - configure_nix_binary_cache()
+   - configure_nix_performance()
+   - configure_nix_trusted_users()
+   - configure_nix_sandbox()
+   - restart_nix_daemon()
+   - verify_nix_configuration()
+   - configure_nix_phase()
+
+2. **Backup Logic** (8 tests)
+   - Creates timestamped backup when file exists
+   - Handles missing file gracefully
+   - Backup filename format (YYYYMMDD-HHMMSS)
+   - Preserves original file content
+   - Allows multiple backups
+   - Logs backup creation
+   - Returns 0 on success
+   - Handles empty file
+
+3. **CPU Detection** (6 tests)
+   - Detects CPU count using sysctl
+   - Returns "auto" on sysctl failure
+   - Handles various CPU counts (4, 8, 10, 12, 16)
+   - Outputs numeric value or "auto"
+   - Logs detection
+   - Consistent across calls
+
+4. **Binary Cache Configuration** (10 tests)
+   - Adds substituters setting
+   - Adds trusted-public-keys
+   - Uses correct cache.nixos.org URL
+   - Includes full public key
+   - Returns 0 on success
+   - Logs configuration
+   - Handles existing config
+   - Doesn't duplicate settings (idempotent)
+   - Creates file if missing
+   - Sets proper format (key = value)
+
+5. **Performance Configuration** (8 tests)
+   - Adds max-jobs setting
+   - Adds cores setting
+   - Uses detected CPU cores
+   - Uses "auto" on CPU detection failure
+   - Sets cores to 0 (use all)
+   - Returns 0 on success
+   - Logs configuration
+   - Doesn't duplicate settings (idempotent)
+
+6. **Trusted Users Configuration** (8 tests)
+   - Adds trusted-users setting
+   - Includes root
+   - Includes current user
+   - Uses correct format
+   - Returns 0 on success
+   - Logs configuration
+   - Doesn't duplicate settings (idempotent)
+   - Handles existing config
+
+7. **Sandbox Configuration** (6 tests)
+   - Adds sandbox setting
+   - Uses macOS-appropriate value (relaxed or false)
+   - Returns 0 on success
+   - Logs configuration
+   - Doesn't duplicate settings (idempotent)
+   - Uses correct format
+
+8. **Daemon Restart** (10 tests)
+   - Calls launchctl kickstart
+   - Uses correct service name (system/org.nixos.nix-daemon)
+   - Waits after restart
+   - Returns 0 on success
+   - Returns 1 on launchctl failure
+   - Logs restart action
+   - Logs error on failure
+   - Uses -k flag (kill and restart)
+   - Requires sudo
+   - Provides manual instructions on failure
+
+9. **Verification** (8 tests)
+   - Checks config file exists
+   - Checks substituters present
+   - Checks trusted-users present
+   - Checks max-jobs present
+   - Logs verification results
+   - Returns 0 when config valid
+   - Logs warning on missing settings
+   - Handles missing file gracefully
+
+10. **Orchestration** (8 tests)
+    - Displays phase header
+    - Calls backup function
+    - Configures binary cache
+    - Configures performance settings
+    - Configures trusted users
+    - Configures sandbox
+    - Returns 0 on success
+    - Logs completion message
+
+11. **Error Handling** (10 tests)
+    - Handles sudo failure gracefully
+    - Handles daemon restart failure
+    - Binary cache provides clear error on failure
+    - Trusted users provides clear error on failure
+    - Restart provides actionable error message
+    - Performance logs warning on CPU detection failure
+    - Sandbox logs warning on failure but continues
+    - Backup handles permission errors gracefully
+    - Verification doesn't fail bootstrap on warnings
+    - Phase displays time estimate
+
+12. **Integration Tests** (5 tests)
+    - Creates complete valid config
+    - Preserves existing settings (from Story 01.4-001)
+    - Idempotent (safe to run multiple times)
+    - Execution order is correct
+    - Handles fresh install scenario
+
+**Total: 399 automated tests** (54 Phase 2 user prompts + 96 Phase 2 profile selection + 83 Phase 3 user config generation + 70 Phase 3 Xcode CLI Tools + 96 Phase 4 Nix configuration)
 
 ## Manual Testing
 
@@ -647,6 +777,102 @@ FX should perform these manual tests in a VM to validate Xcode CLI Tools install
    # Expected: "already installed" message
    # Expected: No dialog appears
    # Expected: Proceeds to next phase immediately
+   ```
+
+### Phase 4 (Continued) Nix Configuration Manual Tests
+
+FX should perform these manual tests in a VM to validate Nix configuration functionality:
+
+1. **Fresh Nix Installation → Configuration Test**
+   ```bash
+   # In a fresh macOS VM after Phase 4 (Nix installation)
+   ./bootstrap.sh
+   # Complete through Nix installation (Story 01.4-001)
+   # Expected: Phase 4 (continued) header displayed
+   # Expected: Prompt for sudo password for /etc/nix/nix.conf modification
+   # Action: Enter sudo password
+   # Expected: Binary cache configured (cache.nixos.org)
+   # Expected: Performance settings configured (max-jobs detected)
+   # Expected: Trusted users configured (root, current user)
+   # Expected: Sandbox configured (relaxed for macOS)
+   # Expected: Nix daemon restarted successfully
+   # Expected: "✓ Nix configuration phase complete"
+   ```
+
+2. **Verify Binary Cache Working Test**
+   ```bash
+   # After Nix configuration complete
+   cat /etc/nix/nix.conf
+   # Expected: Contains "substituters = https://cache.nixos.org"
+   # Expected: Contains "trusted-public-keys = cache.nixos.org-1:..."
+
+   # Test binary cache access (download a small package)
+   nix-env -iA nixpkgs.hello
+   # Expected: Package downloads from binary cache (fast, no compilation)
+   # Expected: Output shows "copying path '/nix/store/...' from 'https://cache.nixos.org'"
+   ```
+
+3. **Verify Max-Jobs Matches CPU Cores Test**
+   ```bash
+   # Check detected CPU cores
+   sysctl -n hw.ncpu
+   # Example output: 8
+
+   # Check nix.conf max-jobs setting
+   grep "max-jobs" /etc/nix/nix.conf
+   # Expected: "max-jobs = 8" (or "auto" if detection failed)
+   # Expected: "cores = 0" (use all cores per job)
+   ```
+
+4. **Verify Trusted Users Test**
+   ```bash
+   # Check trusted users configuration
+   grep "trusted-users" /etc/nix/nix.conf
+   # Expected: "trusted-users = root username" (where username is current user)
+
+   # Verify current user has Nix trust
+   whoami
+   # Note the username, should match trusted-users entry
+   ```
+
+5. **Verify Daemon Restart Successful Test**
+   ```bash
+   # Check nix-daemon is running
+   sudo launchctl list | grep nix-daemon
+   # Expected: Shows "org.nixos.nix-daemon" with PID (daemon running)
+
+   # Test Nix command works (verifies daemon responsive)
+   nix-store --version
+   # Expected: Version output (e.g., "nix-store (Nix) 2.18.1")
+   ```
+
+6. **Re-run Bootstrap → Idempotent Test**
+   ```bash
+   # Run bootstrap again after Phase 4 complete
+   ./bootstrap.sh
+   # Complete through Nix configuration again
+   # Expected: "Binary cache already configured" message
+   # Expected: "Performance settings already configured" message
+   # Expected: "Trusted users already configured" message
+   # Expected: "Sandbox mode already configured" message
+   # Expected: No duplicate settings in /etc/nix/nix.conf
+   # Expected: Daemon still restarts successfully
+   ```
+
+7. **Manual nix.conf Inspection Test**
+   ```bash
+   # After successful Nix configuration
+   sudo cat /etc/nix/nix.conf
+   # Expected: Contains experimental-features from Story 01.4-001
+   # Expected: Contains substituters = https://cache.nixos.org
+   # Expected: Contains trusted-public-keys with full key
+   # Expected: Contains trusted-users = root username
+   # Expected: Contains max-jobs = <number or "auto">
+   # Expected: Contains cores = 0
+   # Expected: Contains sandbox = relaxed
+   # Expected: No duplicate settings
+   # Expected: Proper formatting (key = value)
+   # Expected: Comments indicating Story 01.4-002
    ```
 
 ## Testing Unmerged Branches in VM

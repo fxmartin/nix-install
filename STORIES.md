@@ -29,7 +29,7 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 
 | Epic ID | Epic Name | Business Value | Story Count | Total Points | Priority |
 |---------|-----------|----------------|-------------|--------------|----------|
-| Epic-01 | Bootstrap & Installation System | Automated one-command installation | 15 | 89 | Must Have |
+| Epic-01 | Bootstrap & Installation System | Automated one-command installation | 16 | 97 | Must Have |
 | Epic-02 | Application Installation & Configuration | Declarative app management across profiles | 22 | 113 | Must Have |
 | Epic-03 | System Configuration & macOS Preferences | Automated macOS system preferences | 12 | 68 | Must Have |
 | Epic-04 | Development Environment & Shell | Complete dev tooling setup | 18 | 97 | Must Have |
@@ -57,14 +57,14 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 **Time Constraints**: 6-8 week delivery timeline with VM testing before physical hardware
 
 ### MVP Scope
-**Total MVP Stories**: 93
-**Total MVP Points**: 498
+**Total MVP Stories**: 101
+**Total MVP Points**: 506
 **Estimated Duration**: 6-8 weeks (implementation) + 2 weeks (migrations)
 
 ### MVP Epic Breakdown
 | Epic | MVP Stories | MVP Points | % of Epic |
 |------|-------------|------------|-----------|
-| Epic-01 | 15/15 | 89/89 | 100% |
+| Epic-01 | 16/16 | 97/97 | 100% |
 | Epic-02 | 22/22 | 113/113 | 100% |
 | Epic-03 | 12/12 | 68/68 | 100% |
 | Epic-04 | 18/18 | 97/97 | 100% |
@@ -74,9 +74,9 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 | NFR | 15/15 | 79/79 | 100% |
 
 ## Project Metrics
-- **Total Stories**: 108
-- **Total Story Points**: 577
-- **Average Story Size**: 5.3 points
+- **Total Stories**: 109
+- **Total Story Points**: 585
+- **Average Story Size**: 5.4 points
 - **Ready for Development**: 0% (stories being defined)
 - **MVP Completion**: 0% (implementation starting)
 

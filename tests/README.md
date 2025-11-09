@@ -51,6 +51,9 @@ bats tests/bootstrap_profile_selection.bats
 # Phase 3: User config file generation
 bats tests/bootstrap_user_config.bats
 
+# Phase 3: Xcode CLI Tools installation
+bats tests/bootstrap_xcode.bats
+
 # Run all test suites
 bats tests/*.bats
 ```
@@ -277,7 +280,99 @@ The `bootstrap_user_config.bats` test suite validates:
     - Points to /tmp/nix-bootstrap/user-config.nix
     - File exists after generation
 
-**Total: 233 automated tests** (54 Phase 2 user prompts + 96 Phase 2 profile selection + 83 Phase 3 user config generation)
+### Phase 3: Xcode Command Line Tools Installation
+
+The `bootstrap_xcode.bats` test suite validates:
+
+1. **Function Existence** (6 tests)
+   - check_xcode_installed()
+   - install_xcode_cli_tools()
+   - wait_for_xcode_installation()
+   - accept_xcode_license()
+   - verify_xcode_installation()
+   - install_xcode_phase()
+
+2. **Detection Logic** (10 tests)
+   - Returns 0 when Xcode CLI Tools installed
+   - Returns 1 when not installed
+   - Logs installation path when installed
+   - Logs "not installed" message
+   - Handles xcode-select command failure gracefully
+   - Detects valid installation path
+   - Idempotent checks
+   - Handles empty xcode-select output
+   - Validates installation before returning success
+   - Logs info-level messages (not errors)
+
+3. **Installation Triggering** (8 tests)
+   - Calls xcode-select --install
+   - Returns 0 on successful trigger
+   - Returns 1 on installation trigger failure
+   - Logs starting message
+   - Logs success message
+   - Logs error on failure
+   - Handles already-in-progress installation
+   - Does not require sudo
+
+4. **User Interaction** (8 tests)
+   - Prompts user with clear instructions
+   - Displays clear installation steps (1, 2, 3)
+   - Mentions time estimate (5-10 minutes)
+   - Returns 0 after user input
+   - Waits for ENTER key
+   - Displays header separator
+   - Provides numbered steps
+   - Non-blocking after user input
+
+5. **License Acceptance** (8 tests)
+   - Calls sudo xcodebuild -license accept
+   - Returns 0 on successful acceptance
+   - Returns 1 on license acceptance failure
+   - Handles exit code 69 (already accepted)
+   - Logs success message
+   - Logs error with helpful message on failure
+   - Handles already-accepted license gracefully
+   - Includes exit code in error messages
+
+6. **Verification Logic** (8 tests)
+   - Returns 0 when installed
+   - Returns 1 when not installed
+   - Displays installation path
+   - Logs success message
+   - Logs error on verification failure
+   - Provides troubleshooting guidance
+   - Validates path format
+   - Uses xcode-select -p
+
+7. **Integration Tests** (5 tests)
+   - Skips when already installed
+   - Orchestrates full installation flow
+   - Displays Phase 3/10 header
+   - Returns 1 on installation failure
+   - Returns 1 on verification failure
+
+8. **Error Handling** (12 tests)
+   - Handles missing xcode-select command
+   - Handles installation dialog cancellation
+   - Handles license acceptance denial (warning only)
+   - Propagates installation trigger errors
+   - Propagates verification errors
+   - Error messages include actionable guidance
+   - Error messages are clear and descriptive
+   - Handles partial installation gracefully
+   - License acceptance errors include exit codes
+   - Verification errors suggest manual intervention
+   - Installation errors do not expose stack traces
+   - Phase errors return non-zero exit codes
+
+9. **Idempotency** (5 tests)
+   - Safe to run multiple times when installed
+   - check_xcode_installed produces consistent results
+   - Skips installation when already complete
+   - verify_xcode_installation can be called multiple times
+   - accept_xcode_license handles already-accepted scenario
+
+**Total: 303 automated tests** (54 Phase 2 user prompts + 96 Phase 2 profile selection + 83 Phase 3 user config generation + 70 Phase 3 Xcode CLI Tools)
 
 ## Manual Testing
 
@@ -467,6 +562,92 @@ FX should perform these manual tests in a VM to validate user config generation 
    - Expected: Proper indentation preserved
    - Expected: Clear footer separators
    - Expected: All values visible and correct
+
+### Phase 3 Xcode CLI Tools Installation Manual Tests
+
+FX should perform these manual tests in a VM to validate Xcode CLI Tools installation functionality:
+
+1. **Clean Install Test (Xcode Not Installed)**
+   ```bash
+   # In a fresh macOS VM without Xcode CLI Tools
+   ./bootstrap.sh
+   # Complete user info and profile selection phases
+   # Expected: Phase 3 header displayed ("Phase 3/10: Xcode Command Line Tools")
+   # Expected: "Xcode CLI Tools not installed" message
+   # Expected: System dialog appears asking to install Xcode CLI Tools
+   # Action: Click "Install" in the dialog
+   # Action: Wait for installation to complete (5-10 minutes)
+   # Action: Press ENTER when prompted
+   # Expected: Verification passes
+   # Expected: License acceptance succeeds (or shows warning if fails)
+   # Expected: Success message "✓ Xcode CLI Tools installation phase complete"
+   ```
+
+2. **Already Installed Test (Xcode Pre-Installed)**
+   ```bash
+   # In a macOS VM with Xcode CLI Tools already installed
+   # Verify first: xcode-select -p (should show path)
+   ./bootstrap.sh
+   # Complete user info and profile selection phases
+   # Expected: Phase 3 header displayed
+   # Expected: "Xcode CLI Tools already installed at: /Library/Developer/CommandLineTools" message
+   # Expected: Skip installation message
+   # Expected: No dialog appears
+   # Expected: Proceeds directly to Phase 4 (future implementation)
+   ```
+
+3. **License Acceptance Test**
+   ```bash
+   # After Xcode CLI Tools installed but license not accepted
+   ./bootstrap.sh
+   # Complete through Xcode installation
+   # Expected: Prompt for sudo password for license acceptance
+   # Action: Enter sudo password
+   # Expected: "✓ Xcode license accepted" message
+   # OR: "License already accepted or not required" warning
+   ```
+
+4. **Installation Cancellation Test**
+   ```bash
+   # In a fresh VM without Xcode CLI Tools
+   ./bootstrap.sh
+   # Complete user info and profile selection phases
+   # Expected: Xcode installation dialog appears
+   # Action: Click "Cancel" in the dialog
+   # Action: Press ENTER when prompted
+   # Expected: Verification fails with error message
+   # Expected: Bootstrap process terminates
+   # Expected: Clear error: "Xcode CLI Tools installation verification failed"
+   # Expected: Guidance: "Please try running: xcode-select --install"
+   ```
+
+5. **Verification Test (Post-Installation)**
+   ```bash
+   # After successful Xcode installation
+   xcode-select -p
+   # Expected output: /Library/Developer/CommandLineTools
+
+   which git
+   # Expected output: /Library/Developer/CommandLineTools/usr/bin/git (or similar)
+
+   git --version
+   # Expected: Git version displayed (e.g., "git version 2.39.3")
+   ```
+
+6. **Idempotency Test (Run Phase 3 Twice)**
+   ```bash
+   # Run bootstrap twice in succession
+   ./bootstrap.sh  # First run
+   # Complete through Xcode installation
+   # Verify Xcode installed successfully
+
+   ./bootstrap.sh  # Second run
+   # Complete user info and profile selection again
+   # Expected: Phase 3 skips installation
+   # Expected: "already installed" message
+   # Expected: No dialog appears
+   # Expected: Proceeds to next phase immediately
+   ```
 
 ## Testing Unmerged Branches in VM
 

@@ -26,10 +26,12 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - **Story Management Protocol** - Modular epic structure with detailed acceptance criteria
 - **Requirements Baseline** - v1.1 approved (change control re-approval completed)
 - **Project Architecture** - Two-tier profiles (Standard/Power), Stylix theming, nixpkgs-unstable
+- **Story 01.1-001** - Phase 1: Pre-flight System Validation (✅ Merged to main)
+- **Story 01.2-001** - Phase 2: User Information Prompts (✅ Ready for VM testing)
 
 ### 🔄 In Progress
-- **Phase 0: Foundation** (Week 1) - Repository structure, flake.nix skeleton
-- **Epic-01: Bootstrap System** (Week 1-2) - One-command installation script
+- **Story 01.2-001** - VM testing by FX (branch: `feature/01.2-001`)
+- **Epic-01: Bootstrap System** (Week 1-2) - 2/15 stories complete
 
 ### 📅 Upcoming
 - **Phase 1-2**: Core bootstrap implementation (Week 2)
@@ -111,8 +113,8 @@ curl -sSL https://raw.githubusercontent.com/fxmartin/nix-install/main/bootstrap.
 
 This will:
 1. **Pre-flight Validation**: Check system requirements (Story 01.1-001 ✅)
-2. Install Xcode Command Line Tools
-3. Prompt for user information (name, email, GitHub username)
+2. **User Information**: Collect name, email, GitHub username with validation (Story 01.2-001 ✅)
+3. Install Xcode Command Line Tools
 4. Select installation profile (Standard or Power)
 5. Install Nix package manager with flakes enabled
 6. Install nix-darwin and Homebrew (managed declaratively)

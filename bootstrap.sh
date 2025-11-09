@@ -705,6 +705,150 @@ preflight_checks() {
     return 0
 }
 
+# =============================================================================
+# PHASE 3: XCODE COMMAND LINE TOOLS INSTALLATION
+# =============================================================================
+# Story 01.3-001: Xcode CLI Tools Installation
+# These functions install Xcode Command Line Tools which provide essential
+# build dependencies for Nix and other development tools.
+# =============================================================================
+
+# Check if Xcode Command Line Tools are installed
+# Returns: 0 if installed, 1 if not installed
+check_xcode_installed() {
+    if xcode-select -p &>/dev/null; then
+        log_info "Xcode CLI Tools already installed at: $(xcode-select -p)"
+        return 0
+    else
+        log_info "Xcode CLI Tools not installed"
+        return 1
+    fi
+}
+
+# Trigger Xcode CLI Tools installation dialog
+# Returns: 0 if dialog opened successfully, 1 on failure
+install_xcode_cli_tools() {
+    log_info "Starting Xcode CLI Tools installation..."
+    echo ""
+
+    if ! xcode-select --install 2>/dev/null; then
+        log_error "Failed to trigger Xcode CLI Tools installation"
+        log_error "The installation may already be in progress"
+        return 1
+    fi
+
+    log_info "✓ Installation dialog opened"
+    return 0
+}
+
+# Wait for user to complete Xcode installation dialog
+# This function is interactive and waits for user confirmation
+# Returns: 0 when user presses ENTER
+wait_for_xcode_installation() {
+    echo ""
+    log_info "======================================"
+    log_info "MANUAL STEP REQUIRED"
+    log_info "======================================"
+    echo ""
+    log_info "A system dialog has appeared asking to install Xcode Command Line Tools."
+    log_info "Please:"
+    log_info "  1. Click 'Install' in the dialog"
+    log_info "  2. Wait for installation to complete (5-10 minutes)"
+    log_info "  3. Return here and press ENTER to continue"
+    echo ""
+
+    read -r -p "Press ENTER when installation is complete... "
+    echo ""
+    return 0
+}
+
+# Accept Xcode license agreement
+# Requires sudo password
+# Returns: 0 if license accepted, 1 on failure
+accept_xcode_license() {
+    log_info "Accepting Xcode license agreement..."
+    echo ""
+
+    sudo xcodebuild -license accept 2>/dev/null
+    local exit_code=$?
+
+    if [[ ${exit_code} -eq 0 ]]; then
+        log_info "✓ Xcode license accepted"
+        return 0
+    elif [[ ${exit_code} -eq 69 ]]; then
+        log_warn "License already accepted or not required"
+        return 0
+    else
+        log_error "Failed to accept Xcode license (exit code: ${exit_code})"
+        log_error "You may need to run: sudo xcodebuild -license accept"
+        return 1
+    fi
+}
+
+# Verify Xcode CLI Tools installation succeeded
+# Returns: 0 if verified, 1 on failure
+verify_xcode_installation() {
+    log_info "Verifying Xcode CLI Tools installation..."
+    echo ""
+
+    if ! xcode-select -p &>/dev/null; then
+        log_error "Xcode CLI Tools verification failed"
+        log_error "Installation may not have completed successfully"
+        log_error "Please try running: xcode-select --install"
+        return 1
+    fi
+
+    local xcode_path
+    xcode_path=$(xcode-select -p)
+
+    log_info "✓ Xcode CLI Tools installed successfully"
+    log_info "  Path: ${xcode_path}"
+    echo ""
+    return 0
+}
+
+# Phase 3: Install Xcode Command Line Tools
+# Main orchestration function for Xcode installation
+# Returns: 0 on success (installed or already present), 1 on failure
+install_xcode_phase() {
+    log_info "========================================"
+    log_info "Phase 3/10: Xcode Command Line Tools"
+    log_info "========================================"
+    echo ""
+
+    # Check if already installed
+    if check_xcode_installed; then
+        log_info "✓ Xcode CLI Tools already installed, skipping installation"
+        echo ""
+        return 0
+    fi
+
+    # Trigger installation
+    if ! install_xcode_cli_tools; then
+        log_error "Failed to start Xcode CLI Tools installation"
+        return 1
+    fi
+
+    # Wait for user to complete installation
+    wait_for_xcode_installation
+
+    # Verify installation completed
+    if ! verify_xcode_installation; then
+        log_error "Xcode CLI Tools installation verification failed"
+        return 1
+    fi
+
+    # Accept license
+    if ! accept_xcode_license; then
+        log_warn "License acceptance failed, but installation succeeded"
+        log_warn "You may need to accept manually later"
+    fi
+
+    log_info "✓ Xcode CLI Tools installation phase complete"
+    echo ""
+    return 0
+}
+
 # Main execution flow
 main() {
     echo ""
@@ -755,6 +899,19 @@ main() {
     # shellcheck disable=SC2310  # Intentional: Using ! to handle validation failure
     if ! generate_user_config; then
         log_error "Failed to generate user configuration file"
+        log_error "Bootstrap process terminated."
+        exit 1
+    fi
+
+    # ==========================================================================
+    # PHASE 3: XCODE COMMAND LINE TOOLS INSTALLATION
+    # ==========================================================================
+    # Story 01.3-001: Install Xcode CLI Tools (required for Nix builds)
+    # ==========================================================================
+
+    # shellcheck disable=SC2310  # Intentional: Using ! to handle installation failure
+    if ! install_xcode_phase; then
+        log_error "Xcode CLI Tools installation failed"
         log_error "Bootstrap process terminated."
         exit 1
     fi

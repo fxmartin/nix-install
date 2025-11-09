@@ -74,6 +74,10 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1" >&2
 }
 
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
 # Check macOS version is Sonoma (14.0) or newer
 check_macos_version() {
     local version
@@ -1554,7 +1558,7 @@ fetch_flake_from_github() {
 # Arguments: None (uses $USER_CONFIG_FILE and $WORK_DIR environment variables)
 # Returns: 0 on success, 1 on failure (CRITICAL - exits on failure)
 copy_user_config() {
-    log_info "Copying user configuration to flake directory..."
+    log_info "Verifying user configuration in flake directory..."
 
     # Validate source file exists
     if [[ ! -f "${USER_CONFIG_FILE}" ]]; then
@@ -1569,21 +1573,27 @@ copy_user_config() {
         return 1
     fi
 
-    # Copy to work directory
-    if ! cp "${USER_CONFIG_FILE}" "${WORK_DIR}/user-config.nix"; then
-        log_error "Failed to copy user-config.nix to ${WORK_DIR}"
+    # Check if source and destination are the same
+    local dest_path="${WORK_DIR}/user-config.nix"
+    if [[ "${USER_CONFIG_FILE}" == "${dest_path}" ]]; then
+        log_info "User configuration already in correct location: ${USER_CONFIG_FILE}"
+    else
+        # Copy to work directory
+        if ! cp "${USER_CONFIG_FILE}" "${dest_path}"; then
+            log_error "Failed to copy user-config.nix to ${WORK_DIR}"
+            return 1
+        fi
+        log_info "Copied from: ${USER_CONFIG_FILE}"
+        log_info "Copied to: ${dest_path}"
+    fi
+
+    # Validate destination file exists and is readable
+    if [[ ! -r "${dest_path}" ]]; then
+        log_error "User configuration file is not readable at: ${dest_path}"
         return 1
     fi
 
-    # Validate destination file
-    if [[ ! -r "${WORK_DIR}/user-config.nix" ]]; then
-        log_error "Copied user-config.nix is not readable"
-        return 1
-    fi
-
-    log_success "User configuration copied successfully"
-    log_info "Source: ${USER_CONFIG_FILE}"
-    log_info "Destination: ${WORK_DIR}/user-config.nix"
+    log_success "User configuration verified successfully"
     echo ""
 
     return 0

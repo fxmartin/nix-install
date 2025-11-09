@@ -1,21 +1,11 @@
 #!/usr/bin/env bats
 # ABOUTME: Comprehensive test suite for Xcode CLI Tools installation phase (Story 01.3-001)
-# ABOUTME: Tests detection, installation, license acceptance, verification, and error handling
+# ABOUTME: Tests detection, installation, user interaction, verification, and error handling
 
 # Setup and teardown
 setup() {
     # Load bootstrap.sh for testing
     export TESTING=1
-
-    # Mock sudo to avoid privilege escalation during tests
-    sudo() {
-        if [[ "${1:-}" == "xcodebuild" && "${2:-}" == "-license" && "${3:-}" == "accept" ]]; then
-            # Use xcodebuild exit code when mocked
-            return "${MOCK_XCODEBUILD_EXIT_CODE:-0}"
-        fi
-        command sudo "$@"
-    }
-    export -f sudo
 
     # Mock xcode-select
     xcode-select() {
@@ -43,15 +33,6 @@ setup() {
     }
     export -f xcode-select
 
-    # Mock xcodebuild (for license acceptance)
-    xcodebuild() {
-        if [[ "${1:-}" == "-license" && "${2:-}" == "accept" ]]; then
-            return "${MOCK_XCODEBUILD_EXIT_CODE:-0}"
-        fi
-        return 1
-    }
-    export -f xcodebuild
-
     # Mock read for user interaction
     read() {
         # Simulate user pressing ENTER
@@ -64,13 +45,11 @@ teardown() {
     # Clean up environment
     unset MOCK_XCODE_INSTALLED
     unset MOCK_XCODE_INSTALL_FAIL
-    unset MOCK_SUDO_EXIT_CODE
-    unset MOCK_XCODEBUILD_EXIT_CODE
     unset TESTING
 }
 
 # =============================================================================
-# Function Existence Tests (6 tests)
+# Function Existence Tests (5 tests)
 # =============================================================================
 
 @test "check_xcode_installed function exists" {
@@ -86,11 +65,6 @@ teardown() {
 @test "wait_for_xcode_installation function exists" {
     source /Users/user/dev/nix-install/bootstrap.sh
     declare -f wait_for_xcode_installation >/dev/null
-}
-
-@test "accept_xcode_license function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
-    declare -f accept_xcode_license >/dev/null
 }
 
 @test "verify_xcode_installation function exists" {
@@ -331,80 +305,6 @@ teardown() {
 }
 
 # =============================================================================
-# License Acceptance Tests (8 tests)
-# =============================================================================
-
-@test "accept_xcode_license calls sudo xcodebuild" {
-    export MOCK_SUDO_EXIT_CODE=0
-    export MOCK_XCODEBUILD_EXIT_CODE=0
-    source /Users/user/dev/nix-install/bootstrap.sh
-
-    run accept_xcode_license
-    [ "$status" -eq 0 ]
-}
-
-@test "accept_xcode_license returns 0 on successful acceptance" {
-    export MOCK_SUDO_EXIT_CODE=0
-    export MOCK_XCODEBUILD_EXIT_CODE=0
-    source /Users/user/dev/nix-install/bootstrap.sh
-
-    run accept_xcode_license
-    [ "$status" -eq 0 ]
-}
-
-@test "accept_xcode_license returns 1 on license acceptance failure" {
-    export MOCK_SUDO_EXIT_CODE=1
-    export MOCK_XCODEBUILD_EXIT_CODE=1
-    source /Users/user/dev/nix-install/bootstrap.sh
-
-    run accept_xcode_license
-    [ "$status" -eq 1 ]
-}
-
-@test "accept_xcode_license handles exit code 69 (already accepted)" {
-    export MOCK_XCODEBUILD_EXIT_CODE=69
-    source /Users/user/dev/nix-install/bootstrap.sh
-
-    run accept_xcode_license
-    [ "$status" -eq 0 ]
-}
-
-@test "accept_xcode_license logs success message" {
-    export MOCK_SUDO_EXIT_CODE=0
-    export MOCK_XCODEBUILD_EXIT_CODE=0
-    source /Users/user/dev/nix-install/bootstrap.sh
-
-    run accept_xcode_license
-    [[ "$output" =~ "license accepted" || "$output" =~ "✓" ]]
-}
-
-@test "accept_xcode_license logs error with helpful message on failure" {
-    export MOCK_SUDO_EXIT_CODE=1
-    export MOCK_XCODEBUILD_EXIT_CODE=1
-    source /Users/user/dev/nix-install/bootstrap.sh
-
-    run accept_xcode_license
-    [[ "$output" =~ "Failed" && "$output" =~ "sudo xcodebuild" ]]
-}
-
-@test "accept_xcode_license handles already-accepted license gracefully" {
-    export MOCK_XCODEBUILD_EXIT_CODE=69
-    source /Users/user/dev/nix-install/bootstrap.sh
-
-    run accept_xcode_license
-    [ "$status" -eq 0 ]
-    [[ "$output" =~ "already accepted" || "$output" =~ "not required" ]]
-}
-
-@test "accept_xcode_license includes exit code in error messages" {
-    export MOCK_XCODEBUILD_EXIT_CODE=1
-    source /Users/user/dev/nix-install/bootstrap.sh
-
-    run accept_xcode_license
-    [[ "$output" =~ "exit code" ]]
-}
-
-# =============================================================================
 # Verification Logic Tests (8 tests)
 # =============================================================================
 
@@ -579,41 +479,6 @@ teardown() {
     [ "$status" -eq 1 ]
 }
 
-@test "install_xcode_phase handles license acceptance denial" {
-    export MOCK_XCODE_INSTALL_FAIL=0
-    export MOCK_XCODEBUILD_EXIT_CODE=1
-
-    source /Users/user/dev/nix-install/bootstrap.sh
-
-    # Mock successful check after installation but failed license
-    check_count=0
-    check_xcode_installed() {
-        if [[ $check_count -eq 0 ]]; then
-            check_count=1
-            log_info "Xcode CLI Tools not installed"
-            return 1
-        else
-            log_info "Xcode CLI Tools already installed at: /Library/Developer/CommandLineTools"
-            return 0
-        fi
-    }
-    export -f check_xcode_installed
-
-    # Mock verify_xcode_installation to succeed
-    verify_xcode_installation() {
-        log_info "Verifying Xcode CLI Tools installation..."
-        log_info "✓ Xcode CLI Tools installed successfully"
-        log_info "  Path: /Library/Developer/CommandLineTools"
-        return 0
-    }
-    export -f verify_xcode_installation
-
-    run install_xcode_phase
-    # Should still succeed (license warning only)
-    [ "$status" -eq 0 ]
-    [[ "$output" =~ "License acceptance failed" || "$output" =~ "WARN" ]]
-}
-
 @test "install_xcode_phase propagates installation trigger errors" {
     export MOCK_XCODE_INSTALLED=0
     export MOCK_XCODE_INSTALL_FAIL=1
@@ -673,14 +538,6 @@ teardown() {
     [ "$status" -eq 1 ]
 }
 
-@test "license acceptance errors include exit codes" {
-    export MOCK_XCODEBUILD_EXIT_CODE=5
-    source /Users/user/dev/nix-install/bootstrap.sh
-
-    run accept_xcode_license
-    [[ "$output" =~ "exit code: 5" ]]
-}
-
 @test "verification errors suggest manual intervention" {
     export MOCK_XCODE_INSTALLED=0
     source /Users/user/dev/nix-install/bootstrap.sh
@@ -707,7 +564,7 @@ teardown() {
 }
 
 # =============================================================================
-# Idempotency Tests (5 tests)
+# Idempotency Tests (4 tests)
 # =============================================================================
 
 @test "install_xcode_phase is safe to run multiple times when installed" {
@@ -749,16 +606,5 @@ teardown() {
     [ "$status" -eq 0 ]
 
     run verify_xcode_installation
-    [ "$status" -eq 0 ]
-}
-
-@test "accept_xcode_license handles already-accepted scenario" {
-    export MOCK_XCODEBUILD_EXIT_CODE=69
-    source /Users/user/dev/nix-install/bootstrap.sh
-
-    run accept_xcode_license
-    [ "$status" -eq 0 ]
-
-    run accept_xcode_license
     [ "$status" -eq 0 ]
 }

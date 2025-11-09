@@ -1654,6 +1654,58 @@ initialize_git_for_flake() {
     return 0
 }
 
+# Function: backup_etc_files_for_darwin
+# Purpose: Backup /etc files that nix-darwin wants to manage
+# nix-darwin refuses to overwrite existing files without backup
+# Arguments: None
+# Returns: 0 on success, 1 on failure (NON-CRITICAL - warns only)
+backup_etc_files_for_darwin() {
+    log_info "Backing up /etc files for nix-darwin management..."
+
+    local files_to_backup=(
+        "/etc/nix/nix.conf"
+        "/etc/bashrc"
+        "/etc/zshrc"
+    )
+
+    local backed_up=0
+    local skipped=0
+
+    for file in "${files_to_backup[@]}"; do
+        if [[ -f "${file}" ]]; then
+            local backup_name="${file}.before-nix-darwin"
+
+            # Check if backup already exists
+            if [[ -f "${backup_name}" ]]; then
+                log_info "  • $(basename "${file}"): backup already exists, skipping"
+                ((skipped++))
+            else
+                # Create backup
+                if sudo mv "${file}" "${backup_name}"; then
+                    log_info "  • $(basename "${file}"): backed up to ${backup_name}"
+                    ((backed_up++))
+                else
+                    log_warn "  • $(basename "${file}"): failed to backup (non-critical)"
+                fi
+            fi
+        else
+            log_info "  • $(basename "${file}"): does not exist, skipping"
+            ((skipped++))
+        fi
+    done
+
+    echo ""
+    if [[ ${backed_up} -gt 0 ]]; then
+        log_success "Backed up ${backed_up} file(s) for nix-darwin management"
+    fi
+    if [[ ${skipped} -gt 0 ]]; then
+        log_info "Skipped ${skipped} file(s) (already backed up or non-existent)"
+    fi
+    echo ""
+
+    return 0
+}
+
 # Function: run_nix_darwin_build
 # Purpose: Execute initial nix-darwin build using flake configuration
 # This is the CORE operation of Phase 5 - builds system from declarative config
@@ -1683,6 +1735,9 @@ run_nix_darwin_build() {
     log_info "You will see many download messages - this is expected!"
     log_info "The build output will be displayed below..."
     echo ""
+
+    # Backup /etc files that nix-darwin wants to manage
+    backup_etc_files_for_darwin
 
     # Change to work directory
     if ! cd "${WORK_DIR}"; then

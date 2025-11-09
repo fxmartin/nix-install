@@ -57,6 +57,10 @@ readonly NC='\033[0m' # No Color
 # Minimum required macOS version
 readonly MIN_MACOS_VERSION=14
 
+# Work directory for bootstrap operations
+readonly WORK_DIR="/tmp/nix-bootstrap"
+readonly USER_CONFIG_FILE="${WORK_DIR}/user-config.nix"
+
 # Logging functions
 log_info() {
     echo -e "${GREEN}[INFO]${NC} $1"

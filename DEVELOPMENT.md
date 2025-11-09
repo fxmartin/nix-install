@@ -7,7 +7,7 @@
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 16 | 97 | **7** | **39** | 43.8% | 40.2% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 16 | 97 | **8** | **47** | 50.0% | 48.5% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -15,9 +15,9 @@
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **109** | **585** | **7** | **39** | **6.4%** | **6.7%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **109** | **585** | **8** | **47** | **7.3%** | **8.0%** | 🟡 In Progress |
 
-### Epic-01 Completed Stories (7/16)
+### Epic-01 Completed Stories (8/16)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -28,18 +28,25 @@
 | 01.3-001 | Xcode CLI Tools Installation | 5 | ✅ Complete | main | 2025-11-09 |
 | 01.4-001 | Nix Multi-User Installation | 8 | ✅ Complete | main | 2025-11-09 |
 | 01.4-002 | Nix Configuration for macOS | 5 | ✅ Complete | feature/01.4-002-nix-configuration | 2025-11-09 |
+| 01.4-003 | Flake Infrastructure Setup | 8 | ✅ Complete | main | 2025-11-09 |
 
 ### Overall Project Status
 
 - **Total Project Scope**: 109 stories, 585 story points
-- **Completed**: 7 stories (6.4%), 39 points (6.7%)
-- **In Progress**: Epic-01 Bootstrap & Installation (43.8% complete by stories, 40.2% by points)
+- **Completed**: 8 stories (7.3%), 47 points (8.0%)
+- **In Progress**: Epic-01 Bootstrap & Installation (50.0% complete by stories, 48.5% by points)
 - **Current Phase**: Phase 0-2 (Foundation + Bootstrap, Week 1-2)
-- **Next Story**: 01.5-001 (Initial Nix-Darwin Build - 13 points) - NOW UNBLOCKED (flake infrastructure complete)
+- **Milestone**: 🎉 Epic-01 is 50% complete!
+- **Next Story**: 01.5-001 (Initial Nix-Darwin Build - 13 points) - READY TO START
 
 ### Recent Activity
 
-- **2025-11-09**: ✅ Completed Story 01.4-003 (Flake Infrastructure Setup - 8 points) - All files created, ready for VM testing
+- **2025-11-09**: ✅ Completed Story 01.4-003 (Flake Infrastructure Setup - 8 points) - VM TESTED & VALIDATED
+  - Created flake.nix with Standard and Power profiles
+  - Fixed invalid system.profile bug (commit fca880d)
+  - nix flake check: PASSED
+  - Both profiles build successfully in dry-run mode
+  - 🎉 **Milestone**: Epic-01 is now 50% complete!
 - **2025-11-09**: 📝 Created Story 01.4-003 (Flake Infrastructure Setup - 8 points) - CRITICAL BLOCKER identified and documented
 - **2025-11-09**: ✅ Completed Story 01.4-002 (Nix Configuration for macOS) - VM tested, all scenarios passed
 - **2025-11-09**: ✅ Completed Story 01.4-001 (Nix Multi-User Installation) - VM tested, all scenarios passed
@@ -728,7 +735,7 @@ git push -u origin feature/STORY-ID
 #### Feature 01.4: Nix Installation (4 stories, 29 points)
 - [x] Story 01.4-001: Nix Package Manager Installation (8 points) ✅
 - [x] Story 01.4-002: Nix Configuration for macOS (5 points) ✅
-- [ ] Story 01.4-003: Flake Infrastructure Setup (8 points) ⏳ NEXT STORY
+- [x] Story 01.4-003: Flake Infrastructure Setup (8 points) ✅
 - [ ] Story 01.4-004: Home Manager Integration (8 points) [RENUMBERED]
 
 #### Feature 01.5: Repository Setup (3 stories, 20 points)
@@ -736,7 +743,7 @@ git push -u origin feature/STORY-ID
 - [ ] Story 01.5-002: GitHub SSH Upload Flow (8 points)
 - [ ] Story 01.5-003: Repository Clone & Initial Build (7 points)
 
-**Total**: 7/16 stories (39/97 points) = **40.2% complete**
+**Total**: 8/16 stories (47/97 points) = **48.5% complete** 🎉
 
 ---
 
@@ -812,9 +819,10 @@ Stories are implemented using specialized Claude Code agents for optimal results
 ---
 
 ## Story 01.4-003: Flake Infrastructure Setup
-**Status**: ✅ Complete
+**Status**: ✅ Complete (VM Tested & Validated)
 **Date**: 2025-11-09
-**Branch**: main (files created, ready to commit)
+**Branch**: main
+**Commits**: 1f09970 (initial), fca880d (bug fix)
 
 ### Implementation Summary
 Created minimal flake infrastructure with Standard and Power profiles to unblock Story 01.5-001 (nix-darwin installation). All configuration files are stubs with ABOUTME comments, designed to be expanded in later epics.
@@ -898,9 +906,11 @@ Created minimal flake infrastructure with Standard and Power profiles to unblock
 - ✅ home-manager/home.nix created (minimal user config)
 - ✅ home-manager/modules/shell.nix created (stub with detailed comments)
 - ✅ ABOUTME comments on all new .nix files
-- ⏳ flake.lock NOT generated (requires Nix - FX will generate in VM)
-- ⏳ `nix flake check` NOT run (no Nix on host - FX will validate in VM)
-- ⏳ `nix flake show` NOT run (no Nix on host - FX will test in VM)
+- ✅ flake.lock generated successfully in VM
+- ✅ `nix flake check` passed in VM
+- ✅ `nix flake show` displayed configurations in VM
+- ✅ `nix build --dry-run .#darwinConfigurations.standard.system` - PASSED
+- ✅ `nix build --dry-run .#darwinConfigurations.power.system` - PASSED
 
 ### Code Quality
 - ✅ ABOUTME comments (2 lines) on all 6 .nix files
@@ -980,18 +990,26 @@ Created minimal flake infrastructure with Standard and Power profiles to unblock
 ### Story Completion Summary
 **Development**: ✅ Complete (all files created with ABOUTME comments)
 **Code Quality**: ✅ Complete (modular structure, clear stubs)
-**VM Testing**: ⏳ Pending FX (validate flake, generate flake.lock)
+**VM Testing**: ✅ Complete (nix flake check passed, both profiles build successfully)
+**Bug Fix**: ✅ Complete (removed invalid system.profile option, added isPowerProfile)
 **Documentation**: ✅ Complete (DEVELOPMENT.md updated)
-**Commit to Git**: ⏳ Next step
+**Committed to Git**: ✅ Complete (commits: 1f09970, fca880d)
 
-**Next Story**: Story 01.5-001 (Initial Nix-Darwin Build - 13 points) - NOW UNBLOCKED
+**VM Testing Results (2025-11-09):**
+- ✅ nix flake update: Generated flake.lock successfully
+- ✅ nix flake check: Passed (warning about x86_64-darwin expected and OK)
+- ✅ nix flake show: Displayed configurations correctly
+- ✅ nix build --dry-run .#darwinConfigurations.standard.system: SUCCESS
+- ✅ nix build --dry-run .#darwinConfigurations.power.system: SUCCESS
+
+**Next Story**: Story 01.5-001 (Initial Nix-Darwin Build - 13 points) - NOW UNBLOCKED AND READY
 
 ---
 
 **Last Updated**: 2025-11-09
-**Current Story**: Story 01.4-003 (Flake Infrastructure Setup - 8 points) - ✅ COMPLETE (ready to commit)
-**Next Story**: Story 01.5-001 (Initial Nix-Darwin Build - 13 points) - NOW UNBLOCKED (flake infrastructure ready)
-**Epic-01 Progress**: 7/16 stories (39/97 points) = 40.2% complete
+**Current Story**: Story 01.4-003 (Flake Infrastructure Setup - 8 points) - ✅ COMPLETE (VM tested & validated)
+**Next Story**: Story 01.5-001 (Initial Nix-Darwin Build - 13 points) - READY TO START
+**Epic-01 Progress**: 8/16 stories (47/97 points) = 48.5% complete (🎉 50% milestone!)
 **Phase 2 Status**: 100% complete (User Configuration & Profile Selection)
 **Phase 3 Status**: Started (Xcode CLI Tools complete, Homebrew and Git pending)
 **Phase 4 Status**: In Progress (Nix installation and configuration complete, flake infrastructure next)

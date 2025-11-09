@@ -7,7 +7,7 @@
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 15 | 89 | **5** | **26** | 33.3% | 29.2% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 15 | 89 | **6** | **34** | 40.0% | 38.2% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -15,9 +15,9 @@
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **108** | **577** | **5** | **26** | **4.6%** | **4.5%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **108** | **577** | **6** | **34** | **5.6%** | **5.9%** | 🟡 In Progress |
 
-### Epic-01 Completed Stories (5/15)
+### Epic-01 Completed Stories (6/15)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -26,17 +26,19 @@
 | 01.2-002 | Profile Selection System | 8 | ✅ Complete | feature/01.2-002-profile-selection | 2025-11-09 |
 | 01.2-003 | User Config File Generation | 3 | ✅ Complete | feature/01.2-003-user-config-generation | 2025-11-09 |
 | 01.3-001 | Xcode CLI Tools Installation | 5 | ✅ Complete | main | 2025-11-09 |
+| 01.4-001 | Nix Multi-User Installation | 8 | ✅ Complete | main | 2025-11-09 |
 
 ### Overall Project Status
 
 - **Total Project Scope**: 108 stories, 577 story points
-- **Completed**: 5 stories (4.6%), 26 points (4.5%)
-- **In Progress**: Epic-01 Bootstrap & Installation (33.3% complete)
+- **Completed**: 6 stories (5.6%), 34 points (5.9%)
+- **In Progress**: Epic-01 Bootstrap & Installation (40.0% complete)
 - **Current Phase**: Phase 0-2 (Foundation + Bootstrap, Week 1-2)
-- **Next Story**: 01.3-002 (Homebrew Installation - 5 points) or 01.4-001 (Nix Installation - 8 points)
+- **Next Story**: 01.4-002 (Nix Configuration - 5 points) or 01.3-002 (Homebrew Installation - 5 points)
 
 ### Recent Activity
 
+- **2025-11-09**: ✅ Completed Story 01.4-001 (Nix Multi-User Installation) - VM tested, all scenarios passed
 - **2025-11-09**: ✅ Completed Story 01.3-001 (Xcode CLI Tools) - VM tested, all scenarios passed
 - **2025-11-09**: Fixed Xcode test suite (removed obsolete license tests, 58 tests passing)
 - **2025-11-09**: Fixed critical bootstrap template file bug (#8)
@@ -517,7 +519,7 @@ git push -u origin feature/STORY-ID
 - [ ] Story 01.3-003: Git Configuration (8 points)
 
 #### Feature 01.4: Nix Installation (3 stories, 24 points)
-- [ ] Story 01.4-001: Nix Package Manager Installation (8 points)
+- [x] Story 01.4-001: Nix Package Manager Installation (8 points) ✅
 - [ ] Story 01.4-002: Nix-Darwin Installation (8 points)
 - [ ] Story 01.4-003: Home Manager Integration (8 points)
 
@@ -526,7 +528,7 @@ git push -u origin feature/STORY-ID
 - [ ] Story 01.5-002: GitHub SSH Upload Flow (8 points)
 - [ ] Story 01.5-003: Repository Clone & Initial Build (7 points)
 
-**Total**: 5/15 stories (26/89 points) = **29.2% complete**
+**Total**: 6/15 stories (34/89 points) = **38.2% complete**
 
 ---
 
@@ -602,8 +604,9 @@ Stories are implemented using specialized Claude Code agents for optimal results
 ---
 
 **Last Updated**: 2025-11-09
-**Current Story**: 01.3-001 (✅ Complete - VM tested, all scenarios passed)
-**Next Story**: 01.3-002 (Homebrew Installation) or 01.4-001 (Nix Installation)
-**Epic-01 Progress**: 5/15 stories (26/89 points) = 29.2% complete
+**Current Story**: 01.4-001 (✅ Complete - VM tested, all scenarios passed)
+**Next Story**: 01.4-002 (Nix Configuration for macOS) or 01.3-002 (Homebrew Installation)
+**Epic-01 Progress**: 6/15 stories (34/89 points) = 38.2% complete
 **Phase 2 Status**: 100% complete (User Configuration & Profile Selection)
 **Phase 3 Status**: Started (Xcode CLI Tools complete, Homebrew and Git pending)
+**Phase 4 Status**: Started (Nix Package Manager complete, nix-darwin pending)

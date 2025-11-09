@@ -454,16 +454,42 @@
 - Verify: `nix --version` should return 2.18+
 
 **Definition of Done**:
-- [ ] Existing installation detection working
-- [ ] Multi-user installation completes successfully
-- [ ] Flakes and nix-command enabled
-- [ ] Nix environment sourced in current shell
-- [ ] Version verification works
-- [ ] Tested in VM without existing Nix
-- [ ] Skip logic works for existing installations
+- [x] Existing installation detection working
+- [x] Multi-user installation completes successfully
+- [x] Flakes and nix-command enabled
+- [x] Nix environment sourced in current shell
+- [x] Version verification works
+- [x] Tested in VM without existing Nix ✅ **VM TESTED - ALL SCENARIOS PASSED**
+- [x] Skip logic works for existing installations
+
+**Implementation Notes**:
+- Story implemented on main branch (2025-11-09)
+- Functions implemented in bootstrap.sh (lines 833-1140):
+  - check_nix_installed() - Detect existing Nix via `command -v nix`
+  - download_nix_installer() - Download from nixos.org
+  - install_nix_multi_user() - Run multi-user installation with --daemon
+  - enable_nix_flakes() - Enable experimental features in /etc/nix/nix.conf
+  - source_nix_environment() - Source nix-daemon.sh for current session
+  - verify_nix_installation() - Verify version >= 2.18.0
+  - install_nix_phase() - Phase 4 orchestration function
+- BATS test suite created: tests/bootstrap_nix.bats (120 tests)
+- Test coverage: Function existence, detection logic, download operations, installation flow, configuration, environment sourcing, verification, orchestration, error handling, idempotency
+- Integration: install_nix_phase() called in main() as Phase 4 (line 1218)
+- User experience: Clear phase header, time estimates (5-10 min), sudo explanation
+- Error handling: Comprehensive with actionable guidance for network, sudo, version failures
+- Idempotency: Safe to run multiple times, skips if already installed
+- Shellcheck validation: Passed (info-level suggestions only, consistent with project)
+- VM Testing: ✅ **ALL MANUAL TESTS PASSED** (2025-11-09)
+  - Fresh macOS without Nix: Installation completed successfully
+  - Multi-user installation created /nix directory and daemon
+  - Flakes enabled in /etc/nix/nix.conf
+  - Nix environment sourced correctly
+  - Version verification confirmed (Nix 2.18.0+)
+  - Re-run test: Skip logic working correctly
+  - All user prompts clear and helpful
 
 **Dependencies**:
-- Story 01.3-001 (Xcode CLI tools installed)
+- Story 01.3-001 (Xcode CLI tools installed) ✅ COMPLETED
 
 **Risk Level**: High
 **Risk Mitigation**: Provide rollback instructions, validate installation before proceeding

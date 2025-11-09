@@ -211,7 +211,7 @@ setup() {
 @test "INSTALL_PROFILE variable is declared global" {
     # Check that INSTALL_PROFILE variable would be set by the function
     # We can't test the interactive prompt, but we can verify the variable exists in scope
-    [[ -v INSTALL_PROFILE ]] || [ -z "${INSTALL_PROFILE:-}" ]
+    [[ -v INSTALL_PROFILE || -z "${INSTALL_PROFILE:-}" ]]
 }
 
 @test "profile selection follows Phase 2 in execution flow" {

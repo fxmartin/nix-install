@@ -1675,12 +1675,18 @@ backup_etc_files_for_darwin() {
         if [[ -f "${file}" ]]; then
             local backup_name="${file}.before-nix-darwin"
 
-            # Check if backup already exists
+            # If backup exists, check if we need to move the current file too
             if [[ -f "${backup_name}" ]]; then
-                log_info "  • $(basename "${file}"): backup already exists, skipping"
-                ((skipped++))
+                # Backup exists - append timestamp to avoid conflicts
+                local timestamp_backup="${file}.before-nix-darwin.$(date +%Y%m%d-%H%M%S)"
+                if sudo mv "${file}" "${timestamp_backup}"; then
+                    log_info "  • $(basename "${file}"): backed up to $(basename "${timestamp_backup}") (backup already existed)"
+                    ((backed_up++))
+                else
+                    log_warn "  • $(basename "${file}"): failed to backup (non-critical)"
+                fi
             else
-                # Create backup
+                # Create initial backup
                 if sudo mv "${file}" "${backup_name}"; then
                     log_info "  • $(basename "${file}"): backed up to ${backup_name}"
                     ((backed_up++))

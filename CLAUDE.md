@@ -105,7 +105,7 @@ FX's role: ALL testing, execution, and validation.
   - `configuration.nix`, `homebrew.nix`, `macos-defaults.nix`, `system-monitoring.nix`, `nix-settings.nix`
 - `home-manager/`: User-level configs (dotfiles)
   - `modules/zsh.nix`, `modules/git.nix`, `modules/starship.nix`, `modules/aliases.nix`, etc.
-- `scripts/bootstrap.sh`: New bootstrap script (6-phase installation)
+- `bootstrap.sh`: Bootstrap script in main directory (10-phase installation)
 - `docs/`: User documentation (quick-start, troubleshooting, customization)
 
 ### Implementation Phases (8-Week Plan)
@@ -257,13 +257,17 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ## Important Constraints
 
-1. **CRITICAL - NO AUTOMATED TESTING**: Claude must NEVER run tests, execute bootstrap scripts, or perform any system configuration changes. ALL testing is done MANUALLY by FX only. This includes:
+1. **CRITICAL - NO AUTOMATED TESTING**: Claude must NEVER execute bootstrap scripts or perform any system configuration changes. ALL testing is done MANUALLY by FX only. This includes:
    - ❌ Do NOT run bootstrap.sh or setup.sh
    - ❌ Do NOT run `nix-darwin` commands
    - ❌ Do NOT run `darwin-rebuild`
    - ❌ Do NOT execute any installation or configuration scripts
    - ✅ Only write code, documentation, and configuration files
    - ✅ FX will test manually in VM and on hardware
+   - ✅ **EXCEPTION**: Static analysis tools ARE allowed (safe, read-only):
+     - `shellcheck` - Shell script linter (syntax/quality checking)
+     - `bats` - Bash test framework (when running read-only static checks)
+     - These tools NEVER modify the system or execute bootstrap code
 
 2. **No auto-updates**: Every app must have auto-update disabled. `rebuild` is the ONLY update mechanism.
 

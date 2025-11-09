@@ -5,7 +5,7 @@
 # Test helper for sourcing bootstrap functions without executing main
 setup() {
     # Store the path to bootstrap script
-    BOOTSTRAP_SCRIPT="${BATS_TEST_DIRNAME}/../scripts/bootstrap.sh"
+    BOOTSTRAP_SCRIPT="${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Load bootstrap functions without running main()
     # We'll source it in a way that doesn't execute main
@@ -164,7 +164,7 @@ setup() {
 
 # Manual test documentation (FX will perform these)
 @test "MANUAL: script refuses to run as root (sudo ./bootstrap.sh)" {
-    skip "Manual test required: sudo ./scripts/bootstrap.sh should display error and exit 1"
+    skip "Manual test required: sudo ./bootstrap.sh should display error and exit 1"
 }
 
 @test "MANUAL: script detects old macOS versions gracefully" {

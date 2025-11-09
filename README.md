@@ -24,7 +24,7 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 15 | 89 | **6** | **34** | 40.0% | 38.2% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 15 | 89 | **7** | **39** | 46.7% | 43.8% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -32,7 +32,7 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **108** | **577** | **6** | **34** | **5.6%** | **5.9%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **108** | **577** | **7** | **39** | **6.5%** | **6.8%** | 🟡 In Progress |
 
 ### ✅ Completed
 - **Requirements Definition** ([REQUIREMENTS.md](./REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
@@ -46,10 +46,11 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - **Story 01.2-003** - User Config File Generation (✅ Complete - 2025-11-09, 3 pts)
 - **Story 01.3-001** - Xcode CLI Tools Installation (✅ Complete - 2025-11-09, 5 pts)
 - **Story 01.4-001** - Nix Multi-User Installation (✅ Complete - 2025-11-09, 8 pts)
+- **Story 01.4-002** - Nix Configuration for macOS (✅ Complete - 2025-11-09, 5 pts)
 
 ### 🔄 In Progress
-- **Epic-01: Bootstrap System** (Week 1-2) - 6/15 stories complete (40.0%), 34/89 points (38.2%)
-- **Next Story**: 01.4-002 - Nix Configuration (5 points) or 01.3-002 - Homebrew Installation (5 points)
+- **Epic-01: Bootstrap System** (Week 1-2) - 7/15 stories complete (46.7%), 39/89 points (43.8%)
+- **Next Story**: 01.3-002 - Homebrew Installation (5 points) or 01.5-001 - SSH Key Generation (5 points)
 
 ### 📅 Upcoming
 - **Phase 1-2**: Core bootstrap implementation (Week 2)
@@ -154,7 +155,7 @@ The installation uses a **two-stage bootstrap pattern** for reliability:
 4. **User Config**: Generate user-config.nix from inputs (Story 01.2-003 ✅)
 5. **Xcode CLI Tools**: Install Command Line Tools (Story 01.3-001 ✅)
 6. **Nix Installation**: Install Nix package manager with flakes enabled (Story 01.4-001 ✅)
-7. Configure Nix settings and channels (Story 01.4-002 🔄)
+7. **Nix Configuration**: Configure binary cache, performance, trusted users, sandbox (Story 01.4-002 ✅)
 8. Install nix-darwin and Homebrew (managed declaratively)
 9. Generate SSH key and guide GitHub upload
 10. Clone this repository and apply full configuration

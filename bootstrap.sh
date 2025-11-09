@@ -1794,26 +1794,33 @@ run_nix_darwin_build() {
 verify_nix_darwin_installed() {
     log_info "Verifying nix-darwin installation..."
 
-    # Check darwin-rebuild command
-    if ! command -v darwin-rebuild >/dev/null 2>&1; then
-        log_error "darwin-rebuild command not found"
-        log_error "nix-darwin installation appears to have failed"
-        log_info "Expected location: /run/current-system/sw/bin/darwin-rebuild"
+    # Check darwin-rebuild exists at expected location
+    # Note: It may not be in PATH yet until shell is restarted
+    local darwin_rebuild_path="/run/current-system/sw/bin/darwin-rebuild"
+
+    if [[ -x "${darwin_rebuild_path}" ]]; then
+        log_info "✓ darwin-rebuild found at ${darwin_rebuild_path}"
+    elif command -v darwin-rebuild >/dev/null 2>&1; then
+        log_info "✓ darwin-rebuild command is available in PATH"
+    else
+        log_error "darwin-rebuild not found"
+        log_error "Expected location: ${darwin_rebuild_path}"
+        log_warn "Note: You may need to restart your terminal for PATH changes to take effect"
         return 1
     fi
-    log_info "✓ darwin-rebuild command available"
 
     # Check Homebrew installation
-    if [[ ! -x /opt/homebrew/bin/brew ]]; then
-        log_error "Homebrew not found at /opt/homebrew/bin/brew"
-        log_error "Homebrew should have been installed automatically by nix-darwin"
-        return 1
+    if [[ -x /opt/homebrew/bin/brew ]]; then
+        log_info "✓ Homebrew installed at /opt/homebrew/bin/brew"
+    else
+        log_warn "Homebrew not found at /opt/homebrew/bin/brew (may not be installed yet)"
+        log_warn "This is normal if your profile doesn't include Homebrew casks"
     fi
-    log_info "✓ Homebrew installed at /opt/homebrew/bin/brew"
 
     echo ""
     log_success "nix-darwin installation verified successfully"
     log_info "Your system is now managed declaratively!"
+    log_info "Note: Restart your terminal to load the new environment"
     echo ""
 
     return 0

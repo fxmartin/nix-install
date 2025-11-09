@@ -240,11 +240,12 @@
 - [x] Input validation and default handling
 - [x] Confirmation prompt working
 - [x] Profile variable stored correctly
-- [ ] Tested selecting both profiles in VM (FX will test manually)
+- [x] Tested selecting both profiles in VM (FX tested manually - PASSED)
 - [x] Documentation explains profile differences
 
 **Implementation Notes**:
 - Story completed in feature/01.2-002-profile-selection branch
+- Merged to main via PR #7 (2025-11-09)
 - Functions implemented in bootstrap.sh:
   - validate_profile_choice() - Validates input is 1 or 2
   - convert_profile_choice_to_name() - Converts 1/2 to standard/power

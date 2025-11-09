@@ -715,7 +715,7 @@ git push -u origin feature/STORY-ID
 
 ## Story Progress Tracking
 
-### Epic-01: Bootstrap & Installation System (15 stories, 89 points)
+### Epic-01: Bootstrap & Installation System (16 stories, 97 points)
 
 #### Feature 01.1: Pre-flight System Validation (3 stories, 11 points)
 - [x] Story 01.1-001: Pre-flight Environment Checks (5 points) ✅
@@ -732,18 +732,28 @@ git push -u origin feature/STORY-ID
 - [ ] Story 01.3-002: Homebrew Installation (5 points)
 - [ ] Story 01.3-003: Git Configuration (8 points)
 
-#### Feature 01.4: Nix Installation (4 stories, 29 points)
+#### Feature 01.4: Nix Installation (3 stories, 21 points)
 - [x] Story 01.4-001: Nix Package Manager Installation (8 points) ✅
 - [x] Story 01.4-002: Nix Configuration for macOS (5 points) ✅
 - [x] Story 01.4-003: Flake Infrastructure Setup (8 points) ✅
-- [ ] Story 01.4-004: Home Manager Integration (8 points) [RENUMBERED]
 
-#### Feature 01.5: Repository Setup (3 stories, 20 points)
-- [ ] Story 01.5-001: SSH Key Generation (5 points)
-- [ ] Story 01.5-002: GitHub SSH Upload Flow (8 points)
-- [ ] Story 01.5-003: Repository Clone & Initial Build (7 points)
+#### Feature 01.5: Nix-Darwin System Installation (2 stories, 18 points)
+- [ ] Story 01.5-001: Initial Nix-Darwin Build (13 points)
+- [ ] Story 01.5-002: System Configuration Verification (5 points)
 
-**Total**: 8/16 stories (47/97 points) = **48.5% complete** 🎉
+#### Feature 01.6: SSH Key Setup & GitHub Integration (3 stories, 21 points)
+- [ ] Story 01.6-001: SSH Key Generation (5 points)
+- [ ] Story 01.6-002: GitHub SSH Key Upload Instructions (8 points)
+- [ ] Story 01.6-003: GitHub SSH Connection Test (8 points)
+
+#### Feature 01.7: Repository Cloning & Final Rebuild (2 stories, 13 points)
+- [ ] Story 01.7-001: Full Repository Clone (5 points)
+- [ ] Story 01.7-002: Final Darwin Rebuild (8 points)
+
+#### Feature 01.8: Post-Installation Summary & Next Steps (1 story, 3 points)
+- [ ] Story 01.8-001: Installation Summary (3 points)
+
+**Total**: 8/16 stories completed (47/97 points) = **50.0% by stories, 48.5% by points** 🎉
 
 ---
 

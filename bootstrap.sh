@@ -31,23 +31,23 @@ check_macos_version() {
     local version
     version=$(sw_vers -productVersion)
     local major_version
-    major_version=$(echo "$version" | cut -d. -f1)
+    major_version=$(echo "${version}" | cut -d. -f1)
 
     # Check if Sonoma (14) or newer
-    if [[ "$major_version" -lt "$MIN_MACOS_VERSION" ]]; then
-        log_error "macOS Sonoma (14.0) or newer required. Found: $version"
+    if [[ "${major_version}" -lt "${MIN_MACOS_VERSION}" ]]; then
+        log_error "macOS Sonoma (14.0) or newer required. Found: ${version}"
         log_error "Please upgrade macOS before running this script."
         log_error "Visit System Settings > General > Software Update to upgrade."
         return 1
     fi
 
-    log_info "macOS version: $version ✓"
+    log_info "macOS version: ${version} ✓"
     return 0
 }
 
 # Ensure script is not running as root
 check_not_root() {
-    if [[ "$EUID" -eq 0 ]]; then
+    if [[ "${EUID}" -eq 0 ]]; then
         log_error "This script must NOT be run as root"
         log_error "Please run as a regular user: ./bootstrap.sh"
         log_error "The script will request sudo permissions when needed."
@@ -100,6 +100,7 @@ display_system_info() {
 
 # Run all pre-flight validation checks
 preflight_checks() {
+    # shellcheck disable=SC2310  # Intentional: capture failures to show all errors
     log_info "Starting pre-flight system validation..."
     echo ""
 
@@ -110,21 +111,24 @@ preflight_checks() {
     # Run individual checks
     local all_passed=true
 
+    # shellcheck disable=SC2310  # Intentional: Using ! with functions to capture all failures
     if ! check_macos_version; then
         all_passed=false
     fi
 
+    # shellcheck disable=SC2310
     if ! check_not_root; then
         all_passed=false
     fi
 
+    # shellcheck disable=SC2310
     if ! check_internet; then
         all_passed=false
     fi
 
     echo ""
 
-    if [[ "$all_passed" == "false" ]]; then
+    if [[ "${all_passed}" == "false" ]]; then
         log_error "One or more pre-flight checks failed"
         log_error "Please resolve the issues above and try again"
         return 1
@@ -145,6 +149,7 @@ main() {
     log_info "Phase 1/10: Pre-flight System Validation"
     echo ""
 
+    # shellcheck disable=SC2310  # Intentional: Using ! to handle validation failure
     if ! preflight_checks; then
         log_error "Pre-flight checks failed. Aborting installation."
         echo ""

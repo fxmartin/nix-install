@@ -189,12 +189,12 @@
 - Store in variables: `USER_FULLNAME`, `USER_EMAIL`, `GITHUB_USERNAME`
 
 **Definition of Done**:
-- [ ] All prompts functional and clear
-- [ ] Input validation working correctly
-- [ ] Confirmation prompt implemented
-- [ ] Invalid inputs rejected with helpful messages
-- [ ] Variables stored for later phases
-- [ ] Tested in VM with valid and invalid inputs
+- [x] All prompts functional and clear
+- [x] Input validation working correctly
+- [x] Confirmation prompt implemented
+- [x] Invalid inputs rejected with helpful messages
+- [x] Variables stored for later phases
+- [x] Tested in VM with valid and invalid inputs
 
 **Dependencies**:
 - Story 01.1-001 (pre-flight checks complete)

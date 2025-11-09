@@ -12,7 +12,7 @@
 Implemented comprehensive pre-flight validation for the bootstrap script using TDD approach.
 
 ### Files Created
-1. **scripts/bootstrap.sh** (168 lines)
+1. **bootstrap.sh** (168 lines)
    - Main bootstrap script with pre-flight validation phase
    - Validates macOS version (Sonoma 14.0+)
    - Checks internet connectivity (nixos.org, github.com)
@@ -63,7 +63,7 @@ Implemented comprehensive pre-flight validation for the bootstrap script using T
 - System info display components
 
 **Manual Tests (5 tests - FX to perform)**:
-1. Root user prevention: `sudo ./scripts/bootstrap.sh`
+1. Root user prevention: `sudo ./bootstrap.sh`
 2. Old macOS detection: Test on Ventura (13.x)
 3. No internet handling: Disable network and verify errors
 4. System info display: Verify all info displayed correctly
@@ -82,7 +82,7 @@ Implemented comprehensive pre-flight validation for the bootstrap script using T
 1. **Shellcheck**: Not installed - FX should install for validation:
    ```bash
    brew install shellcheck
-   shellcheck scripts/bootstrap.sh
+   shellcheck bootstrap.sh
    ```
 
 2. **Bats**: Not installed - FX should install for testing:
@@ -95,7 +95,7 @@ Implemented comprehensive pre-flight validation for the bootstrap script using T
 1. Install bats-core: `brew install bats-core`
 2. Install shellcheck: `brew install shellcheck`
 3. Run automated tests: `bats tests/bootstrap_preflight.bats`
-4. Run shellcheck: `shellcheck scripts/bootstrap.sh`
+4. Run shellcheck: `shellcheck bootstrap.sh`
 5. Perform manual tests in VM:
    - Test as root user
    - Test on older macOS (if available)
@@ -142,10 +142,10 @@ bats -f "bootstrap.sh exists" tests/bootstrap_preflight.bats
 ### Code Validation
 ```bash
 # Validate shell scripts
-shellcheck scripts/bootstrap.sh
+shellcheck bootstrap.sh
 
 # Auto-fix safe issues (if needed)
-shellcheck -f diff scripts/bootstrap.sh | patch
+shellcheck -f diff bootstrap.sh | patch
 ```
 
 ### Git Workflow

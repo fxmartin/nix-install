@@ -104,7 +104,7 @@ Some tests require manual validation by FX in a VM or on physical hardware:
 
 1. **Root User Test**
    ```bash
-   sudo ./scripts/bootstrap.sh
+   sudo ./bootstrap.sh
    # Expected: Error message and exit code 1
    ```
 

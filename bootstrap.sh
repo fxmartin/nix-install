@@ -1,6 +1,50 @@
 #!/usr/bin/env bash
-# ABOUTME: Automated macOS bootstrap script for Nix-Darwin setup system
-# ABOUTME: Transforms fresh macOS into fully configured dev environment in <30 minutes
+# ABOUTME: Stage 2 bootstrap installer - interactive macOS configuration with Nix-Darwin
+# ABOUTME: Called by setup.sh wrapper to ensure interactive prompts work correctly
+
+# ==============================================================================
+# TWO-STAGE BOOTSTRAP PATTERN - STAGE 2: INTERACTIVE INSTALLER
+# ==============================================================================
+#
+# This script is STAGE 2 of the two-stage bootstrap pattern:
+#
+# STAGE 1 (setup.sh):
+#   - Curl-pipeable wrapper with NO interactive prompts
+#   - Downloads this script to /tmp
+#   - Executes this script locally (NOT piped)
+#
+# STAGE 2 (THIS FILE - bootstrap.sh):
+#   - Full interactive installer with user prompts
+#   - Runs with proper stdin connected to terminal
+#   - Uses standard "read -r" commands (works because NOT piped)
+#   - Performs actual Nix-Darwin installation
+#
+# WHY THIS WORKS:
+#   When setup.sh downloads this script and executes it with "bash bootstrap.sh",
+#   stdin is properly connected to the terminal, allowing interactive prompts
+#   to read user input. No /dev/tty redirects or workarounds needed.
+#
+# PHASE SEPARATION:
+#   Phase 1 (Pre-flight validation) is performed by setup.sh BEFORE this script
+#   is downloaded. This script starts at Phase 2 (User Configuration).
+#
+#   By the time this script runs:
+#   ✓ macOS version validated (Sonoma 14.0+)
+#   ✓ Not running as root
+#   ✓ Internet connectivity verified
+#   ✓ System meets minimum requirements
+#
+# INSTALLATION METHODS:
+#   1. Recommended (via setup.sh wrapper):
+#      curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh | bash
+#
+#   2. Direct execution (advanced users):
+#      curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/bootstrap.sh -o bootstrap.sh
+#      chmod +x bootstrap.sh
+#      ./bootstrap.sh
+#      (Note: Direct execution will repeat some pre-flight checks)
+#
+# ==============================================================================
 
 set -euo pipefail  # Strict error handling
 
@@ -98,6 +142,148 @@ display_system_info() {
     log_info "==================================="
 }
 
+# =============================================================================
+# PHASE 2: USER INFORMATION VALIDATION FUNCTIONS
+# =============================================================================
+
+# Validate email address format
+# Email regex: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+# Requires: @ symbol, domain name, and TLD (at least 2 characters)
+validate_email() {
+    local email="$1"
+    local email_regex='^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
+    if [[ ! "$email" =~ $email_regex ]]; then
+        return 1
+    fi
+
+    # Additional validation: reject leading/trailing dots
+    if [[ "$email" =~ ^\. ]] || [[ "$email" =~ \.$ ]]; then
+        return 1
+    fi
+
+    return 0
+}
+
+# Validate GitHub username format
+# GitHub allows: alphanumeric, hyphens, underscores
+# Does NOT allow: leading/trailing hyphens, special characters, periods
+validate_github_username() {
+    local username="$1"
+
+    # Reject empty string
+    if [[ -z "$username" ]]; then
+        return 1
+    fi
+
+    # Reject leading or trailing hyphens (GitHub restriction)
+    if [[ "$username" =~ ^- ]] || [[ "$username" =~ -$ ]]; then
+        return 1
+    fi
+
+    # Validate allowed characters only: alphanumeric, hyphen, underscore
+    local username_regex='^[a-zA-Z0-9_-]+$'
+    if [[ ! "$username" =~ $username_regex ]]; then
+        return 1
+    fi
+
+    return 0
+}
+
+# Validate user's full name
+# Allows: letters, spaces, apostrophes, hyphens, periods, commas, accented characters
+# Rejects: empty string, whitespace-only string
+validate_name() {
+    local name="$1"
+
+    # Reject empty string
+    if [[ -z "$name" ]]; then
+        return 1
+    fi
+
+    # Reject whitespace-only string (spaces, tabs, newlines)
+    if [[ "$name" =~ ^[[:space:]]*$ ]]; then
+        return 1
+    fi
+
+    # Name is valid if non-empty and not just whitespace
+    return 0
+}
+
+# Prompt user for personal information with validation
+# Sets global variables: USER_FULLNAME, USER_EMAIL, GITHUB_USERNAME
+prompt_user_info() {
+    log_info "==================================="
+    log_info "Phase 2/10: User Configuration"
+    log_info "==================================="
+    echo ""
+    log_info "Please provide your information for Git, SSH, and system configuration."
+    echo ""
+
+    local confirmed="n"
+
+    # Loop until user confirms all information
+    while [[ "$confirmed" != "y" ]]; do
+        # Prompt for full name with validation
+        while true; do
+            read -r -p "Full Name: " USER_FULLNAME
+            if validate_name "$USER_FULLNAME"; then
+                log_info "✓ Name validated"
+                break
+            else
+                log_error "Invalid name. Please enter your full name (cannot be empty)."
+            fi
+        done
+
+        echo ""
+
+        # Prompt for email with validation
+        while true; do
+            read -r -p "Email Address: " USER_EMAIL
+            if validate_email "$USER_EMAIL"; then
+                log_info "✓ Email validated"
+                break
+            else
+                log_error "Invalid email format. Please include @ and domain (e.g., user@example.com)"
+            fi
+        done
+
+        echo ""
+
+        # Prompt for GitHub username with validation
+        while true; do
+            read -r -p "GitHub Username: " GITHUB_USERNAME
+            if validate_github_username "$GITHUB_USERNAME"; then
+                log_info "✓ GitHub username validated"
+                break
+            else
+                log_error "Invalid GitHub username. Use only letters, numbers, hyphens, and underscores."
+                log_error "Username cannot start or end with a hyphen."
+            fi
+        done
+
+        echo ""
+
+        # Display confirmation summary
+        log_info "Please confirm your information:"
+        echo "  Name:          $USER_FULLNAME"
+        echo "  Email:         $USER_EMAIL"
+        echo "  GitHub:        $GITHUB_USERNAME"
+        echo ""
+
+        read -r -p "Is this correct? (y/n): " confirmed
+        echo ""
+
+        if [[ "$confirmed" != "y" ]]; then
+            log_warn "Let's try again. Please re-enter your information."
+            echo ""
+        fi
+    done
+
+    log_info "✓ User information collected successfully"
+    echo ""
+}
+
 # Run all pre-flight validation checks
 preflight_checks() {
     # shellcheck disable=SC2310  # Intentional: capture failures to show all errors
@@ -146,6 +332,15 @@ main() {
     log_info "Automated System Configuration"
     log_info "========================================"
     echo ""
+
+    # ==========================================================================
+    # PHASE 1: PRE-FLIGHT VALIDATION (May be redundant if run via setup.sh)
+    # ==========================================================================
+    # When run via setup.sh (recommended), these checks already passed.
+    # When run directly, these checks are essential for safety.
+    # Running them twice is harmless - defense in depth.
+    # ==========================================================================
+
     log_info "Phase 1/10: Pre-flight System Validation"
     echo ""
 
@@ -162,17 +357,37 @@ main() {
     log_info "System is ready for Nix-Darwin installation."
     echo ""
 
+    # ==========================================================================
+    # PHASE 2: USER CONFIGURATION
+    # ==========================================================================
+    # This is the first phase with interactive prompts, which is why the
+    # two-stage bootstrap pattern exists - to ensure stdin works correctly.
+    # ==========================================================================
+
+    prompt_user_info
+
+    # ==========================================================================
+    # FUTURE PHASES (3-10)
+    # ==========================================================================
     # Future phases will be added here in subsequent stories
-    log_warn "Bootstrap implementation incomplete - only pre-flight checks implemented (Story 01.1-001)"
+    log_warn "Bootstrap implementation incomplete - Phases 3-10 not yet implemented"
     log_warn "Remaining phases will be added in future stories"
 
     exit 0
 }
 
-# Only run main if script is executed directly (not sourced for testing)
-# When piped (curl | bash): BASH_SOURCE is unbound → run main
-# When executed directly: BASH_SOURCE[0] == $0 → run main
-# When sourced for testing: BASH_SOURCE[0] != $0 → skip main
+# Execution guard - run main() only when executed, not when sourced for testing
+#
+# This script is executed in two ways:
+# 1. Called by setup.sh wrapper: "bash bootstrap.sh"
+#    → BASH_SOURCE[0] == $0 → run main()
+#
+# 2. Direct execution: "./bootstrap.sh"
+#    → BASH_SOURCE[0] == $0 → run main()
+#
+# 3. Sourced for BATS testing: "source bootstrap.sh"
+#    → BASH_SOURCE[0] != $0 → skip main() (test functions only)
+#
 if [[ -z "${BASH_SOURCE[0]:-}" ]] || [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
 fi

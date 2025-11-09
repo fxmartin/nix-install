@@ -26,10 +26,12 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - **Story Management Protocol** - Modular epic structure with detailed acceptance criteria
 - **Requirements Baseline** - v1.1 approved (change control re-approval completed)
 - **Project Architecture** - Two-tier profiles (Standard/Power), Stylix theming, nixpkgs-unstable
+- **Story 01.1-001** - Phase 1: Pre-flight System Validation (✅ Merged to main)
+- **Story 01.2-001** - Phase 2: User Information Prompts (✅ Ready for VM testing)
 
 ### 🔄 In Progress
-- **Phase 0: Foundation** (Week 1) - Repository structure, flake.nix skeleton
-- **Epic-01: Bootstrap System** (Week 1-2) - One-command installation script
+- **Story 01.2-001** - VM testing by FX (branch: `feature/01.2-001`)
+- **Epic-01: Bootstrap System** (Week 1-2) - 2/15 stories complete
 
 ### 📅 Upcoming
 - **Phase 1-2**: Core bootstrap implementation (Week 2)
@@ -106,13 +108,31 @@ If any check fails, the script will display clear, actionable error messages and
 Setup will be as simple as:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/fxmartin/nix-install/main/bootstrap.sh | bash
+# Recommended: One-line installation via setup.sh wrapper
+curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh | bash
 ```
 
-This will:
+Or, if you prefer to inspect the script first:
+
+```bash
+# Download and inspect before running
+curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh -o setup.sh
+less setup.sh  # Review the script
+bash setup.sh  # Run it
+```
+
+#### What Happens During Installation
+
+The installation uses a **two-stage bootstrap pattern** for reliability:
+
+**Stage 1 (setup.sh)**: Curl-pipeable wrapper
+- Downloads the full bootstrap script to a temporary directory
+- Executes it locally (not piped) to ensure interactive prompts work correctly
+
+**Stage 2 (bootstrap.sh)**: Interactive installer
 1. **Pre-flight Validation**: Check system requirements (Story 01.1-001 ✅)
-2. Install Xcode Command Line Tools
-3. Prompt for user information (name, email, GitHub username)
+2. **User Information**: Collect name, email, GitHub username with validation (Story 01.2-001 ✅)
+3. Install Xcode Command Line Tools
 4. Select installation profile (Standard or Power)
 5. Install Nix package manager with flakes enabled
 6. Install nix-darwin and Homebrew (managed declaratively)
@@ -121,6 +141,22 @@ This will:
 9. Display post-install checklist (license activations, etc.)
 
 **Estimated Time**: <30 minutes (mostly hands-off)
+
+> **Technical Note**: The two-stage pattern solves stdin redirection issues when scripts are executed via `curl | bash`. This ensures interactive prompts can properly read user input without requiring `/dev/tty` workarounds.
+
+#### Environment Variables
+
+**For Contributors/Developers**: When testing feature branches, use the `NIX_INSTALL_BRANCH` environment variable to ensure setup.sh downloads bootstrap.sh from the same branch:
+
+```bash
+# Testing a feature branch
+NIX_INSTALL_BRANCH=feature/my-branch \
+  curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/feature/my-branch/setup.sh | bash
+```
+
+**Why this is needed**: When setup.sh is executed via `curl | bash`, it cannot auto-detect which branch it was downloaded from. By default, it downloads bootstrap.sh from the `main` branch. The environment variable overrides this behavior for feature branch testing.
+
+**Production users**: No environment variable needed - always use `main` branch as shown in installation instructions above.
 
 ---
 
@@ -210,7 +246,8 @@ nix-install/
 ├── flake.lock                   # Dependency lock file
 ├── user-config.nix              # User personal info (created during bootstrap)
 ├── user-config.template.nix     # Template for new users
-├── bootstrap.sh                 # One-command installation script
+├── setup.sh                     # Stage 1: Curl-pipeable wrapper script
+├── bootstrap.sh                 # Stage 2: Full interactive installer
 │
 ├── darwin/                      # System-level configs (nix-darwin)
 │   ├── configuration.nix        # Main darwin config

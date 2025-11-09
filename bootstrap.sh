@@ -284,6 +284,173 @@ prompt_user_info() {
     echo ""
 }
 
+# =============================================================================
+# PHASE 2: PROFILE SELECTION FUNCTIONS
+# =============================================================================
+# Story 01.2-002: Profile Selection System
+# These functions allow FX to choose between Standard and Power installation profiles
+# Standard: MacBook Air - essential apps, 1 Ollama model (~35GB)
+# Power: MacBook Pro M3 Max - all apps, 4 Ollama models, Parallels (~120GB)
+# =============================================================================
+
+# Validate profile choice input (must be 1 or 2)
+# Returns: 0 if valid (1 or 2), 1 otherwise
+validate_profile_choice() {
+    local choice="$1"
+
+    # Reject empty input
+    if [[ -z "$choice" ]]; then
+        return 1
+    fi
+
+    # Accept only 1 or 2
+    if [[ "$choice" == "1" ]] || [[ "$choice" == "2" ]]; then
+        return 0
+    fi
+
+    # All other inputs are invalid
+    return 1
+}
+
+# Convert numeric profile choice to profile name
+# Input: "1" or "2" (or invalid input)
+# Output: "standard" or "power"
+# Defaults to "standard" for invalid input
+convert_profile_choice_to_name() {
+    local choice="$1"
+
+    case "$choice" in
+        1)
+            echo "standard"
+            ;;
+        2)
+            echo "power"
+            ;;
+        *)
+            # Default to standard for any invalid input
+            echo "standard"
+            ;;
+    esac
+}
+
+# Display profile options with descriptions
+# Shows both Standard and Power profiles with:
+# - Target hardware (MacBook Air vs MacBook Pro M3 Max)
+# - App count and key differences
+# - Ollama model count
+# - Disk usage estimates
+display_profile_options() {
+    echo ""
+    log_info "==================================="
+    log_info "Available Installation Profiles"
+    log_info "==================================="
+    echo ""
+    echo "1) Standard Profile"
+    echo "   Target:         MacBook Air"
+    echo "   Apps:           Essential apps only"
+    echo "   Ollama Models:  1 Ollama model (gpt-oss:20b)"
+    echo "   Virtualization: no virtualization"
+    echo "   Disk Usage:     ~35GB"
+    echo ""
+    echo "2) Power Profile"
+    echo "   Target:         MacBook Pro M3 Max"
+    echo "   Apps:           All apps + Parallels Desktop"
+    echo "   Ollama Models:  4 Ollama models (gpt-oss:20b, qwen2.5-coder:32b,"
+    echo "                   llama3.1:70b, deepseek-r1:32b)"
+    echo "   Virtualization: Parallels Desktop"
+    echo "   Disk Usage:     ~120GB"
+    echo ""
+}
+
+# Get display name for profile confirmation
+# Input: "standard" or "power"
+# Output: "Standard Profile" or "Power Profile"
+get_profile_display_name() {
+    local profile="$1"
+
+    case "$profile" in
+        standard)
+            echo "Standard Profile (MacBook Air - ~35GB)"
+            ;;
+        power)
+            echo "Power Profile (MacBook Pro M3 Max - ~120GB)"
+            ;;
+        *)
+            echo "Unknown Profile"
+            ;;
+    esac
+}
+
+# Confirm profile choice with user
+# Input: profile name ("standard" or "power")
+# Returns: 0 if confirmed (y), 1 if rejected (n)
+confirm_profile_choice() {
+    local profile="$1"
+    local display_name
+    display_name=$(get_profile_display_name "$profile")
+
+    echo ""
+    log_info "You selected: $display_name"
+    echo ""
+
+    local confirmed
+    read -r -p "Continue with this profile? (y/n): " confirmed
+
+    if [[ "$confirmed" == "y" ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Main profile selection function
+# Sets global variable: INSTALL_PROFILE ("standard" or "power")
+# Interactive prompt with validation and confirmation
+select_installation_profile() {
+    log_info "==================================="
+    log_info "Phase 2/10: Profile Selection"
+    log_info "==================================="
+    echo ""
+    log_info "Choose the installation profile for this MacBook."
+    log_info "This determines which apps and models will be installed."
+
+    local profile_confirmed="n"
+
+    # Loop until user confirms profile choice
+    while [[ "$profile_confirmed" != "y" ]]; do
+        # Display profile options
+        display_profile_options
+
+        # Prompt for profile choice
+        local choice
+        while true; do
+            read -r -p "Enter your choice (1 or 2): " choice
+
+            if validate_profile_choice "$choice"; then
+                log_info "✓ Profile choice validated"
+                break
+            else
+                log_error "Invalid choice. Please enter 1 for Standard or 2 for Power."
+            fi
+        done
+
+        # Convert choice to profile name
+        INSTALL_PROFILE=$(convert_profile_choice_to_name "$choice")
+
+        # Confirm profile choice
+        if confirm_profile_choice "$INSTALL_PROFILE"; then
+            profile_confirmed="y"
+        else
+            log_warn "Let's choose a different profile."
+            echo ""
+        fi
+    done
+
+    echo ""
+    log_info "✓ Installation profile selected: $INSTALL_PROFILE"
+    echo ""
+}
+
 # Run all pre-flight validation checks
 preflight_checks() {
     # shellcheck disable=SC2310  # Intentional: capture failures to show all errors
@@ -358,13 +525,17 @@ main() {
     echo ""
 
     # ==========================================================================
-    # PHASE 2: USER CONFIGURATION
+    # PHASE 2: USER CONFIGURATION & PROFILE SELECTION
     # ==========================================================================
     # This is the first phase with interactive prompts, which is why the
     # two-stage bootstrap pattern exists - to ensure stdin works correctly.
     # ==========================================================================
 
+    # Story 01.2-001: Collect user information (name, email, GitHub username)
     prompt_user_info
+
+    # Story 01.2-002: Select installation profile (Standard vs Power)
+    select_installation_profile
 
     # ==========================================================================
     # FUTURE PHASES (3-10)

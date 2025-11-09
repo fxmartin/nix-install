@@ -527,16 +527,44 @@
 - Restart daemon: `sudo launchctl kickstart -k system/org.nixos.nix-daemon`
 
 **Definition of Done**:
-- [ ] Configuration written to correct file
-- [ ] Binary cache enabled and tested
-- [ ] Max jobs set appropriately
-- [ ] Trusted users configured
-- [ ] Daemon restarted successfully
-- [ ] Tested in VM, builds use binary cache
-- [ ] Documentation notes configuration choices
+- [x] Configuration written to correct file
+- [x] Binary cache enabled and tested
+- [x] Max jobs set appropriately
+- [x] Trusted users configured
+- [x] Daemon restarted successfully
+- [x] Tested in VM, builds use binary cache ✅ **VM TESTED - ALL SCENARIOS PASSED**
+- [x] Documentation notes configuration choices
+
+**Implementation Notes**:
+- Story implemented on main branch (2025-11-09)
+- Functions implemented in bootstrap.sh (lines 1143-1432):
+  - backup_nix_config() - Create timestamped backups
+  - get_cpu_cores() - Detect CPU cores via sysctl
+  - configure_nix_binary_cache() - Enable cache.nixos.org (CRITICAL)
+  - configure_nix_performance() - Set max-jobs and cores
+  - configure_nix_trusted_users() - Add root and current user (CRITICAL)
+  - configure_nix_sandbox() - Set macOS sandbox mode
+  - restart_nix_daemon() - Restart daemon via launchctl (CRITICAL)
+  - verify_nix_configuration() - Validate settings applied
+  - configure_nix_phase() - Phase 4 (continued) orchestration
+- BATS test suite created: tests/bootstrap_nix_config.bats (96 tests)
+- Test coverage: Function existence, backup logic, CPU detection, binary cache, performance, trusted users, sandbox, daemon restart, verification, orchestration, error handling, integration
+- Integration: configure_nix_phase() called in main() as Phase 4 (continued)
+- User experience: Clear phase header, time estimates (1-2 min), sudo explanation
+- Error handling: CRITICAL vs NON-CRITICAL classification, actionable guidance
+- Idempotency: Safe to run multiple times, preserves Story 01.4-001 settings
+- Shellcheck validation: Passed (0 errors, 0 warnings)
+- VM Testing: ✅ **ALL MANUAL TESTS PASSED** (2025-11-09)
+  - Fresh Nix installation: Configuration applied correctly
+  - Binary cache working: Fast downloads from cache.nixos.org
+  - Max-jobs matches CPU cores: Auto detection successful
+  - Trusted users configured: Root + current user
+  - Daemon restart successful: Running with new config
+  - Re-run test: Idempotent (no duplicates)
+  - Manual inspection: All 7 settings present
 
 **Dependencies**:
-- Story 01.4-001 (Nix installed)
+- Story 01.4-001 (Nix installed) ✅ COMPLETED
 
 **Risk Level**: Medium
 **Risk Mitigation**: Backup existing nix.conf if present, validate syntax before restart

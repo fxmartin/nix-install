@@ -39,7 +39,7 @@
 
 ### Recent Activity
 
-- **2025-11-09**: ✅ Completed Story 01.4-002 (Nix Configuration for macOS) - Implementation complete, VM testing pending
+- **2025-11-09**: ✅ Completed Story 01.4-002 (Nix Configuration for macOS) - VM tested, all scenarios passed
 - **2025-11-09**: ✅ Completed Story 01.4-001 (Nix Multi-User Installation) - VM tested, all scenarios passed
 - **2025-11-09**: ✅ Completed Story 01.3-001 (Xcode CLI Tools) - VM tested, all scenarios passed
 - **2025-11-09**: Fixed Xcode test suite (removed obsolete license tests, 58 tests passing)
@@ -440,9 +440,9 @@ Implemented template-based user configuration file generation system with compre
 ---
 
 ## Story 01.4-002: Nix Configuration for macOS
-**Status**: ✅ Implemented (Pending FX VM Testing)
+**Status**: ✅ Complete (VM Testing Passed)
 **Date**: 2025-11-09
-**Branch**: feature/01.4-002-nix-configuration
+**Branch**: feature/01.4-002-nix-configuration (merged to main)
 
 ### Implementation Summary
 Implemented comprehensive Nix configuration optimization for macOS following TDD approach. Configures binary caching, parallel builds, trusted users, and macOS-appropriate sandbox mode.
@@ -537,7 +537,7 @@ sandbox = relaxed
 - ✅ Sets macOS-appropriate sandbox mode (relaxed)
 - ✅ Writes configuration to /etc/nix/nix.conf
 - ✅ Restarts nix-daemon to apply changes
-- ⏳ Tested in VM with performance verification (FX will test)
+- ✅ Tested in VM with performance verification **ALL SCENARIOS PASSED**
 
 ### Code Quality
 - ✅ Shellcheck: PASSED (0 errors, 0 warnings)
@@ -607,6 +607,32 @@ fi
    rapid re-runs may overwrite previous backup (acceptable tradeoff)
 2. **CPU detection**: Relies on sysctl; falls back to "auto" if unavailable
 3. **Daemon restart wait**: 2-second wait may be insufficient on very slow systems
+
+### VM Testing Results - ALL PASSED ✅
+**Testing Date**: 2025-11-09
+**Environment**: Parallels macOS VM
+**Status**: 7/7 scenarios successful
+
+1. ✅ **Fresh Nix Installation → Configuration Test**: All settings applied correctly
+2. ✅ **Verify Binary Cache Working**: Fast package downloads from cache.nixos.org
+3. ✅ **Verify Max-Jobs Matches CPU Cores**: Auto detection successful
+4. ✅ **Verify Trusted Users**: Root + current user configured correctly
+5. ✅ **Verify Daemon Restart Successful**: Daemon running with new config
+6. ✅ **Re-run Bootstrap → Idempotent Test**: No duplicate settings, clean re-run
+7. ✅ **Manual nix.conf Inspection**: All 7 settings present and correct
+
+**Configuration Verified:**
+```
+experimental-features = nix-command flakes
+substituters = https://cache.nixos.org
+trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
+max-jobs = auto
+cores = 0
+trusted-users = root <username>
+sandbox = relaxed
+```
+
+**Conclusion**: All manual test scenarios passed. Story ready for production use.
 
 ### Future Enhancements (Not in Current Story)
 - Additional binary cache mirrors (cachix, etc.)

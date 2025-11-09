@@ -1,6 +1,50 @@
 #!/usr/bin/env bash
-# ABOUTME: Automated macOS bootstrap script for Nix-Darwin setup system
-# ABOUTME: Transforms fresh macOS into fully configured dev environment in <30 minutes
+# ABOUTME: Stage 2 bootstrap installer - interactive macOS configuration with Nix-Darwin
+# ABOUTME: Called by setup.sh wrapper to ensure interactive prompts work correctly
+
+# ==============================================================================
+# TWO-STAGE BOOTSTRAP PATTERN - STAGE 2: INTERACTIVE INSTALLER
+# ==============================================================================
+#
+# This script is STAGE 2 of the two-stage bootstrap pattern:
+#
+# STAGE 1 (setup.sh):
+#   - Curl-pipeable wrapper with NO interactive prompts
+#   - Downloads this script to /tmp
+#   - Executes this script locally (NOT piped)
+#
+# STAGE 2 (THIS FILE - bootstrap.sh):
+#   - Full interactive installer with user prompts
+#   - Runs with proper stdin connected to terminal
+#   - Uses standard "read -r" commands (works because NOT piped)
+#   - Performs actual Nix-Darwin installation
+#
+# WHY THIS WORKS:
+#   When setup.sh downloads this script and executes it with "bash bootstrap.sh",
+#   stdin is properly connected to the terminal, allowing interactive prompts
+#   to read user input. No /dev/tty redirects or workarounds needed.
+#
+# PHASE SEPARATION:
+#   Phase 1 (Pre-flight validation) is performed by setup.sh BEFORE this script
+#   is downloaded. This script starts at Phase 2 (User Configuration).
+#
+#   By the time this script runs:
+#   ✓ macOS version validated (Sonoma 14.0+)
+#   ✓ Not running as root
+#   ✓ Internet connectivity verified
+#   ✓ System meets minimum requirements
+#
+# INSTALLATION METHODS:
+#   1. Recommended (via setup.sh wrapper):
+#      curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh | bash
+#
+#   2. Direct execution (advanced users):
+#      curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/bootstrap.sh -o bootstrap.sh
+#      chmod +x bootstrap.sh
+#      ./bootstrap.sh
+#      (Note: Direct execution will repeat some pre-flight checks)
+#
+# ==============================================================================
 
 set -euo pipefail  # Strict error handling
 
@@ -288,6 +332,15 @@ main() {
     log_info "Automated System Configuration"
     log_info "========================================"
     echo ""
+
+    # ==========================================================================
+    # PHASE 1: PRE-FLIGHT VALIDATION (May be redundant if run via setup.sh)
+    # ==========================================================================
+    # When run via setup.sh (recommended), these checks already passed.
+    # When run directly, these checks are essential for safety.
+    # Running them twice is harmless - defense in depth.
+    # ==========================================================================
+
     log_info "Phase 1/10: Pre-flight System Validation"
     echo ""
 
@@ -304,9 +357,18 @@ main() {
     log_info "System is ready for Nix-Darwin installation."
     echo ""
 
-    # Phase 2: Collect user information
+    # ==========================================================================
+    # PHASE 2: USER CONFIGURATION
+    # ==========================================================================
+    # This is the first phase with interactive prompts, which is why the
+    # two-stage bootstrap pattern exists - to ensure stdin works correctly.
+    # ==========================================================================
+
     prompt_user_info
 
+    # ==========================================================================
+    # FUTURE PHASES (3-10)
+    # ==========================================================================
     # Future phases will be added here in subsequent stories
     log_warn "Bootstrap implementation incomplete - Phases 3-10 not yet implemented"
     log_warn "Remaining phases will be added in future stories"
@@ -314,10 +376,18 @@ main() {
     exit 0
 }
 
-# Only run main if script is executed directly (not sourced for testing)
-# When piped (curl | bash): BASH_SOURCE is unbound → run main
-# When executed directly: BASH_SOURCE[0] == $0 → run main
-# When sourced for testing: BASH_SOURCE[0] != $0 → skip main
+# Execution guard - run main() only when executed, not when sourced for testing
+#
+# This script is executed in two ways:
+# 1. Called by setup.sh wrapper: "bash bootstrap.sh"
+#    → BASH_SOURCE[0] == $0 → run main()
+#
+# 2. Direct execution: "./bootstrap.sh"
+#    → BASH_SOURCE[0] == $0 → run main()
+#
+# 3. Sourced for BATS testing: "source bootstrap.sh"
+#    → BASH_SOURCE[0] != $0 → skip main() (test functions only)
+#
 if [[ -z "${BASH_SOURCE[0]:-}" ]] || [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
 fi

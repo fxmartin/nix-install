@@ -244,9 +244,10 @@ This story utilized specialized Claude Code agents:
 ---
 
 ## Story 01.2-003: User Config File Generation
-**Status**: ✅ Implemented (Pending FX Testing)
+**Status**: ✅ Complete
 **Date**: 2025-11-09
-**Branch**: feature/01.2-003-user-config-generation
+**Branch**: feature/01.2-003-user-config-generation (merged to main)
+**PR**: Merged via fast-forward merge
 
 ### Implementation Summary
 Implemented template-based user configuration file generation system with comprehensive validation and error handling. The system creates personalized `user-config.nix` files from user inputs collected in previous phases.
@@ -323,7 +324,7 @@ Implemented template-based user configuration file generation system with compre
 - ✅ Basic Nix syntax validation implemented
 - ✅ Config displayed for user review
 - ✅ Special characters handled correctly
-- ⏳ Tested with various inputs in VM (FX will test)
+- ✅ Tested with various inputs in VM (ALL 8 SCENARIOS PASSED)
 
 ### Code Quality
 - ✅ Shellcheck: PASSED (0 errors, style warnings only)
@@ -351,32 +352,30 @@ Implemented template-based user configuration file generation system with compre
 }
 ```
 
-### Manual Testing Scenarios (FX to Execute)
-1. **Normal Config Generation**: Verify config created correctly with standard inputs
-2. **Verify Generated Config**: Check file contents and Nix syntax validity
-3. **Special Characters in Name**: Test with `François O'Brien-Smith, Jr.`
-4. **Complex Hostname**: Test hostname sanitization (underscores, periods removed)
-5. **Work Directory Creation**: Verify /tmp/nix-bootstrap/ created with permissions
-6. **Config File Permissions**: Verify file is readable (644)
-7. **Idempotent Run**: Run bootstrap twice, verify no errors
-8. **Config Display Formatting**: Verify clear header/footer and proper formatting
+### VM Testing Results - ALL PASSED ✅
+**Testing Date**: 2025-11-09
+**Environment**: Parallels macOS VM
+**Status**: 8/8 scenarios successful
 
-### Next Steps for FX
-1. Install bats-core and shellcheck if not already installed:
-   ```bash
-   brew install bats-core shellcheck
-   ```
-2. Run automated tests:
-   ```bash
-   bats tests/bootstrap_user_config.bats  # Should show 83/83 passing
-   ```
-3. Run shellcheck:
-   ```bash
-   shellcheck bootstrap.sh  # Should pass with 0 errors
-   ```
-4. Perform manual tests in VM (all 8 scenarios above)
-5. If all tests pass, merge feature/01.2-003-user-config-generation to main
-6. Proceed to Story 01.3-001: SSH Key Generation
+1. ✅ **Normal Config Generation**: Config created correctly with standard inputs
+2. ✅ **Verify Generated Config**: File contents valid, Nix syntax correct
+3. ✅ **Special Characters in Name**: `François O'Brien-Smith, Jr.` preserved correctly
+4. ✅ **Complex Hostname**: Sanitization working (underscores/periods removed, lowercase)
+5. ✅ **Work Directory Creation**: /tmp/nix-bootstrap/ created with proper permissions (755)
+6. ✅ **Config File Permissions**: File readable with correct permissions (644)
+7. ✅ **Idempotent Run**: Bootstrap runs twice without errors, config overwritten cleanly
+8. ✅ **Config Display Formatting**: Clear header/footer, proper indentation preserved
+
+**Conclusion**: All manual test scenarios passed. Story ready for production use.
+
+### Story Completion Summary
+**Development**: ✅ Complete (83 automated tests passing)
+**Code Quality**: ✅ Complete (Shellcheck 0 errors)
+**VM Testing**: ✅ Complete (8/8 scenarios passed)
+**Documentation**: ✅ Complete (code, tests, user guide)
+**Merged to Main**: ✅ 2025-11-09
+
+**Next Story**: Ready to proceed to next Epic-01 story
 
 ### Known Limitations
 1. **No full Nix validation**: Only basic syntax checks (Nix not installed yet)
@@ -559,6 +558,7 @@ Stories are implemented using specialized Claude Code agents for optimal results
 ---
 
 **Last Updated**: 2025-11-09
-**Current Story**: 01.2-003 (Completed - pending FX testing)
-**Next Story**: 01.1-002 (Idempotency Check) or 01.3-001 (SSH Key Generation)
+**Current Story**: 01.2-003 (✅ Complete - VM tested and merged)
+**Next Story**: 01.1-002 (Idempotency Check) or 01.5-001 (SSH Key Generation)
 **Epic-01 Progress**: 4/15 stories (21/89 points) = 23.6% complete
+**Phase 2 Status**: 100% complete (User Configuration & Profile Selection)

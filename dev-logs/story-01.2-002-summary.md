@@ -4,8 +4,7 @@
 **Epic**: 01 - Bootstrap & Installation System
 **Priority**: Must Have (P0)
 **Story Points**: 8
-**Branch**: `feature/01.2-002-profile-selection`
-**PR**: #7 (merged to main)
+**Branch**: `feature/01.2-002-profile-selection` (merged to main via PR #7, deleted)
 **Status**: ✅ Complete - VM Testing PASSED
 **Date**: 2025-11-09
 

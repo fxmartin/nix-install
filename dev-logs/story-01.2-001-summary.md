@@ -4,8 +4,8 @@
 **Epic**: 01 - Bootstrap & Installation System
 **Priority**: Must Have (P0)
 **Story Points**: 5
-**Branch**: `feature/01.2-001`
-**Status**: ✅ Complete - Ready for VM Testing
+**Branch**: `feature/01.2-001` (merged to main, deleted)
+**Status**: ✅ Complete - VM Testing Passed
 **Issue Discovered**: #4 - User prompts fail when script executed via curl pipe
 **Issue Resolved**: ✅ Two-stage bootstrap pattern with fail-fast validation
 

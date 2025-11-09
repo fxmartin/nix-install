@@ -235,16 +235,30 @@
 - Profile variable used in nix-darwin flake selection
 
 **Definition of Done**:
-- [ ] Profile selection prompt implemented
-- [ ] Clear descriptions for both profiles
-- [ ] Input validation and default handling
-- [ ] Confirmation prompt working
-- [ ] Profile variable stored correctly
-- [ ] Tested selecting both profiles in VM
-- [ ] Documentation explains profile differences
+- [x] Profile selection prompt implemented
+- [x] Clear descriptions for both profiles
+- [x] Input validation and default handling
+- [x] Confirmation prompt working
+- [x] Profile variable stored correctly
+- [ ] Tested selecting both profiles in VM (FX will test manually)
+- [x] Documentation explains profile differences
+
+**Implementation Notes**:
+- Story completed in feature/01.2-002-profile-selection branch
+- Functions implemented in bootstrap.sh:
+  - validate_profile_choice() - Validates input is 1 or 2
+  - convert_profile_choice_to_name() - Converts 1/2 to standard/power
+  - display_profile_options() - Shows profile descriptions with disk estimates
+  - get_profile_display_name() - Returns human-readable profile name
+  - confirm_profile_choice() - Confirms user's selection
+  - select_installation_profile() - Main interactive prompt function
+- BATS test suite created: tests/bootstrap_profile_selection.bats (96 tests)
+- Integration: select_installation_profile() called in main() after prompt_user_info()
+- Global variable: INSTALL_PROFILE set to "standard" or "power"
+- Shellcheck validation: Passed (style warnings only, consistent with existing code)
 
 **Dependencies**:
-- Story 01.2-001 (user information collected)
+- Story 01.2-001 (user information collected) - COMPLETED ✅
 
 **Risk Level**: Low
 **Risk Mitigation**: N/A

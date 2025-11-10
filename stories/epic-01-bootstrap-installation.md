@@ -98,14 +98,29 @@
 - Prompt user before overwriting existing configurations
 
 **Definition of Done**:
-- [ ] Idempotency checks implemented for all phases
-- [ ] User prompted before overwriting existing files
-- [ ] Re-runs complete successfully
-- [ ] Tested with partial installations in VM
-- [ ] Documentation notes script is safe to re-run
+- [x] Idempotency checks implemented for all phases (user config, Xcode, Nix, SSH key)
+- [x] User prompted before overwriting existing files (reuse prompt)
+- [x] Re-runs complete successfully
+- [x] Tested with partial installations in VM ✅ **VM TESTED (2025-11-10)**
+- [x] Documentation notes script is safe to re-run
+
+**Implementation Notes**:
+- Story completed on main branch (2025-11-10)
+- Function implemented: check_existing_user_config() (89 lines)
+- Checks two locations in priority order:
+  1. ~/Documents/nix-install/user-config.nix (completed installation)
+  2. /tmp/nix-bootstrap/user-config.nix (previous bootstrap attempt)
+- Parses existing config values (fullName, email, githubUsername) using grep + sed
+- Validates parsed values (no placeholders, not empty), falls back gracefully
+- Displays found config and prompts: "Reuse this configuration? (y/n)"
+- If reused: Sets global variables, skips prompt_user_info() (saves 30-60 seconds)
+- If declined or invalid: Runs normal prompts for fresh input
+- Pattern based on mlgruby-repo-for-reference/scripts/install/pre-nix-installation.sh (lines 239-289)
+- VM Testing: ✅ **ALL SCENARIOS PASSED** (fresh, retry, completed, corrupted, declined)
+- Integration: Phase 2 main() flow, line 2855 (before prompt_user_info call)
 
 **Dependencies**:
-- Story 01.1-001 (pre-flight checks)
+- Story 01.1-001 (pre-flight checks) - COMPLETED ✅
 
 **Risk Level**: Medium
 **Risk Mitigation**: Backup existing configs before overwriting
@@ -1184,17 +1199,17 @@
 ## Epic Progress Tracking
 
 ### Completion Status
-- **Stories Completed**: 10 of 18 (55.6%)
-- **Story Points Completed**: 65 of 105 (61.9%)
-- **MVP Stories Completed**: 10 of 18 (55.6%)
+- **Stories Completed**: 13 of 18 (72.2%)
+- **Story Points Completed**: 78 of 105 (74.3%)
+- **MVP Stories Completed**: 13 of 18 (72.2%)
 
 ### Sprint Progress
 | Sprint | Planned Points | Completed Points | Stories Done | Status |
 |--------|----------------|------------------|--------------|--------|
-| Sprint 1 | 44 | 47 | 8/9 | Near Complete |
-| Sprint 2 | 39 | 18 | 2/9 | In Progress |
+| Sprint 1 | 44 | 42 | 8/9 | Near Complete |
+| Sprint 2 | 39 | 36 | 5/9 | In Progress |
 
-**Note**: Sprint 1 completed more points than planned (47 vs 44) due to efficient implementation. Sprint 2 planned points reduced from 42 to 39 after Story 01.6-002 update.
+**Note**: Sprint 1 includes Story 01.1-002 (3 pts, idempotency). Sprint 2 includes Stories 01.5-002 (5 pts), 01.6-001 (5 pts), and partial work on remaining stories. Total completed: 78/105 points (74.3%).
 
 ## Epic Acceptance Criteria
 - [ ] All MVP stories (18/18) completed and accepted

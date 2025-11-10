@@ -48,7 +48,7 @@ This robust approach ensures detection regardless of how the daemon is running.
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 18 | 105 | **12** | **75** | 66.7% | 71.4% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 18 | 105 | **13** | **78** | 72.2% | 74.3% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -56,13 +56,14 @@ This robust approach ensures detection regardless of how the daemon is running.
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **111** | **593** | **12** | **75** | **10.8%** | **12.6%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **111** | **593** | **13** | **78** | **11.7%** | **13.2%** | 🟡 In Progress |
 
-### Epic-01 Completed Stories (12/18)
+### Epic-01 Completed Stories (13/18)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
 | 01.1-001 | Pre-flight Environment Checks | 5 | ✅ Complete | feature/01.1-001 | 2025-11-08 |
+| 01.1-002 | Idempotency Check (User Config) | 3 | ✅ Complete | main | 2025-11-10 |
 | 01.2-001 | User Information Prompts | 5 | ✅ Complete | feature/01.2-001-user-prompts | 2025-11-09 |
 | 01.2-002 | Profile Selection System | 8 | ✅ Complete | feature/01.2-002-profile-selection | 2025-11-09 |
 | 01.2-003 | User Config File Generation | 3 | ✅ Complete | feature/01.2-003-user-config-generation | 2025-11-09 |
@@ -79,13 +80,22 @@ This robust approach ensures detection regardless of how the daemon is running.
 ### Overall Project Status
 
 - **Total Project Scope**: 111 stories, 593 story points (revised from 596 after Story 01.6-002 update)
-- **Completed**: 12 stories (10.8%), 75 points (12.6%)
-- **In Progress**: Epic-01 Bootstrap & Installation (66.7% complete by stories, 71.4% by points)
+- **Completed**: 13 stories (11.7%), 78 points (13.2%)
+- **In Progress**: Epic-01 Bootstrap & Installation (72.2% complete by stories, 74.3% by points)
 - **Current Phase**: Phase 0-2 (Foundation + Bootstrap, Week 1-2)
 - **Next Story**: 01.6-002 (GitHub SSH Key Upload - 5 points) - READY TO START
 
 ### Recent Activity
 
+- **2025-11-10**: ✅ **COMPLETED Story 01.1-002** (Idempotency Check - 3 points) - **VM TESTED & VERIFIED**
+  - Added `check_existing_user_config()` function (89 lines) to bootstrap.sh
+  - Checks two locations: ~/Documents/nix-install/ (completed) and /tmp/nix-bootstrap/ (previous run)
+  - Parses existing user-config.nix and prompts: "Reuse this configuration? (y/n)"
+  - Validates parsed values (no placeholders, not empty), falls back gracefully if invalid
+  - Skips user prompts if config reused, saving 30-60 seconds per VM testing iteration
+  - Based on mlgruby reference pattern (lines 239-289)
+  - **All VM tests PASSED**: Fresh install, retry, completed install, corrupted config, user decline scenarios ✅
+  - Epic-01 now **74.3% complete** (78/105 points) 🎉
 - **2025-11-10**: ✅ **COMPLETED Story 01.6-001** (SSH Key Generation - 5 points) - **VM TESTED & VERIFIED**
   - Added Phase 6 to bootstrap.sh (8 functions, ~420 lines)
   - 100 automated BATS tests (TDD methodology) + 8 manual VM scenarios

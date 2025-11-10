@@ -67,6 +67,30 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 
 ---
 
+## 📊 Development Effort Analysis
+
+### Time Investment Metrics
+
+**Analysis Period**: November 8-10, 2025 (3 active days)
+
+**Development Activity**:
+- **104 git commits** (34.7 commits/day average)
+- **8 GitHub issues** (100% closed)
+- **120 total tracked activities**
+
+**Velocity Metrics**:
+- Activities per day: 40.0
+- Development intensity: 40.0
+- Issue completion rate: 100%
+
+**Estimated Active Development Time**: **~20 hours** total
+
+This represents approximately 20 hours of focused, productive development work over a 3-day period. The high commit rate and perfect issue closure rate indicate efficient, iterative development with strong progress tracking.
+
+*Metrics generated via `uv run scripts/estimate_effort_v2.py`*
+
+---
+
 ## 📚 Documentation
 
 ### Essential Reading

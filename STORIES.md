@@ -57,28 +57,31 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 **Time Constraints**: 6-8 week delivery timeline with VM testing before physical hardware
 
 ### MVP Scope
-**Total MVP Stories**: 103
-**Total MVP Points**: 517
+**Total MVP Stories**: 111
+**Total MVP Points**: 593
 **Estimated Duration**: 6-8 weeks (implementation) + 2 weeks (migrations)
 
 ### MVP Epic Breakdown
-| Epic | MVP Stories | MVP Points | % of Epic |
-|------|-------------|------------|-----------|
-| Epic-01 | 18/18 | 108/108 | 100% |
-| Epic-02 | 22/22 | 113/113 | 100% |
-| Epic-03 | 12/12 | 68/68 | 100% |
-| Epic-04 | 18/18 | 97/97 | 100% |
-| Epic-05 | 8/8 | 42/42 | 100% |
-| Epic-06 | 10/10 | 55/55 | 100% |
-| Epic-07 | 8/8 | 34/34 | 100% |
-| NFR | 15/15 | 79/79 | 100% |
+| Epic | MVP Stories | MVP Points | Completed Stories | Completed Points | % Complete |
+|------|-------------|------------|-------------------|------------------|------------|
+| Epic-01 | 18/18 | 105/105 | 10 | 65 | 61.9% |
+| Epic-02 | 22/22 | 113/113 | 0 | 0 | 0% |
+| Epic-03 | 12/12 | 68/68 | 0 | 0 | 0% |
+| Epic-04 | 18/18 | 97/97 | 0 | 0 | 0% |
+| Epic-05 | 8/8 | 42/42 | 0 | 0 | 0% |
+| Epic-06 | 10/10 | 55/55 | 0 | 0 | 0% |
+| Epic-07 | 8/8 | 34/34 | 0 | 0 | 0% |
+| NFR | 15/15 | 79/79 | 0 | 0 | 0% |
+
+**Note**: Epic-01 total reduced from 108 to 105 points after Story 01.6-002 scope change (2025-11-10).
 
 ## Project Metrics
 - **Total Stories**: 111
-- **Total Story Points**: 596
-- **Average Story Size**: 5.4 points
-- **Ready for Development**: 0% (stories being defined)
-- **MVP Completion**: 0% (implementation starting)
+- **Total Story Points**: 593 (revised from 596 after Story 01.6-002 update)
+- **Average Story Size**: 5.3 points
+- **Completed Stories**: 10 (9.0%)
+- **Completed Points**: 65 (11.0%)
+- **MVP Completion**: 10.9% by stories, 11.0% by points
 
 ## Story Dependencies
 
@@ -131,11 +134,11 @@ graph TD
 | 1 | Trivial | 8 | 8 |
 | 2 | Simple | 17 | 34 |
 | 3 | Medium | 35 | 105 |
-| 5 | Complex | 29 | 145 |
-| 8 | Very Complex | 15 | 120 |
+| 5 | Complex | 30 | 150 |
+| 8 | Very Complex | 14 | 112 |
 | 13 | Highly Complex | 4 | 52 |
 
-**Total Story Points**: 577
+**Total Story Points**: 593 (revised from 596 after Story 01.6-002 update)
 **Estimated Sprints** (assuming 25-30 points per sprint): 19-23 sprints (9-11 weeks with 2-week sprints)
 
 ### Sprint Planning Notes

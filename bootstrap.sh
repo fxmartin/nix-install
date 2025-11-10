@@ -2489,31 +2489,64 @@ set_ssh_key_permissions() {
 # Function: start_ssh_agent_and_add_key
 # Purpose: Start ssh-agent and add SSH key to agent (CRITICAL)
 # Required: For SSH key to be usable without passphrase prompt
+# Note: macOS uses system ssh-agent via launchd, we just need to add the key
 # Arguments: None
 # Returns: 0 on success, exits on failure
 start_ssh_agent_and_add_key() {
     local key_path="${HOME}/.ssh/id_ed25519"
 
-    log_info "Starting ssh-agent and adding key..."
+    log_info "Configuring SSH agent for key management..."
 
-    # Start ssh-agent and evaluate its output
-    log_info "Starting ssh-agent..."
-    local agent_output
-    if agent_output=$(ssh-agent -s 2>&1); then
-        # Evaluate the output to set SSH_AUTH_SOCK and SSH_AGENT_PID
-        eval "${agent_output}" >/dev/null 2>&1
-        log_info "✓ ssh-agent started (PID: ${SSH_AGENT_PID:-unknown})"
+    # On macOS, ssh-agent is managed by launchd and runs automatically
+    # We don't need to start it manually - just verify it's available
+    log_info "Checking for ssh-agent..."
+
+    # Check if SSH_AUTH_SOCK is set (agent socket available)
+    if [[ -z "${SSH_AUTH_SOCK:-}" ]]; then
+        # No agent socket found - try to find system agent
+        log_info "Looking for system ssh-agent..."
+
+        # macOS typically runs ssh-agent via launchd
+        # Try to use the system agent by checking common socket locations
+        local potential_sockets=(
+            "/private/tmp/com.apple.launchd.*/Listeners"
+            "${TMPDIR:-/tmp}/ssh-*/agent.*"
+        )
+
+        local found_socket=""
+        for socket_pattern in "${potential_sockets[@]}"; do
+            # shellcheck disable=SC2206
+            local sockets=($socket_pattern)
+            if [[ -S "${sockets[0]}" ]]; then
+                found_socket="${sockets[0]}"
+                break
+            fi
+        done
+
+        if [[ -n "${found_socket}" ]]; then
+            export SSH_AUTH_SOCK="${found_socket}"
+            log_info "✓ Found system ssh-agent socket"
+        else
+            # Fallback: start our own agent for this session
+            log_warn "No system ssh-agent found, starting local agent..."
+            local agent_output
+            if agent_output=$(ssh-agent -s 2>&1); then
+                eval "${agent_output}" >/dev/null 2>&1
+                log_info "✓ Started local ssh-agent (PID: ${SSH_AGENT_PID:-unknown})"
+            else
+                log_error "Failed to start ssh-agent"
+                log_error "Output: ${agent_output}"
+                log_error ""
+                log_error "Troubleshooting steps:"
+                log_error "  1. Verify ssh-agent is installed: which ssh-agent"
+                log_error "  2. Check for existing agent: ps aux | grep ssh-agent"
+                log_error "  3. Restart and try again"
+                log_error ""
+                return 1
+            fi
+        fi
     else
-        log_error "Failed to start ssh-agent"
-        log_error "Output: ${agent_output}"
-        log_error ""
-        log_error "Troubleshooting steps:"
-        log_error "  1. Verify ssh-agent is installed: which ssh-agent"
-        log_error "  2. Check for existing agent: ps aux | grep ssh-agent"
-        log_error "  3. Kill existing agent: killall ssh-agent"
-        log_error "  4. Try manual start: eval \"\$(ssh-agent -s)\""
-        log_error ""
-        return 1
+        log_info "✓ ssh-agent socket found: ${SSH_AUTH_SOCK}"
     fi
 
     # Add SSH key to agent

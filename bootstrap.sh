@@ -1538,6 +1538,16 @@ fetch_flake_from_github() {
         return 1
     }
 
+    log_info "  - home-manager/modules/github.nix"
+    if ! curl -fsSL -o "home-manager/modules/github.nix" "${base_url}/home-manager/modules/github.nix"; then
+        log_error "Failed to fetch home-manager/modules/github.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/github.nix" ]] || {
+        log_error "Downloaded home-manager/modules/github.nix is empty"
+        return 1
+    }
+
     echo ""
     log_success "All configuration files fetched successfully"
     log_info "Files downloaded:"
@@ -1548,6 +1558,7 @@ fetch_flake_from_github() {
     log_info "  • darwin/macos-defaults.nix"
     log_info "  • home-manager/home.nix"
     log_info "  • home-manager/modules/shell.nix"
+    log_info "  • home-manager/modules/github.nix"
     echo ""
 
     return 0

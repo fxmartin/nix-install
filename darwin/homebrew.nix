@@ -24,10 +24,12 @@
     # CLI Tools
     # Epic-02 will populate with:
     # - Python environment (uv, python@3.12)
-    # - Development tools (git, gh, node, etc.)
+    # - Development tools (git, node, etc.)
     # - Text processing (bat, fzf, jq, ripgrep, yq)
     # - System monitoring (btop, bottom, neofetch)
     # - Cloud tools (awscli, terraform, etc.)
+    # NOTE: gh (GitHub CLI) is managed by Home Manager programs.gh module
+    #       See home-manager/modules/github.nix (Story 01.6-002 dependency)
     brews = [];
 
     # GUI Applications (Casks)
@@ -39,7 +41,12 @@
     # - Terminal: Ghostty
     # - Fonts: JetBrains Mono Nerd Font, etc.
     # - Power profile only: Parallels Desktop
-    casks = [];
+
+    # MINIMAL INSTALL: Ghostty terminal for Phase 5 validation testing
+    # Epic-02 will expand this list with full app inventory
+    casks = [
+      "ghostty" # Modern GPU-accelerated terminal (Phase 5 validation test app)
+    ];
 
     # Global Homebrew options
     global = {

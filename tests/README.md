@@ -1288,9 +1288,276 @@ FX should perform these manual tests in a VM to validate Phase 5 (continued) fun
    # Expected: Consistent log output
    ```
 
+---
+
+### Phase 6: SSH Key Generation
+
+**Test File**: `bootstrap_ssh_key.bats`
+**Story**: 01.6-001 (SSH Key Generation for GitHub Authentication)
+**Coverage**: 100 automated tests across 11 categories
+
+The `bootstrap_ssh_key.bats` test suite validates SSH key generation for GitHub authentication:
+
+#### Test Categories
+
+1. **Function Existence** (8 tests)
+   - ensure_ssh_directory() defined
+   - check_existing_ssh_key() defined
+   - prompt_use_existing_key() defined
+   - generate_ssh_key() defined
+   - set_ssh_key_permissions() defined
+   - start_ssh_agent_and_add_key() defined
+   - display_ssh_key_summary() defined
+   - setup_ssh_key_phase() defined (orchestration)
+
+2. **SSH Directory Creation** (8 tests)
+   - Creates ~/.ssh directory if not exists
+   - Sets 700 permissions (drwx------)
+   - Succeeds if directory already exists
+   - Fixes permissions on existing directory
+   - Warns but continues on failure (NON-CRITICAL)
+   - Logs info message
+   - Creates parent directories if needed
+   - Idempotent operation
+
+3. **Existing Key Detection** (10 tests)
+   - Returns 0 when ~/.ssh/id_ed25519 exists
+   - Returns 1 when key missing
+   - Returns 1 when .ssh directory missing
+   - Checks private key file (not just public)
+   - Logs info when key found
+   - Logs info when key missing
+   - Handles symlinks correctly
+   - Handles broken symlinks
+   - Validates file path (not directory)
+   - Uses correct key path (ed25519)
+
+4. **User Prompt Tests** (12 tests)
+   - Accepts 'y', 'Y', 'yes', 'Yes' as yes (use existing)
+   - Accepts 'n', 'N', 'no', 'No' as no (generate new)
+   - Defaults to yes on invalid input
+   - Defaults to yes on empty input
+   - Displays clear prompt message
+   - Handles whitespace in input
+   - Returns 0 for yes, 1 for no
+   - Non-blocking prompt
+   - Clear confirmation message
+   - Case-insensitive input
+
+5. **SSH Key Generation** (12 tests)
+   - Calls ssh-keygen with correct arguments
+   - Uses ed25519 key type
+   - Uses user email as comment
+   - Generates key without passphrase (-N "")
+   - Verifies private key created
+   - Verifies public key created
+   - Exits on ssh-keygen failure (CRITICAL)
+   - Displays troubleshooting on failure
+   - Displays security warning about no passphrase
+   - Logs success message
+   - Uses correct key path (~/ssh/id_ed25519)
+   - Handles existing key file
+
+6. **Permissions Setting** (10 tests)
+   - Sets private key to 600 (rw-------)
+   - Sets public key to 644 (rw-r--r--)
+   - Verifies private key permissions
+   - Verifies public key permissions
+   - Exits on private key chmod failure (CRITICAL)
+   - Exits on public key chmod failure (CRITICAL)
+   - Exits if private key missing
+   - Exits if public key missing
+   - Logs success message
+   - Idempotent operation
+
+7. **SSH Agent Management** (10 tests)
+   - Starts ssh-agent
+   - Calls ssh-add with key path
+   - Verifies key added successfully
+   - Exits on ssh-agent failure (CRITICAL)
+   - Exits on ssh-add failure (CRITICAL)
+   - Displays troubleshooting on agent failure
+   - Displays troubleshooting on add failure
+   - Logs success message
+   - Evaluates ssh-agent output (sets SSH_AUTH_SOCK)
+   - Handles missing key file
+
+8. **Summary Display** (5 tests)
+   - Shows public key content
+   - Shows key fingerprint
+   - Shows key comment (email)
+   - Confirms ssh-agent status
+   - Formats output clearly
+
+9. **Orchestration Tests** (8 tests)
+   - Calls ensure_ssh_directory first
+   - Calls check_existing_ssh_key
+   - Skips generation when key exists and user chooses yes
+   - Generates new key when none exists
+   - Generates new key when user chooses no
+   - Exits on CRITICAL function failure
+   - Calls all functions in sequence
+   - Returns 0 on success
+
+10. **Error Handling Tests** (10 tests)
+    - generate_ssh_key is CRITICAL - exits on failure
+    - set_ssh_key_permissions is CRITICAL - exits on failure
+    - start_ssh_agent_and_add_key is CRITICAL - exits on failure
+    - ensure_ssh_directory is NON-CRITICAL - warns but continues
+    - check_existing_ssh_key is NON-CRITICAL - returns status only
+    - prompt_use_existing_key is NON-CRITICAL - returns status only
+    - display_ssh_key_summary is NON-CRITICAL - warns on errors
+    - CRITICAL functions display error messages
+    - CRITICAL functions provide troubleshooting guidance
+    - NON-CRITICAL failures do not terminate phase
+
+11. **Integration Tests** (7 tests)
+    - Full phase execution - new key generation workflow
+    - Full phase execution - existing key workflow
+    - Full phase execution - replace existing key workflow
+    - Phase fails gracefully on CRITICAL error
+    - Phase logs are clear and informative
+    - Phase is idempotent - can run multiple times safely
+    - Phase integrates with USER_EMAIL variable
+
+#### Security Considerations
+
+**No Passphrase Trade-off**:
+- **Pro**: Enables fully automated bootstrap (zero manual intervention)
+- **Con**: Private key not encrypted (accessible if machine compromised)
+- **Mitigations**:
+  - macOS FileVault encrypts entire disk (key encrypted at rest)
+  - Key limited to GitHub use only (limited scope)
+  - User can add passphrase later: `ssh-keygen -p -f ~/.ssh/id_ed25519`
+- **Warning**: Displayed during key generation with all trade-offs explained
+
+#### Manual VM Test Scenarios
+
+### Phase 6 SSH Key Generation Manual Tests
+
+FX should perform these manual tests in a VM to validate Phase 6 functionality:
+
+1. **Fresh Key Generation Test**
+   ```bash
+   # Clean VM with no existing SSH keys
+   rm -rf ~/.ssh
+
+   # Run bootstrap through Phase 6
+   # Expected: ~/.ssh directory created with 700 permissions
+   # Expected: Security warning displayed about no passphrase
+   # Expected: SSH key generated (id_ed25519 + id_ed25519.pub)
+   # Expected: Private key permissions = 600
+   # Expected: Public key permissions = 644
+   # Expected: ssh-agent started
+   # Expected: Key added to agent (verify: ssh-add -l)
+   # Expected: Public key displayed in summary
+   # Expected: Fingerprint displayed
+   # Expected: Next steps shown (GitHub URL)
+   ```
+
+2. **Existing Key - Use Existing Workflow Test**
+   ```bash
+   # Generate SSH key before bootstrap
+   ssh-keygen -t ed25519 -C "test@example.com" -f ~/.ssh/id_ed25519 -N "testpass"
+
+   # Run bootstrap Phase 6
+   # Expected: Prompt "Use existing SSH key? (y/n) [default: yes]:"
+   # Input: y (or just press Enter for default)
+   # Expected: Skip key generation
+   # Expected: Set permissions on existing key
+   # Expected: Add existing key to ssh-agent
+   # Expected: Display summary with existing key
+   # Expected: Phase completes successfully
+   ```
+
+3. **Existing Key - Generate New Workflow Test**
+   ```bash
+   # Generate SSH key before bootstrap
+   ssh-keygen -t ed25519 -C "old@example.com" -f ~/.ssh/id_ed25519 -N ""
+
+   # Run bootstrap Phase 6
+   # Expected: Prompt "Use existing SSH key? (y/n) [default: yes]:"
+   # Input: n (generate new)
+   # Expected: Warning about backup
+   # Expected: New key generated (overwrites old)
+   # Expected: New key uses USER_EMAIL from bootstrap
+   # Expected: Permissions set correctly
+   # Expected: New key added to agent
+   # Expected: Summary shows new key
+   ```
+
+4. **SSH Directory Permission Test**
+   ```bash
+   # Create ~/.ssh with wrong permissions
+   mkdir -p ~/.ssh
+   chmod 755 ~/.ssh
+
+   # Run bootstrap Phase 6
+   # Expected: Detects existing directory
+   # Expected: Corrects permissions to 700
+   # Expected: Proceeds with key generation
+   # Expected: Verify: ls -ld ~/.ssh shows drwx------
+   ```
+
+5. **SSH Agent Integration Test**
+   ```bash
+   # After Phase 6 completes
+   # Verify ssh-agent is running
+   echo $SSH_AUTH_SOCK  # Should show socket path
+   echo $SSH_AGENT_PID  # Should show PID
+
+   # Verify key is in agent
+   ssh-add -l
+   # Expected: Shows ed25519 key fingerprint with email comment
+
+   # Test GitHub connection (requires key added to GitHub first)
+   ssh -T git@github.com
+   # Expected: "Hi username! You've successfully authenticated..."
+   ```
+
+6. **Security Warning Display Test**
+   ```bash
+   # During key generation
+   # Verify warning is displayed:
+   # Expected: "⚠ SECURITY TRADE-OFF: Generating SSH key WITHOUT passphrase"
+   # Expected: WHY section explaining automation
+   # Expected: RISKS section (not encrypted, accessible if compromised)
+   # Expected: MITIGATIONS section (FileVault, GitHub-only, can add later)
+   # Expected: Command shown for adding passphrase later
+   ```
+
+7. **Key Summary Display Test**
+   ```bash
+   # After Phase 6 completes
+   # Verify summary shows:
+   # Expected: "========================================" header
+   # Expected: "SSH KEY SUMMARY" title
+   # Expected: Public key content (ssh-ed25519 ...)
+   # Expected: Fingerprint (SHA256:...)
+   # Expected: "✓ SSH key ready for GitHub authentication"
+   # Expected: "✓ Key added to ssh-agent"
+   # Expected: NEXT STEPS with GitHub URL
+   # Expected: "========================================" footer
+   ```
+
+8. **Idempotent Operation Test**
+   ```bash
+   # Run Phase 6 first time - generates key
+   # Note public key fingerprint
+
+   # Run Phase 6 second time
+   # Input: y (use existing)
+   # Expected: Same key fingerprint
+   # Expected: No errors
+   # Expected: Permissions still correct
+   # Expected: Key still in agent
+   ```
+
+---
+
 ## Test Summary
 
-**Total Automated Tests: 545 tests** (485 + 60 Phase 5 continued tests)
+**Total Automated Tests: 645 tests** (545 + 100 Phase 6 tests)
 
 **Test Distribution:**
 - Phase 1 (Pre-flight): 65 tests (bootstrap_preflight.bats)
@@ -1302,8 +1569,9 @@ FX should perform these manual tests in a VM to validate Phase 5 (continued) fun
 - Phase 4 (Nix Configuration): 62 tests (bootstrap_nix_config.bats)
 - Phase 5 (Nix-Darwin Installation): 86 tests (bootstrap_nix_darwin.bats)
 - Phase 5 (Continued - Validation): 60 tests (bootstrap_darwin_validation.bats)
+- Phase 6 (SSH Key Generation): 100 tests (bootstrap_ssh_key.bats)
 
-**Manual VM Test Scenarios: 53 scenarios**
+**Manual VM Test Scenarios: 61 scenarios**
 - Phase 1: 5 scenarios
 - Phase 2 (User Info): 6 scenarios
 - Phase 2 (Profile Selection): 6 scenarios
@@ -1313,6 +1581,7 @@ FX should perform these manual tests in a VM to validate Phase 5 (continued) fun
 - Phase 4 (Nix Configuration): 7 scenarios
 - Phase 5 (Nix-Darwin): 7 scenarios
 - Phase 5 (Continued - Validation): 7 scenarios
+- Phase 6 (SSH Key Generation): 8 scenarios
 
 ## Testing Unmerged Branches in VM
 

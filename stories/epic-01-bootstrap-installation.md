@@ -12,10 +12,12 @@
 
 ## Epic Scope
 **Total Stories**: 18
-**Total Story Points**: 105
+**Total Story Points**: 105 (revised from 108 after Story 01.6-002 update)
 **MVP Stories**: 18 (100% of epic)
 **Priority Level**: Must Have
 **Target Release**: Phase 0-2 (Week 1-2)
+
+**Scope Change**: Story 01.6-002 changed from manual approach (8 points) to automated GitHub CLI approach (5 points) on 2025-11-10, reducing epic total by 3 points.
 
 ## Features in This Epic
 
@@ -1179,15 +1181,17 @@
 ## Epic Progress Tracking
 
 ### Completion Status
-- **Stories Completed**: 7 of 18 (38.9%)
-- **Story Points Completed**: 39 of 105 (37.1%)
-- **MVP Stories Completed**: 7 of 18 (38.9%)
+- **Stories Completed**: 10 of 18 (55.6%)
+- **Story Points Completed**: 65 of 105 (61.9%)
+- **MVP Stories Completed**: 10 of 18 (55.6%)
 
 ### Sprint Progress
 | Sprint | Planned Points | Completed Points | Stories Done | Status |
 |--------|----------------|------------------|--------------|--------|
-| Sprint 1 | 44 | 39 | 7/9 | In Progress |
-| Sprint 2 | 42 | 0 | 0/9 | Not Started |
+| Sprint 1 | 44 | 47 | 8/9 | Near Complete |
+| Sprint 2 | 39 | 18 | 2/9 | In Progress |
+
+**Note**: Sprint 1 completed more points than planned (47 vs 44) due to efficient implementation. Sprint 2 planned points reduced from 42 to 39 after Story 01.6-002 update.
 
 ## Epic Acceptance Criteria
 - [ ] All MVP stories (18/18) completed and accepted

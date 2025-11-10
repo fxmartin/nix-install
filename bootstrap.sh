@@ -2242,6 +2242,422 @@ validate_nix_darwin_phase() {
     return 0
 }
 
+# =============================================================================
+# PHASE 6: SSH KEY GENERATION FUNCTIONS
+# =============================================================================
+# Story 01.6-001: SSH Key Generation for GitHub Authentication
+# Generates ed25519 SSH key for GitHub authentication with security trade-offs
+# Handles existing keys, permissions, ssh-agent management
+# =============================================================================
+
+# Function: ensure_ssh_directory
+# Purpose: Create ~/.ssh directory if not exists with proper permissions (NON-CRITICAL)
+# Sets: 700 (drwx------) permissions for security
+# Arguments: None
+# Returns: 0 on success or if already exists, warns but continues on failure
+ensure_ssh_directory() {
+    local ssh_dir="${HOME}/.ssh"
+
+    # Check if directory already exists
+    if [[ -d "${ssh_dir}" ]]; then
+        log_info "SSH directory already exists: ${ssh_dir}"
+
+        # Ensure correct permissions even if directory exists
+        if chmod 700 "${ssh_dir}" 2>/dev/null; then
+            log_info "✓ SSH directory permissions set to 700"
+        else
+            log_warn "Could not set SSH directory permissions (non-critical)"
+        fi
+
+        return 0
+    fi
+
+    # Create directory
+    log_info "Creating SSH directory: ${ssh_dir}"
+    if mkdir -p "${ssh_dir}"; then
+        log_info "✓ SSH directory created"
+
+        # Set proper permissions
+        if chmod 700 "${ssh_dir}"; then
+            log_info "✓ SSH directory permissions set to 700"
+        else
+            log_warn "Could not set SSH directory permissions (non-critical)"
+        fi
+
+        return 0
+    else
+        log_warn "Failed to create SSH directory (non-critical, continuing)"
+        return 1
+    fi
+}
+
+# Function: check_existing_ssh_key
+# Purpose: Check if ed25519 SSH key already exists (NON-CRITICAL)
+# Checks: ~/.ssh/id_ed25519 private key file
+# Arguments: None
+# Returns: 0 if key exists, 1 if not found
+check_existing_ssh_key() {
+    local key_path="${HOME}/.ssh/id_ed25519"
+
+    if [[ -f "${key_path}" ]]; then
+        log_info "Found existing SSH key: ${key_path}"
+        return 0
+    else
+        log_info "No existing SSH key found at: ${key_path}"
+        return 1
+    fi
+}
+
+# Function: prompt_use_existing_key
+# Purpose: Ask user whether to use existing SSH key (NON-CRITICAL)
+# Accepts: y/Y/yes/Yes = use existing (return 0), n/N/no/No = generate new (return 1)
+# Default: yes (if invalid input)
+# Arguments: None
+# Returns: 0 to use existing, 1 to generate new
+prompt_use_existing_key() {
+    echo ""
+    log_info "An existing SSH key was found."
+    echo ""
+
+    local response
+    read -r -p "Use existing SSH key? (y/n) [default: yes]: " response
+
+    # Trim whitespace
+    response=$(echo "${response}" | xargs)
+
+    # Default to yes if empty
+    if [[ -z "${response}" ]]; then
+        response="y"
+    fi
+
+    # Check response
+    case "${response}" in
+        y|Y|yes|Yes|YES)
+            log_info "Using existing SSH key"
+            return 0
+            ;;
+        n|N|no|No|NO)
+            log_info "Will generate new SSH key"
+            return 1
+            ;;
+        *)
+            log_warn "Invalid input '${response}', defaulting to 'yes'"
+            log_info "Using existing SSH key"
+            return 0
+            ;;
+    esac
+}
+
+# Function: generate_ssh_key
+# Purpose: Generate ed25519 SSH key without passphrase for automation (CRITICAL)
+# Key type: ed25519 (modern, secure, small)
+# Passphrase: Empty (for zero-intervention bootstrap)
+# Comment: User's email address
+# Arguments: None (uses $USER_EMAIL global variable)
+# Returns: 0 on success, exits on failure
+generate_ssh_key() {
+    local key_path="${HOME}/.ssh/id_ed25519"
+
+    echo ""
+    log_info "========================================"
+    log_info "Generating SSH Key for GitHub"
+    log_info "========================================"
+
+    # Display security warning about no passphrase
+    log_warn "⚠ SECURITY TRADE-OFF: Generating SSH key WITHOUT passphrase"
+    log_warn ""
+    log_warn "WHY: Enables fully automated bootstrap (zero manual intervention)"
+    log_warn ""
+    log_warn "RISKS:"
+    log_warn "  - Private key not encrypted at rest"
+    log_warn "  - Key accessible if machine compromised"
+    log_warn ""
+    log_warn "MITIGATIONS:"
+    log_warn "  ✓ macOS FileVault encrypts entire disk (key encrypted at rest)"
+    log_warn "  ✓ Key limited to GitHub use only (limited scope)"
+    log_warn "  ✓ You can add passphrase later: ssh-keygen -p -f ${key_path}"
+    log_warn ""
+    log_info "Proceeding with key generation..."
+    echo ""
+
+    # Generate key with ssh-keygen
+    log_info "Running: ssh-keygen -t ed25519 -C '${USER_EMAIL}' -f '${key_path}' -N ''"
+    if ssh-keygen -t ed25519 -C "${USER_EMAIL}" -f "${key_path}" -N "" >/dev/null 2>&1; then
+        log_info "✓ SSH key generation completed"
+    else
+        log_error "ssh-keygen command failed"
+        log_error ""
+        log_error "Troubleshooting steps:"
+        log_error "  1. Verify ssh-keygen is installed: which ssh-keygen"
+        log_error "  2. Check disk space: df -h ~"
+        log_error "  3. Verify permissions: ls -ld ~/.ssh"
+        log_error "  4. Try manual generation: ssh-keygen -t ed25519 -C '${USER_EMAIL}'"
+        log_error ""
+        return 1
+    fi
+
+    # Verify both key files were created
+    if [[ ! -f "${key_path}" ]]; then
+        log_error "Private key file not created: ${key_path}"
+        return 1
+    fi
+
+    if [[ ! -f "${key_path}.pub" ]]; then
+        log_error "Public key file not created: ${key_path}.pub"
+        return 1
+    fi
+
+    log_success "✓ SSH key files created:"
+    log_info "  Private: ${key_path}"
+    log_info "  Public:  ${key_path}.pub"
+    echo ""
+
+    return 0
+}
+
+# Function: set_ssh_key_permissions
+# Purpose: Set correct permissions on SSH key files (CRITICAL)
+# Private key: 600 (rw-------) - owner read/write only
+# Public key: 644 (rw-r--r--) - owner write, all read
+# Arguments: None
+# Returns: 0 on success, exits on failure
+set_ssh_key_permissions() {
+    local private_key="${HOME}/.ssh/id_ed25519"
+    local public_key="${HOME}/.ssh/id_ed25519.pub"
+
+    log_info "Setting SSH key permissions..."
+
+    # Verify files exist
+    if [[ ! -f "${private_key}" ]]; then
+        log_error "Private key file not found: ${private_key}"
+        log_error "Cannot set permissions on non-existent file"
+        return 1
+    fi
+
+    if [[ ! -f "${public_key}" ]]; then
+        log_error "Public key file not found: ${public_key}"
+        log_error "Cannot set permissions on non-existent file"
+        return 1
+    fi
+
+    # Set private key permissions (600)
+    if chmod 600 "${private_key}"; then
+        log_info "✓ Private key permissions: 600 (rw-------)"
+    else
+        log_error "Failed to set private key permissions to 600"
+        log_error "File: ${private_key}"
+        log_error "This is a security requirement for SSH keys"
+        return 1
+    fi
+
+    # Set public key permissions (644)
+    if chmod 644 "${public_key}"; then
+        log_info "✓ Public key permissions: 644 (rw-r--r--)"
+    else
+        log_error "Failed to set public key permissions to 644"
+        log_error "File: ${public_key}"
+        return 1
+    fi
+
+    # Verify permissions were set correctly
+    local private_perms
+    private_perms=$(stat -f %A "${private_key}")
+    if [[ "${private_perms}" == "600" ]]; then
+        log_info "✓ Private key permissions verified"
+    else
+        log_error "Private key permissions verification failed"
+        log_error "Expected: 600, Found: ${private_perms}"
+        return 1
+    fi
+
+    local public_perms
+    public_perms=$(stat -f %A "${public_key}")
+    if [[ "${public_perms}" == "644" ]]; then
+        log_info "✓ Public key permissions verified"
+    else
+        log_error "Public key permissions verification failed"
+        log_error "Expected: 644, Found: ${public_perms}"
+        return 1
+    fi
+
+    log_success "✓ SSH key permissions set correctly"
+    echo ""
+
+    return 0
+}
+
+# Function: start_ssh_agent_and_add_key
+# Purpose: Start ssh-agent and add SSH key to agent (CRITICAL)
+# Required: For SSH key to be usable without passphrase prompt
+# Arguments: None
+# Returns: 0 on success, exits on failure
+start_ssh_agent_and_add_key() {
+    local key_path="${HOME}/.ssh/id_ed25519"
+
+    log_info "Starting ssh-agent and adding key..."
+
+    # Start ssh-agent and evaluate its output
+    log_info "Starting ssh-agent..."
+    local agent_output
+    if agent_output=$(ssh-agent -s 2>&1); then
+        # Evaluate the output to set SSH_AUTH_SOCK and SSH_AGENT_PID
+        eval "${agent_output}" >/dev/null 2>&1
+        log_info "✓ ssh-agent started (PID: ${SSH_AGENT_PID:-unknown})"
+    else
+        log_error "Failed to start ssh-agent"
+        log_error "Output: ${agent_output}"
+        log_error ""
+        log_error "Troubleshooting steps:"
+        log_error "  1. Verify ssh-agent is installed: which ssh-agent"
+        log_error "  2. Check for existing agent: ps aux | grep ssh-agent"
+        log_error "  3. Kill existing agent: killall ssh-agent"
+        log_error "  4. Try manual start: eval \"\$(ssh-agent -s)\""
+        log_error ""
+        return 1
+    fi
+
+    # Add SSH key to agent
+    log_info "Adding SSH key to agent..."
+    if ssh-add "${key_path}" >/dev/null 2>&1; then
+        log_info "✓ SSH key added to agent"
+    else
+        log_error "Failed to add SSH key to agent"
+        log_error "Key: ${key_path}"
+        log_error ""
+        log_error "Troubleshooting steps:"
+        log_error "  1. Verify key exists: ls -l ${key_path}"
+        log_error "  2. Check key permissions: ls -l ${key_path}"
+        log_error "  3. Verify agent is running: echo \$SSH_AUTH_SOCK"
+        log_error "  4. Try manual add: ssh-add ${key_path}"
+        log_error "  5. Check agent keys: ssh-add -l"
+        log_error ""
+        return 1
+    fi
+
+    # Verify key was added
+    log_info "Verifying key in agent..."
+    if ssh-add -l >/dev/null 2>&1; then
+        log_success "✓ SSH key verified in agent"
+    else
+        log_warn "Could not verify key in agent (may still be added)"
+    fi
+
+    echo ""
+    return 0
+}
+
+# Function: display_ssh_key_summary
+# Purpose: Display SSH key information summary (NON-CRITICAL)
+# Shows: Public key content, fingerprint, comment, agent status
+# Arguments: None
+# Returns: 0 always (display function)
+display_ssh_key_summary() {
+    local public_key_path="${HOME}/.ssh/id_ed25519.pub"
+
+    echo ""
+    log_info "========================================"
+    log_info "SSH KEY SUMMARY"
+    log_info "========================================"
+
+    # Display public key content
+    if [[ -f "${public_key_path}" ]]; then
+        log_info ""
+        log_info "Public Key:"
+        log_info "$(cat "${public_key_path}")"
+        log_info ""
+
+        # Display key fingerprint
+        local fingerprint
+        if fingerprint=$(ssh-keygen -lf "${public_key_path}" 2>/dev/null); then
+            log_info "Fingerprint:"
+            log_info "${fingerprint}"
+        fi
+    else
+        log_warn "Public key file not found: ${public_key_path}"
+    fi
+
+    log_info ""
+    log_info "✓ SSH key ready for GitHub authentication"
+    log_info "✓ Key added to ssh-agent"
+    log_info ""
+    log_info "NEXT STEPS:"
+    log_info "1. Copy the public key above"
+    log_info "2. Add it to GitHub: https://github.com/settings/keys"
+    log_info "3. Test connection: ssh -T git@github.com"
+    log_info "========================================"
+    echo ""
+
+    return 0
+}
+
+# Function: setup_ssh_key_phase
+# Purpose: Orchestrate SSH key setup workflow (Phase 6 main function)
+# Workflow: Check directory → Check existing key → Generate/Use → Permissions → Agent → Summary
+# Arguments: None
+# Returns: 0 on success, 1 if any CRITICAL step fails
+setup_ssh_key_phase() {
+    echo ""
+    log_info "========================================"
+    log_info "PHASE 6/10: SSH KEY GENERATION"
+    log_info "Story 01.6-001: Generate SSH key for GitHub"
+    log_info "========================================"
+    echo ""
+
+    # Step 1: Ensure .ssh directory exists (NON-CRITICAL)
+    if ! ensure_ssh_directory; then
+        log_warn "SSH directory setup had issues (non-critical, continuing)"
+    fi
+
+    # Step 2: Check for existing SSH key (NON-CRITICAL)
+    local needs_generation=true
+    if check_existing_ssh_key; then
+        # Existing key found, ask user
+        if prompt_use_existing_key; then
+            # User wants to use existing key
+            needs_generation=false
+            log_info "Using existing SSH key"
+        else
+            # User wants new key
+            needs_generation=true
+            log_info "Will generate new SSH key (existing key will be backed up)"
+        fi
+    else
+        # No existing key, need to generate
+        needs_generation=true
+    fi
+
+    # Step 3: Generate new key if needed (CRITICAL)
+    if [[ "${needs_generation}" == true ]]; then
+        if ! generate_ssh_key; then
+            log_error "SSH key generation failed (CRITICAL)"
+            return 1
+        fi
+    fi
+
+    # Step 4: Set correct permissions (CRITICAL)
+    if ! set_ssh_key_permissions; then
+        log_error "Failed to set SSH key permissions (CRITICAL)"
+        return 1
+    fi
+
+    # Step 5: Start ssh-agent and add key (CRITICAL)
+    if ! start_ssh_agent_and_add_key; then
+        log_error "Failed to add SSH key to agent (CRITICAL)"
+        return 1
+    fi
+
+    # Step 6: Display summary (NON-CRITICAL)
+    if ! display_ssh_key_summary; then
+        log_warn "Could not display SSH key summary (non-critical)"
+    fi
+
+    log_success "✓ SSH key setup complete"
+    log_info "Phase 6 completed successfully"
+    echo ""
+
+    return 0
+}
+
 # Main execution flow
 main() {
     echo ""
@@ -2366,10 +2782,24 @@ main() {
     fi
 
     # ==========================================================================
-    # FUTURE PHASES (6-10)
+    # PHASE 6: SSH KEY GENERATION
+    # ==========================================================================
+    # Story 01.6-001: Generate SSH key for GitHub authentication
+    # Generates ed25519 key, handles existing keys, starts ssh-agent
+    # ==========================================================================
+
+    # shellcheck disable=SC2310  # Intentional: Using ! to handle SSH key setup failure
+    if ! setup_ssh_key_phase; then
+        log_error "SSH key setup failed"
+        log_error "Bootstrap process terminated."
+        exit 1
+    fi
+
+    # ==========================================================================
+    # FUTURE PHASES (7-10)
     # ==========================================================================
     # Future phases will be added here in subsequent stories
-    log_warn "Bootstrap implementation incomplete - Phases 6-10 not yet implemented"
+    log_warn "Bootstrap implementation incomplete - Phases 7-10 not yet implemented"
     log_warn "Remaining phases will be added in future stories"
 
     exit 0

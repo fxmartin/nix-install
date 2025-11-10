@@ -48,7 +48,7 @@ This robust approach ensures detection regardless of how the daemon is running.
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 18 | 108 | **10** | **67** | 55.6% | 62.0% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 18 | 108 | **11** | **72** | 61.1% | 66.7% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -56,7 +56,7 @@ This robust approach ensures detection regardless of how the daemon is running.
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **111** | **596** | **10** | **67** | **9.0%** | **11.2%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **111** | **596** | **11** | **72** | **9.9%** | **12.1%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (10/18)
 
@@ -71,6 +71,7 @@ This robust approach ensures detection regardless of how the daemon is running.
 | 01.4-002 | Nix Configuration for macOS | 5 | ✅ Complete | feature/01.4-002-nix-configuration | 2025-11-09 |
 | 01.4-003 | Flake Infrastructure Setup | 8 | ✅ Complete | main | 2025-11-09 |
 | 01.5-001 | Initial Nix-Darwin Build | 13 | ✅ Complete | feature/01.5-001-nix-darwin-build | 2025-11-09 |
+| 01.5-002 | Post-Darwin System Validation | 5 | ✅ Complete | main | 2025-11-10 |
 
 ### Overall Project Status
 
@@ -82,7 +83,11 @@ This robust approach ensures detection regardless of how the daemon is running.
 
 ### Recent Activity
 
-- **2025-11-10**: ✅ **COMPLETED Story 01.5-002** (Post-Darwin System Validation - 5 points) - **IMPLEMENTATION COMPLETE**
+- **2025-11-10**: 🔧 **HOTFIX**: Issue #10 fixed (nix-daemon detection) - VM TESTED & VERIFIED ✅
+  - Added multi-method daemon detection (system domain + process check)
+  - Commit ef583a4 pushed and validated
+  - Story 01.5-002 now fully complete and VM tested
+- **2025-11-10**: ✅ **COMPLETED Story 01.5-002** (Post-Darwin System Validation - 5 points) - **VM TESTED**
   - Added Phase 5 (continued) validation to bootstrap.sh (6 functions, ~310 lines)
   - 60 automated BATS tests (TDD methodology) + 7 manual VM scenarios
   - Validates darwin-rebuild, Homebrew, apps, nix-daemon (CRITICAL vs NON-CRITICAL)

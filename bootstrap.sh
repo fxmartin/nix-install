@@ -1906,6 +1906,317 @@ install_nix_darwin_phase() {
     return 0
 }
 
+# =============================================================================
+# PHASE 5 (CONTINUED): POST-DARWIN SYSTEM VALIDATION (Story 01.5-002)
+# =============================================================================
+
+# Function: check_darwin_rebuild
+# Purpose: Verify darwin-rebuild command is available after nix-darwin installation
+# Checks: command -v darwin-rebuild and /run/current-system/sw/bin/darwin-rebuild
+# Arguments: None
+# Returns: 0 on success, 1 on failure (CRITICAL - exits on failure)
+check_darwin_rebuild() {
+    log_info "Checking darwin-rebuild command availability..."
+
+    local darwin_rebuild_path="/run/current-system/sw/bin/darwin-rebuild"
+
+    # Check if darwin-rebuild is in PATH
+    if command -v darwin-rebuild >/dev/null 2>&1; then
+        log_info "✓ darwin-rebuild command is available in PATH"
+        return 0
+    fi
+
+    # Check specific installation path
+    if [[ -x "${darwin_rebuild_path}" ]]; then
+        log_info "✓ darwin-rebuild found at ${darwin_rebuild_path}"
+        return 0
+    fi
+
+    # Critical failure - darwin-rebuild not found
+    log_error "darwin-rebuild command not found"
+    log_error "Expected location: ${darwin_rebuild_path}"
+    log_error ""
+    log_error "Troubleshooting steps:"
+    log_error "  1. Verify nix-darwin build completed successfully"
+    log_error "  2. Check PATH includes /run/current-system/sw/bin"
+    log_error "  3. Restart terminal to reload PATH"
+    log_error "  4. Re-run bootstrap if build was interrupted"
+    log_error ""
+    log_error "Manual check: ls -la ${darwin_rebuild_path}"
+
+    return 1
+}
+
+# Function: check_homebrew_installed
+# Purpose: Verify Homebrew was installed by nix-darwin
+# Checks: /opt/homebrew/bin/brew exists, is executable, and runs successfully
+# Arguments: $1 - Optional Homebrew path (defaults to /opt/homebrew/bin/brew)
+# Returns: 0 on success, 1 on failure (CRITICAL - exits on failure)
+check_homebrew_installed() {
+    local brew_path="${1:-/opt/homebrew/bin/brew}"
+
+    log_info "Checking Homebrew installation..."
+
+    # Check if brew executable exists
+    if [[ ! -x "${brew_path}" ]]; then
+        log_error "Homebrew not found at ${brew_path}"
+        log_error ""
+        log_error "Troubleshooting steps:"
+        log_error "  1. Verify your flake.nix includes homebrew configuration"
+        log_error "  2. Check nix-darwin build logs for Homebrew installation errors"
+        log_error "  3. Ensure homebrew.enable = true in darwin configuration"
+        log_error "  4. Try manual installation: /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+        log_error ""
+        log_error "Manual check: ls -la ${brew_path}"
+
+        return 1
+    fi
+
+    # Test that brew command executes
+    if ! "${brew_path}" --version >/dev/null 2>&1; then
+        log_error "Homebrew found but not executable: ${brew_path}"
+        log_error "Check file permissions and architecture compatibility"
+        return 1
+    fi
+
+    log_info "✓ Homebrew installed at ${brew_path}"
+    local brew_version
+    brew_version=$("${brew_path}" --version | head -n1)
+    log_info "  Version: ${brew_version}"
+
+    return 0
+}
+
+# Function: check_core_apps_present
+# Purpose: Check if at least one GUI app is installed (Ghostty or Zed)
+# This is NON-CRITICAL - apps may install in next story
+# Arguments: $1 - Applications directory (defaults to /Applications)
+#            $2 - User Applications directory (defaults to ~/Applications)
+# Returns: 0 always (NON-CRITICAL - warns but continues)
+check_core_apps_present() {
+    local apps_dir="${1:-/Applications}"
+    local user_apps_dir="${2:-${HOME}/Applications}"
+
+    log_info "Checking for GUI applications..."
+
+    local apps_found=0
+    local found_apps=()
+
+    # Check for Ghostty
+    if [[ -d "${apps_dir}/Ghostty.app" ]] || [[ -d "${user_apps_dir}/Ghostty.app" ]]; then
+        found_apps+=("Ghostty")
+        apps_found=1
+    fi
+
+    # Check for Zed
+    if [[ -d "${apps_dir}/Zed.app" ]] || [[ -d "${user_apps_dir}/Zed.app" ]]; then
+        found_apps+=("Zed")
+        apps_found=1
+    fi
+
+    # Check for Arc
+    if [[ -d "${apps_dir}/Arc.app" ]] || [[ -d "${user_apps_dir}/Arc.app" ]]; then
+        found_apps+=("Arc")
+        apps_found=1
+    fi
+
+    if [[ ${apps_found} -eq 1 ]]; then
+        log_info "✓ Found GUI applications: ${found_apps[*]}"
+    else
+        log_warn "No GUI applications found yet"
+        log_warn "This is normal - apps may install in next bootstrap phase"
+        log_warn "Apps will be installed when darwin-rebuild runs with full flake"
+    fi
+
+    # Always return 0 (NON-CRITICAL)
+    return 0
+}
+
+# Function: check_nix_daemon_running
+# Purpose: Verify nix-daemon service is running via launchctl
+# Checks: launchctl list for org.nixos.nix-daemon
+# Arguments: None
+# Returns: 0 on success, 1 on failure (CRITICAL - exits on failure)
+check_nix_daemon_running() {
+    log_info "Checking nix-daemon service status..."
+
+    # Check if org.nixos.nix-daemon is running
+    if launchctl list | grep -q "org.nixos.nix-daemon"; then
+        log_info "✓ nix-daemon service is running (org.nixos.nix-daemon)"
+        return 0
+    fi
+
+    # Critical failure - daemon not running
+    log_error "nix-daemon service is not running"
+    log_error ""
+    log_error "Troubleshooting steps:"
+    log_error "  1. Check if daemon is loaded: sudo launchctl list | grep nix-daemon"
+    log_error "  2. Restart daemon: sudo launchctl kickstart -k system/org.nixos.nix-daemon"
+    log_error "  3. Check logs: sudo log show --predicate 'process == \"nix-daemon\"' --last 10m"
+    log_error "  4. Re-run Nix installation if daemon was never started"
+    log_error ""
+    log_error "The Nix daemon must be running for nix-darwin to function properly"
+
+    return 1
+}
+
+# Function: display_validation_summary
+# Purpose: Display formatted summary table of all validation results
+# Shows checkmarks (✓) for passing checks, X (✗) for failures
+# Arguments: Validation results as key=value pairs (e.g., "darwin_rebuild=PASS")
+# Returns: 0 always (display function)
+display_validation_summary() {
+    log_info ""
+    log_info "========================================"
+    log_info "VALIDATION SUMMARY"
+    log_info "========================================"
+
+    # Parse validation results from arguments
+    local darwin_rebuild_status="UNKNOWN"
+    local homebrew_status="UNKNOWN"
+    local apps_status="UNKNOWN"
+    local daemon_status="UNKNOWN"
+
+    for result in "$@"; do
+        case "${result}" in
+            darwin_rebuild=*)
+                darwin_rebuild_status="${result#*=}"
+                ;;
+            homebrew=*)
+                homebrew_status="${result#*=}"
+                ;;
+            apps=*)
+                apps_status="${result#*=}"
+                ;;
+            daemon=*)
+                daemon_status="${result#*=}"
+                ;;
+        esac
+    done
+
+    # Display results with appropriate symbols
+    if [[ "${darwin_rebuild_status}" == "PASS" ]]; then
+        log_info "✓ darwin-rebuild: Available"
+    else
+        log_error "✗ darwin-rebuild: Not found (CRITICAL)"
+    fi
+
+    if [[ "${homebrew_status}" == "PASS" ]]; then
+        log_info "✓ Homebrew: Installed"
+    else
+        log_error "✗ Homebrew: Not found (CRITICAL)"
+    fi
+
+    if [[ "${apps_status}" == "PASS" ]]; then
+        log_info "✓ GUI Applications: Found"
+    elif [[ "${apps_status}" == "WARN" ]]; then
+        log_warn "⚠ GUI Applications: Not yet installed (will install later)"
+    else
+        log_warn "⚠ GUI Applications: Not found (non-critical)"
+    fi
+
+    if [[ "${daemon_status}" == "PASS" ]]; then
+        log_info "✓ nix-daemon: Running"
+    else
+        log_error "✗ nix-daemon: Not running (CRITICAL)"
+    fi
+
+    log_info "========================================"
+    log_info ""
+
+    return 0
+}
+
+# Function: validate_nix_darwin_phase
+# Purpose: Orchestrate all post-darwin validation checks
+# Runs: darwin-rebuild, Homebrew, apps, daemon checks + summary
+# Arguments: None
+# Returns: 0 on success, 1 if any CRITICAL check fails
+validate_nix_darwin_phase() {
+    echo ""
+    log_info "========================================"
+    log_info "PHASE 5 (CONTINUED): POST-DARWIN SYSTEM VALIDATION"
+    log_info "Story 01.5-002: Verify nix-darwin installation"
+    log_info "========================================"
+    log_info "Validating system components..."
+    echo ""
+
+    # Track validation results
+    local darwin_rebuild_result="FAIL"
+    local homebrew_result="FAIL"
+    local apps_result="WARN"
+    local daemon_result="FAIL"
+
+    # Check 1: darwin-rebuild (CRITICAL)
+    if check_darwin_rebuild; then
+        darwin_rebuild_result="PASS"
+    else
+        log_error "darwin-rebuild validation failed (CRITICAL)"
+        display_validation_summary \
+            "darwin_rebuild=${darwin_rebuild_result}" \
+            "homebrew=${homebrew_result}" \
+            "apps=${apps_result}" \
+            "daemon=${daemon_result}"
+        return 1
+    fi
+
+    # Check 2: Homebrew (CRITICAL)
+    if check_homebrew_installed; then
+        homebrew_result="PASS"
+    else
+        log_error "Homebrew validation failed (CRITICAL)"
+        display_validation_summary \
+            "darwin_rebuild=${darwin_rebuild_result}" \
+            "homebrew=${homebrew_result}" \
+            "apps=${apps_result}" \
+            "daemon=${daemon_result}"
+        return 1
+    fi
+
+    # Check 3: Core apps (NON-CRITICAL)
+    if check_core_apps_present; then
+        # Check if any apps were actually found
+        if [[ -d "/Applications/Ghostty.app" ]] || \
+           [[ -d "/Applications/Zed.app" ]] || \
+           [[ -d "/Applications/Arc.app" ]] || \
+           [[ -d "${HOME}/Applications/Ghostty.app" ]] || \
+           [[ -d "${HOME}/Applications/Zed.app" ]] || \
+           [[ -d "${HOME}/Applications/Arc.app" ]]; then
+            apps_result="PASS"
+        else
+            apps_result="WARN"
+        fi
+    fi
+    # Always continue even if no apps found
+
+    # Check 4: nix-daemon (CRITICAL)
+    if check_nix_daemon_running; then
+        daemon_result="PASS"
+    else
+        log_error "nix-daemon validation failed (CRITICAL)"
+        display_validation_summary \
+            "darwin_rebuild=${darwin_rebuild_result}" \
+            "homebrew=${homebrew_result}" \
+            "apps=${apps_result}" \
+            "daemon=${daemon_result}"
+        return 1
+    fi
+
+    # Display summary
+    display_validation_summary \
+        "darwin_rebuild=${darwin_rebuild_result}" \
+        "homebrew=${homebrew_result}" \
+        "apps=${apps_result}" \
+        "daemon=${daemon_result}"
+
+    echo ""
+    log_success "✓ Post-darwin validation complete"
+    log_info "All critical system components verified successfully"
+    echo ""
+
+    return 0
+}
+
 # Main execution flow
 main() {
     echo ""
@@ -2011,6 +2322,20 @@ main() {
     # shellcheck disable=SC2310  # Intentional: Using ! to handle installation failure
     if ! install_nix_darwin_phase; then
         log_error "Nix-darwin installation failed"
+        log_error "Bootstrap process terminated."
+        exit 1
+    fi
+
+    # ==========================================================================
+    # PHASE 5 (CONTINUED): POST-DARWIN SYSTEM VALIDATION
+    # ==========================================================================
+    # Story 01.5-002: Verify nix-darwin installation succeeded
+    # Validates darwin-rebuild, Homebrew, core apps, nix-daemon
+    # ==========================================================================
+
+    # shellcheck disable=SC2310  # Intentional: Using ! to handle validation failure
+    if ! validate_nix_darwin_phase; then
+        log_error "Nix-darwin validation failed"
         log_error "Bootstrap process terminated."
         exit 1
     fi

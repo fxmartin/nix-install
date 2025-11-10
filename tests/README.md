@@ -1097,9 +1097,200 @@ FX should perform these manual tests in a VM to validate Phase 5 functionality:
    # Expected: All .nix files listed
    ```
 
+### Phase 5 (Continued): Post-Darwin System Validation
+
+The `bootstrap_darwin_validation.bats` test suite validates the successful installation of nix-darwin with comprehensive system checks.
+
+**Test Suite: tests/bootstrap_darwin_validation.bats (60 tests)**
+
+1. **Function Existence** (6 tests)
+   - check_darwin_rebuild function defined
+   - check_homebrew_installed function defined
+   - check_core_apps_present function defined
+   - check_nix_daemon_running function defined
+   - display_validation_summary function defined
+   - validate_nix_darwin_phase function defined
+
+2. **Darwin-Rebuild Check** (10 tests)
+   - Succeeds when darwin-rebuild command exists
+   - Logs success when command found
+   - Fails when darwin-rebuild not found
+   - Logs error when command not found
+   - Checks command -v darwin-rebuild
+   - Provides troubleshooting on failure
+   - Checks specific path /run/current-system/sw/bin/darwin-rebuild
+   - Handles permission errors gracefully
+   - Exits on failure (CRITICAL)
+   - Logs clear error message with next steps
+
+3. **Homebrew Check** (10 tests)
+   - Succeeds when brew exists at /opt/homebrew/bin/brew
+   - Logs success when brew found
+   - Fails when brew not found
+   - Logs error when brew missing
+   - Checks brew is executable
+   - Verifies brew --version works
+   - Handles non-executable brew file
+   - Exits on failure (CRITICAL)
+   - Provides troubleshooting steps
+   - Uses default path if none provided
+
+4. **Core Apps Check** (10 tests)
+   - Succeeds when Ghostty found
+   - Succeeds when Zed found
+   - Logs success when app found
+   - Warns when no apps found (NON-CRITICAL)
+   - Logs warning when no apps found
+   - Searches /Applications directory
+   - Searches ~/Applications directory
+   - Continues bootstrap if no apps (NON-CRITICAL)
+   - Handles missing directories gracefully
+   - Uses default paths if none provided
+
+5. **Nix-Daemon Check** (10 tests)
+   - Succeeds when nix-daemon running
+   - Logs success when daemon running
+   - Fails when daemon not running
+   - Logs error when daemon not running
+   - Uses launchctl list to check service
+   - Checks for org.nixos.nix-daemon service
+   - Exits on failure (CRITICAL)
+   - Provides troubleshooting steps
+   - Handles launchctl errors gracefully
+   - Logs clear error message with restart command
+
+6. **Validation Summary Display** (8 tests)
+   - Accepts validation results as input
+   - Displays checkmark for passing checks
+   - Displays X for failing checks
+   - Formats output as table
+   - Includes all validation categories
+   - Logs summary to file
+   - Returns 0 on success
+   - Handles missing results gracefully
+
+7. **Orchestration** (6 tests)
+   - Calls check_darwin_rebuild
+   - Calls check_homebrew_installed
+   - Calls check_core_apps_present
+   - Calls check_nix_daemon_running
+   - Calls display_validation_summary
+   - Returns 0 when all checks pass
+
+8. **Error Handling** (8 tests)
+   - Fails when darwin-rebuild missing (CRITICAL)
+   - Fails when Homebrew missing (CRITICAL)
+   - Continues when apps missing (NON-CRITICAL)
+   - Fails when nix-daemon not running (CRITICAL)
+   - CRITICAL failures exit with non-zero status
+   - NON-CRITICAL failures log warning but continue
+   - Error messages include troubleshooting steps
+   - Error logging uses log_error for critical failures
+
+9. **Integration Tests** (5 tests)
+   - Full validation phase succeeds with all components present
+   - Generates complete log output
+   - Idempotent (safe to run multiple times)
+   - Handles partial failures correctly
+   - Displays summary at completion
+
+**Total Phase 5 (Continued) Tests: 60**
+
+### Phase 5 (Continued) Post-Darwin Validation Manual Tests
+
+FX should perform these manual tests in a VM to validate Phase 5 (continued) functionality:
+
+1. **Successful Validation Test**
+   ```bash
+   # After nix-darwin installation completes (Phase 5)
+   # Bootstrap should automatically proceed to validation
+   # Expected: All 4 validation checks pass
+   # Expected: Checkmarks (✓) for darwin-rebuild, Homebrew, nix-daemon
+   # Expected: Warning (⚠) or checkmark for GUI apps (apps may not be installed yet)
+   # Expected: Validation summary table displayed
+   # Expected: "Post-darwin validation complete" success message
+   ```
+
+2. **Darwin-Rebuild Missing Test**
+   ```bash
+   # Simulate missing darwin-rebuild
+   sudo mv /run/current-system/sw/bin/darwin-rebuild /tmp/darwin-rebuild.backup
+
+   # Re-run bootstrap from Phase 5
+   # Expected: Validation fails with CRITICAL error
+   # Expected: Clear error message with troubleshooting steps
+   # Expected: Bootstrap terminates (does not continue to Phase 6)
+
+   # Restore
+   sudo mv /tmp/darwin-rebuild.backup /run/current-system/sw/bin/darwin-rebuild
+   ```
+
+3. **Homebrew Missing Test**
+   ```bash
+   # Simulate missing Homebrew
+   sudo mv /opt/homebrew /tmp/homebrew.backup
+
+   # Re-run bootstrap validation
+   # Expected: Validation fails with CRITICAL error
+   # Expected: Troubleshooting steps include manual Homebrew installation command
+   # Expected: Bootstrap terminates
+
+   # Restore
+   sudo mv /tmp/homebrew.backup /opt/homebrew
+   ```
+
+4. **Nix-Daemon Not Running Test**
+   ```bash
+   # Stop nix-daemon
+   sudo launchctl unload /Library/LaunchDaemons/org.nixos.nix-daemon.plist
+
+   # Re-run bootstrap validation
+   # Expected: Validation fails with CRITICAL error
+   # Expected: Error message includes launchctl kickstart command
+   # Expected: Bootstrap terminates
+
+   # Restore
+   sudo launchctl load /Library/LaunchDaemons/org.nixos.nix-daemon.plist
+   ```
+
+5. **No GUI Apps Scenario (Normal)**
+   ```bash
+   # This is expected after initial nix-darwin build
+   # GUI apps install in later stories/phases
+   # Expected: Warning (⚠) displayed for apps
+   # Expected: Message: "Not yet installed (will install later)"
+   # Expected: Bootstrap CONTINUES (NON-CRITICAL check)
+   ```
+
+6. **Validation Summary Display Test**
+   ```bash
+   # After successful validation
+   # Verify summary table format:
+   # Expected: "========================================" header
+   # Expected: "VALIDATION SUMMARY" title
+   # Expected: 4 component lines:
+   #   ✓ darwin-rebuild: Available
+   #   ✓ Homebrew: Installed
+   #   ⚠ GUI Applications: Not yet installed (will install later)
+   #   ✓ nix-daemon: Running
+   # Expected: "========================================" footer
+   # Expected: "Post-darwin validation complete" message
+   ```
+
+7. **Idempotent Validation Test**
+   ```bash
+   # Run validation phase multiple times
+   # (By restarting bootstrap from Phase 5)
+
+   # Expected: Same results each time
+   # Expected: No errors from multiple runs
+   # Expected: No side effects (files created, system changes)
+   # Expected: Consistent log output
+   ```
+
 ## Test Summary
 
-**Total Automated Tests: 485 tests** (399 + 86 Phase 5 tests)
+**Total Automated Tests: 545 tests** (485 + 60 Phase 5 continued tests)
 
 **Test Distribution:**
 - Phase 1 (Pre-flight): 65 tests (bootstrap_preflight.bats)
@@ -1110,8 +1301,9 @@ FX should perform these manual tests in a VM to validate Phase 5 functionality:
 - Phase 4 (Nix Installation): 52 tests (bootstrap_nix.bats)
 - Phase 4 (Nix Configuration): 62 tests (bootstrap_nix_config.bats)
 - Phase 5 (Nix-Darwin Installation): 86 tests (bootstrap_nix_darwin.bats)
+- Phase 5 (Continued - Validation): 60 tests (bootstrap_darwin_validation.bats)
 
-**Manual VM Test Scenarios: 46 scenarios**
+**Manual VM Test Scenarios: 53 scenarios**
 - Phase 1: 5 scenarios
 - Phase 2 (User Info): 6 scenarios
 - Phase 2 (Profile Selection): 6 scenarios
@@ -1120,6 +1312,7 @@ FX should perform these manual tests in a VM to validate Phase 5 functionality:
 - Phase 4 (Nix Installation): 5 scenarios
 - Phase 4 (Nix Configuration): 7 scenarios
 - Phase 5 (Nix-Darwin): 7 scenarios
+- Phase 5 (Continued - Validation): 7 scenarios
 
 ## Testing Unmerged Branches in VM
 

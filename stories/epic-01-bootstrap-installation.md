@@ -12,7 +12,7 @@
 
 ## Epic Scope
 **Total Stories**: 18
-**Total Story Points**: 108
+**Total Story Points**: 105
 **MVP Stories**: 18 (100% of epic)
 **Priority Level**: Must Have
 **Target Release**: Phase 0-2 (Week 1-2)
@@ -779,12 +779,12 @@
 ---
 
 ### Feature 01.6: SSH Key Setup & GitHub Integration
-**Feature Description**: Generate SSH key, display to user for GitHub upload, test connection
-**User Value**: Enables GitHub authentication for private repo cloning
+**Feature Description**: Generate SSH key, automated GitHub upload via CLI, test connection
+**User Value**: Enables GitHub authentication for private repo cloning with minimal manual intervention
 **Story Count**: 3
-**Story Points**: 21
+**Story Points**: 18
 **Priority**: High
-**Complexity**: High
+**Complexity**: Medium
 
 #### Stories in This Feature
 
@@ -840,53 +840,72 @@
 
 ---
 
-##### Story 01.6-002: GitHub SSH Key Upload Instructions
-**User Story**: As FX, I want clear instructions to upload my SSH key to GitHub so that I can authenticate for repo cloning
+##### Story 01.6-002: Automated GitHub SSH Key Upload via GitHub CLI
+**User Story**: As FX, I want my SSH key automatically uploaded to GitHub via GitHub CLI so that I can authenticate for repo cloning with minimal manual intervention
 
 **Priority**: Must Have
-**Story Points**: 8
+**Story Points**: 5
 **Sprint**: Sprint 2
 
 **Acceptance Criteria**:
-- **Given** SSH key has been generated
-- **When** the bootstrap displays upload instructions
-- **Then** it shows the public key content in a formatted box
-- **And** it displays step-by-step instructions: "1. Go to: https://github.com/settings/keys"
-- **And** it shows: "2. Click 'New SSH key'"
-- **And** it shows: "3. Paste the above key"
-- **And** it shows: "4. Click 'Add SSH key'"
-- **And** it waits with message: "Press ENTER when you've added the key..."
-- **And** it allows user time to complete the upload
+- **Given** SSH key has been generated (Story 01.6-001)
+- **When** the bootstrap reaches key upload phase
+- **Then** it checks if GitHub CLI (`gh`) is authenticated
+- **And** if not authenticated, it runs `gh auth login --hostname github.com --git-protocol ssh --web`
+- **And** it opens browser for OAuth authentication (user clicks "Authorize" - ~10 seconds)
+- **And** once authenticated, it automatically uploads SSH key via `gh ssh-key add ~/.ssh/id_ed25519.pub --title "$(hostname)-$(date +%Y%m%d)"`
+- **And** it verifies upload succeeded or key already exists on GitHub
+- **And** it displays success message and proceeds
+- **And** if `gh` authentication fails, it falls back to manual upload instructions with clipboard copy
 
 **Additional Requirements**:
-- Public key displayed clearly (copy-paste friendly)
-- Instructions numbered and easy to follow
-- Wait indefinitely for user (no timeout)
-- GitHub URL direct to SSH keys page
+- Primary method: Automated upload via `gh ssh-key add` (90% automation)
+- OAuth authentication: User must click "Authorize" in browser (~10 seconds)
+- Key title format: `hostname-YYYYMMDD` (e.g., "MacBook-Pro-20251109")
+- Fallback method: Manual instructions if `gh auth login` fails
+- Idempotent: Check if key already exists before uploading
 
 **Technical Notes**:
-- Display public key: `cat ~/.ssh/id_ed25519.pub`
-- Format with box drawing or clear separators
-- Use `read -p "Press ENTER when you've added the key..."` to wait
-- Consider copying key to clipboard if `pbcopy` available:
+- Reference implementation: `mlgruby-repo-for-reference/scripts/install/pre-nix-installation.sh` (Lines 291-399)
+- Check authentication: `gh auth status >/dev/null 2>&1`
+- Authenticate: `gh auth login --hostname github.com --git-protocol ssh --web`
+- Upload key: `gh ssh-key add ~/.ssh/id_ed25519.pub --title "$(hostname)-$(date +%Y%m%d)"`
+- Check existing: `gh ssh-key list | grep -q "$(ssh-keygen -l -f ~/.ssh/id_ed25519.pub | awk '{print $2}')"`
+- Fallback manual instructions (if `gh` fails):
   ```bash
-  cat ~/.ssh/id_ed25519.pub | pbcopy
-  echo "Public key copied to clipboard!"
+  cat ~/.ssh/id_ed25519.pub | pbcopy  # Copy to clipboard
+  cat ~/.ssh/id_ed25519.pub           # Display key
+  echo "1. Go to: https://github.com/settings/keys"
+  echo "2. Click 'New SSH key'"
+  echo "3. Paste the above key"
+  echo "4. Click 'Add SSH key'"
+  read -p "Press ENTER when you've added the key..."
   ```
 
 **Definition of Done**:
-- [ ] Public key displayed clearly
-- [ ] Instructions numbered and complete
-- [ ] Wait mechanism implemented
-- [ ] Optional clipboard copy working
-- [ ] Tested in VM, instructions verified
-- [ ] Documentation includes screenshots (optional)
+- [ ] GitHub CLI authentication flow implemented
+- [ ] OAuth browser flow working (user clicks "Authorize")
+- [ ] Automated key upload via `gh ssh-key add` functional
+- [ ] Idempotency check (key already exists) working
+- [ ] Success/failure detection accurate
+- [ ] Fallback manual instructions implemented with clipboard copy
+- [ ] Error handling comprehensive (network, authentication, upload failures)
+- [ ] Tested in VM with fresh GitHub authentication
+- [ ] Tested in VM with existing authentication (skip flow)
+- [ ] Documentation notes automation approach and fallback
+
+**Implementation Notes**:
+- Pattern from mlgruby reference: Proven automated approach
+- User interaction reduced from 2-3 minutes (manual copy-paste) to 10 seconds (OAuth click)
+- Aligns with project goal: "zero manual intervention except license activations"
+- Story points reduced from 8 to 5 due to automation simplification
 
 **Dependencies**:
 - Story 01.6-001 (SSH key generated)
+- GitHub CLI (`gh`) must be installed (via Homebrew in Story 01.5-001 or pre-installed)
 
 **Risk Level**: Low
-**Risk Mitigation**: N/A
+**Risk Mitigation**: Comprehensive fallback to manual instructions if automation fails
 
 ---
 
@@ -1138,7 +1157,7 @@
 | Sprint | Stories | Story Points | Sprint Goal |
 |--------|---------|--------------|-------------|
 | Sprint 1 | 01.1-001 to 01.4-002 | 44 | Pre-flight checks, user prompts, Xcode, Nix installation |
-| Sprint 2 | 01.5-001 to 01.8-001 | 45 | nix-darwin, SSH key setup, repo clone, final rebuild |
+| Sprint 2 | 01.5-001 to 01.8-001 | 42 | nix-darwin, SSH key setup, repo clone, final rebuild |
 
 ### Delivery Milestones
 - **Milestone 1**: End Sprint 1 - Nix installed and configured
@@ -1159,21 +1178,21 @@
 ## Epic Progress Tracking
 
 ### Completion Status
-- **Stories Completed**: 7 of 15 (46.7%)
-- **Story Points Completed**: 39 of 89 (43.8%)
-- **MVP Stories Completed**: 7 of 15 (46.7%)
+- **Stories Completed**: 7 of 18 (38.9%)
+- **Story Points Completed**: 39 of 105 (37.1%)
+- **MVP Stories Completed**: 7 of 18 (38.9%)
 
 ### Sprint Progress
 | Sprint | Planned Points | Completed Points | Stories Done | Status |
 |--------|----------------|------------------|--------------|--------|
 | Sprint 1 | 44 | 39 | 7/9 | In Progress |
-| Sprint 2 | 45 | 0 | 0/6 | Not Started |
+| Sprint 2 | 42 | 0 | 0/9 | Not Started |
 
 ## Epic Acceptance Criteria
-- [ ] All MVP stories (15/15) completed and accepted
+- [ ] All MVP stories (18/18) completed and accepted
 - [ ] Bootstrap completes in <30 minutes on fresh macOS
 - [ ] First-time success rate >90% in VM testing
-- [ ] Zero manual intervention except SSH key upload and license activations
+- [ ] Zero manual intervention except GitHub OAuth click and license activations
 - [ ] Both Standard and Power profiles tested and working
 - [ ] Error handling comprehensive and helpful
 - [ ] User can re-run script safely (idempotent)

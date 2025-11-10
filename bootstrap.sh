@@ -2040,13 +2040,27 @@ check_core_apps_present() {
 check_nix_daemon_running() {
     log_info "Checking nix-daemon service status..."
 
-    # Check if org.nixos.nix-daemon is running
+    # Method 1: Check user domain (launchctl list without sudo)
     if launchctl list | grep -q "org.nixos.nix-daemon"; then
-        log_info "✓ nix-daemon service is running (org.nixos.nix-daemon)"
+        log_info "✓ nix-daemon service is running (user domain: org.nixos.nix-daemon)"
         return 0
     fi
 
-    # Critical failure - daemon not running
+    # Method 2: Check system domain (launchctl list with sudo)
+    # nix-daemon typically runs as root in system domain
+    if sudo launchctl list 2>/dev/null | grep -q "org.nixos.nix-daemon"; then
+        log_info "✓ nix-daemon service is running (system domain: org.nixos.nix-daemon)"
+        return 0
+    fi
+
+    # Method 3: Check for running nix-daemon process directly
+    # Fallback if launchctl doesn't show it but process is running
+    if pgrep -q nix-daemon; then
+        log_info "✓ nix-daemon process is running (detected via pgrep)"
+        return 0
+    fi
+
+    # Critical failure - daemon not running with any detection method
     log_error "nix-daemon service is not running"
     log_error ""
     log_error "Troubleshooting steps:"

@@ -218,6 +218,95 @@ validate_name() {
     return 0
 }
 
+# =============================================================================
+# PHASE 2: USER CONFIG IDEMPOTENCY CHECK (Story 01.1-002)
+# =============================================================================
+
+# Function: check_existing_user_config
+# Purpose: Detect and parse existing user-config.nix from previous runs to avoid re-prompting
+# Story: 01.1-002 (Idempotency Check)
+# Locations checked (priority order):
+#   1. ~/Documents/nix-install/user-config.nix (completed installation)
+#   2. /tmp/nix-bootstrap/user-config.nix (previous bootstrap attempt)
+# Sets global variables: USER_FULLNAME, USER_EMAIL, GITHUB_USERNAME
+# Returns: 0 if config found and user chose to reuse, 1 if not found or user declined
+# Pattern: Based on mlgruby-repo-for-reference/scripts/install/pre-nix-installation.sh (lines 239-289)
+check_existing_user_config() {
+    local existing_config=""
+    local config_source=""
+
+    # Check priority locations (completed install takes precedence)
+    if [[ -f "$HOME/Documents/nix-install/user-config.nix" ]]; then
+        existing_config="$HOME/Documents/nix-install/user-config.nix"
+        config_source="completed installation"
+    elif [[ -f "/tmp/nix-bootstrap/user-config.nix" ]]; then
+        existing_config="/tmp/nix-bootstrap/user-config.nix"
+        config_source="previous bootstrap run"
+    fi
+
+    # If no existing config found, return early
+    if [[ -z "${existing_config}" ]]; then
+        return 1
+    fi
+
+    echo ""
+    log_info "Found existing user configuration:"
+    log_info "  Location: ${existing_config}"
+    log_info "  Source: ${config_source}"
+    echo ""
+
+    # Parse values from existing config using grep + sed
+    local parsed_fullname parsed_email parsed_github_username
+
+    parsed_fullname=$(grep -E '^\s*fullName\s*=' "${existing_config}" 2>/dev/null | sed 's/.*"\([^"]*\)".*/\1/')
+    parsed_email=$(grep -E '^\s*email\s*=' "${existing_config}" 2>/dev/null | sed 's/.*"\([^"]*\)".*/\1/')
+    parsed_github_username=$(grep -E '^\s*githubUsername\s*=' "${existing_config}" 2>/dev/null | sed 's/.*"\([^"]*\)".*/\1/')
+
+    # Validate parsed values (must not be empty or still contain placeholders like @FULL_NAME@)
+    if [[ -z "${parsed_fullname}" ]] || [[ "${parsed_fullname}" == *"@"* ]]; then
+        log_warn "Existing config has invalid/incomplete fullName, ignoring"
+        return 1
+    fi
+
+    if [[ -z "${parsed_email}" ]] || [[ "${parsed_email}" == *"@"*"@"* ]]; then
+        log_warn "Existing config has invalid/incomplete email, ignoring"
+        return 1
+    fi
+
+    if [[ -z "${parsed_github_username}" ]] || [[ "${parsed_github_username}" == *"@"* ]]; then
+        log_warn "Existing config has invalid/incomplete GitHub username, ignoring"
+        return 1
+    fi
+
+    # Display parsed values for user review
+    log_info "Existing configuration:"
+    echo "  Name:          ${parsed_fullname}"
+    echo "  Email:         ${parsed_email}"
+    echo "  GitHub:        ${parsed_github_username}"
+    echo ""
+
+    # Prompt user to reuse or re-enter
+    local reuse_config
+    read -r -p "Reuse this configuration? (y/n): " reuse_config
+    echo ""
+
+    if [[ "${reuse_config}" =~ ^[Yy]$ ]]; then
+        # Set global variables for use in generate_user_config
+        USER_FULLNAME="${parsed_fullname}"
+        USER_EMAIL="${parsed_email}"
+        GITHUB_USERNAME="${parsed_github_username}"
+
+        log_success "Reusing existing configuration"
+        echo ""
+        return 0
+    else
+        log_info "User declined to reuse existing config"
+        log_info "Will prompt for new configuration"
+        echo ""
+        return 1
+    fi
+}
+
 # Prompt user for personal information with validation
 # Sets global variables: USER_FULLNAME, USER_EMAIL, GITHUB_USERNAME
 prompt_user_info() {
@@ -2760,8 +2849,13 @@ main() {
     # two-stage bootstrap pattern exists - to ensure stdin works correctly.
     # ==========================================================================
 
-    # Story 01.2-001: Collect user information (name, email, GitHub username)
-    prompt_user_info
+    # Story 01.1-002: Check for existing user-config.nix (idempotency)
+    # If found and user confirms reuse, skip interactive prompts
+    # shellcheck disable=SC2310  # Intentional: Using ! to handle conditional flow
+    if ! check_existing_user_config; then
+        # Story 01.2-001: Collect user information (name, email, GitHub username)
+        prompt_user_info
+    fi
 
     # Story 01.2-002: Select installation profile (Standard vs Power)
     select_installation_profile

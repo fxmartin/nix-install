@@ -826,13 +826,16 @@
 - Add key: `ssh-add ~/.ssh/id_ed25519`
 
 **Definition of Done**:
-- [ ] Existing key detection working
-- [ ] User prompted to use existing or generate new
-- [ ] Key generation successful
-- [ ] Permissions set correctly
-- [ ] ssh-agent running with key added
-- [ ] Tested in VM without existing keys
-- [ ] Documentation notes no passphrase choice
+- [x] Existing key detection working
+- [x] User prompted to use existing or generate new
+- [x] Key generation successful
+- [x] Permissions set correctly
+- [x] ssh-agent running with key added
+- [x] Tested in VM without existing keys ✅ **PASSED (2025-11-10)**
+- [x] Documentation notes no passphrase choice
+- [x] **macOS Keychain integration**: ssh-add --apple-use-keychain
+- [x] **System ssh-agent usage**: Uses launchd-managed agent
+- [x] **All 8 manual VM scenarios PASSED** ✅
 
 **Dependencies**:
 - Story 01.5-002 (nix-darwin validated)

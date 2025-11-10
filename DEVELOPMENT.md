@@ -48,7 +48,7 @@ This robust approach ensures detection regardless of how the daemon is running.
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 18 | 105 | **11** | **70** | 61.1% | 66.7% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 18 | 105 | **12** | **75** | 66.7% | 71.4% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -56,9 +56,9 @@ This robust approach ensures detection regardless of how the daemon is running.
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **111** | **593** | **11** | **70** | **9.9%** | **11.8%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **111** | **593** | **12** | **75** | **10.8%** | **12.6%** | 🟡 In Progress |
 
-### Epic-01 Completed Stories (11/18)
+### Epic-01 Completed Stories (12/18)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -79,21 +79,22 @@ This robust approach ensures detection regardless of how the daemon is running.
 ### Overall Project Status
 
 - **Total Project Scope**: 111 stories, 593 story points (revised from 596 after Story 01.6-002 update)
-- **Completed**: 11 stories (9.9%), 70 points (11.8%)
-- **In Progress**: Epic-01 Bootstrap & Installation (61.1% complete by stories, 66.7% by points)
+- **Completed**: 12 stories (10.8%), 75 points (12.6%)
+- **In Progress**: Epic-01 Bootstrap & Installation (66.7% complete by stories, 71.4% by points)
 - **Current Phase**: Phase 0-2 (Foundation + Bootstrap, Week 1-2)
 - **Next Story**: 01.6-002 (GitHub SSH Key Upload - 5 points) - READY TO START
 
 ### Recent Activity
 
-- **2025-11-10**: ✅ **COMPLETED Story 01.6-001** (SSH Key Generation - 5 points)
-  - Added Phase 6 to bootstrap.sh (8 functions, ~417 lines)
+- **2025-11-10**: ✅ **COMPLETED Story 01.6-001** (SSH Key Generation - 5 points) - **VM TESTED & VERIFIED**
+  - Added Phase 6 to bootstrap.sh (8 functions, ~420 lines)
   - 100 automated BATS tests (TDD methodology) + 8 manual VM scenarios
-  - Generates ed25519 SSH key for GitHub authentication
-  - Handles existing keys, permissions (600/644), ssh-agent management
-  - Security warning about no-passphrase trade-off documented
-  - CRITICAL vs NON-CRITICAL error classification
-  - Epic-01 now **66.7% complete** (70/105 points) 🎉
+  - macOS Keychain integration: ssh-add --apple-use-keychain
+  - System ssh-agent usage (launchd-managed)
+  - **All 8 manual VM tests PASSED** ✅
+  - Hotfix #1 (1e3f9a1): Keychain integration for key persistence
+  - Hotfix #2 (1b4429c): System ssh-agent instead of new instance
+  - Epic-01 now **71.4% complete** (75/105 points) 🎉
 - **2025-11-10**: 📝 **UPDATED Story 01.6-002** (GitHub SSH Key Upload) - **SCOPE CHANGED**
   - Changed from manual upload (8 points) to automated GitHub CLI approach (5 points)
   - Now uses `gh auth login` + `gh ssh-key add` for ~90% automation

@@ -11,6 +11,8 @@
   imports = [
     # Shell configuration (Epic-04)
     ./modules/shell.nix
+    # GitHub CLI configuration (Story 01.6-002 dependency)
+    ./modules/github.nix
   ];
 
   home = {

@@ -11,22 +11,24 @@
 - Zero manual intervention except SSH key upload and license activations
 
 ## Epic Scope
-**Total Stories**: 18
-**Total Story Points**: 105 (revised from 108 after Story 01.6-002 update)
-**MVP Stories**: 18 (100% of epic)
-**Priority Level**: Must Have
+**Total Stories**: 19
+**Total Story Points**: 113
+**MVP Stories**: 18 (Story 01.1-004 is P1, deferred to post-Epic-01)
+**Priority Level**: Must Have (MVP), Should Have (Story 01.1-004)
 **Target Release**: Phase 0-2 (Week 1-2)
 
-**Scope Change**: Story 01.6-002 changed from manual approach (8 points) to automated GitHub CLI approach (5 points) on 2025-11-10, reducing epic total by 3 points.
+**Scope Changes**:
+- **2025-11-10**: Story 01.6-002 changed from manual approach (8 points) to automated GitHub CLI approach (5 points), reducing epic by 3 points
+- **2025-11-11**: Story 01.1-004 added (Modular Bootstrap Architecture, 8 points), increasing epic by 8 points. Deferred to post-Epic-01 implementation.
 
 ## Features in This Epic
 
 ### Feature 01.1: Pre-flight System Validation
-**Feature Description**: Validate system requirements and prerequisites before beginning installation
-**User Value**: Prevents installation failures by catching issues early
-**Story Count**: 3
-**Story Points**: 11
-**Priority**: High
+**Feature Description**: Validate system requirements and prerequisites before beginning installation, plus modular architecture improvements
+**User Value**: Prevents installation failures by catching issues early, improves codebase maintainability
+**Story Count**: 4
+**Story Points**: 19
+**Priority**: High (Stories 01.1-001 to 01.1-003), Should Have (Story 01.1-004)
 **Complexity**: Medium
 
 #### Stories in This Feature
@@ -162,6 +164,98 @@
 
 **Risk Level**: Low
 **Risk Mitigation**: N/A
+
+---
+
+##### Story 01.1-004: Modular Bootstrap Architecture with Build System
+**User Story**: As a developer, I want bootstrap.sh split into modular libraries so that the codebase is easier to maintain and extend while keeping single-file distribution for users
+
+**Priority**: Should Have (P1)
+**Story Points**: 8
+**Sprint**: Post-Epic-01 (Deferred)
+
+**Acceptance Criteria**:
+- **Given** bootstrap.sh is currently monolithic (3,284 lines)
+- **When** I implement modular architecture
+- **Then** bootstrap.sh is split into:
+  - `bootstrap.sh` (orchestrator, ~200-300 lines)
+  - `lib/common.sh` (~150 lines - logging, colors, utilities)
+  - `lib/preflight.sh` (~200 lines - Phase 1)
+  - `lib/user-config.sh` (~500 lines - Phase 2)
+  - `lib/xcode.sh` (~150 lines - Phase 3)
+  - `lib/nix-install.sh` (~600 lines - Phase 4)
+  - `lib/nix-darwin.sh` (~500 lines - Phase 5)
+  - `lib/ssh-github.sh` (~600 lines - Phase 6)
+- **And** build script `scripts/build-bootstrap.sh` creates single-file `bootstrap-dist.sh`
+- **And** GitHub Actions workflow builds on every push to `dist` branch
+- **And** distribution uses single curl command (no change for users)
+- **And** all existing BATS tests pass with built artifact
+- **And** VM tested with built `bootstrap-dist.sh`
+- **And** documentation updated with build process
+
+**Additional Requirements**:
+- Build-based approach (Option A from refactoring analysis)
+- Single-file distribution via `bootstrap-dist.sh`
+- CI/CD builds automatically from modular sources
+- Distribution from `dist` branch on GitHub
+- No impact on end-user curl experience
+- Modular source files in `main` branch
+- Built artifact in `dist` branch only
+
+**Technical Notes**:
+- Build script concatenates all lib/*.sh files into bootstrap-dist.sh
+- Source files remain in main branch (lib/ directory)
+- GitHub Actions workflow triggers on push to main
+- Builds bootstrap-dist.sh and pushes to dist branch
+- Users curl from dist branch, developers work in main branch
+- All BATS tests run against both modular source and built artifact
+- Modular structure enables easier future development
+- Each library file focuses on single phase/concern
+
+**Definition of Done**:
+- [ ] `lib/` directory structure created
+- [ ] `lib/common.sh` extracted (logging, colors, utilities)
+- [ ] `lib/preflight.sh` extracted (Phase 1 functions)
+- [ ] `lib/user-config.sh` extracted (Phase 2 functions)
+- [ ] `lib/xcode.sh` extracted (Phase 3 functions)
+- [ ] `lib/nix-install.sh` extracted (Phase 4 functions)
+- [ ] `lib/nix-darwin.sh` extracted (Phase 5 functions)
+- [ ] `lib/ssh-github.sh` extracted (Phase 6 functions)
+- [ ] `bootstrap.sh` updated to orchestrator (~200-300 lines)
+- [ ] `scripts/build-bootstrap.sh` build script implemented
+- [ ] `bootstrap-dist.sh` builds successfully from sources
+- [ ] GitHub Actions workflow (`.github/workflows/build-bootstrap.yml`) configured
+- [ ] All 727 BATS tests pass with built artifact
+- [ ] bash -n validation passes on all modular files
+- [ ] VM tested with built `bootstrap-dist.sh`
+- [ ] README.md updated with new curl instructions (dist branch)
+- [ ] DEVELOPMENT.md updated with build process documentation
+- [ ] `.gitignore` updated to exclude `bootstrap-dist.sh` from main branch
+- [ ] Original `bootstrap.sh` backed up as `bootstrap-legacy.sh` (optional)
+
+**Implementation Notes**:
+- **Status**: DEFERRED to post-Epic-01 completion
+- **Rationale**: Don't block Epic-01 momentum (5 stories remaining)
+- **Timing**: Implement after Stories 01.6-003, 01.7-001, 01.7-002, 01.8-001 complete
+- **Priority**: P1 (Should Have) - improves maintainability but not blocking
+- **Estimated Time**: 6-8 hours (extraction + build system + CI/CD + testing)
+- **Risk**: Low - comprehensive testing mitigates refactoring risks
+- **Benefit**: Cleaner codebase, easier future development, better organization
+
+**Dependencies**:
+- None (can implement anytime)
+- Recommended: After Epic-01 functional completion
+
+**Blocks**:
+- Nothing (nice-to-have improvement, not blocking)
+
+**Risk Level**: Low
+**Risk Mitigation**:
+- Extract one library at a time with testing after each
+- Keep original bootstrap.sh as backup during transition
+- Comprehensive BATS test suite catches regressions
+- VM test final built artifact before distribution
+- Can rollback to monolithic if issues arise
 
 ---
 

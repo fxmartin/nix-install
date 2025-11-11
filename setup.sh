@@ -334,8 +334,8 @@ main() {
     echo ""
     log_info "Next steps:"
     echo "  1. Restart your terminal to load new shell configuration"
-    echo "  2. Verify installation: nix --version && darwin-rebuild --version"
-    echo "  3. Check system configuration: darwin-rebuild check"
+    echo "  2. Verify installation: nix --version && sudo darwin-rebuild --version"
+    echo "  3. Check system configuration: sudo darwin-rebuild check"
     echo ""
 }
 

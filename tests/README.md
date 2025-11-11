@@ -1555,9 +1555,264 @@ FX should perform these manual tests in a VM to validate Phase 6 functionality:
 
 ---
 
+### Phase 6 (Continued): GitHub SSH Key Upload via GitHub CLI
+
+**Test File**: `bootstrap_github_key_upload.bats`
+**Story**: 01.6-002 (Automated GitHub CLI SSH key upload)
+**Coverage**: 80 automated tests across 9 categories
+
+The `bootstrap_github_key_upload.bats` test suite validates automated GitHub SSH key upload using GitHub CLI:
+
+#### Test Categories
+
+1. **Function Existence** (6 tests)
+   - check_github_cli_authenticated() defined
+   - authenticate_github_cli() defined
+   - check_key_exists_on_github() defined
+   - upload_ssh_key_to_github() defined
+   - fallback_manual_key_upload() defined
+   - upload_github_key_phase() defined (orchestration)
+
+2. **Authentication Check** (10 tests)
+   - Returns 0 when gh auth status succeeds
+   - Returns 1 when gh auth status fails
+   - Redirects output to /dev/null (clean logs)
+   - Handles gh command not found
+   - Is NON-CRITICAL (no exit on failure)
+   - Logs status check
+   - Handles network timeout
+   - Handles expired token
+   - Uses correct gh command syntax
+   - Returns immediately on success
+
+3. **OAuth Authentication Flow** (12 tests)
+   - Displays OAuth flow instructions
+   - Runs gh auth login with correct flags
+   - Opens browser for OAuth
+   - Verifies authentication succeeded
+   - Exits on login failure (CRITICAL)
+   - Logs authentication start
+   - Logs authentication success
+   - Handles browser not opening
+   - Handles user cancellation
+   - Displays troubleshooting on failure
+   - Is CRITICAL (exits on failure)
+   - Uses --web flag for browser OAuth
+
+4. **Key Existence Check** (10 tests)
+   - Extracts fingerprint from local key
+   - Queries gh ssh-key list
+   - Returns 0 if fingerprint found
+   - Returns 1 if fingerprint not found
+   - Handles multiple keys on GitHub
+   - Handles network failure gracefully (NON-CRITICAL)
+   - Logs warning on check failure
+   - Handles empty key list
+   - Handles missing local key file
+   - Uses correct ssh-keygen syntax
+
+5. **Automated Upload** (12 tests)
+   - Generates key title with hostname and date
+   - Calls gh ssh-key add with correct path
+   - Returns 0 on success
+   - Handles 'key already exists' gracefully (not an error)
+   - Exits on network failure (CRITICAL)
+   - Exits on permission failure (CRITICAL)
+   - Logs upload start
+   - Logs upload success
+   - Includes date in key title (YYYYMMDD format)
+   - Includes hostname in key title
+   - Handles malformed key file
+   - Is CRITICAL (exits on non-'already exists' failures)
+
+6. **Manual Fallback** (8 tests)
+   - Copies key to clipboard (pbcopy)
+   - Displays key content
+   - Shows manual instructions with GitHub URL
+   - Includes step-by-step guide (1-5 steps)
+   - Waits for user confirmation
+   - Handles pbcopy failure gracefully
+   - Is NON-CRITICAL (returns 0 after user confirms)
+   - Mentions clipboard copy in output
+
+7. **Orchestration** (8 tests)
+   - Displays phase banner ("Phase 6 (continued)")
+   - Checks authentication first
+   - Authenticates if not authenticated
+   - Skips upload if key already exists
+   - Uploads key if not exists
+   - Falls back to manual on upload failure
+   - Displays success message
+   - Returns 0 on success
+
+8. **Error Handling** (8 tests)
+   - authenticate_github_cli is CRITICAL
+   - upload_ssh_key_to_github is CRITICAL
+   - check_github_cli_authenticated is NON-CRITICAL
+   - check_key_exists_on_github is NON-CRITICAL
+   - fallback_manual_key_upload is NON-CRITICAL
+   - Handles authentication failure
+   - Handles upload failure with fallback
+   - Provides clear error messages
+
+9. **Integration Tests** (6 tests)
+   - Full happy path: not authenticated → authenticate → upload
+   - Full happy path: already authenticated → upload
+   - Key already exists path (skip upload)
+   - Fallback path: upload fails → manual instructions
+   - Idempotent re-run (key exists)
+   - Network failure during authentication
+
+#### Automation Level
+
+**Goal**: ~90% automation (user clicks "Authorize" in browser)
+
+**Automated**:
+- GitHub CLI authentication (OAuth flow)
+- SSH key fingerprint extraction and comparison
+- Key upload via gh ssh-key add
+- Idempotency check (key already exists)
+
+**User Interaction Required**:
+- Click "Authorize" in browser during OAuth (~10 seconds)
+- Manual fallback only if automation fails
+
+**Key Title Format**: `hostname-YYYYMMDD` (e.g., "MacBook-Pro-20251111")
+
+#### Manual VM Test Scenarios
+
+### Phase 6 (Continued) GitHub SSH Key Upload Manual Tests
+
+FX should perform these manual tests in a VM to validate Phase 6 (continued) functionality:
+
+1. **Fresh OAuth Authentication + Upload Test**
+   ```bash
+   # Clean VM with no gh authentication
+   gh auth logout
+
+   # Ensure SSH key exists from Phase 6
+   ls -la ~/.ssh/id_ed25519.pub
+
+   # Run bootstrap Phase 6 (continued)
+   # Expected: "GitHub CLI not authenticated" message
+   # Expected: Browser opens automatically
+   # Expected: One-time code displayed
+   # User Action: Click "Authorize" in browser (~10 seconds)
+   # Expected: "✓ GitHub CLI authenticated successfully"
+   # Expected: "Uploading SSH key to GitHub..."
+   # Expected: Key title shows: "$(hostname)-$(date +%Y%m%d)"
+   # Expected: "✓ SSH key uploaded to GitHub successfully"
+   # Verify: gh ssh-key list (key appears)
+   # Verify: GitHub web UI (https://github.com/settings/keys)
+   ```
+
+2. **Already Authenticated + Upload Test**
+   ```bash
+   # Pre-authenticate gh CLI
+   gh auth login --hostname github.com --git-protocol ssh --web
+
+   # Remove SSH key from GitHub if exists
+   # gh ssh-key list (note key ID)
+   # gh ssh-key delete <key-id>
+
+   # Run bootstrap Phase 6 (continued)
+   # Expected: "✓ GitHub CLI already authenticated"
+   # Expected: Skip OAuth flow (no browser)
+   # Expected: "Checking if SSH key already exists on GitHub..."
+   # Expected: Key not found
+   # Expected: "Uploading SSH key to GitHub..."
+   # Expected: "✓ SSH key uploaded to GitHub successfully"
+   # Verify: gh ssh-key list (key appears)
+   ```
+
+3. **Key Already Exists - Idempotency Test**
+   ```bash
+   # Manually upload key first
+   gh ssh-key add ~/.ssh/id_ed25519.pub --title "TestKey-20251111"
+
+   # Run bootstrap Phase 6 (continued)
+   # Expected: "✓ GitHub CLI already authenticated"
+   # Expected: "Checking if SSH key already exists on GitHub..."
+   # Expected: "✓ SSH key already exists on GitHub"
+   # Expected: "Skipping upload (idempotency check passed)"
+   # Expected: Phase completes successfully
+   # Expected: No duplicate key on GitHub
+   # Verify: gh ssh-key list (only one key with matching fingerprint)
+   ```
+
+4. **OAuth Cancellation - Fallback Test**
+   ```bash
+   # Clean authentication
+   gh auth logout
+
+   # Run bootstrap Phase 6 (continued)
+   # Expected: Browser opens
+   # User Action: Close browser without authorizing (cancel OAuth)
+   # Expected: "GitHub CLI authentication failed"
+   # Expected: "Bootstrap process terminated."
+   # Expected: Exit with error
+   # Note: OAuth failure is CRITICAL (no fallback for auth)
+   ```
+
+5. **Network Failure During Upload - Fallback Test**
+   ```bash
+   # Simulate network failure after authentication
+   # (Hard to test - skip in VM or use mock)
+
+   # If upload fails:
+   # Expected: "Automated upload failed, falling back to manual process"
+   # Expected: "========================================
+   #           MANUAL SSH KEY UPLOAD REQUIRED
+   #           ========================================"
+   # Expected: Key copied to clipboard (pbcopy)
+   # Expected: Public key displayed
+   # Expected: Manual instructions with 5 steps:
+   #   1. Go to: https://github.com/settings/keys
+   #   2. Click 'New SSH key'
+   #   3. Paste key from clipboard
+   #   4. Give it a title
+   #   5. Click 'Add SSH key'
+   # Expected: "Press ENTER when you've added the key..."
+   # User Action: Add key manually, press ENTER
+   # Expected: "✓ Manual key upload completed"
+   # Expected: Phase completes successfully
+   ```
+
+6. **Key Title Format Validation Test**
+   ```bash
+   # Run Phase 6 (continued) successfully
+
+   # Verify key title format
+   gh ssh-key list
+   # Expected: Title matches pattern: "hostname-YYYYMMDD"
+   # Example: "MacBook-Pro-20251111"
+   # Hostname: Output of $(hostname)
+   # Date: Current date in YYYYMMDD format
+   ```
+
+7. **Re-run After Success - Idempotency Test**
+   ```bash
+   # First run - upload succeeds
+   ./bootstrap.sh  # (run through Phase 6 continued)
+
+   # Note key fingerprint
+   ssh-keygen -l -f ~/.ssh/id_ed25519.pub
+
+   # Second run - should detect existing key
+   ./bootstrap.sh  # (run through Phase 6 continued again)
+
+   # Expected: "✓ SSH key already exists on GitHub"
+   # Expected: Skip upload
+   # Expected: No duplicate keys
+   # Expected: Phase duration shorter (no upload)
+   # Verify: gh ssh-key list (still only one key)
+   ```
+
+---
+
 ## Test Summary
 
-**Total Automated Tests: 645 tests** (545 + 100 Phase 6 tests)
+**Total Automated Tests: 725 tests** (645 + 80 Phase 6 continued tests)
 
 **Test Distribution:**
 - Phase 1 (Pre-flight): 65 tests (bootstrap_preflight.bats)
@@ -1570,8 +1825,9 @@ FX should perform these manual tests in a VM to validate Phase 6 functionality:
 - Phase 5 (Nix-Darwin Installation): 86 tests (bootstrap_nix_darwin.bats)
 - Phase 5 (Continued - Validation): 60 tests (bootstrap_darwin_validation.bats)
 - Phase 6 (SSH Key Generation): 100 tests (bootstrap_ssh_key.bats)
+- Phase 6 (Continued - GitHub Key Upload): 80 tests (bootstrap_github_key_upload.bats)
 
-**Manual VM Test Scenarios: 61 scenarios**
+**Manual VM Test Scenarios: 68 scenarios**
 - Phase 1: 5 scenarios
 - Phase 2 (User Info): 6 scenarios
 - Phase 2 (Profile Selection): 6 scenarios
@@ -1582,6 +1838,7 @@ FX should perform these manual tests in a VM to validate Phase 6 functionality:
 - Phase 5 (Nix-Darwin): 7 scenarios
 - Phase 5 (Continued - Validation): 7 scenarios
 - Phase 6 (SSH Key Generation): 8 scenarios
+- Phase 6 (Continued - GitHub Key Upload): 7 scenarios
 
 ## Testing Unmerged Branches in VM
 

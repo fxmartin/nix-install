@@ -2809,6 +2809,284 @@ setup_ssh_key_phase() {
     return 0
 }
 
+# =============================================================================
+# PHASE 6 (CONTINUED): GITHUB SSH KEY UPLOAD VIA GITHUB CLI
+# Story 01.6-002: Automated GitHub SSH key upload using gh CLI
+# =============================================================================
+
+# Function: check_github_cli_authenticated
+# Purpose: Check if GitHub CLI is authenticated (NON-CRITICAL)
+# Returns: 0 if authenticated, 1 if not authenticated or check fails
+# Note: Does not exit on failure - authentication will happen next
+check_github_cli_authenticated() {
+    # Silently check authentication status
+    # Output is redirected to /dev/null to keep logs clean
+    if gh auth status >/dev/null 2>&1; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Function: authenticate_github_cli
+# Purpose: Authenticate GitHub CLI via OAuth web flow (CRITICAL)
+# OAuth Flow: Opens browser, user clicks "Authorize" (~10 seconds)
+# Returns: 0 on success, exits script on failure
+authenticate_github_cli() {
+    echo ""
+    log_info "========================================"
+    log_info "GITHUB CLI AUTHENTICATION"
+    log_info "========================================"
+    echo ""
+
+    log_info "Starting GitHub CLI OAuth authentication..."
+    log_info ""
+    log_info "What happens next:"
+    log_info "1. Your browser will open automatically"
+    log_info "2. You'll see a one-time code to copy"
+    log_info "3. Click 'Authorize' to grant access"
+    log_info "4. This takes about 10 seconds"
+    echo ""
+
+    # Run gh auth login with web OAuth flow
+    # --hostname github.com: Authenticate to GitHub (not enterprise)
+    # --git-protocol ssh: Use SSH for git operations (not HTTPS)
+    # --web: Use browser-based OAuth flow (auto-opens browser)
+    if ! gh auth login --hostname github.com --git-protocol ssh --web; then
+        log_error "GitHub CLI authentication failed"
+        log_error ""
+        log_error "Troubleshooting:"
+        log_error "1. Check internet connection"
+        log_error "2. Ensure browser opened correctly"
+        log_error "3. Try manual auth: gh auth login"
+        log_error "4. Check gh version: gh --version"
+        echo ""
+        return 1
+    fi
+
+    log_success "✓ GitHub CLI authenticated successfully"
+    echo ""
+
+    return 0
+}
+
+# Function: check_key_exists_on_github
+# Purpose: Check if local SSH key already exists on GitHub (NON-CRITICAL)
+# Method: Extracts fingerprint from local key, compares to keys on GitHub
+# Returns: 0 if key exists, 1 if not found or check fails
+# Note: Logs warning on failure but doesn't exit (network issues, etc.)
+check_key_exists_on_github() {
+    local ssh_pub_key_path="${HOME}/.ssh/id_ed25519.pub"
+
+    # Extract fingerprint from local public key
+    # Format: "256 SHA256:abcd1234... user@host (ED25519)"
+    # We need the SHA256:... part
+    local local_fingerprint
+    if ! local_fingerprint=$(ssh-keygen -l -f "${ssh_pub_key_path}" 2>/dev/null | awk '{print $2}'); then
+        log_warn "Could not extract SSH key fingerprint (non-critical)"
+        return 1
+    fi
+
+    # Query GitHub for existing SSH keys
+    # gh ssh-key list returns format: "SHA256:... Title (Date)"
+    local github_keys
+    if ! github_keys=$(gh ssh-key list 2>/dev/null); then
+        log_warn "Could not query GitHub SSH keys (network issue?)"
+        return 1
+    fi
+
+    # Check if local fingerprint exists in GitHub keys
+    if echo "${github_keys}" | grep -q "${local_fingerprint}"; then
+        log_info "SSH key already exists on GitHub (fingerprint: ${local_fingerprint})"
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Function: upload_ssh_key_to_github
+# Purpose: Upload SSH public key to GitHub via gh CLI (CRITICAL)
+# Key Title Format: hostname-YYYYMMDD (e.g., "MacBook-Pro-20251111")
+# Returns: 0 on success OR if key already exists, exits on other failures
+# Note: "Key already exists" is NOT an error (idempotency)
+upload_ssh_key_to_github() {
+    local ssh_pub_key_path="${HOME}/.ssh/id_ed25519.pub"
+
+    # Generate key title: hostname-YYYYMMDD
+    local key_title
+    key_title="$(hostname)-$(date +%Y%m%d)"
+
+    log_info "Uploading SSH key to GitHub..."
+    log_info "Key title: ${key_title}"
+    echo ""
+
+    # Upload key to GitHub
+    # gh ssh-key add uploads the public key with a title
+    local upload_output
+    local upload_exit_code
+
+    upload_output=$(gh ssh-key add "${ssh_pub_key_path}" --title "${key_title}" 2>&1)
+    upload_exit_code=$?
+
+    if [[ ${upload_exit_code} -eq 0 ]]; then
+        log_success "✓ SSH key uploaded to GitHub successfully"
+        echo ""
+        return 0
+    elif [[ "${upload_output}" =~ "already exists" ]] || [[ "${upload_output}" =~ "key is already" ]]; then
+        # Key already exists - this is NOT an error (idempotency)
+        log_info "SSH key already exists on GitHub (idempotent check passed)"
+        echo ""
+        return 0
+    else
+        # Other failure (network, permissions, malformed key, etc.)
+        log_error "Failed to upload SSH key to GitHub"
+        log_error "Error: ${upload_output}"
+        echo ""
+        return 1
+    fi
+}
+
+# Function: fallback_manual_key_upload
+# Purpose: Provide manual upload instructions if automation fails (NON-CRITICAL)
+# Process: Copy key to clipboard, display key, show instructions, wait for user
+# Returns: 0 always (user confirms completion)
+fallback_manual_key_upload() {
+    local ssh_pub_key_path="${HOME}/.ssh/id_ed25519.pub"
+
+    echo ""
+    log_warn "========================================"
+    log_warn "MANUAL SSH KEY UPLOAD REQUIRED"
+    log_warn "========================================"
+    echo ""
+
+    log_info "Automated upload failed. Please add the key manually."
+    echo ""
+
+    # Try to copy to clipboard (pbcopy on macOS)
+    if command -v pbcopy >/dev/null 2>&1; then
+        if cat "${ssh_pub_key_path}" | pbcopy 2>/dev/null; then
+            log_success "✓ SSH key copied to clipboard!"
+        else
+            log_warn "Could not copy to clipboard (pbcopy failed)"
+        fi
+    else
+        log_warn "pbcopy not available (clipboard copy skipped)"
+    fi
+
+    echo ""
+    log_info "Your SSH Public Key:"
+    log_info "--------------------"
+    cat "${ssh_pub_key_path}"
+    echo ""
+    log_info "--------------------"
+    echo ""
+
+    log_info "MANUAL UPLOAD STEPS:"
+    log_info "1. Go to: https://github.com/settings/keys"
+    log_info "2. Click 'New SSH key'"
+    log_info "3. Paste the key above (already copied to clipboard!)"
+    log_info "4. Give it a title (e.g., MacBook-Pro-$(date +%Y%m%d))"
+    log_info "5. Click 'Add SSH key'"
+    echo ""
+
+    # Wait for user confirmation
+    read -p "Press ENTER when you've added the key to GitHub..."
+
+    echo ""
+    log_success "✓ Manual key upload completed"
+    echo ""
+
+    return 0
+}
+
+# Function: upload_github_key_phase
+# Purpose: Orchestrate GitHub SSH key upload workflow (Phase 6 continued)
+# Workflow: Check auth → Authenticate → Check exists → Upload → Fallback
+# Returns: 0 on success, 1 if CRITICAL step fails
+upload_github_key_phase() {
+    local phase_start_time
+    phase_start_time=$(date +%s)
+
+    echo ""
+    log_info "========================================"
+    log_info "PHASE 6 (CONTINUED): GITHUB SSH KEY UPLOAD"
+    log_info "Story 01.6-002: Automated GitHub CLI upload"
+    log_info "========================================"
+    echo ""
+
+    # Step 1: Check if GitHub CLI is already authenticated (NON-CRITICAL)
+    log_info "Step 1/4: Checking GitHub CLI authentication..."
+    if check_github_cli_authenticated; then
+        log_success "✓ GitHub CLI already authenticated"
+        echo ""
+    else
+        log_info "GitHub CLI not authenticated, starting OAuth flow..."
+        echo ""
+
+        # Step 1b: Authenticate via OAuth (CRITICAL)
+        if ! authenticate_github_cli; then
+            log_error "GitHub CLI authentication failed (CRITICAL)"
+            return 1
+        fi
+    fi
+
+    # Step 2: Check if key already exists on GitHub (NON-CRITICAL)
+    log_info "Step 2/4: Checking if SSH key already exists on GitHub..."
+    if check_key_exists_on_github; then
+        log_success "✓ SSH key already exists on GitHub"
+        log_info "Skipping upload (idempotency check passed)"
+        echo ""
+
+        # Calculate phase duration
+        local phase_end_time
+        phase_end_time=$(date +%s)
+        local phase_duration=$((phase_end_time - phase_start_time))
+
+        log_success "✓ GitHub SSH key verification complete"
+        log_info "Phase 6 (continued) completed successfully in ${phase_duration} seconds"
+        echo ""
+
+        return 0
+    fi
+
+    # Step 3: Upload SSH key to GitHub (CRITICAL)
+    log_info "Step 3/4: Uploading SSH key to GitHub..."
+    echo ""
+
+    if upload_ssh_key_to_github; then
+        log_success "✓ SSH key uploaded to GitHub successfully"
+        echo ""
+
+        # Calculate phase duration
+        local phase_end_time
+        phase_end_time=$(date +%s)
+        local phase_duration=$((phase_end_time - phase_start_time))
+
+        log_success "✓ GitHub SSH key upload complete"
+        log_info "Phase 6 (continued) completed successfully in ${phase_duration} seconds"
+        echo ""
+
+        return 0
+    else
+        # Step 4: Fallback to manual upload if automation failed
+        log_warn "Automated upload failed, falling back to manual process"
+        echo ""
+
+        fallback_manual_key_upload
+
+        # Calculate phase duration
+        local phase_end_time
+        phase_end_time=$(date +%s)
+        local phase_duration=$((phase_end_time - phase_start_time))
+
+        log_success "✓ GitHub SSH key upload complete (manual)"
+        log_info "Phase 6 (continued) completed successfully in ${phase_duration} seconds"
+        echo ""
+
+        return 0
+    fi
+}
+
 # Main execution flow
 main() {
     echo ""
@@ -2947,6 +3225,20 @@ main() {
     # shellcheck disable=SC2310  # Intentional: Using ! to handle SSH key setup failure
     if ! setup_ssh_key_phase; then
         log_error "SSH key setup failed"
+        log_error "Bootstrap process terminated."
+        exit 1
+    fi
+
+    # ==========================================================================
+    # PHASE 6 (CONTINUED): GITHUB SSH KEY UPLOAD
+    # ==========================================================================
+    # Story 01.6-002: Automated GitHub CLI SSH key upload
+    # Uploads generated SSH key to GitHub for repository cloning
+    # ==========================================================================
+
+    # shellcheck disable=SC2310  # Intentional: Using ! to handle GitHub key upload failure
+    if ! upload_github_key_phase; then
+        log_error "GitHub SSH key upload failed"
         log_error "Bootstrap process terminated."
         exit 1
     fi

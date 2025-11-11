@@ -150,6 +150,12 @@ Before running the bootstrap script, ensure your system meets these prerequisite
 - **Disk Space**:
   - Standard Profile: ~35GB free
   - Power Profile: ~120GB free
+- **⚠️ Mac App Store Sign-In**: **REQUIRED BEFORE RUNNING BOOTSTRAP**
+  - Open **App Store** app and sign in with your Apple ID
+  - Some apps (e.g., Perplexity) are installed via Mac App Store CLI (`mas`)
+  - `mas` cannot install apps without App Store authentication
+  - Verify sign-in: `mas account` (should show your Apple ID email)
+  - If not signed in, darwin-rebuild will fail during app installation
 
 #### Pre-flight Validation
 The bootstrap script automatically validates:

@@ -162,12 +162,29 @@
               if ! /opt/homebrew/bin/ollama list 2>/dev/null | grep -q "gpt-oss:20b"; then
                 echo "Pulling Ollama model: gpt-oss:20b (~12GB, this may take several minutes)..."
 
+                # Check if Ollama daemon is running, start if needed
+                DAEMON_STARTED=0
+                if ! pgrep -q ollama; then
+                  echo "Starting Ollama daemon..."
+                  /opt/homebrew/bin/ollama serve > /dev/null 2>&1 &
+                  DAEMON_STARTED=1
+
+                  # Wait for daemon to be ready (up to 10 seconds)
+                  for i in {1..10}; do
+                    if /opt/homebrew/bin/ollama list > /dev/null 2>&1; then
+                      echo "✓ Ollama daemon ready"
+                      break
+                    fi
+                    sleep 1
+                  done
+                fi
+
                 # Pull model (requires network and running daemon)
                 if /opt/homebrew/bin/ollama pull gpt-oss:20b 2>&1; then
                   echo "✓ Successfully pulled Ollama model: gpt-oss:20b"
                 else
                   echo "⚠️  Warning: Failed to pull Ollama model gpt-oss:20b"
-                  echo "   This may be due to network issues or Ollama daemon not running."
+                  echo "   This may be due to network issues or Ollama daemon not starting."
                   echo "   You can manually pull the model later with: ollama pull gpt-oss:20b"
                 fi
               else
@@ -201,6 +218,23 @@
             if [ -x /opt/homebrew/bin/ollama ]; then
               echo "Checking Ollama models for Power profile..."
 
+              # Check if Ollama daemon is running, start if needed
+              DAEMON_STARTED=0
+              if ! pgrep -q ollama; then
+                echo "Starting Ollama daemon..."
+                /opt/homebrew/bin/ollama serve > /dev/null 2>&1 &
+                DAEMON_STARTED=1
+
+                # Wait for daemon to be ready (up to 10 seconds)
+                for i in {1..10}; do
+                  if /opt/homebrew/bin/ollama list > /dev/null 2>&1; then
+                    echo "✓ Ollama daemon ready"
+                    break
+                  fi
+                  sleep 1
+                done
+              fi
+
               # Define models to pull (4 models, ~90GB total)
               MODELS=(
                 "gpt-oss:20b"          # ~12GB - General purpose LLM
@@ -220,7 +254,7 @@
                     echo "✓ Successfully pulled Ollama model: $model"
                   else
                     echo "⚠️  Warning: Failed to pull Ollama model $model"
-                    echo "   This may be due to network issues or Ollama daemon not running."
+                    echo "   This may be due to network issues or Ollama daemon not starting."
                     echo "   You can manually pull the model later with: ollama pull $model"
                   fi
                 else

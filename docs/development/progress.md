@@ -6,7 +6,7 @@
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟡 In Progress |
-| **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-02** | Application Installation | 22 | 113 | 0 (4 in progress) | 0 | 0% | 0% | 🟡 In Progress |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -52,6 +52,15 @@
 
 ### Recent Activity
 
+- **2025-11-11**: 🎉 **COMPLETED Feature 02.1** (AI & LLM Tools) - All 4 stories CODE COMPLETE!
+  - Created feature branch: feature/02.1-001-ai-chat-apps
+  - **Story 02.1-001**: Added AI chat apps (Claude, ChatGPT, Perplexity) - 3 points ✅
+  - **Story 02.1-002**: Added Ollama Desktop App (changed from CLI to Desktop) - 5 points ✅
+  - **Story 02.1-003**: Added Standard profile Ollama model auto-pull (gpt-oss:20b) - 5 points ✅
+  - **Story 02.1-004**: Added Power profile Ollama models auto-pull (4 models, ~90GB) - 8 points ✅
+  - Created docs/app-post-install-configuration.md for post-install steps
+  - **Status**: FEATURE 02.1 COMPLETE (21 points) - Ready for VM testing by FX
+  - Epic-02 now **0% complete** (0/22 stories, 0/113 points) but Feature 02.1 done (4 stories, 21 points)
 - **2025-11-11**: 🔧 **HOTFIXES #10-#13**: Custom clone location & darwin-rebuild issues - **ALL VM TESTED & VERIFIED** ✅
   - **Hotfix #10 (Issue #16)**: Directory ownership/permission fixes for custom paths (PR #17)
     - Added ownership checks for ~/.config when using custom NIX_INSTALL_DIR

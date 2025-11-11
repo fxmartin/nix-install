@@ -244,7 +244,7 @@ Power Profile Summary:
 
 **Expected Results**:
 - ✅ Nix version displayed and accurate (run `nix --version`)
-- ✅ nix-darwin confirmed (run `darwin-rebuild --version`)
+- ✅ nix-darwin confirmed (run `sudo darwin-rebuild --version`)
 - ✅ Home Manager confirmed (run `home-manager --version`)
 - ✅ Profile name matches user selection
 - ✅ App count reasonable (47-51 range)
@@ -254,8 +254,8 @@ Power Profile Summary:
 # Verify Nix
 nix --version
 
-# Verify nix-darwin
-darwin-rebuild --version
+# Verify nix-darwin (requires sudo)
+sudo darwin-rebuild --version
 
 # Verify Home Manager (if available)
 home-manager --version || echo "Home Manager not in PATH yet"

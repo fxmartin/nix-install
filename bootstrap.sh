@@ -4130,12 +4130,10 @@ display_next_steps() {
     echo ""
     echo "  2. Activate licensed applications (see list below)"
     echo ""
-    echo "  3. Install Office 365 manually (not available via Nix/Homebrew)"
-    echo ""
 
     # Ollama verification step only for Power profile
     if [[ "${INSTALL_PROFILE:-standard}" == "power" ]]; then
-        echo "  4. Verify Ollama models (Power profile):"
+        echo "  3. Verify Ollama models (Power profile):"
         echo "     ollama list"
         echo "     Expected: gpt-oss:20b, qwen2.5-coder:32b, llama3.1:70b, deepseek-r1:32b"
         echo ""
@@ -4169,12 +4167,12 @@ display_useful_commands() {
 display_manual_activation_apps() {
     echo "Apps Requiring Manual Activation:"
     echo ""
-    echo "  • 1Password"
-    echo "  • Office 365 (manual installation required)"
+    echo "  • 1Password (license key required)"
+    echo "  • Microsoft Office (Office 365 subscription required)"
 
     # Parallels Desktop only for Power profile
     if [[ "${INSTALL_PROFILE:-standard}" == "power" ]]; then
-        echo "  • Parallels Desktop"
+        echo "  • Parallels Desktop (license key required)"
     fi
 
     echo ""

@@ -3888,11 +3888,27 @@ run_final_darwin_rebuild() {
 
     rebuild_start_time=$(date +%s)
 
-    # Execute darwin-rebuild switch with sudo
-    log_info "Executing: sudo darwin-rebuild switch --flake ${flake_ref}"
+    # Find full path to darwin-rebuild (Hotfix #13 - Issue #22)
+    # When running with sudo, the root user doesn't have the same PATH as the regular user
+    # Nix tools are in user's PATH via shell profile, but not in root's PATH
+    # Solution: Find full path first, then use it with sudo
+    local darwin_rebuild_path
+    darwin_rebuild_path=$(command -v darwin-rebuild)
+
+    if [[ -z "${darwin_rebuild_path}" ]]; then
+        log_error "Cannot find darwin-rebuild command in PATH"
+        log_error "Expected location: /nix/var/nix/profiles/default/bin/darwin-rebuild"
+        log_error "Check that Nix is properly installed and sourced"
+        return 1
+    fi
+
+    log_info "Found darwin-rebuild: ${darwin_rebuild_path}"
+
+    # Execute darwin-rebuild switch with sudo using full path
+    log_info "Executing: sudo ${darwin_rebuild_path} switch --flake ${flake_ref}"
     echo ""
 
-    if sudo darwin-rebuild switch --flake "${flake_ref}"; then
+    if sudo "${darwin_rebuild_path}" switch --flake "${flake_ref}"; then
         rebuild_end_time=$(date +%s)
         rebuild_duration=$((rebuild_end_time - rebuild_start_time))
 

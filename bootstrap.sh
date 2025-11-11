@@ -3034,6 +3034,30 @@ upload_github_key_phase() {
     log_info "========================================"
     echo ""
 
+    # CRITICAL: Check if GitHub CLI (gh) is available
+    # gh is installed via nix-darwin/Home Manager (Phase 5)
+    # If Phase 6 runs before Phase 5 (e.g., during bootstrap development),
+    # gh won't be available yet - fall back to manual upload
+    if ! command -v gh >/dev/null 2>&1; then
+        log_warn "GitHub CLI (gh) not found in PATH"
+        log_info "This is expected if nix-darwin hasn't been built yet (Phase 5)"
+        log_info "Falling back to manual SSH key upload process..."
+        echo ""
+
+        fallback_manual_key_upload
+
+        # Calculate phase duration
+        local phase_end_time
+        phase_end_time=$(date +%s)
+        local phase_duration=$((phase_end_time - phase_start_time))
+
+        log_success "✓ GitHub SSH key upload complete (manual)"
+        log_info "Phase 6 (continued) completed successfully in ${phase_duration} seconds"
+        echo ""
+
+        return 0
+    fi
+
     # Step 1: Check if GitHub CLI is already authenticated (NON-CRITICAL)
     log_info "Step 1/4: Checking GitHub CLI authentication..."
     if check_github_cli_authenticated; then

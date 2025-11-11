@@ -3729,6 +3729,262 @@ clone_repository_phase() {
     return 0
 }
 
+# ==============================================================================
+# PHASE 8: FINAL DARWIN REBUILD
+# ==============================================================================
+# Story 01.7-002: Perform final darwin-rebuild with cloned repository
+# Applies complete system configuration from ~/Documents/nix-install
+# ==============================================================================
+
+# Function: load_profile_from_user_config
+# Purpose: Extract INSTALL_PROFILE from user-config.nix (CRITICAL)
+# Returns: 0 on success, 1 on failure
+# Sets: INSTALL_PROFILE global variable
+load_profile_from_user_config() {
+    local user_config_path="${BOOTSTRAP_TEMP_DIR}/user-config.nix"
+
+    log_info "Loading installation profile from user-config.nix..."
+
+    # Verify user-config.nix exists
+    if [[ ! -f "${user_config_path}" ]]; then
+        log_error "user-config.nix not found at: ${user_config_path}"
+        log_error "This should have been created in Phase 2"
+        return 1
+    fi
+
+    # Extract INSTALL_PROFILE value from user-config.nix
+    # Pattern: INSTALL_PROFILE = "standard"; or INSTALL_PROFILE = "power";
+    local profile_value
+    profile_value=$(grep -E '^\s*INSTALL_PROFILE\s*=\s*"(standard|power)";' "${user_config_path}" | sed -E 's/.*"([^"]+)".*/\1/')
+
+    if [[ -z "${profile_value}" ]]; then
+        log_error "Could not extract INSTALL_PROFILE from user-config.nix"
+        log_error "File may be corrupted or invalid"
+        return 1
+    fi
+
+    # Validate profile value
+    if [[ "${profile_value}" != "standard" ]] && [[ "${profile_value}" != "power" ]]; then
+        log_error "Invalid profile value in user-config.nix: ${profile_value}"
+        log_error "Expected 'standard' or 'power'"
+        return 1
+    fi
+
+    # Set global variable
+    export INSTALL_PROFILE="${profile_value}"
+
+    log_success "✓ Profile loaded: ${INSTALL_PROFILE}"
+    return 0
+}
+
+# Function: run_final_darwin_rebuild
+# Purpose: Execute darwin-rebuild switch with cloned repository flake (CRITICAL)
+# Returns: 0 on success, 1 on failure
+# Arguments: None (uses $INSTALL_PROFILE and $REPO_CLONE_DIR)
+run_final_darwin_rebuild() {
+    local flake_ref="${REPO_CLONE_DIR}#${INSTALL_PROFILE}"
+    local rebuild_start_time rebuild_end_time rebuild_duration
+
+    echo ""
+    log_info "========================================"
+    log_info "RUNNING FINAL DARWIN-REBUILD"
+    log_info "========================================"
+    log_info "Profile: ${INSTALL_PROFILE}"
+    log_info "Flake reference: ${flake_ref}"
+    log_info "Repository: ${REPO_CLONE_DIR}"
+    echo ""
+
+    log_info "This will apply your complete system configuration..."
+    log_info "Expected duration: 2-5 minutes (packages cached from initial build)"
+    echo ""
+
+    rebuild_start_time=$(date +%s)
+
+    # Execute darwin-rebuild switch
+    log_info "Executing: darwin-rebuild switch --flake ${flake_ref}"
+    echo ""
+
+    if darwin-rebuild switch --flake "${flake_ref}"; then
+        rebuild_end_time=$(date +%s)
+        rebuild_duration=$((rebuild_end_time - rebuild_start_time))
+
+        echo ""
+        log_success "✓ Darwin-rebuild completed successfully"
+        log_info "Build time: ${rebuild_duration} seconds"
+        return 0
+    else
+        rebuild_end_time=$(date +%s)
+        rebuild_duration=$((rebuild_end_time - rebuild_start_time))
+
+        echo ""
+        log_error "Darwin-rebuild failed after ${rebuild_duration} seconds"
+        log_error "Check the error messages above for details"
+        return 1
+    fi
+}
+
+# Function: verify_home_manager_symlinks
+# Purpose: Validate Home Manager created symlinks in home directory (NON-CRITICAL)
+# Returns: 0 always (warnings only, not fatal)
+verify_home_manager_symlinks() {
+    log_info "Verifying Home Manager symlinks..."
+
+    local symlinks_found=0
+    local symlink_checks=(
+        "${HOME}/.config/ghostty:Ghostty terminal config"
+        "${HOME}/.zshrc:Zsh shell config"
+        "${HOME}/.gitconfig:Git configuration"
+        "${HOME}/.config/starship.toml:Starship prompt config"
+    )
+
+    echo ""
+    for check in "${symlink_checks[@]}"; do
+        local path="${check%%:*}"
+        local description="${check##*:}"
+
+        if [[ -L "${path}" ]] || [[ -f "${path}" ]]; then
+            log_success "  ✓ ${description}: ${path}"
+            ((symlinks_found++))
+        else
+            log_warn "  ⚠ ${description} not found: ${path}"
+        fi
+    done
+    echo ""
+
+    if [[ ${symlinks_found} -eq 0 ]]; then
+        log_warn "No Home Manager symlinks detected"
+        log_warn "This may be normal if home-manager modules aren't configured yet"
+        log_warn "Check ~/Documents/nix-install/home-manager/ for configuration"
+    else
+        log_success "✓ Found ${symlinks_found} Home Manager symlinks"
+    fi
+
+    return 0
+}
+
+# Function: display_rebuild_success_message
+# Purpose: Display formatted success message for Phase 8 (NON-CRITICAL)
+# Returns: 0 always
+display_rebuild_success_message() {
+    local rebuild_duration="${1:-0}"
+    local rebuild_minutes=$((rebuild_duration / 60))
+    local rebuild_seconds=$((rebuild_duration % 60))
+
+    echo ""
+    echo "════════════════════════════════════════════════════════════════════"
+    log_success "🎉 BOOTSTRAP COMPLETE! YOUR SYSTEM IS CONFIGURED!"
+    echo "════════════════════════════════════════════════════════════════════"
+    echo ""
+    log_info "Profile Applied: ${INSTALL_PROFILE}"
+    log_info "Configuration: ${REPO_CLONE_DIR}"
+    log_info "Build Time: ${rebuild_minutes}m ${rebuild_seconds}s"
+    echo ""
+    echo "════════════════════════════════════════════════════════════════════"
+    log_info "NEXT STEPS"
+    echo "════════════════════════════════════════════════════════════════════"
+    echo ""
+    log_info "1. Restart your terminal or run: source ~/.zshrc"
+    echo ""
+    log_info "2. Activate licensed applications:"
+    log_info "   • Office 365: Sign in with your Microsoft account"
+    log_info "   • 1Password: Sign in and set up browser extensions"
+    log_info "   • Dropbox: Sign in and configure selective sync"
+    echo ""
+
+    if [[ "${INSTALL_PROFILE}" == "power" ]]; then
+        log_info "3. Verify Ollama models (Power profile):"
+        log_info "   ollama list"
+        log_info "   Expected: gpt-oss:20b, qwen2.5-coder:32b, llama3.1:70b, deepseek-r1:32b"
+        echo ""
+        log_info "4. Configure Parallels Desktop (Power profile):"
+        log_info "   • Launch Parallels Desktop"
+        log_info "   • Activate your license"
+        log_info "   • Set up development VMs as needed"
+        echo ""
+    fi
+
+    echo "════════════════════════════════════════════════════════════════════"
+    log_info "USEFUL COMMANDS"
+    echo "════════════════════════════════════════════════════════════════════"
+    echo ""
+    log_info "rebuild      Apply configuration changes from ${REPO_CLONE_DIR}"
+    log_info "update       Update packages and rebuild system"
+    log_info "health-check Verify system health and configuration"
+    log_info "cleanup      Run garbage collection and free disk space"
+    echo ""
+    echo "════════════════════════════════════════════════════════════════════"
+    log_info "DOCUMENTATION"
+    echo "════════════════════════════════════════════════════════════════════"
+    echo ""
+    log_info "Quick Start:  ${REPO_CLONE_DIR}/README.md"
+    log_info "Customization: ${REPO_CLONE_DIR}/docs/customization.md"
+    log_info "Troubleshooting: ${REPO_CLONE_DIR}/docs/troubleshooting.md"
+    echo ""
+    echo "════════════════════════════════════════════════════════════════════"
+    log_success "✨ Enjoy your declaratively configured MacBook!"
+    echo "════════════════════════════════════════════════════════════════════"
+    echo ""
+
+    return 0
+}
+
+# Function: final_darwin_rebuild_phase
+# Purpose: Orchestrate final darwin-rebuild phase (Phase 8)
+# Workflow: Load profile → Run rebuild → Verify symlinks → Success message
+# Returns: 0 on success, 1 on failure
+final_darwin_rebuild_phase() {
+    local phase_start_time
+    phase_start_time=$(date +%s)
+
+    echo ""
+    log_info "========================================"
+    log_info "PHASE 8: FINAL DARWIN REBUILD"
+    log_info "Story 01.7-002: Apply complete system configuration"
+    log_info "========================================"
+    echo ""
+
+    # Step 1: Load profile from user-config.nix (CRITICAL)
+    log_info "📋 Step 1: Loading installation profile..."
+    if ! load_profile_from_user_config; then
+        log_error "Failed to load profile from user-config.nix"
+        return 1
+    fi
+    echo ""
+
+    # Step 2: Run darwin-rebuild switch (CRITICAL)
+    log_info "🔧 Step 2: Running darwin-rebuild switch..."
+    log_info "This will apply your complete system configuration from:"
+    log_info "  ${REPO_CLONE_DIR}"
+    echo ""
+
+    if ! run_final_darwin_rebuild; then
+        log_error "Darwin-rebuild failed"
+        log_error "Your system may be in a partially configured state"
+        log_error "Try running: darwin-rebuild switch --flake ${REPO_CLONE_DIR}#${INSTALL_PROFILE}"
+        return 1
+    fi
+    echo ""
+
+    # Step 3: Verify Home Manager symlinks (NON-CRITICAL)
+    log_info "🔍 Step 3: Verifying Home Manager symlinks..."
+    verify_home_manager_symlinks
+    echo ""
+
+    # Calculate phase duration
+    local phase_end_time phase_duration
+    phase_end_time=$(date +%s)
+    phase_duration=$((phase_end_time - phase_start_time))
+
+    # Display success message
+    display_rebuild_success_message "${phase_duration}"
+
+    log_success "✓ Final darwin-rebuild phase complete"
+    log_info "Phase 8 completed in ${phase_duration} seconds"
+    echo ""
+
+    return 0
+}
+
 # Main execution flow
 main() {
     echo ""
@@ -3941,10 +4197,25 @@ main() {
     fi
 
     # ==========================================================================
-    # FUTURE PHASES (8-10)
+    # PHASE 8: FINAL DARWIN REBUILD
+    # ==========================================================================
+    # Story 01.7-002: Apply complete system configuration from cloned repository
+    # Runs darwin-rebuild switch with flake from ~/Documents/nix-install
+    # ==========================================================================
+
+    # shellcheck disable=SC2310  # Intentional: Using ! to handle rebuild failure
+    if ! final_darwin_rebuild_phase; then
+        log_error "Final darwin-rebuild failed"
+        log_error "Bootstrap process terminated."
+        log_error "You can retry manually: darwin-rebuild switch --flake ~/Documents/nix-install#<profile>"
+        exit 1
+    fi
+
+    # ==========================================================================
+    # FUTURE PHASES (9-10)
     # ==========================================================================
     # Future phases will be added here in subsequent stories
-    log_warn "Bootstrap implementation incomplete - Phases 8-10 not yet implemented"
+    log_warn "Bootstrap implementation incomplete - Phases 9-10 not yet implemented"
     log_warn "Remaining phases will be added in future stories"
 
     exit 0

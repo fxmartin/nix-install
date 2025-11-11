@@ -93,12 +93,19 @@ FX's role: ALL testing, execution, and validation.
 
 **Currently Implemented**:
 - `docs/REQUIREMENTS.md`: Comprehensive PRD (1600+ lines) - **THE SOURCE OF TRUTH** for requirements
-- `DEVELOPMENT.md`: Implementation log and progress tracking - **CHECK THIS FIRST** for:
-  - Story completion status and implementation details
-  - Current progress (stories completed, points tracked)
-  - Multi-agent workflow documentation
-  - Testing results and code quality metrics
-  - Next story to implement
+- `docs/development/README.md`: Development documentation master index - **CHECK THIS FIRST** for:
+  - Navigation to progress tracking, story details, workflows
+  - Current status: Epic-01 73.7% complete (77.9% by points), next story: 01.7-001
+  - Quick reference for completed stories and testing metrics
+- `docs/development/progress.md`: Epic overview table, completed stories, recent activity
+- `docs/development/stories/epic-01-feature-*.md`: Detailed Epic-01 story implementations (split by feature)
+  - `epic-01-feature-01.1-01.2.md`: Pre-flight & User Config
+  - `epic-01-feature-01.4.md`: Nix Installation
+  - `epic-01-feature-01.5.md`: Nix-Darwin Installation
+  - `epic-01-feature-01.6.md`: SSH Setup & GitHub Integration
+- `docs/development/multi-agent-workflow.md`: Agent selection strategy and usage patterns
+- `docs/development/tools-and-testing.md`: Development environment setup and testing
+- `docs/development/hotfixes.md`: Production hotfix documentation
 - `README.md`: Quick start guide
 - `config/config.ghostty`: Ghostty terminal configuration (Catppuccin theme)
 - `setup.sh`: Legacy setup script (will be replaced by new bootstrap)
@@ -509,14 +516,19 @@ The script is idempotent - safe to run multiple times. It uses `|| true` to igno
 ## Reference Documentation
 
 - **Primary**: `docs/REQUIREMENTS.md` (comprehensive PRD)
-- **Progress**: `DEVELOPMENT.md` (implementation log, story progress, multi-agent workflow)
+- **Progress**: `docs/development/README.md` (master index for all development docs)
+  - `docs/development/progress.md` (epic overview, story completion, recent activity)
+  - `docs/development/stories/epic-01-bootstrap.md` (detailed Epic-01 implementations)
+  - `docs/development/multi-agent-workflow.md` (agent selection and patterns)
+  - `docs/development/tools-and-testing.md` (development environment)
+  - `docs/development/hotfixes.md` (production hotfix log)
 - **Stories**: `STORIES.md` (epic overview) + `/stories/epic-*.md` (detailed stories)
 - **Reference**: `mlgruby-repo-for-reference/dotfile-nix/` (production example)
 - **User preferences**: `~/.claude/CLAUDE.md`, `~/.claude/docs/*.md`
 - **Ghostty config**: `config/config.ghostty` (template for Home Manager)
 
-**⚠️ IMPORTANT**: Always read `DEVELOPMENT.md` at the start of a session to check:
-- What stories have been completed
+**⚠️ IMPORTANT**: Always read `docs/development/README.md` at the start of a session to check:
+- What stories have been completed (see progress.md)
 - Current progress percentage (stories/points completed)
-- Implementation details and lessons learned
+- Implementation details and lessons learned (see stories/epic-*.md)
 - Which story to work on next

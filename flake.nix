@@ -151,6 +151,33 @@
           # - No Parallels Desktop (isPowerProfile = false)
           # - Minimal app set
           # - Single Ollama model (gpt-oss:20b)
+
+          # Story 02.1-003: Automatically pull gpt-oss:20b Ollama model
+          system.activationScripts.pullOllamaModel.text = ''
+            # Check if Ollama CLI is available (installed by Homebrew)
+            if [ -x /opt/homebrew/bin/ollama ]; then
+              echo "Checking Ollama model: gpt-oss:20b..."
+
+              # Check if model already exists (idempotent)
+              if ! /opt/homebrew/bin/ollama list 2>/dev/null | grep -q "gpt-oss:20b"; then
+                echo "Pulling Ollama model: gpt-oss:20b (~12GB, this may take several minutes)..."
+
+                # Pull model (requires network and running daemon)
+                if /opt/homebrew/bin/ollama pull gpt-oss:20b 2>&1; then
+                  echo "✓ Successfully pulled Ollama model: gpt-oss:20b"
+                else
+                  echo "⚠️  Warning: Failed to pull Ollama model gpt-oss:20b"
+                  echo "   This may be due to network issues or Ollama daemon not running."
+                  echo "   You can manually pull the model later with: ollama pull gpt-oss:20b"
+                fi
+              else
+                echo "✓ Ollama model gpt-oss:20b already installed"
+              fi
+            else
+              echo "⚠️  Warning: Ollama CLI not found at /opt/homebrew/bin/ollama"
+              echo "   Model pull will be skipped. Install Ollama first."
+            fi
+          '';
         }
       ];
     };

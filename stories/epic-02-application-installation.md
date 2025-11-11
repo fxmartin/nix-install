@@ -179,12 +179,25 @@
 - Profile-specific: Only in darwinConfigurations.standard
 
 **Definition of Done**:
-- [ ] Activation script implemented for Standard profile
-- [ ] Model pulls during first rebuild
-- [ ] Script is idempotent (doesn't re-pull)
-- [ ] `ollama list` shows model after rebuild
-- [ ] Model runs successfully
-- [ ] Tested in VM with Standard profile
+- [x] Activation script implemented for Standard profile
+- [ ] Model pulls during first rebuild (VM testing by FX)
+- [x] Script is idempotent (doesn't re-pull)
+- [ ] `ollama list` shows model after rebuild (VM testing by FX)
+- [ ] Model runs successfully (VM testing by FX)
+- [ ] Tested in VM with Standard profile (VM testing by FX)
+
+**Implementation Status**: ✅ **CODE COMPLETE** - Ready for VM testing by FX
+**Implementation Date**: 2025-11-11
+**Branch**: feature/02.1-001-ai-chat-apps (combined with 02.1-001 and 02.1-002)
+**Files Changed**:
+- flake.nix: Added system.activationScripts.pullOllamaModel to Standard profile
+
+**Implementation Details**:
+- Activation script checks for Ollama CLI availability
+- Idempotent: Checks if model exists before pulling
+- Graceful failure handling with clear warning messages
+- Network-aware: Handles failures and provides manual fallback
+- Standard profile only: NOT in Power profile (Power gets 4 models in Story 02.1-004)
 
 **Dependencies**:
 - Story 02.1-002 (Ollama installed)

@@ -60,12 +60,19 @@
 - Test: Verify apps launch and show sign-in screens
 
 **Definition of Done**:
-- [ ] Code implemented in homebrew.nix
-- [ ] All three apps install successfully
-- [ ] Apps launch without errors
-- [ ] Auto-update preferences documented
-- [ ] Tested in VM with both profiles
-- [ ] Documentation notes first-run sign-in required
+- [x] Code implemented in homebrew.nix
+- [ ] All three apps install successfully (VM testing by FX)
+- [ ] Apps launch without errors (VM testing by FX)
+- [x] Auto-update preferences documented (docs/app-post-install-configuration.md)
+- [ ] Tested in VM with both profiles (VM testing by FX)
+- [x] Documentation notes first-run sign-in required
+
+**Implementation Status**: ✅ **CODE COMPLETE** - Ready for VM testing by FX
+**Implementation Date**: 2025-11-11
+**Branch**: feature/02.1-001-ai-chat-apps
+**Files Changed**:
+- darwin/homebrew.nix: Added `claude`, `chatgpt`, `perplexity` casks
+- docs/app-post-install-configuration.md: Created post-install configuration guide
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (nix-darwin installed)

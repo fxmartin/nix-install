@@ -50,6 +50,12 @@
     # Epic-02 will expand this list with full app inventory
     casks = [
       "ghostty" # Modern GPU-accelerated terminal (Phase 5 validation test app)
+
+      # AI & LLM Tools (Story 02.1-001)
+      # Auto-update disable: Check app preferences after first launch
+      "claude" # Claude Desktop - Anthropic's AI assistant
+      "chatgpt" # ChatGPT Desktop - OpenAI's conversational AI
+      "perplexity" # Perplexity - AI-powered search and research tool
     ];
 
     # Global Homebrew options

@@ -704,3 +704,166 @@ Together with Hotfixes #1-3 (Phase 5-6), these enable complete bootstrap flow fr
 
 ---
 
+## HOTFIX #8: Story 01.8-001 - Office 365 Messaging and darwin-rebuild sudo
+**Date**: 2025-11-11
+**Issue**: Phase 9 summary contains incorrect Office 365 installation message + darwin-rebuild documentation missing sudo
+**Status**: ✅ FIXED
+**Branch**: main
+
+### Problem 1: Office 365 Messaging Incorrect
+The Phase 9 installation summary displayed incorrect information about Office 365:
+
+**Incorrect Next Steps (Step 3)**:
+```
+3. Install Office 365 manually (not available via Nix/Homebrew)
+```
+
+**Incorrect Manual Activation List**:
+```
+• Office 365 (manual installation required)
+```
+
+**Reality**: Office 365 (microsoft-office cask) IS installed automatically via Homebrew during Phase 5 darwin-rebuild. No manual installation is needed.
+
+### Root Cause 1: Requirements Document Error
+The Story 01.8-001 requirements (from docs/REQUIREMENTS.md) incorrectly stated Office 365 required manual installation. This error propagated into:
+1. Story acceptance criteria
+2. Phase 9 implementation
+3. Test expectations
+4. VM testing documentation
+
+**Why This Happened**: The requirements were written before we confirmed Office 365 availability via Homebrew. The original assumption was that Microsoft apps weren't available as Homebrew casks, but microsoft-office has been available for years.
+
+### Problem 2: darwin-rebuild sudo Requirements
+Documentation referenced darwin-rebuild commands without sudo:
+
+**Incorrect Examples**:
+- setup.sh: `darwin-rebuild --version`
+- setup.sh: `darwin-rebuild check`
+- docs/testing-installation-summary.md: `darwin-rebuild --version`
+
+**Reality**: ALL darwin-rebuild commands require sudo on macOS, not just `darwin-rebuild switch`.
+
+### Solution 1: Office 365 Messaging Correction
+**Changes to `display_next_steps()` function** (lines 4126-4143):
+- **REMOVED**: Step 3 "Install Office 365 manually (not available via Nix/Homebrew)"
+- **RENUMBERED**: Remaining steps (Standard: 2 steps, Power: 3 steps with Ollama)
+
+**Changes to `display_manual_activation_apps()` function** (lines 4167-4181):
+- **BEFORE**: `• Office 365 (manual installation required)`
+- **AFTER**: `• Microsoft Office (Office 365 subscription required)`
+- **Clarification**: App is installed automatically, only license activation is manual
+
+**Result**: Users now understand:
+- Microsoft Office IS installed during bootstrap (automatic)
+- Only subscription/license activation is required (manual)
+- No separate installation step needed
+
+### Solution 2: darwin-rebuild sudo Documentation
+**Updated setup.sh** (lines 337-338):
+```bash
+# BEFORE
+echo "  2. Verify installation: nix --version && darwin-rebuild --version"
+echo "  3. Check system configuration: darwin-rebuild check"
+
+# AFTER
+echo "  2. Verify installation: nix --version && sudo darwin-rebuild --version"
+echo "  3. Check system configuration: sudo darwin-rebuild check"
+```
+
+**Updated docs/testing-installation-summary.md** (lines 247, 258):
+```bash
+# BEFORE
+- ✅ nix-darwin confirmed (run `darwin-rebuild --version`)
+darwin-rebuild --version
+
+# AFTER
+- ✅ nix-darwin confirmed (run `sudo darwin-rebuild --version`)
+sudo darwin-rebuild --version
+```
+
+**Note**: bootstrap.sh already correctly uses `sudo darwin-rebuild switch` (no changes needed).
+
+### Files Modified
+1. **bootstrap.sh** (-3 lines):
+   - Line 4126-4143: Removed Office 365 installation step, renumbered steps
+   - Line 4167-4181: Updated Office 365 activation message
+2. **tests/09-installation-summary.bats** (+4 lines):
+   - Updated test for Standard profile step count (2 steps, not 3)
+   - Updated test for Microsoft Office mention (matches new text)
+3. **setup.sh** (+2 lines):
+   - Added sudo to darwin-rebuild --version
+   - Added sudo to darwin-rebuild check
+4. **docs/testing-installation-summary.md** (+3 lines):
+   - Added sudo to darwin-rebuild verification commands
+   - Added comment explaining sudo requirement
+
+### Testing
+- ✅ All 54 BATS tests PASSING (updated and validated)
+- ✅ Shellcheck validation: CLEAN (0 errors, 0 warnings)
+- ✅ Bash syntax validated (bash -n)
+
+### Impact
+- **Fixes**: Incorrect Office 365 installation instruction (user confusion)
+- **Clarifies**: Office 365 vs Microsoft Office naming
+- **Improves**: Distinction between installation (automatic) vs activation (manual)
+- **Documents**: darwin-rebuild sudo requirement accurately
+- **User Impact**: Clear, accurate installation summary and next steps
+
+### Why This Wasn't Caught Earlier
+**Problem 1 (Office 365)**:
+1. Requirements error propagated through entire implementation
+2. Tests validated requirements as written, not reality
+3. No cross-check with Homebrew cask availability
+4. VM testing hadn't completed full Phase 9 validation yet
+
+**Problem 2 (sudo)**:
+1. Documentation written before darwin-rebuild testing
+2. Focus on bootstrap.sh (which correctly uses sudo)
+3. Peripheral documentation not validated against actual command requirements
+
+**Lesson Learned**: Validate assumptions against actual package availability and command requirements, not just theoretical design.
+
+### Identified By
+FX - Caught both issues immediately after Story 01.8-001 merge:
+1. "Office365 will be installed with homebrew. there is a package for it. Why do you say in the final summary that it will be manual"
+2. "And all darwin-rebuild commands (like --version or check) must be run as sudo"
+
+### User Experience (Before vs After)
+
+**BEFORE (Incorrect)**:
+```
+Next Steps:
+  1. Restart your terminal or run: source ~/.zshrc
+  2. Activate licensed applications (see list below)
+  3. Install Office 365 manually (not available via Nix/Homebrew)  ← WRONG
+  4. Verify Ollama models: ollama list  (Power only)
+
+Apps Requiring Manual Activation:
+  • 1Password
+  • Office 365 (manual installation required)  ← WRONG
+  • Parallels Desktop (Power only)
+```
+
+**AFTER (Correct)**:
+```
+Next Steps:
+  1. Restart your terminal or run: source ~/.zshrc
+  2. Activate licensed applications (see list below)
+  3. Verify Ollama models: ollama list  (Power only)  ← RENUMBERED
+
+Apps Requiring Manual Activation:
+  • 1Password (license key required)
+  • Microsoft Office (Office 365 subscription required)  ← CORRECTED
+  • Parallels Desktop (license key required) (Power only)
+```
+
+### Relationship to Other Fixes
+This is a messaging/documentation hotfix, independent of functional fixes:
+- **Hotfixes #1-7**: Functional bugs in bootstrap phases ✅
+- **Hotfix #8**: Documentation and messaging accuracy ✅ **← THIS FIX**
+
+Together, all 8 hotfixes ensure bootstrap works correctly AND communicates accurately to users.
+
+---
+

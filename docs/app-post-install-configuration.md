@@ -9,6 +9,36 @@ This document provides step-by-step instructions for configuring applications af
 
 ---
 
+## ⚠️ IMPORTANT: Mac App Store Sign-In Required
+
+**Before running darwin-rebuild**, you MUST sign in to the Mac App Store:
+
+1. Open **App Store** app
+2. Click **Sign In** at the bottom of the sidebar
+3. Enter your Apple ID credentials
+4. Complete authentication
+
+**Why this is required:**
+- Some apps (like Perplexity) are installed via Mac App Store using `mas` (Mac App Store CLI)
+- `mas` cannot install apps unless you are signed into the App Store
+- darwin-rebuild will fail if trying to install mas apps without authentication
+
+**Verification:**
+```bash
+# Check if signed in to App Store
+mas account
+# Should show your Apple ID email
+
+# If not signed in, you'll see:
+# "Not signed in"
+```
+
+**If you see "Not signed in":**
+- Sign in via App Store app GUI (cannot be done via CLI)
+- Then verify: `mas account` shows your email
+
+---
+
 ## Table of Contents
 
 - [AI & LLM Tools](#ai--llm-tools)
@@ -77,10 +107,12 @@ This document provides step-by-step instructions for configuring applications af
 
 **Status**: Installed via **Mac App Store** (App ID: 6714467650) - Story 02.1-001
 
+**⚠️ PREREQUISITE**: You must be signed into the Mac App Store BEFORE running darwin-rebuild (see prerequisite section above)
+
 **Important Notes**:
 - Perplexity is distributed via Mac App Store, not Homebrew
 - Released as native macOS app on October 24, 2024
-- Requires Apple ID sign-in to download from App Store
+- **Installation requires**: Mac App Store sign-in (mas authentication)
 - Auto-updates managed by App Store preferences (not app-level settings)
 
 **First Launch**:

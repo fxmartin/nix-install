@@ -51,11 +51,12 @@
     casks = [
       "ghostty" # Modern GPU-accelerated terminal (Phase 5 validation test app)
 
-      # AI & LLM Tools (Story 02.1-001)
+      # AI & LLM Tools (Story 02.1-001, 02.1-002)
       # Auto-update disable: Check app preferences after first launch
       "claude" # Claude Desktop - Anthropic's AI assistant
       "chatgpt" # ChatGPT Desktop - OpenAI's conversational AI
       "perplexity" # Perplexity - AI-powered search and research tool
+      "ollama" # Ollama Desktop - Local LLM runner with GUI and CLI (Story 02.1-002)
     ];
 
     # Global Homebrew options

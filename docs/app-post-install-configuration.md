@@ -15,6 +15,7 @@ This document provides step-by-step instructions for configuring applications af
   - [Claude Desktop](#claude-desktop)
   - [ChatGPT Desktop](#chatgpt-desktop)
   - [Perplexity](#perplexity)
+  - [Ollama Desktop](#ollama-desktop)
 
 ---
 
@@ -98,6 +99,60 @@ This document provides step-by-step instructions for configuring applications af
 
 ---
 
+### Ollama Desktop
+
+**Status**: Installed via Homebrew cask `ollama` (Story 02.1-002)
+
+**First Launch**:
+1. Launch Ollama Desktop from Spotlight or Raycast
+2. Menubar icon appears (llama icon in top-right)
+3. Click menubar icon to access model management
+4. No sign-in required (runs locally)
+
+**CLI Verification**:
+```bash
+# Verify Ollama CLI is available
+ollama --version
+
+# Test with small model (optional)
+ollama run llama2 "Hello, world!"
+```
+
+**Auto-Update Configuration**:
+- **Current Status**: ⚠️ **Requires Manual Check**
+- **Steps to Disable** (if available):
+  1. Click Ollama menubar icon
+  2. Look for **Preferences** or **Settings**
+  3. Check for **Updates** or **General** section
+  4. Disable automatic update checking if option exists
+  5. Document actual steps after first VM test
+
+**Daemon Management**:
+- Ollama daemon runs automatically when desktop app launches
+- Check daemon status: `ollama list` (lists installed models)
+- Daemon starts on login automatically
+
+**Model Storage**:
+- Models stored in: `~/Library/Application Support/Ollama`
+- Can be large (12GB-70GB per model)
+- Storage location managed by Ollama automatically
+
+**Testing**:
+- [ ] Launch Ollama Desktop successfully
+- [ ] Menubar icon appears
+- [ ] `ollama --version` works in terminal
+- [ ] Can pull a test model: `ollama pull llama2`
+- [ ] Can run model: `ollama run llama2 "test"`
+- [ ] GUI shows model list
+- [ ] Check for auto-update setting in preferences
+
+**Notes**:
+- No account/sign-in required
+- Runs models locally on your Mac
+- Storage: Stories 02.1-003 and 02.1-004 will pull specific models automatically
+
+---
+
 ## Notes for FX
 
 **VM Testing Workflow**:
@@ -124,5 +179,6 @@ This document provides step-by-step instructions for configuring applications af
 ## Story Tracking
 
 **Story 02.1-001**: Claude Desktop, ChatGPT, Perplexity - ✅ Installation implemented, ⚠️ Auto-update configuration pending VM test
+**Story 02.1-002**: Ollama Desktop App - ✅ Installation implemented, ⚠️ CLI and GUI testing pending VM test
 
 ---

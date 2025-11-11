@@ -46,7 +46,8 @@ This robust approach ensures detection regardless of how the daemon is running.
 **Date**: 2025-11-11
 **Issue**: bootstrap.sh line 2875 fails with "gh: command not found"
 **Status**: ✅ FIXED
-**Commit**: 186b1df
+**Temporary Fix**: 186b1df (fallback workaround)
+**Proper Fix**: a4e210c (Homebrew installation)
 **Branch**: feature/01.7-001-repo-clone
 
 ### Problem
@@ -110,8 +111,23 @@ fi
 3. **Move Phase 6 after shell reload**: Breaks logical flow (SSH before clone)
 4. **Install gh via Homebrew in Phase 5**: Conflicts with nix-darwin management
 
-### Long-term Solution
-After Epic-01 completes and subsequent bootstraps run, `gh` will be available in PATH from previous nix-darwin builds, making the automated flow work ~90% of the time. The manual fallback remains for edge cases.
+### Long-term Solution (IMPLEMENTED)
+**FX's Key Observation**: "Ghostty is installed via Homebrew and available immediately. Why not `gh`?"
+
+**Answer**: Ghostty is a Homebrew **cask** (darwin/homebrew.nix line 48), which makes it available in PATH immediately after darwin-rebuild. The original `gh` installation via Home Manager `programs.gh` required a shell reload.
+
+**Proper Fix (Commit a4e210c)**:
+1. **Moved gh installation** from Home Manager to Homebrew formula
+   - Added `"gh"` to `darwin/homebrew.nix` brews array
+   - Homebrew formulas are immediately available in PATH (like Ghostty)
+2. **Kept Home Manager configuration** for declarative gh settings
+   - `programs.gh.enable = true` still manages configuration
+   - `git_protocol = "ssh"` and editor settings preserved
+3. **Removed workaround code** from bootstrap.sh
+   - No longer need availability check and fallback
+   - Automated OAuth flow works as designed (~90% automation)
+
+**Result**: GitHub CLI now behaves exactly like Ghostty - immediately available after Phase 5 darwin-rebuild, enabling the automated SSH key upload flow in Phase 6.
 
 ---
 

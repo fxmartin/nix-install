@@ -904,22 +904,38 @@
   ```
 
 **Definition of Done**:
-- [ ] GitHub CLI authentication flow implemented
-- [ ] OAuth browser flow working (user clicks "Authorize")
-- [ ] Automated key upload via `gh ssh-key add` functional
-- [ ] Idempotency check (key already exists) working
-- [ ] Success/failure detection accurate
-- [ ] Fallback manual instructions implemented with clipboard copy
-- [ ] Error handling comprehensive (network, authentication, upload failures)
-- [ ] Tested in VM with fresh GitHub authentication
-- [ ] Tested in VM with existing authentication (skip flow)
-- [ ] Documentation notes automation approach and fallback
+- [x] GitHub CLI authentication flow implemented
+- [x] OAuth browser flow working (user clicks "Authorize")
+- [x] Automated key upload via `gh ssh-key add` functional
+- [x] Idempotency check (key already exists) working
+- [x] Success/failure detection accurate
+- [x] Fallback manual instructions implemented with clipboard copy
+- [x] Error handling comprehensive (network, authentication, upload failures)
+- [x] Tested in VM with fresh GitHub authentication ✅ **VM TESTED (2025-11-11)**
+- [x] Tested in VM with existing authentication (skip flow)
+- [x] Documentation notes automation approach and fallback
 
 **Implementation Notes**:
+- Story completed on main branch (2025-11-11)
+- Functions implemented (6 total, ~306 lines with hotfix):
+  - check_github_cli_authenticated() - Check gh auth status (NON-CRITICAL)
+  - authenticate_github_cli() - OAuth flow via gh auth login --web (CRITICAL)
+  - check_key_exists_on_github() - Idempotency check via fingerprint (NON-CRITICAL)
+  - upload_ssh_key_to_github() - Automated upload via gh ssh-key add (CRITICAL)
+  - fallback_manual_key_upload() - Manual instructions with clipboard copy (NON-CRITICAL)
+  - upload_github_key_phase() - Orchestration function
+- OAuth authentication: gh auth login --hostname github.com --git-protocol ssh --web
+- Key upload command: gh ssh-key add ~/.ssh/id_ed25519.pub --title "$(hostname)-$(date +%Y%m%d)"
+- Key title format: hostname-YYYYMMDD (e.g., "MacBook-Pro-20251111")
 - Pattern from mlgruby reference: Proven automated approach
 - User interaction reduced from 2-3 minutes (manual copy-paste) to 10 seconds (OAuth click)
 - Aligns with project goal: "zero manual intervention except license activations"
 - Story points reduced from 8 to 5 due to automation simplification
+- **Hotfix #1 (aa7d2d6)**: Fixed permission denied error by ensuring ~/.config/gh/ exists with 755 permissions before OAuth login
+- VM Testing: ✅ **ALL SCENARIOS PASSED** (OAuth working, key uploaded, idempotency verified)
+- Integration: Phase 6 (continued) main() flow, lines 3232-3244
+- Tests: 82 comprehensive BATS tests (80 initial + 2 from hotfix)
+- Commits: d8cb577 (initial), aa7d2d6 (hotfix #1)
 
 **Dependencies**:
 - Story 01.6-001 (SSH key generated)

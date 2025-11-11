@@ -92,7 +92,7 @@ FX's role: ALL testing, execution, and validation.
 ### Key Files
 
 **Currently Implemented**:
-- `REQUIREMENTS.md`: Comprehensive PRD (1600+ lines) - **THE SOURCE OF TRUTH** for requirements
+- `docs/REQUIREMENTS.md`: Comprehensive PRD (1600+ lines) - **THE SOURCE OF TRUTH** for requirements
 - `DEVELOPMENT.md`: Implementation log and progress tracking - **CHECK THIS FIRST** for:
   - Story completion status and implementation details
   - Current progress (stories completed, points tracked)
@@ -104,7 +104,7 @@ FX's role: ALL testing, execution, and validation.
 - `setup.sh`: Legacy setup script (will be replaced by new bootstrap)
 - `mlgruby-repo-for-reference/`: Reference implementation to learn from
 
-**To Be Implemented** (per REQUIREMENTS.md):
+**To Be Implemented** (per docs/REQUIREMENTS.md):
 - `flake.nix`: System definition with Standard/Power profiles
 - `user-config.nix`: User personal info (created during bootstrap)
 - `darwin/`: System-level configs (nix-darwin)
@@ -123,7 +123,7 @@ FX's role: ALL testing, execution, and validation.
 **Phase 10** (Week 7): MacBook Pro M3 Max migration
 **Phase 11** (Week 8): MacBook Air migrations
 
-See REQUIREMENTS.md Implementation Plan section for detailed checklists.
+See docs/REQUIREMENTS.md Implementation Plan section for detailed checklists.
 
 ## Working with This Codebase
 
@@ -166,9 +166,9 @@ environment.variables.HOMEBREW_NO_AUTO_UPDATE = "1";
 programs.vscode.userSettings."update.mode" = "none";
 ```
 
-### Working with REQUIREMENTS.md
+### Working with docs/REQUIREMENTS.md
 
-**REQUIREMENTS.md is the single source of truth** for:
+**docs/REQUIREMENTS.md is the single source of truth** for:
 - All P0 (must-have), P1 (should-have), P2 (nice-to-have) requirements
 - Acceptance criteria for each feature
 - App inventory with installation methods
@@ -199,7 +199,7 @@ Once requirements are approved via `/approve-requirements` command:
 2. **Impact Assessment**: Analyze effect on timeline, budget, scope
 3. **Stakeholder Review**: Present change to approval stakeholders
 4. **Approval Decision**: Formal approval/rejection with rationale
-5. **Document Update**: Update REQUIREMENTS.md with change log entry
+5. **Document Update**: Update docs/REQUIREMENTS.md with change log entry
 6. **Integrity Update**: Regenerate external integrity validation
 7. **Communication**: Notify all stakeholders of approved changes
 
@@ -209,7 +209,7 @@ Once requirements are approved via `/approve-requirements` command:
 - **Critical Changes** (fundamental approach): Full stakeholder committee approval
 
 **Change Tracking**
-All changes tracked in the Post-Approval Change Log in REQUIREMENTS.md with:
+All changes tracked in the Post-Approval Change Log in docs/REQUIREMENTS.md with:
 - Change description and rationale
 - Impact assessment results
 - Approval authority and date
@@ -223,7 +223,7 @@ All changes tracked in the Post-Approval Change Log in REQUIREMENTS.md with:
 
 # Manual verification
 STORED=$(grep '"final_document"' requirements-integrity.json | cut -d'"' -f4)
-CURRENT=$(shasum -a 256 REQUIREMENTS.md | cut -d' ' -f1)
+CURRENT=$(shasum -a 256 docs/REQUIREMENTS.md | cut -d' ' -f1)
 echo "Stored: $STORED"
 echo "Current: $CURRENT"
 [ "$STORED" = "$CURRENT" ] && echo "✅ VERIFIED" || echo "❌ COMPROMISED"
@@ -440,7 +440,7 @@ The project uses a comprehensive labeling system to categorize and track issues.
 - `breaking-change` - Introduces breaking changes to config
 - `hotfix` - Urgent fix needed
 
-**📏 Story Points** (6 labels - matching REQUIREMENTS.md estimation)
+**📏 Story Points** (6 labels - matching docs/REQUIREMENTS.md estimation)
 - `points/1` - 1 story point (Trivial complexity)
 - `points/2` - 2 story points (Simple complexity)
 - `points/3` - 3 story points (Medium complexity)
@@ -508,7 +508,7 @@ The script is idempotent - safe to run multiple times. It uses `|| true` to igno
 
 ## Reference Documentation
 
-- **Primary**: `REQUIREMENTS.md` (comprehensive PRD)
+- **Primary**: `docs/REQUIREMENTS.md` (comprehensive PRD)
 - **Progress**: `DEVELOPMENT.md` (implementation log, story progress, multi-agent workflow)
 - **Stories**: `STORIES.md` (epic overview) + `/stories/epic-*.md` (detailed stories)
 - **Reference**: `mlgruby-repo-for-reference/dotfile-nix/` (production example)

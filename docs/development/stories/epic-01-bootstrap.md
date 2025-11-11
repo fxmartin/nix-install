@@ -1,190 +1,9 @@
-# ABOUTME: Development notes and implementation log for the Nix-Darwin setup system
-# ABOUTME: Tracks story implementations, testing notes, and developer guidance
+# ABOUTME: Epic-01 Bootstrap & Installation System story implementations
+# ABOUTME: Detailed documentation for all completed Epic-01 stories with VM testing results
 
-# Development Log
+# Epic-01: Bootstrap & Installation System Stories
 
-## HOTFIX: Story 01.5-002 - Nix-Daemon Detection Issue
-**Date**: 2025-11-10
-**Issue**: #10 - nix-daemon validation fails despite daemon running
-**Status**: ✅ FIXED
-
-### Problem
-The `check_nix_daemon_running()` function was only checking the **user domain** with `launchctl list`, but nix-daemon runs in the **system domain** (as root). This caused false-negative failures during post-darwin validation.
-
-### Root Cause
-```bash
-# Original code (line 2044) - only checked user domain
-if launchctl list | grep -q "org.nixos.nix-daemon"; then
-```
-
-The daemon was running correctly, but not visible in user domain launchctl output.
-
-### Solution Implemented
-Multi-method detection with three fallback layers:
-
-1. **Method 1**: Check user domain (original, for compatibility)
-2. **Method 2**: Check system domain with `sudo launchctl list` (PRIMARY FIX)
-3. **Method 3**: Check running process directly with `pgrep nix-daemon` (FALLBACK)
-
-This robust approach ensures detection regardless of how the daemon is running.
-
-### Files Modified
-- `bootstrap.sh`: Updated `check_nix_daemon_running()` function (+17 lines)
-- Lines 2040-2075 now implement three-method detection
-
-### Testing
-- ✅ Bash syntax validated (bash -n)
-- ✅ Existing BATS tests still pass (mocking handles all methods)
-- ⏳ VM testing required to confirm fix works in real environment
-
-### Impact
-- **Fixes**: Issue #10 (CRITICAL blocker)
-- **Unblocks**: Story 01.6-001 and all subsequent Epic-01 stories
-- **User Impact**: Bootstrap can now complete Phase 5 validation successfully
-
----
-
-## Epic Overview Progress Table
-
-| Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
-|---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 19 | 113 | **14** | **88** | 73.7% | 77.9% | 🟡 In Progress |
-| **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **112** | **601** | **14** | **88** | **12.5%** | **14.6%** | 🟡 In Progress |
-
-### Epic-01 Completed Stories (14/19)
-
-| Story ID | Story Name | Points | Status | Branch | Date Completed |
-|----------|------------|--------|--------|--------|----------------|
-| 01.1-001 | Pre-flight Environment Checks | 5 | ✅ Complete | feature/01.1-001 | 2025-11-08 |
-| 01.1-002 | Idempotency Check (User Config) | 3 | ✅ Complete | main | 2025-11-10 |
-| 01.2-001 | User Information Prompts | 5 | ✅ Complete | feature/01.2-001-user-prompts | 2025-11-09 |
-| 01.2-002 | Profile Selection System | 8 | ✅ Complete | feature/01.2-002-profile-selection | 2025-11-09 |
-| 01.2-003 | User Config File Generation | 3 | ✅ Complete | feature/01.2-003-user-config-generation | 2025-11-09 |
-| 01.3-001 | Xcode CLI Tools Installation | 5 | ✅ Complete | main | 2025-11-09 |
-| 01.4-001 | Nix Multi-User Installation | 8 | ✅ Complete | main | 2025-11-09 |
-| 01.4-002 | Nix Configuration for macOS | 5 | ✅ Complete | feature/01.4-002-nix-configuration | 2025-11-09 |
-| 01.4-003 | Flake Infrastructure Setup | 8 | ✅ Complete | main | 2025-11-09 |
-| 01.5-001 | Initial Nix-Darwin Build | 13 | ✅ Complete | feature/01.5-001-nix-darwin-build | 2025-11-09 |
-| 01.5-002 | Post-Darwin System Validation | 5 | ✅ Complete | main | 2025-11-10 |
-| 01.6-001 | SSH Key Generation | 5 | ✅ Complete | feature/01.6-001-ssh-key-generation | 2025-11-10 |
-| 01.6-002 | GitHub SSH Key Upload (Automated) | 5 | ✅ Complete | main | 2025-11-11 |
-| 01.6-003 | GitHub SSH Connection Test | 8 | ✅ Complete | feature/01.6-003-ssh-connection-test | 2025-11-11 |
-
-**Notes**:
-- **2025-11-10**: Story 01.6-002 scope changed from manual approach (8 points) to automated GitHub CLI approach (5 points), reducing Epic-01 by 3 points
-- **2025-11-11**: Story 01.1-004 added (Modular Bootstrap Architecture, 8 points), increasing Epic-01 by 8 points, **deferred to post-Epic-01**
-
-### Overall Project Status
-
-- **Total Project Scope**: 112 stories, 601 story points
-- **Completed**: 14 stories (12.5%), 88 points (14.6%)
-- **In Progress**: Epic-01 Bootstrap & Installation (73.7% complete by stories, 77.9% by points)
-- **Current Phase**: Phase 0-2 (Foundation + Bootstrap, Week 1-2)
-- **Next Story**: 01.7-001 (Full Repository Clone - 5 points) - READY TO START
-- **Deferred**: Story 01.1-004 (Modular Bootstrap, 8 points) - P1, implement post-Epic-01
-
-### Recent Activity
-
-- **2025-11-11**: ✅ **COMPLETED Story 01.6-003** (GitHub SSH Connection Test - 8 points) - **VM TESTED & VERIFIED**
-  - Added Phase 6 (continued) to bootstrap.sh (5 functions, ~234 lines)
-  - 80 comprehensive BATS tests (TDD methodology) in tests/bootstrap_ssh_test.bats
-  - SSH connection test with `ssh -T git@github.com` (handles exit code 1 = success!)
-  - Retry mechanism: Up to 3 attempts with 2-second delays
-  - Troubleshooting display: 5 categories of common issues with actionable steps
-  - Abort prompt: User choice to continue or abort after 3 failed attempts
-  - Function breakdown:
-    - `test_github_ssh_connection()`: Core SSH test, username extraction (41 lines)
-    - `display_ssh_troubleshooting()`: Formatted help display (35 lines)
-    - `retry_ssh_connection()`: 3-attempt retry loop with progress (35 lines)
-    - `prompt_continue_without_ssh()`: Interactive abort/continue prompt (42 lines)
-    - `test_github_ssh_phase()`: Orchestration function for Phase 6 (continued) (48 lines)
-  - Integration: Added to main() flow after upload_github_key_phase() (line 3480)
-  - Shellcheck validation: **0 errors, 0 warnings** ✅
-  - Bash syntax check: **PASSED** ✅
-  - Created comprehensive VM testing guide: docs/testing-ssh-connection-phase.md (7 scenarios)
-  - **All 7 VM tests PASSED** ✅
-  - Commit df82606 + 39c642e (testing docs) merged to main
-  - Epic-01 now **77.9% complete** (88/113 points) 🎉
-  - Bootstrap.sh size: 3284 → 3518 lines (+234 lines)
-- **2025-11-11**: ✅ **COMPLETED Story 01.6-002** (Automated GitHub SSH Key Upload - 5 points) - **VM TESTED & VERIFIED**
-  - Added Phase 6 (continued) to bootstrap.sh (6 functions, ~306 lines with hotfix)
-  - 82 comprehensive BATS tests (TDD methodology) + 7 manual VM scenarios
-  - OAuth authentication flow via gh auth login --web
-  - Automated key upload via gh ssh-key add with idempotency check
-  - ~90% automation achieved (user clicks "Authorize" in browser - 10 seconds) ✅
-  - Graceful fallback to manual instructions with clipboard copy
-  - **Hotfix #1 (aa7d2d6)**: Fixed permission denied error (gh config directory creation)
-  - **Commit d8cb577** (initial) + **aa7d2d6** (hotfix) pushed to origin/main
-  - **All VM tests PASSED** ✅
-  - Epic-01 now **71.4% complete** (75/105 points) 🎉
-- **2025-11-10**: ✅ **COMPLETED Story 01.1-002** (Idempotency Check - 3 points) - **VM TESTED & VERIFIED**
-  - Added `check_existing_user_config()` function (89 lines) to bootstrap.sh
-  - Checks two locations: ~/Documents/nix-install/ (completed) and /tmp/nix-bootstrap/ (previous run)
-  - Parses existing user-config.nix and prompts: "Reuse this configuration? (y/n)"
-  - Validates parsed values (no placeholders, not empty), falls back gracefully if invalid
-  - Skips user prompts if config reused, saving 30-60 seconds per VM testing iteration
-  - Based on mlgruby reference pattern (lines 239-289)
-  - **All VM tests PASSED**: Fresh install, retry, completed install, corrupted config, user decline scenarios ✅
-  - Epic-01 now **74.3% complete** (78/105 points) 🎉
-- **2025-11-10**: ✅ **COMPLETED Story 01.6-001** (SSH Key Generation - 5 points) - **VM TESTED & VERIFIED**
-  - Added Phase 6 to bootstrap.sh (8 functions, ~420 lines)
-  - 100 automated BATS tests (TDD methodology) + 8 manual VM scenarios
-  - macOS Keychain integration: ssh-add --apple-use-keychain
-  - System ssh-agent usage (launchd-managed)
-  - **All 8 manual VM tests PASSED** ✅
-  - Hotfix #1 (1e3f9a1): Keychain integration for key persistence
-  - Hotfix #2 (1b4429c): System ssh-agent instead of new instance
-  - Epic-01 now **71.4% complete** (75/105 points) 🎉
-- **2025-11-10**: 📝 **UPDATED Story 01.6-002** (GitHub SSH Key Upload) - **SCOPE CHANGED**
-  - Changed from manual upload (8 points) to automated GitHub CLI approach (5 points)
-  - Now uses `gh auth login` + `gh ssh-key add` for ~90% automation
-  - User interaction reduced from 2-3 minutes to 10 seconds (OAuth click)
-  - Epic-01 total: **108 → 105 points** (3-point reduction)
-  - Aligns with project goal: "zero manual intervention except license activations"
-  - Created home-manager/modules/github.nix for GitHub CLI configuration
-  - Updated bootstrap.sh to download github.nix during flake fetch
-- **2025-11-10**: 🔧 **HOTFIX**: Issue #10 fixed (nix-daemon detection) - VM TESTED & VERIFIED ✅
-  - Added multi-method daemon detection (system domain + process check)
-  - Commit ef583a4 pushed and validated
-  - Story 01.5-002 now fully complete and VM tested
-- **2025-11-10**: ✅ **COMPLETED Story 01.5-002** (Post-Darwin System Validation - 5 points) - **VM TESTED**
-  - Added Phase 5 (continued) validation to bootstrap.sh (6 functions, ~310 lines)
-  - 60 automated BATS tests (TDD methodology) + 7 manual VM scenarios
-  - Validates darwin-rebuild, Homebrew, apps, nix-daemon (CRITICAL vs NON-CRITICAL)
-  - Comprehensive error handling with troubleshooting steps
-  - Epic-01 now **61.9% complete** (65/105 points) 🎉
-- **2025-11-09**: ✅ **COMPLETED Story 01.5-001** (Initial Nix-Darwin Build - 13 points) - **VM TESTED & VALIDATED**
-  - Full clean VM test from snapshot: **10 minutes** (within 10-20min estimate!)
-  - Standard profile tested and working
-  - All acceptance criteria met: darwin-rebuild, Homebrew, experimental features
-  - Fixed nix.settings configuration for experimental-features
-  - 10 bug fix iterations during VM testing (all resolved)
-  - Epic-01 now **62% complete** (67/108 points) 🎉
-- **2025-11-09**: ✅ Implemented Story 01.5-001 (Initial Nix-Darwin Build - 13 points)
-  - Added Phase 5 to bootstrap.sh (6 functions, ~400 lines)
-  - 86 automated BATS tests + 7 manual VM scenarios
-- **2025-11-09**: ✅ Completed Story 01.4-003 (Flake Infrastructure Setup - 8 points) - VM TESTED & VALIDATED
-  - Created flake.nix with Standard and Power profiles
-  - Fixed invalid system.profile bug (commit fca880d)
-  - nix flake check: PASSED
-  - Both profiles build successfully in dry-run mode
-- **2025-11-09**: 📝 Created Story 01.4-003 (Flake Infrastructure Setup - 8 points) - CRITICAL BLOCKER identified and documented
-- **2025-11-09**: ✅ Completed Story 01.4-002 (Nix Configuration for macOS) - VM tested, all scenarios passed
-- **2025-11-09**: ✅ Completed Story 01.4-001 (Nix Multi-User Installation) - VM tested, all scenarios passed
-- **2025-11-09**: ✅ Completed Story 01.3-001 (Xcode CLI Tools) - VM tested, all scenarios passed
-- **2025-11-09**: Fixed Xcode test suite (removed obsolete license tests, 58 tests passing)
-- **2025-11-09**: Fixed critical bootstrap template file bug (#8)
-- **2025-11-09**: Completed Story 01.2-003 (User Config Generation) - VM tested ✅
-- **2025-11-09**: Completed Story 01.2-002 (Profile Selection) - VM tested ✅
-- **2025-11-09**: Completed Story 01.2-001 (User Prompts) - VM tested ✅
-- **2025-11-08**: Completed Story 01.1-001 (Pre-flight Checks) ✅
+This file contains detailed implementation documentation for all Epic-01 stories.
 
 ---
 
@@ -297,6 +116,9 @@ Implemented comprehensive pre-flight validation for the bootstrap script using T
 
 ---
 
+
+---
+
 ## Story 01.2-001: User Information Prompts
 **Status**: ✅ Completed
 **Date**: 2025-11-09
@@ -339,6 +161,9 @@ Implemented interactive user information collection prompts with comprehensive v
 - ✅ Comprehensive input validation
 - ✅ Clear error messages
 - ✅ Infinite retry on invalid input
+
+---
+
 
 ---
 
@@ -425,6 +250,9 @@ This story utilized specialized Claude Code agents:
 **Architecture**: 10/10 - Perfect integration into Phase 2
 **Testing**: 10/10 - Comprehensive edge case coverage
 **Documentation**: 10/10 - Complete at all levels
+
+---
+
 
 ---
 
@@ -573,6 +401,9 @@ Implemented template-based user configuration file generation system with compre
 - Advanced directory structure configuration
 - Config template version management
 - Backup of existing config files before overwriting
+
+---
+
 
 ---
 
@@ -779,180 +610,6 @@ sandbox = relaxed
 
 ---
 
-## Development Tools Setup
-
-### Required Tools
-```bash
-# Install bats for testing
-brew install bats-core
-
-# Install shellcheck for script validation
-brew install shellcheck
-
-# Verify installations
-bats --version
-shellcheck --version
-```
-
-### Running Tests
-```bash
-# Run all test suites (233 tests total)
-bats tests/bootstrap_preflight.bats          # 38 tests - Pre-flight checks
-bats tests/bootstrap_user_prompts.bats       # 54 tests - User information
-bats tests/bootstrap_profile_selection.bats  # 96 tests - Profile selection
-bats tests/bootstrap_user_config.bats        # 83 tests - User config generation
-
-# Run all tests at once
-bats tests/*.bats
-
-# Verbose output
-bats -t tests/bootstrap_preflight.bats
-
-# Specific test
-bats -f "bootstrap.sh exists" tests/bootstrap_preflight.bats
-
-# Test count verification
-bats tests/*.bats | grep "^ok" | wc -l  # Should output: 233
-```
-
-### Code Validation
-```bash
-# Validate shell scripts
-shellcheck bootstrap.sh
-
-# Auto-fix safe issues (if needed)
-shellcheck -f diff bootstrap.sh | patch
-```
-
-### Git Workflow
-```bash
-# Create feature branch
-git checkout -b feature/STORY-ID
-
-# Stage changes
-git add .
-
-# Commit with conventional commit format
-git commit -m "feat(scope): description (#STORY-ID)"
-
-# Push to remote
-git push -u origin feature/STORY-ID
-```
-
----
-
-## Story Progress Tracking
-
-### Epic-01: Bootstrap & Installation System (18 stories, 105 points)
-
-#### Feature 01.1: Pre-flight System Validation (3 stories, 11 points)
-- [x] Story 01.1-001: Pre-flight Environment Checks (5 points) ✅
-- [ ] Story 01.1-002: Idempotency Check (3 points)
-- [ ] Story 01.1-003: Progress Indicators (3 points)
-
-#### Feature 01.2: User Configuration & Profile Selection (3 stories, 16 points)
-- [x] Story 01.2-001: User Information Prompts (5 points) ✅
-- [x] Story 01.2-002: Profile Selection System (8 points) ✅
-- [x] Story 01.2-003: User Config File Generation (3 points) ✅
-
-#### Feature 01.3: Development Tools Setup (3 stories, 18 points)
-- [x] Story 01.3-001: Xcode CLI Tools Installation (5 points) ✅
-- [ ] Story 01.3-002: Homebrew Installation (5 points)
-- [ ] Story 01.3-003: Git Configuration (8 points)
-
-#### Feature 01.4: Nix Installation (3 stories, 21 points)
-- [x] Story 01.4-001: Nix Package Manager Installation (8 points) ✅
-- [x] Story 01.4-002: Nix Configuration for macOS (5 points) ✅
-- [x] Story 01.4-003: Flake Infrastructure Setup (8 points) ✅
-
-#### Feature 01.5: Nix-Darwin System Installation (2 stories, 18 points)
-- [ ] Story 01.5-001: Initial Nix-Darwin Build (13 points)
-- [ ] Story 01.5-002: System Configuration Verification (5 points)
-
-#### Feature 01.6: SSH Key Setup & GitHub Integration (3 stories, 21 points)
-- [ ] Story 01.6-001: SSH Key Generation (5 points)
-- [ ] Story 01.6-002: GitHub SSH Key Upload Instructions (8 points)
-- [ ] Story 01.6-003: GitHub SSH Connection Test (8 points)
-
-#### Feature 01.7: Repository Cloning & Final Rebuild (2 stories, 13 points)
-- [ ] Story 01.7-001: Full Repository Clone (5 points)
-- [ ] Story 01.7-002: Final Darwin Rebuild (8 points)
-
-#### Feature 01.8: Post-Installation Summary & Next Steps (1 story, 3 points)
-- [ ] Story 01.8-001: Installation Summary (3 points)
-
-**Total**: 10/18 stories completed (65/105 points) = **55.6% by stories, 61.9% by points**
-
----
-
-## Notes for Future Stories
-
-### Story Dependencies
-- 01.1-002 (Xcode Tools) depends on 01.1-001 (Pre-flight) ✅
-- 01.2-001 (Nix) depends on 01.1-002 (Xcode Tools)
-- 01.2-002 (nix-darwin) depends on 01.2-001 (Nix)
-- All Phase 3 stories depend on 01.4-002 (Initial rebuild)
-
-### Bootstrap Script Structure
-The bootstrap.sh will grow in phases:
-```
-Phase 1: Pre-flight Checks ✅ (Story 01.1-001)
-Phase 2: User Input ✅ (Stories 01.2-001, 01.2-002, 01.2-003)
-Phase 3: Core Installation (Stories 01.3-001, 01.4-001, 01.4-002)
-Phase 4: SSH Setup (Stories 01.5-001 to 01.5-002)
-Phase 5: Repository Setup (Story 01.5-003)
-Phase 6-10: Future Phases (remaining features)
-```
-
-Each story should add to the script incrementally, maintaining the existing structure.
-
----
-
-## Multi-Agent Development Workflow
-
-### Overview
-Stories are implemented using specialized Claude Code agents for optimal results. Each agent brings domain expertise while maintaining code consistency through the senior-code-reviewer gate.
-
-### Available Agents
-- **bash-zsh-macos-engineer**: Shell scripting, automation, macOS system tasks
-- **senior-code-reviewer**: Code quality, security, architecture review
-- **python-backend-engineer**: Python services, data processing
-- **ui-engineer**: Frontend components, user experience
-- **backend-typescript-architect**: TypeScript APIs, system design
-- **qa-expert**: Test strategy, quality assurance
-- **podman-container-architect**: Containerization, orchestration
-
-### Agent Selection Strategy
-1. **Story Analysis**: Determine primary technology and complexity
-2. **Primary Agent**: Select specialist matching story requirements
-3. **Supporting Agents**: Add reviewers and cross-domain specialists
-4. **Quality Gate**: senior-code-reviewer validates all implementations
-
-### Workflow Example (Story 01.2-002)
-```
-1. bash-zsh-macos-engineer: Implementation (6 functions, 96 tests)
-2. senior-code-reviewer: Code review (security, quality, architecture)
-3. bash-zsh-macos-engineer: Bug fix (test syntax error)
-4. FX: Manual VM testing and merge
-```
-
-### Agent Benefits
-- **Specialized Expertise**: Each agent optimized for specific technologies
-- **Code Quality**: Mandatory senior review before merge
-- **Parallel Execution**: Multiple agents can work independently
-- **Knowledge Continuity**: Agents share context across stories
-
-### Using Multi-Agent Workflow
-```bash
-# Resume development with agent auto-selection
-/resume-build-agents next
-
-# Continue specific story
-/resume-build-agents 01.2-003
-
-# Specify agent manually (override auto-selection)
-/resume-build-agents 01.2-003 --agent bash-zsh-macos-engineer
-```
 
 ---
 
@@ -1141,6 +798,9 @@ Created minimal flake infrastructure with Standard and Power profiles to unblock
 - ✅ nix build --dry-run .#darwinConfigurations.power.system: SUCCESS
 
 **Next Story**: Story 01.5-001 (Initial Nix-Darwin Build - 13 points) - NOW UNBLOCKED AND READY
+
+---
+
 
 ---
 
@@ -1431,6 +1091,9 @@ Implemented Phase 5 of bootstrap.sh: nix-darwin installation from flake configur
 
 ---
 
+
+---
+
 ## Story 01.5-002: Post-Darwin System Validation
 **Status**: ✅ Implemented (Pending FX VM Testing)
 **Date**: 2025-11-10
@@ -1611,6 +1274,9 @@ FX should perform these 7 manual tests in a VM:
 **Git Commit**: ⏳ Pending (feature branch to be created)
 
 **Quick validation phase (< 1 minute). FX must confirm all checks work correctly before merging.**
+
+---
+
 
 ---
 
@@ -1857,6 +1523,9 @@ tests/README.md (+267 lines, Phase 6 documentation)
 **Git Commit**: ⏳ Pending (awaiting FX testing and commit)
 
 **Critical security considerations documented. Phase 6 ready for VM testing.**
+
+---
+
 
 ---
 

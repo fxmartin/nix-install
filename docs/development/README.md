@@ -9,9 +9,9 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **13.4% complete** (15/112 stories, 93/601 points)
-  - Epic-01: **78.9% complete** (15/19 stories, 93/113 points) 🟡 In Progress
-  - Next story: **01.7-002** (Final Darwin Rebuild - 8 points)
+  - Current project status: **14.3% complete** (16/112 stories, 101/601 points)
+  - Epic-01: **84.2% complete** (16/19 stories, 101/113 points) 🟡 In Progress
+  - Next story: **01.8-001** (Installation Summary & Next Steps - 3 points)
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns
@@ -27,9 +27,9 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ## 🎯 Current Status (Quick Reference)
 
-**Epic-01: Bootstrap & Installation System** - 78.9% complete (82.3% by points)
+**Epic-01: Bootstrap & Installation System** - 84.2% complete (89.4% by points)
 
-### ✅ Completed Stories (15)
+### ✅ Completed Stories (16)
 1. **01.1-001** - Pre-flight Environment Checks (5 pts) - 2025-11-08
 2. **01.1-002** - Idempotency Check (3 pts) - 2025-11-10
 3. **01.2-001** - User Information Prompts (5 pts) - 2025-11-09
@@ -45,15 +45,15 @@ Welcome to the nix-install development documentation. This directory contains al
 13. **01.6-002** - GitHub SSH Key Upload (Automated) (5 pts) - 2025-11-11
 14. **01.6-003** - GitHub SSH Connection Test (8 pts) - 2025-11-11
 15. **01.7-001** - Full Repository Clone (5 pts) - 2025-11-11
+16. **01.7-002** - Final Darwin Rebuild (8 pts) - 2025-11-11
 
 ### 🚧 Next Story
-- **01.7-002** - Final Darwin Rebuild (8 pts) - **READY TO START**
-  - Perform final darwin-rebuild switch from cloned repository
-  - Validate system configuration applied from repo
+- **01.8-001** - Installation Summary & Next Steps (3 pts) - **READY TO START**
+  - Display final summary after bootstrap completes
+  - Show installed applications and next steps
 
-### ⏳ Remaining Epic-01 Stories (4)
-- **01.7-002** - Final Darwin Rebuild (8 pts) - NEXT
-- **01.8-001** - Installation Summary & Next Steps (3 pts)
+### ⏳ Remaining Epic-01 Stories (3)
+- **01.8-001** - Installation Summary & Next Steps (3 pts) - NEXT
 - **01.1-003** - Progress Indicators (3 pts) - P1
 - **01.1-004** - Modular Bootstrap Architecture (8 pts) - P1, deferred to post-Epic-01
 
@@ -84,8 +84,8 @@ Welcome to the nix-install development documentation. This directory contains al
 ## 📊 Development Metrics
 
 ### Test Coverage
-- **Automated BATS tests**: 625 tests across all stories
-- **Manual VM scenarios**: 60 documented test cases
+- **Automated BATS tests**: 675+ tests across all stories
+- **Manual VM scenarios**: 66 documented test cases
 - **Shellcheck validation**: 0 errors, 0 warnings on bootstrap.sh
 
 ### Code Quality
@@ -94,16 +94,16 @@ Welcome to the nix-install development documentation. This directory contains al
 - **VM Testing**: All Epic-01 stories validated in Parallels macOS VM
 
 ### Bootstrap Script Growth
-- **Current Size**: 3518 lines (from initial 168 lines in Story 01.1-001)
-- **Phases Implemented**: 6 phases (Pre-flight through SSH Setup)
-- **Functions**: 50+ functions across 6 phases
+- **Current Size**: 4,222 lines (from initial 168 lines in Story 01.1-001)
+- **Phases Implemented**: 8 phases (Pre-flight through Final Darwin Rebuild)
+- **Functions**: 60+ functions across 8 phases
 
 ## 🔗 File Organization
 
 ```
 docs/development/
 ├── README.md                          # This file - master index (156 lines)
-├── progress.md                        # Epic overview, story completion, recent activity (147 lines)
+├── progress.md                        # Epic overview, story completion, recent activity (200+ lines)
 ├── multi-agent-workflow.md            # Agent selection and workflow patterns (51 lines)
 ├── tools-and-testing.md               # Dev tools, testing, git workflow (132 lines)
 ├── hotfixes.md                        # Production hotfix documentation (44 lines)
@@ -112,6 +112,7 @@ docs/development/
     ├── epic-01-feature-01.4.md        # Epic-01 Feature 01.4 (405 lines, ~12K tokens)
     ├── epic-01-feature-01.5.md        # Epic-01 Feature 01.5 (481 lines, ~15K tokens)
     ├── epic-01-feature-01.6.md        # Epic-01 Feature 01.6 (542 lines, ~17K tokens)
+    ├── epic-01-feature-01.7.md        # Epic-01 Feature 01.7 (1,000+ lines, ~30K tokens)
     ├── epic-02-*.md                   # (Future: Epic-02 stories by feature)
     └── ...                            # (More epics as implemented)
 ```

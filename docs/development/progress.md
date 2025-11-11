@@ -5,7 +5,7 @@
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 19 | 113 | **15** | **93** | 78.9% | 82.3% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 19 | 113 | **16** | **101** | 84.2% | 89.4% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -13,7 +13,7 @@
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **112** | **601** | **15** | **93** | **13.4%** | **15.5%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **112** | **601** | **16** | **101** | **14.3%** | **16.8%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (15/19)
 
@@ -34,6 +34,7 @@
 | 01.6-002 | GitHub SSH Key Upload (Automated) | 5 | ✅ Complete | main | 2025-11-11 |
 | 01.6-003 | GitHub SSH Connection Test | 8 | ✅ Complete | feature/01.6-003-ssh-connection-test | 2025-11-11 |
 | 01.7-001 | Full Repository Clone | 5 | ✅ Complete | feature/01.7-001-repo-clone | 2025-11-11 |
+| 01.7-002 | Final Darwin Rebuild (Phase 8) | 8 | ✅ Complete | main | 2025-11-11 |
 
 **Notes**:
 - **2025-11-10**: Story 01.6-002 scope changed from manual approach (8 points) to automated GitHub CLI approach (5 points), reducing Epic-01 by 3 points
@@ -42,14 +43,37 @@
 ### Overall Project Status
 
 - **Total Project Scope**: 112 stories, 601 story points
-- **Completed**: 15 stories (13.4%), 93 points (15.5%)
-- **In Progress**: Epic-01 Bootstrap & Installation (78.9% complete by stories, 82.3% by points)
+- **Completed**: 16 stories (14.3%), 101 points (16.8%)
+- **In Progress**: Epic-01 Bootstrap & Installation (84.2% complete by stories, 89.4% by points)
 - **Current Phase**: Phase 0-2 (Foundation + Bootstrap, Week 1-2)
-- **Next Story**: 01.7-002 (Final Darwin Rebuild - 8 points) - READY TO START
+- **Next Story**: 01.8-001 (Installation Summary & Next Steps - 3 points) - READY TO START
 - **Deferred**: Story 01.1-004 (Modular Bootstrap, 8 points) - P1, implement post-Epic-01
 
 ### Recent Activity
 
+- **2025-11-11**: ✅ **COMPLETED Story 01.7-002** (Final Darwin Rebuild - 8 points) - **VM TESTED & VERIFIED**
+  - Added Phase 8 to bootstrap.sh (5 functions, ~260 lines)
+  - 50 comprehensive BATS tests (TDD methodology) in tests/08-final-darwin-rebuild.bats
+  - Profile loading from user-config.nix (standard or power)
+  - darwin-rebuild switch execution from cloned repository
+  - Home Manager symlink validation (non-critical checks)
+  - Comprehensive success message with profile-specific next steps
+  - Function breakdown:
+    - `load_profile_from_user_config()`: Extract profile value from user-config.nix
+    - `run_final_darwin_rebuild()`: Execute darwin-rebuild with sudo
+    - `verify_home_manager_symlinks()`: Validate Home Manager symlinks created
+    - `display_rebuild_success_message()`: Show next steps and useful commands
+    - `final_darwin_rebuild_phase()`: Orchestration function for Phase 8
+  - **All 6 VM test scenarios PASSED** ✅
+  - **Hotfix #4 (a4a63f5)**: Profile persistence - Added installProfile field to template
+  - **Hotfix #5 (ac36f56)**: darwin-rebuild sudo - Added sudo to Phase 8 rebuild command
+  - **Hotfix #6 (f5f7ed6)**: Profile extraction regex - Fixed greedy pattern bug
+  - **Hotfix #7 (442bbfd)**: Git tracking for flakes - Auto git-add user-config.nix
+  - Bash syntax check: **PASSED** ✅
+  - Phase execution time: **~180 seconds** ⚡
+  - Commits: Initial + 4 hotfixes merged to main
+  - Epic-01 now **89.4% complete** (101/113 points) 🎉
+  - Bootstrap.sh size: 3,964 → 4,222 lines (+258 lines)
 - **2025-11-11**: ✅ **COMPLETED Story 01.7-001** (Full Repository Clone - 5 points) - **VM TESTED & VERIFIED**
   - Added Phase 7 to bootstrap.sh (9 functions, ~400 lines)
   - 118 comprehensive BATS tests (TDD methodology) in tests/bootstrap_repo_clone_test.bats

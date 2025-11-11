@@ -24,7 +24,7 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 18 | 105 | **13** | **80** | 72.2% | 76.2% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 19 | 113 | **13** | **80** | 68.4% | 70.8% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -32,11 +32,11 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **111** | **593** | **13** | **80** | **11.7%** | **13.5%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **112** | **601** | **13** | **80** | **11.6%** | **13.3%** | 🟡 In Progress |
 
 ### ✅ Completed
 - **Requirements Definition** ([REQUIREMENTS.md](./REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
-- **User Story Breakdown** ([STORIES.md](./STORIES.md)) - 111 stories across 7 epics + NFR
+- **User Story Breakdown** ([STORIES.md](./STORIES.md)) - 112 stories across 7 epics + NFR
 - **Story Management Protocol** - Modular epic structure with detailed acceptance criteria
 - **Requirements Baseline** - v1.1 approved (change control re-approval completed)
 - **Project Architecture** - Two-tier profiles (Standard/Power), Stylix theming, nixpkgs-unstable
@@ -55,8 +55,9 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - **Story 01.6-002** - Automated GitHub SSH Key Upload (✅ Complete - 2025-11-11, 5 pts, VM TESTED)
 
 ### 🔄 In Progress
-- **Epic-01: Bootstrap System** (Week 1-2) - 13/18 stories complete (72.2%), 80/105 points (76.2%)
+- **Epic-01: Bootstrap System** (Week 1-2) - 13/19 stories complete (68.4%), 80/113 points (70.8%)
 - **Next Story**: 01.6-003 - GitHub SSH Connection Test (8 points)
+- **Deferred**: 01.1-004 - Modular Bootstrap Architecture (8 points) - implement post-Epic-01
 - **Bootstrap Status**: Safe to re-run - detects existing user config and offers reuse (saves time during VM testing)
 - **OAuth Integration**: GitHub key upload ~90% automated (10 seconds user interaction)
 

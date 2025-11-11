@@ -29,7 +29,7 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 
 | Epic ID | Epic Name | Business Value | Story Count | Total Points | Priority |
 |---------|-----------|----------------|-------------|--------------|----------|
-| Epic-01 | Bootstrap & Installation System | Automated one-command installation | 18 | 108 | Must Have |
+| Epic-01 | Bootstrap & Installation System | Automated one-command installation | 19 | 113 | Must Have |
 | Epic-02 | Application Installation & Configuration | Declarative app management across profiles | 22 | 113 | Must Have |
 | Epic-03 | System Configuration & macOS Preferences | Automated macOS system preferences | 12 | 68 | Must Have |
 | Epic-04 | Development Environment & Shell | Complete dev tooling setup | 18 | 97 | Must Have |
@@ -57,14 +57,14 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 **Time Constraints**: 6-8 week delivery timeline with VM testing before physical hardware
 
 ### MVP Scope
-**Total MVP Stories**: 111
-**Total MVP Points**: 593
+**Total MVP Stories**: 112
+**Total MVP Points**: 601
 **Estimated Duration**: 6-8 weeks (implementation) + 2 weeks (migrations)
 
 ### MVP Epic Breakdown
 | Epic | MVP Stories | MVP Points | Completed Stories | Completed Points | % Complete |
 |------|-------------|------------|-------------------|------------------|------------|
-| Epic-01 | 18/18 | 105/105 | 10 | 65 | 61.9% |
+| Epic-01 | 19/19 | 113/113 | 13 | 80 | 70.8% |
 | Epic-02 | 22/22 | 113/113 | 0 | 0 | 0% |
 | Epic-03 | 12/12 | 68/68 | 0 | 0 | 0% |
 | Epic-04 | 18/18 | 97/97 | 0 | 0 | 0% |
@@ -73,15 +73,17 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 | Epic-07 | 8/8 | 34/34 | 0 | 0 | 0% |
 | NFR | 15/15 | 79/79 | 0 | 0 | 0% |
 
-**Note**: Epic-01 total reduced from 108 to 105 points after Story 01.6-002 scope change (2025-11-10).
+**Notes**:
+- **2025-11-10**: Epic-01 reduced from 108 to 105 points after Story 01.6-002 scope change
+- **2025-11-11**: Epic-01 increased to 113 points after adding Story 01.1-004 (Modular Bootstrap Architecture, 8 points, deferred to post-Epic-01)
 
 ## Project Metrics
-- **Total Stories**: 111
-- **Total Story Points**: 593 (revised from 596 after Story 01.6-002 update)
-- **Average Story Size**: 5.3 points
-- **Completed Stories**: 10 (9.0%)
-- **Completed Points**: 65 (11.0%)
-- **MVP Completion**: 10.9% by stories, 11.0% by points
+- **Total Stories**: 112
+- **Total Story Points**: 601
+- **Average Story Size**: 5.4 points
+- **Completed Stories**: 13 (11.6%)
+- **Completed Points**: 80 (13.3%)
+- **MVP Completion**: 11.6% by stories, 13.3% by points
 
 ## Story Dependencies
 

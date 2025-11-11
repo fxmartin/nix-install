@@ -210,10 +210,14 @@ setup() {
     assert_output --regexp "(Activate|licensed|license)"
 }
 
-@test "display_next_steps: mentions Office 365 installation" {
+@test "display_next_steps: shows 2 steps for Standard profile" {
+    export INSTALL_PROFILE="standard"
+
     run display_next_steps
     assert_success
-    assert_output --regexp "(Office 365|Office|Microsoft)"
+    assert_output --regexp "1\."
+    assert_output --regexp "2\."
+    refute_output --regexp "3\."
 }
 
 @test "display_next_steps: includes Ollama verification for Power profile" {
@@ -347,10 +351,10 @@ setup() {
     assert_output --partial "1Password"
 }
 
-@test "display_manual_activation_apps: lists Office 365" {
+@test "display_manual_activation_apps: lists Microsoft Office" {
     run display_manual_activation_apps
     assert_success
-    assert_output --partial "Office 365"
+    assert_output --regexp "(Microsoft Office|Office 365)"
 }
 
 @test "display_manual_activation_apps: includes Parallels for Power profile" {

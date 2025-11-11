@@ -64,8 +64,10 @@ readonly USER_CONFIG_FILE="${WORK_DIR}/user-config.nix"
 # Bootstrap temp directory (used by multiple phases)
 readonly BOOTSTRAP_TEMP_DIR="/tmp/nix-bootstrap"
 
-# Repository clone directory (configurable for testing)
-readonly REPO_CLONE_DIR="${HOME}/Documents/nix-install"
+# Repository clone directory (configurable via NIX_INSTALL_DIR environment variable)
+# Default: ~/Documents/nix-install
+# Custom: export NIX_INSTALL_DIR="~/nix-install" before running bootstrap
+readonly REPO_CLONE_DIR="${NIX_INSTALL_DIR:-${HOME}/Documents/nix-install}"
 
 # Logging functions
 log_info() {
@@ -555,7 +557,11 @@ generate_user_config() {
     log_info "Hostname (sanitized): ${hostname}"
 
     # Set dotfiles path
-    local dotfiles_path="Documents/nix-install"
+    # Derive dotfiles path from REPO_CLONE_DIR (relative to HOME)
+    # Example: ~/Documents/nix-install → Documents/nix-install
+    # Example: ~/nix-install → nix-install
+    # Example: ~/.nix-install → .nix-install
+    local dotfiles_path="${REPO_CLONE_DIR#${HOME}/}"
     log_info "Dotfiles path: ${dotfiles_path}"
 
     echo ""

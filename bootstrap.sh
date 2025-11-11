@@ -3101,6 +3101,226 @@ upload_github_key_phase() {
     fi
 }
 
+#==============================================================================
+# STORY 01.6-003: GITHUB SSH CONNECTION TEST
+#==============================================================================
+# These functions implement GitHub SSH connection testing with retry mechanism
+# and abort option for the bootstrap script.
+#==============================================================================
+
+# Function: test_github_ssh_connection
+# Purpose: Test GitHub SSH connection and verify authentication
+# Returns: 0 on success, 1 on failure
+# Note: ssh -T git@github.com returns exit code 1 on SUCCESS (by design)!
+#       We must check output content, not exit code
+test_github_ssh_connection() {
+    local ssh_output
+    local username
+
+    log_info "Testing GitHub SSH connection..."
+
+    # Capture both stdout and stderr (GitHub sends message to stderr)
+    # NOTE: ssh -T returns 1 on success, so we can't use return code
+    ssh_output=$(ssh -T git@github.com 2>&1)
+
+    # Check if authentication was successful by looking for success message
+    if echo "$ssh_output" | grep -q "successfully authenticated"; then
+        # Extract username if present in output
+        if echo "$ssh_output" | grep -q "Hi [^!]*!"; then
+            username=$(echo "$ssh_output" | grep -oE "Hi [^!]+!" | cut -d' ' -f2 | tr -d '!')
+            log_success "✓ Successfully authenticated as GitHub user: ${username}"
+        else
+            log_success "✓ Successfully authenticated to GitHub"
+        fi
+        return 0
+    else
+        log_error "✗ SSH connection to GitHub failed"
+        log_error "Output: ${ssh_output}"
+        return 1
+    fi
+}
+
+# Function: display_ssh_troubleshooting
+# Purpose: Display troubleshooting help for SSH connection failures
+# Returns: Always returns 0
+display_ssh_troubleshooting() {
+    echo ""
+    log_warn "========================================"
+    log_warn "SSH CONNECTION TROUBLESHOOTING"
+    log_warn "========================================"
+    echo ""
+
+    log_info "Common issues and solutions:"
+    echo ""
+
+    log_info "1. OAuth Authorization (if automated upload was used):"
+    log_info "   → Ensure you clicked 'Authorize' during the GitHub OAuth flow"
+    echo ""
+
+    log_info "2. Key Upload Verification:"
+    log_info "   → Verify the key was uploaded successfully to GitHub"
+    log_info "   → Check your keys at: ${YELLOW}https://github.com/settings/keys${NC}"
+    echo ""
+
+    log_info "3. SSH Key Passphrase (if set):"
+    log_info "   → Ensure SSH key passphrase (if any) was entered correctly"
+    log_info "   → Check ssh-agent is running and has your key loaded"
+    echo ""
+
+    log_info "4. Manual Test:"
+    log_info "   → Test manually with: ${YELLOW}ssh -T git@github.com${NC}"
+    log_info "   → You should see: 'Hi <username>! You've successfully authenticated...'"
+    echo ""
+
+    log_info "5. Network Connectivity:"
+    log_info "   → Verify you can reach github.com"
+    log_info "   → Check if firewall/proxy is blocking SSH (port 22)"
+    echo ""
+
+    return 0
+}
+
+# Function: retry_ssh_connection
+# Purpose: Retry SSH connection test up to 3 times with delays
+# Returns: 0 if any attempt succeeds, 1 if all attempts fail
+retry_ssh_connection() {
+    local max_attempts=3
+    local attempt=1
+    local sleep_duration=2
+
+    log_info "Starting SSH connection test with retry mechanism..."
+    log_info "Maximum attempts: ${max_attempts}"
+    echo ""
+
+    while [ $attempt -le $max_attempts ]; do
+        log_info "Attempt ${attempt} of ${max_attempts}..."
+        echo ""
+
+        if test_github_ssh_connection; then
+            echo ""
+            log_success "✓ GitHub SSH connection test PASSED"
+            return 0
+        fi
+
+        # If this wasn't the last attempt, wait before retrying
+        if [ $attempt -lt $max_attempts ]; then
+            echo ""
+            log_warn "Connection test failed. Waiting ${sleep_duration} seconds before retry..."
+            sleep $sleep_duration
+            echo ""
+        fi
+
+        attempt=$((attempt + 1))
+    done
+
+    echo ""
+    log_error "✗ All ${max_attempts} SSH connection attempts FAILED"
+    echo ""
+
+    return 1
+}
+
+# Function: prompt_continue_without_ssh
+# Purpose: Ask user if they want to continue without SSH test or abort
+# Returns: 0 to continue, 1 to abort
+prompt_continue_without_ssh() {
+    local response
+
+    echo ""
+    log_warn "========================================"
+    log_warn "SSH CONNECTION TEST FAILED"
+    log_warn "========================================"
+    echo ""
+
+    log_warn "The SSH connection test to GitHub failed after 3 attempts."
+    log_warn "You can continue anyway, but repository cloning may fail later."
+    echo ""
+
+    while true; do
+        read -p "Continue without SSH test? (y/n) [not recommended]: " response
+
+        # Trim whitespace and convert to lowercase
+        response=$(echo "$response" | xargs | tr '[:upper:]' '[:lower:]')
+
+        case "$response" in
+            y|yes)
+                echo ""
+                log_warn "⚠️  WARNING: Continuing without SSH test validation"
+                log_warn "Repository cloning in Phase 7 may fail if SSH is not configured correctly"
+                echo ""
+                return 0
+                ;;
+            n|no)
+                echo ""
+                log_error "Bootstrap aborted by user"
+                log_error "Please fix SSH connection issues and re-run the bootstrap script"
+                echo ""
+                return 1
+                ;;
+            *)
+                echo ""
+                log_error "Invalid input: '${response}'"
+                log_info "Please enter 'y' (yes) or 'n' (no)"
+                echo ""
+                ;;
+        esac
+    done
+}
+
+# Function: test_github_ssh_phase
+# Purpose: Orchestrate GitHub SSH connection test phase (Phase 6 continued)
+# Workflow: Retry connection → Display troubleshooting on failure → Prompt to continue or abort
+# Returns: 0 on success or user continue, 1 if user aborts
+test_github_ssh_phase() {
+    local phase_start_time
+    phase_start_time=$(date +%s)
+
+    echo ""
+    log_info "========================================"
+    log_info "PHASE 6 (CONTINUED): GITHUB SSH CONNECTION TEST"
+    log_info "Story 01.6-003: Verify SSH authentication"
+    log_info "========================================"
+    echo ""
+
+    log_info "Testing SSH connection to GitHub..."
+    log_info "This validates that your SSH key is correctly configured."
+    echo ""
+
+    # Attempt connection with retry mechanism
+    if retry_ssh_connection; then
+        local phase_end_time phase_duration
+        phase_end_time=$(date +%s)
+        phase_duration=$((phase_end_time - phase_start_time))
+
+        echo ""
+        log_success "✓ GitHub SSH connection test completed successfully"
+        log_info "Phase 6 (continued) completed in ${phase_duration} seconds"
+        echo ""
+
+        return 0
+    fi
+
+    # Connection test failed - display troubleshooting help
+    display_ssh_troubleshooting
+
+    # Ask user if they want to continue or abort
+    if prompt_continue_without_ssh; then
+        local phase_end_time phase_duration
+        phase_end_time=$(date +%s)
+        phase_duration=$((phase_end_time - phase_start_time))
+
+        log_warn "Proceeding to next phase despite SSH test failure"
+        log_info "Phase 6 (continued) completed with warnings in ${phase_duration} seconds"
+        echo ""
+
+        return 0
+    else
+        # User chose to abort
+        log_error "Bootstrap terminated by user choice"
+        return 1
+    fi
+}
+
 # Main execution flow
 main() {
     echo ""
@@ -3253,6 +3473,20 @@ main() {
     # shellcheck disable=SC2310  # Intentional: Using ! to handle GitHub key upload failure
     if ! upload_github_key_phase; then
         log_error "GitHub SSH key upload failed"
+        log_error "Bootstrap process terminated."
+        exit 1
+    fi
+
+    # ==========================================================================
+    # PHASE 6 (CONTINUED): GITHUB SSH CONNECTION TEST
+    # ==========================================================================
+    # Story 01.6-003: Test GitHub SSH connection with retry mechanism
+    # Validates SSH authentication works before repository cloning
+    # ==========================================================================
+
+    # shellcheck disable=SC2310  # Intentional: Using ! to handle SSH test failure or user abort
+    if ! test_github_ssh_phase; then
+        log_error "GitHub SSH connection test failed or aborted by user"
         log_error "Bootstrap process terminated."
         exit 1
     fi

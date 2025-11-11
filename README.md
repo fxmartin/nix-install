@@ -35,7 +35,7 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 | **TOTAL** | **All Epics** | **112** | **601** | **14** | **88** | **12.5%** | **14.6%** | 🟡 In Progress |
 
 ### ✅ Completed
-- **Requirements Definition** ([REQUIREMENTS.md](./REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
+- **Requirements Definition** ([REQUIREMENTS.md](./docs/REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
 - **User Story Breakdown** ([STORIES.md](./STORIES.md)) - 112 stories across 7 epics + NFR
 - **Story Management Protocol** - Modular epic structure with detailed acceptance criteria
 - **Requirements Baseline** - v1.1 approved (change control re-approval completed)
@@ -99,7 +99,7 @@ This represents approximately 20 hours of focused, productive development work o
 
 ### Essential Reading
 
-1. **[REQUIREMENTS.md](./REQUIREMENTS.md)** - Complete product requirements document
+1. **[REQUIREMENTS.md](./docs/REQUIREMENTS.md)** - Complete product requirements document
    - Business objectives and success metrics
    - Detailed functional and non-functional requirements
    - Profile comparison (Standard vs Power)

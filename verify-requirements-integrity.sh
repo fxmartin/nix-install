@@ -12,8 +12,8 @@ if [ ! -f "requirements-integrity.json" ]; then
 fi
 
 # Check if requirements file exists
-if [ ! -f "REQUIREMENTS.md" ]; then
-    echo "❌ REQUIREMENTS FILE MISSING: REQUIREMENTS.md not found"
+if [ ! -f "docs/REQUIREMENTS.md" ]; then
+    echo "❌ REQUIREMENTS FILE MISSING: docs/REQUIREMENTS.md not found"
     exit 1
 fi
 
@@ -23,9 +23,9 @@ APPROVAL_DATE=$(grep '"approval_timestamp"' requirements-integrity.json | cut -d
 APPROVED_BY=$(grep '"approved_by"' requirements-integrity.json | cut -d'"' -f4)
 
 # Calculate current document hash
-CURRENT_HASH=$(shasum -a 256 REQUIREMENTS.md | cut -d' ' -f1)
+CURRENT_HASH=$(shasum -a 256 docs/REQUIREMENTS.md | cut -d' ' -f1)
 
-echo "Document: REQUIREMENTS.md"
+echo "Document: docs/REQUIREMENTS.md"
 echo "Approved By: $APPROVED_BY"
 echo "Approval Date: $APPROVAL_DATE"
 echo "Stored Hash:  $STORED_HASH"

@@ -194,6 +194,46 @@
           # - Parallels Desktop enabled (isPowerProfile = true)
           # - Full app set
           # - Multiple Ollama models (gpt-oss:20b, qwen2.5-coder:32b, llama3.1:70b, deepseek-r1:32b)
+
+          # Story 02.1-004: Automatically pull 4 Ollama models for Power profile
+          system.activationScripts.pullOllamaModels.text = ''
+            # Check if Ollama CLI is available (installed by Homebrew)
+            if [ -x /opt/homebrew/bin/ollama ]; then
+              echo "Checking Ollama models for Power profile..."
+
+              # Define models to pull (4 models, ~90GB total)
+              MODELS=(
+                "gpt-oss:20b"          # ~12GB - General purpose LLM
+                "qwen2.5-coder:32b"    # ~20GB - Code-specialized LLM
+                "llama3.1:70b"         # ~40GB - Large general LLM
+                "deepseek-r1:32b"      # ~18GB - Reasoning-focused LLM
+              )
+
+              # Pull each model sequentially with progress tracking
+              for model in "''${MODELS[@]}"; do
+                # Check if model already exists (idempotent)
+                if ! /opt/homebrew/bin/ollama list 2>/dev/null | grep -q "$model"; then
+                  echo "Pulling Ollama model: $model (this may take several minutes)..."
+
+                  # Pull model (requires network and running daemon)
+                  if /opt/homebrew/bin/ollama pull "$model" 2>&1; then
+                    echo "✓ Successfully pulled Ollama model: $model"
+                  else
+                    echo "⚠️  Warning: Failed to pull Ollama model $model"
+                    echo "   This may be due to network issues or Ollama daemon not running."
+                    echo "   You can manually pull the model later with: ollama pull $model"
+                  fi
+                else
+                  echo "✓ Ollama model $model already installed"
+                fi
+              done
+
+              echo "✓ Ollama model check complete for Power profile"
+            else
+              echo "⚠️  Warning: Ollama CLI not found at /opt/homebrew/bin/ollama"
+              echo "   Model pull will be skipped. Install Ollama first."
+            fi
+          '';
         }
       ];
     };

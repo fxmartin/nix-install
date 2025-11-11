@@ -246,13 +246,29 @@
 - Duration: 15-30 minutes depending on network speed
 
 **Definition of Done**:
-- [ ] Activation script implemented for Power profile
-- [ ] All 4 models pull during first rebuild
-- [ ] Script is idempotent
-- [ ] `ollama list` shows all models
-- [ ] Each model runs successfully
-- [ ] Tested in VM with Power profile
-- [ ] Documentation notes expected download time
+- [x] Activation script implemented for Power profile
+- [ ] All 4 models pull during first rebuild (VM testing by FX)
+- [x] Script is idempotent
+- [ ] `ollama list` shows all models (VM testing by FX)
+- [ ] Each model runs successfully (VM testing by FX)
+- [ ] Tested in VM with Power profile (VM testing by FX)
+- [x] Documentation notes expected download time
+
+**Implementation Status**: ✅ **CODE COMPLETE** - Ready for VM testing by FX
+**Implementation Date**: 2025-11-11
+**Branch**: feature/02.1-001-ai-chat-apps (combined with 02.1-001, 02.1-002, 02.1-003)
+**Files Changed**:
+- flake.nix: Added system.activationScripts.pullOllamaModels to Power profile
+
+**Implementation Details**:
+- Activation script checks for Ollama CLI availability
+- Sequential model pull with progress tracking for each model
+- Idempotent: Checks if each model exists before pulling
+- Graceful failure handling with clear warning messages per model
+- Network-aware: Handles failures and provides manual fallback for each model
+- Power profile only: 4 models (Standard has only 1 model from Story 02.1-003)
+- Models: gpt-oss:20b (12GB), qwen2.5-coder:32b (20GB), llama3.1:70b (40GB), deepseek-r1:32b (18GB)
+- Total download: ~90GB (15-30 minutes depending on network)
 
 **Dependencies**:
 - Story 02.1-002 (Ollama installed)

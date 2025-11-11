@@ -3755,8 +3755,9 @@ load_profile_from_user_config() {
 
     # Extract installProfile value from user-config.nix
     # Pattern: installProfile = "standard"; or installProfile = "power";
+    # Note: Use non-greedy pattern to extract FIRST quoted string (not from comment)
     local profile_value
-    profile_value=$(grep -E '^\s*installProfile\s*=\s*"(standard|power)";' "${user_config_path}" | sed -E 's/.*"([^"]+)".*/\1/')
+    profile_value=$(grep -E '^\s*installProfile\s*=\s*"(standard|power)";' "${user_config_path}" | sed -E 's/^[^=]*=[[:space:]]*"([^"]+)".*/\1/')
 
     if [[ -z "${profile_value}" ]]; then
         log_error "Could not extract installProfile from user-config.nix"

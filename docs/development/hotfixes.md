@@ -452,3 +452,131 @@ Together with Hotfixes #1-3 (Phase 5-6), these enable the complete bootstrap flo
 
 ---
 
+## HOTFIX #6: Story 01.7-002 - Profile extraction reads comment instead of value
+**Date**: 2025-11-11
+**Issue**: Phase 8 displays wrong profile ("power" when user selected "standard")
+**Status**: ✅ FIXED
+**Branch**: main
+
+### Problem
+During VM testing, FX reported that Phase 8 Step 1 displayed "Profile loaded: power" even though:
+- user-config.nix contained `installProfile = "standard";`
+- Phase 2 confirmed "Installation profile selected: standard"
+- The file was correctly generated with the right value
+
+The `load_profile_from_user_config()` function was extracting the WRONG value from the file.
+
+### Root Cause
+**Greedy Regex Bug**: The sed pattern used to extract the profile value was TOO greedy and captured the LAST quoted string on the line, not the first.
+
+**The Line in user-config.nix**:
+```nix
+installProfile = "standard";  # "standard" or "power"
+```
+
+**Buggy Pattern**:
+```bash
+sed -E 's/.*"([^"]+)".*/\1/'
+```
+
+This pattern:
+1. `.*` - Matches greedily: `  installProfile = "standard";  # "standard" or `
+2. `"([^"]+)"` - Captures the LAST quoted string: `"power"`
+3. Result: Always extracts "power" regardless of actual value!
+
+**Why This Happened**:
+- The template (line 13) has a helpful comment: `installProfile = "@INSTALL_PROFILE@";  # "standard" or "power"`
+- After sed substitution: `installProfile = "standard";  # "standard" or "power"`
+- The sed pattern `.*"([^"]+)".*` is greedy and skips past the first quote, capturing the last one
+- The comment always contains both "standard" and "power", so it always extracts "power" (the last quoted word)
+
+### Solution Implemented
+Changed sed pattern to explicitly match the value part (first quoted string after equals sign):
+
+**Before (BUGGY)**:
+```bash
+profile_value=$(grep ... | sed -E 's/.*"([^"]+)".*/\1/')
+```
+
+**After (FIXED)**:
+```bash
+profile_value=$(grep ... | sed -E 's/^[^=]*=[[:space:]]*"([^"]+)".*/\1/')
+```
+
+**How the Fix Works**:
+1. `^[^=]*=` - Match from start of line to first equals sign
+2. `[[:space:]]*` - Skip any whitespace after equals
+3. `"([^"]+)"` - Capture the FIRST quoted string (the actual value)
+4. `.*` - Ignore everything after (including the comment)
+
+### Files Modified
+- **bootstrap.sh**: Line 3760 - Updated sed pattern in `load_profile_from_user_config()`
+  - Added comment explaining the non-greedy pattern requirement
+  - Changed regex to match first equals sign, then first quoted string
+
+### Testing
+- ✅ Bash syntax validated (bash -n)
+- ✅ Tested with `installProfile = "standard";  # comment` → Extracts "standard" ✅
+- ✅ Tested with `installProfile = "power";  # comment` → Extracts "power" ✅
+- ⏳ VM testing required to validate in real bootstrap
+
+### Impact
+- **Fixes**: Profile extraction always showing "power" (CRITICAL bug)
+- **Enables**: Correct profile selection (Standard vs Power)
+- **User Impact**: Bootstrap now applies the profile user actually selected
+
+### Why This Wasn't Caught Earlier
+**Test Gap**: The BATS tests for Phase 8 created mock user-config.nix files WITHOUT the comment, so they never exposed this bug:
+
+```nix
+# BATS test mock (no comment - worked fine)
+installProfile = "standard";
+
+# Real template (has comment - caused bug)
+installProfile = "standard";  # "standard" or "power"
+```
+
+The tests validated the sed pattern against a simplified format that didn't match production.
+
+**Lesson Learned**: Test mocks should match EXACT production format, including comments and formatting.
+
+### Example of Bug Behavior
+
+**User Experience (Before Fix)**:
+```
+Phase 2:
+✓ Installation profile selected: standard
+
+Phase 8 Step 1:
+Loading installation profile from user-config.nix...
+✓ Profile loaded: power   ← WRONG!
+
+Phase 8 Step 2:
+Profile: power   ← WRONG!
+Flake reference: /Users/fxmartin/Documents/nix-install#power   ← WRONG!
+```
+
+**User Experience (After Fix)**:
+```
+Phase 2:
+✓ Installation profile selected: standard
+
+Phase 8 Step 1:
+Loading installation profile from user-config.nix...
+✓ Profile loaded: standard   ← CORRECT!
+
+Phase 8 Step 2:
+Profile: standard   ← CORRECT!
+Flake reference: /Users/fxmartin/Documents/nix-install#standard   ← CORRECT!
+```
+
+### Relationship to Other Fixes
+This completes the Phase 8 hotfix trilogy:
+- **Hotfix #4**: Profile persistence (installProfile added to user-config.nix) ✅
+- **Hotfix #5**: darwin-rebuild sudo requirement ✅
+- **Hotfix #6**: Profile extraction regex fix ✅ **← THIS FIX**
+
+Together with Hotfixes #1-3, these enable correct, complete bootstrap flow from Phase 1 through Phase 8 with proper profile selection.
+
+---
+

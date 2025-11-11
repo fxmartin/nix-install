@@ -28,9 +28,13 @@
     # - Text processing (bat, fzf, jq, ripgrep, yq)
     # - System monitoring (btop, bottom, neofetch)
     # - Cloud tools (awscli, terraform, etc.)
-    # NOTE: gh (GitHub CLI) is managed by Home Manager programs.gh module
-    #       See home-manager/modules/github.nix (Story 01.6-002 dependency)
-    brews = [];
+    # CRITICAL: gh (GitHub CLI) installed here for immediate PATH availability
+    #           Required by Phase 6 (Story 01.6-002) for SSH key upload
+    #           Homebrew formula makes it available immediately after darwin-rebuild
+    #           (Home Manager would require shell reload to update PATH)
+    brews = [
+      "gh" # GitHub CLI - Required for automated SSH key upload in bootstrap
+    ];
 
     # GUI Applications (Casks)
     # Epic-02 will populate with:

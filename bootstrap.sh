@@ -2948,6 +2948,25 @@ authenticate_github_cli() {
         rm -f "${gh_config_dir}/.test_write" 2>/dev/null || true
     fi
 
+    # Check for existing Home Manager symlink and remove it (Hotfix #12 - Issue #20)
+    # Even after removing programs.gh.settings (Hotfix #11), existing systems may
+    # still have the old read-only symlink to /nix/store. Home Manager doesn't
+    # automatically delete files when removed from config, so we must handle it here.
+    local gh_config_file="${gh_config_dir}/config.yml"
+    if [[ -L "${gh_config_file}" ]]; then
+        log_warn "GitHub CLI config is a symlink (likely from old Home Manager config)"
+        log_info "Removing read-only symlink to allow authentication..."
+        if rm -f "${gh_config_file}"; then
+            log_info "✓ Removed symlink: ${gh_config_file}"
+            log_info "Note: GitHub CLI will create a writable config file"
+        else
+            log_error "Failed to remove symlink: ${gh_config_file}"
+            log_error "Manual fix: rm ${gh_config_file}"
+            return 1
+        fi
+        echo ""
+    fi
+
     # Run gh auth login with web OAuth flow
     # --hostname github.com: Authenticate to GitHub (not enterprise)
     # --git-protocol ssh: Use SSH for git operations (not HTTPS)

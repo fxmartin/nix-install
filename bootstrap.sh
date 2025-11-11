@@ -2867,6 +2867,29 @@ authenticate_github_cli() {
     local config_dir="${HOME}/.config"
     local gh_config_dir="${HOME}/.config/gh"
 
+    # Fix ~/.config ownership and permissions if it exists (Hotfix #10 - Issue #16)
+    # When NIX_INSTALL_DIR is set to ~/.config/*, Nix may create ~/.config/nix/
+    # with incorrect ownership, causing GitHub CLI authentication to fail
+    if [[ -d "${config_dir}" ]]; then
+        # Check if ~/.config is owned by current user
+        if [[ ! -O "${config_dir}" ]]; then
+            log_warn "${config_dir} exists but is not owned by current user"
+            log_info "Attempting to fix ownership (requires sudo)..."
+            if sudo chown "${USER}:staff" "${config_dir}"; then
+                log_info "✓ Fixed ownership of ${config_dir}"
+            else
+                log_warn "Failed to fix ownership of ${config_dir}"
+                log_info "Manual fix: sudo chown -R ${USER}:staff ${config_dir}"
+            fi
+        fi
+        # Ensure proper permissions (755 = rwxr-xr-x)
+        if chmod 755 "${config_dir}" 2>/dev/null; then
+            log_info "✓ Set permissions on ${config_dir} (755)"
+        else
+            log_warn "Failed to set permissions on ${config_dir}"
+        fi
+    fi
+
     # Create ~/.config if it doesn't exist
     if [[ ! -d "${config_dir}" ]]; then
         log_info "Creating ~/.config directory..."
@@ -2878,6 +2901,20 @@ authenticate_github_cli() {
         # Set proper ownership and permissions
         chmod 755 "${config_dir}" || true
         log_info "✓ ~/.config directory created"
+    fi
+
+    # Fix ~/.config/gh ownership if it exists (Hotfix #10 - Issue #16)
+    if [[ -d "${gh_config_dir}" ]]; then
+        # Check if ~/.config/gh is owned by current user
+        if [[ ! -O "${gh_config_dir}" ]]; then
+            log_warn "${gh_config_dir} exists but is not owned by current user"
+            log_info "Attempting to fix ownership (requires sudo)..."
+            if sudo chown -R "${USER}:staff" "${gh_config_dir}"; then
+                log_info "✓ Fixed ownership of ${gh_config_dir}"
+            else
+                log_warn "Failed to fix ownership of ${gh_config_dir}"
+            fi
+        fi
     fi
 
     # Create ~/.config/gh if it doesn't exist

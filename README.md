@@ -242,6 +242,7 @@ NIX_INSTALL_DIR="/opt/nix-install" ...
 - If not specified, defaults to `~/Documents/nix-install` (maintains backward compatibility)
 - The path should NOT end with a trailing slash
 - Paths with spaces are supported but must be properly quoted
+- **Note about `~/.config/*` paths**: Paths under `~/.config/` are fully supported as of Hotfix #10. The bootstrap script automatically detects and fixes any permission issues that may arise when Nix creates subdirectories like `~/.config/nix/`.
 - The repository clone location affects:
   - Where the configuration files are stored
   - The `dotfiles_path` used in `user-config.nix`

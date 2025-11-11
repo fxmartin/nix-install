@@ -255,7 +255,7 @@ setup() {
 }
 
 #############################################################################
-# COMMAND REFERENCE TESTS (8 tests)
+# COMMAND REFERENCE TESTS (9 tests)
 #############################################################################
 
 @test "display_useful_commands: shows rebuild command" {
@@ -308,6 +308,15 @@ setup() {
     assert_success
     # Should mention where config comes from
     assert_output --regexp "(Documents/nix-install|configuration)"
+}
+
+@test "display_useful_commands: mentions sudo requirement for darwin-rebuild commands" {
+    run display_useful_commands
+    assert_success
+    # Should mention that rebuild and update require sudo
+    assert_output --partial "sudo rebuild"
+    assert_output --partial "sudo update"
+    assert_output --regexp "(Note|note).*sudo.*darwin-rebuild"
 }
 
 #############################################################################

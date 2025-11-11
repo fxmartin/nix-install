@@ -3528,6 +3528,15 @@ copy_user_config_to_repo() {
     if [[ -f "${dest_config}" ]]; then
         log_warn "user-config.nix already exists in repository (preserving existing file)"
         log_info "Skipping copy to preserve your customizations"
+
+        # Ensure it's git-tracked even if already exists
+        log_info "Ensuring user-config.nix is tracked in git..."
+        if ! (cd "${REPO_CLONE_DIR}" && git add user-config.nix); then
+            log_warn "Failed to git add existing user-config.nix (may already be tracked)"
+        else
+            log_success "✓ User configuration tracked in git"
+        fi
+
         return 0
     fi
 
@@ -3546,6 +3555,17 @@ copy_user_config_to_repo() {
     fi
 
     log_success "✓ User configuration copied to repository"
+
+    # Git add user-config.nix so Nix flake can see it
+    # Nix flakes only evaluate git-tracked files for security
+    log_info "Adding user-config.nix to git..."
+    if ! (cd "${REPO_CLONE_DIR}" && git add user-config.nix); then
+        log_error "Failed to git add user-config.nix"
+        log_error "You may need to manually run: cd ${REPO_CLONE_DIR} && git add user-config.nix"
+        return 1
+    fi
+
+    log_success "✓ User configuration tracked in git"
     return 0
 }
 

@@ -335,3 +335,120 @@ Together, these enable the complete bootstrap flow from Phase 1 through Phase 8.
 
 ---
 
+## HOTFIX #5: Story 01.7-002 - darwin-rebuild requires sudo
+**Date**: 2025-11-11
+**Issue**: Phase 8 fails with "system activation must now be run as root"
+**Status**: ✅ FIXED
+**Branch**: main
+
+### Problem
+During VM testing of Story 01.7-002 (Phase 8: Final Darwin Rebuild), the darwin-rebuild command failed with:
+
+```
+/run/current-system/sw/bin/darwin-rebuild: system activation must now be run as root
+Darwin-rebuild failed after 0 seconds
+Darwin-rebuild failed
+Your system may be in a partially configured state
+```
+
+The Phase 8 rebuild was running `darwin-rebuild switch` without sudo privileges.
+
+### Root Cause
+**Permission Mismatch**: Phase 5 (initial nix-darwin installation) correctly uses `sudo` to run the build:
+
+```bash
+# Phase 5 (line 1867) - CORRECT
+sudo nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake ${flake_ref}
+```
+
+However, Phase 8 (final rebuild) was running darwin-rebuild **without** sudo:
+
+```bash
+# Phase 8 (line 3808) - INCORRECT
+darwin-rebuild switch --flake "${flake_ref}"
+```
+
+The `darwin-rebuild switch` command performs system activation which modifies system files and requires root privileges.
+
+### Solution Implemented
+Added `sudo` to the darwin-rebuild command in Phase 8:
+
+**Changes in `run_final_darwin_rebuild()` function** (lines 3802-3812):
+
+```bash
+# darwin-rebuild switch requires sudo for system activation
+log_warn "This step requires sudo privileges for system activation"
+echo ""
+
+rebuild_start_time=$(date +%s)
+
+# Execute darwin-rebuild switch with sudo
+log_info "Executing: sudo darwin-rebuild switch --flake ${flake_ref}"
+echo ""
+
+if sudo darwin-rebuild switch --flake "${flake_ref}"; then
+```
+
+**Also updated error messages** to include sudo in recovery instructions:
+- Line 3968: `sudo darwin-rebuild switch --flake ...`
+- Line 4215: `sudo darwin-rebuild switch --flake ...`
+
+### Files Modified
+- **bootstrap.sh**: Updated `run_final_darwin_rebuild()` function
+  - Line 3803-3804: Added sudo warning message
+  - Line 3809-3812: Added sudo to darwin-rebuild command
+  - Line 3968: Updated error recovery message
+  - Line 4215: Updated final error message
+
+### Testing
+- ✅ Bash syntax validated (bash -n)
+- ⏳ VM testing required to validate sudo works correctly
+
+### Impact
+- **Fixes**: Phase 8 permission denied error (CRITICAL blocker)
+- **Aligns**: Phase 8 with Phase 5 permission model (consistency)
+- **User Impact**: Bootstrap can complete Phase 8 rebuild successfully
+
+### Why This Wasn't Caught Earlier
+**Assumption Error**: The original implementation assumed that after nix-darwin is installed in Phase 5, subsequent `darwin-rebuild` commands would work without sudo. However, `darwin-rebuild switch` (which activates system changes) always requires root privileges for system activation, regardless of whether it's the first or subsequent run.
+
+**Phase 5 vs Phase 8 Difference**:
+- **Phase 5**: First-time installation → Always requires sudo (correctly implemented)
+- **Phase 8**: Subsequent rebuild → Also requires sudo (was missing)
+
+The confusion arose from thinking "rebuild" was different from "initial build", but both use the same system activation mechanism.
+
+### Darwin-Rebuild Permission Model
+Per nix-darwin documentation, `darwin-rebuild switch` requires sudo because it:
+1. Modifies system files in `/run/current-system`
+2. Activates launchd services (system daemons)
+3. Updates system PATH and environment
+4. Symlinks system configurations
+
+These operations always require root, whether first-time or subsequent rebuilds.
+
+### User Experience
+With this fix, users will see:
+
+```
+[INFO] This will apply your complete system configuration...
+[INFO] Expected duration: 2-5 minutes (packages cached from initial build)
+
+[WARN] This step requires sudo privileges for system activation
+
+[INFO] Executing: sudo darwin-rebuild switch --flake /Users/fxmartin/Documents/nix-install#power
+
+Password: [user enters password]
+```
+
+This matches the sudo prompt from Phase 5, providing consistency.
+
+### Relationship to Other Fixes
+This completes the Phase 8 hotfix series:
+- **Hotfix #4**: Profile persistence (installProfile in user-config.nix) ✅
+- **Hotfix #5**: darwin-rebuild sudo requirement ✅ **← THIS FIX**
+
+Together with Hotfixes #1-3 (Phase 5-6), these enable the complete bootstrap flow from Phase 1 through Phase 8.
+
+---
+

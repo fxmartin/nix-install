@@ -3799,13 +3799,17 @@ run_final_darwin_rebuild() {
     log_info "Expected duration: 2-5 minutes (packages cached from initial build)"
     echo ""
 
-    rebuild_start_time=$(date +%s)
-
-    # Execute darwin-rebuild switch
-    log_info "Executing: darwin-rebuild switch --flake ${flake_ref}"
+    # darwin-rebuild switch requires sudo for system activation
+    log_warn "This step requires sudo privileges for system activation"
     echo ""
 
-    if darwin-rebuild switch --flake "${flake_ref}"; then
+    rebuild_start_time=$(date +%s)
+
+    # Execute darwin-rebuild switch with sudo
+    log_info "Executing: sudo darwin-rebuild switch --flake ${flake_ref}"
+    echo ""
+
+    if sudo darwin-rebuild switch --flake "${flake_ref}"; then
         rebuild_end_time=$(date +%s)
         rebuild_duration=$((rebuild_end_time - rebuild_start_time))
 
@@ -3961,7 +3965,7 @@ final_darwin_rebuild_phase() {
     if ! run_final_darwin_rebuild; then
         log_error "Darwin-rebuild failed"
         log_error "Your system may be in a partially configured state"
-        log_error "Try running: darwin-rebuild switch --flake ${REPO_CLONE_DIR}#${INSTALL_PROFILE}"
+        log_error "Try running: sudo darwin-rebuild switch --flake ${REPO_CLONE_DIR}#${INSTALL_PROFILE}"
         return 1
     fi
     echo ""
@@ -4208,7 +4212,7 @@ main() {
     if ! final_darwin_rebuild_phase; then
         log_error "Final darwin-rebuild failed"
         log_error "Bootstrap process terminated."
-        log_error "You can retry manually: darwin-rebuild switch --flake ~/Documents/nix-install#<profile>"
+        log_error "You can retry manually: sudo darwin-rebuild switch --flake ~/Documents/nix-install#<profile>"
         exit 1
     fi
 

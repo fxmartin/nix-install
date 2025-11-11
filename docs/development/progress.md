@@ -52,6 +52,29 @@
 
 ### Recent Activity
 
+- **2025-11-11**: 🔧 **HOTFIXES #10-#13**: Custom clone location & darwin-rebuild issues - **ALL VM TESTED & VERIFIED** ✅
+  - **Hotfix #10 (Issue #16)**: Directory ownership/permission fixes for custom paths (PR #17)
+    - Added ownership checks for ~/.config when using custom NIX_INSTALL_DIR
+    - Fixed permissions for gh config directory
+    - **Result**: Misdiagnosed root cause, didn't solve actual problem
+  - **Hotfix #11 (Issue #18)**: Remove programs.gh.settings (PR #19)
+    - Identified correct root cause: Home Manager creates read-only symlink to Nix store
+    - Removed settings block from home-manager/modules/github.nix
+    - Prevents new symlinks but doesn't fix existing systems
+    - **Result**: Long-term fix for fresh systems
+  - **Hotfix #12 (Issue #20)**: Bootstrap symlink detection (PR #21)
+    - Added pre-auth check to detect and remove existing symlinks
+    - Complements Hotfix #11 for existing systems with legacy state
+    - **Result**: Complete fix for all systems (fresh + existing)
+  - **Hotfix #13 (Issue #22)**: darwin-rebuild PATH with sudo (PR #23)
+    - Phase 8 failed with "sudo: darwin-rebuild: command not found"
+    - Root user doesn't inherit user's PATH
+    - Solution: Find full path with `command -v`, execute with absolute path
+    - **Result**: Phase 8 now completes successfully
+  - **Timeline**: 4 hotfixes in rapid succession, iterative problem solving
+  - **Lesson Learned**: Always verify file structure with `ls -la`, avoid assumptions
+  - **Bootstrap Status**: ALL phases 1-8 now working! 🎉
+  - Commits: 442bbfd, e8846b6, [PR #17], [PR #19], [PR #21], [PR #23]
 - **2025-11-11**: ✅ **COMPLETED Story 01.8-001** (Installation Summary & Next Steps - 3 points) - **READY FOR VM TESTING**
   - Added Phase 9 to bootstrap.sh (7 functions, ~242 lines)
   - 54 comprehensive BATS tests (TDD methodology) in tests/09-installation-summary.bats

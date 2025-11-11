@@ -82,8 +82,8 @@
 
 ---
 
-##### Story 02.1-002: Ollama CLI Installation
-**User Story**: As FX, I want Ollama installed via Homebrew so that I can run local LLM models for offline AI assistance
+##### Story 02.1-002: Ollama Desktop App Installation
+**User Story**: As FX, I want Ollama Desktop App installed via Homebrew so that I can run local LLM models with a GUI and CLI interface
 
 **Priority**: Must Have
 **Story Points**: 5
@@ -91,32 +91,50 @@
 
 **Acceptance Criteria**:
 - **Given** darwin-rebuild completes successfully
-- **When** I run `ollama --version`
-- **Then** it shows Ollama version installed
-- **And** the Ollama daemon can be started with `ollama serve`
+- **When** I launch Ollama Desktop App
+- **Then** it opens and shows the menubar icon
+- **And** I can run `ollama --version` in terminal
+- **And** the Ollama daemon runs automatically in background
 - **And** I can test with `ollama run llama2` (downloads small test model)
 - **And** Ollama data stored in ~/Library/Application Support/Ollama
+- **And** GUI shows installed models and settings
+- **And** auto-update is disabled (check app preferences)
 
 **Additional Requirements**:
-- Installation via Homebrew (not cask, CLI tool)
-- Background daemon for model serving
+- Installation via Homebrew Cask (Desktop App)
+- GUI with menubar icon and model management
+- Includes CLI tools (ollama command available)
+- Background daemon runs automatically
 - Models stored persistently
-- No auto-update (Homebrew auto-update disabled globally)
+- Auto-update disable documented
 
 **Technical Notes**:
-- Homebrew formula: `ollama`
-- Add to darwin/homebrew.nix brews list
-- Daemon management: User can run `ollama serve` or use launchd (optional)
-- Model storage: Automatic, ~/.ollama/ or ~/Library/Application Support/
+- Homebrew cask: `ollama`
+- Add to darwin/homebrew.nix casks list (NOT brews)
+- Desktop app includes CLI tools bundled
+- Daemon management: Automatic via desktop app
+- Model storage: ~/Library/Application Support/Ollama
 - Test command: `ollama pull llama2 && ollama run llama2 "test"`
+- Auto-update: Check app preferences after first launch
 
 **Definition of Done**:
-- [ ] Ollama added to homebrew.nix
-- [ ] `ollama --version` works after rebuild
-- [ ] Can pull and run a test model
-- [ ] Daemon starts successfully
-- [ ] Tested in VM
-- [ ] Documentation notes model storage location
+- [x] Ollama Desktop App added to homebrew.nix casks
+- [ ] Desktop app launches successfully with menubar icon (VM testing by FX)
+- [ ] `ollama --version` works in terminal (VM testing by FX)
+- [ ] Can pull and run a test model (VM testing by FX)
+- [ ] Daemon runs automatically (VM testing by FX)
+- [ ] GUI shows model management interface (VM testing by FX)
+- [x] Auto-update disable steps documented (docs/app-post-install-configuration.md)
+- [ ] Tested in VM (VM testing by FX)
+- [x] Documentation notes model storage location
+
+**Implementation Status**: ✅ **CODE COMPLETE** - Ready for VM testing by FX
+**Implementation Date**: 2025-11-11
+**Branch**: feature/02.1-001-ai-chat-apps (combined with 02.1-001)
+**Files Changed**:
+- darwin/homebrew.nix: Added `ollama` cask
+- docs/app-post-install-configuration.md: Added Ollama Desktop section
+- stories/epic-02-application-installation.md: Updated story from CLI to Desktop App
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (Homebrew managed by nix-darwin)

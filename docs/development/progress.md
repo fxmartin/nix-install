@@ -6,7 +6,7 @@
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟡 In Progress |
-| **Epic-02** | Application Installation | 22 | 113 | 0 (1 in progress) | 0 | 0% | 0% | 🟡 In Progress |
+| **Epic-02** | Application Installation | 22 | 113 | 0 (2 in progress) | 0 | 0% | 0% | 🟡 In Progress |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -52,12 +52,13 @@
 
 ### Recent Activity
 
-- **2025-11-11**: 🚀 **STARTED Epic-02** (Application Installation) - Story 02.1-001 in progress
+- **2025-11-11**: 🚀 **STARTED Epic-02** (Application Installation) - Stories 02.1-001 and 02.1-002 in progress
   - Created feature branch: feature/02.1-001-ai-chat-apps
-  - Added AI chat apps to homebrew.nix: claude, chatgpt, perplexity
+  - **Story 02.1-001**: Added AI chat apps (Claude, ChatGPT, Perplexity) - 3 points
+  - **Story 02.1-002**: Added Ollama Desktop App (changed from CLI to Desktop) - 5 points
   - Created docs/app-post-install-configuration.md for post-install steps
-  - **Status**: CODE COMPLETE - Ready for VM testing by FX
-  - Epic-02 now **0% complete** (0/22 stories, 0/113 points) but 1 story in progress (3 points)
+  - **Status**: BOTH STORIES CODE COMPLETE - Ready for VM testing by FX
+  - Epic-02 now **0% complete** (0/22 stories, 0/113 points) but 2 stories in progress (8 points)
 - **2025-11-11**: 🔧 **HOTFIXES #10-#13**: Custom clone location & darwin-rebuild issues - **ALL VM TESTED & VERIFIED** ✅
   - **Hotfix #10 (Issue #16)**: Directory ownership/permission fixes for custom paths (PR #17)
     - Added ownership checks for ~/.config when using custom NIX_INSTALL_DIR

@@ -4011,8 +4011,243 @@ final_darwin_rebuild_phase() {
     return 0
 }
 
+#############################################################################
+# PHASE 9: INSTALLATION SUMMARY
+#############################################################################
+# Story 01.8-001: Display comprehensive installation summary
+# Shows duration, components installed, next steps, useful commands
+# This is the final phase that provides user guidance post-installation
+#############################################################################
+
+# Function: format_installation_duration
+# Purpose: Calculate and format installation duration as human-readable string
+# Arguments: $1 - start_time (Unix timestamp), $2 - end_time (Unix timestamp)
+# Returns: Formatted duration string via stdout (e.g., "18 minutes 32 seconds")
+# Exit: 0 always (non-critical formatting)
+format_installation_duration() {
+    local start_time="${1:-0}"
+    local end_time="${2:-0}"
+    local total_seconds=$((end_time - start_time))
+
+    # Handle edge cases
+    if [[ ${total_seconds} -lt 0 ]]; then
+        echo "unknown duration"
+        return 0
+    elif [[ ${total_seconds} -eq 0 ]]; then
+        echo "less than 1 second"
+        return 0
+    fi
+
+    local hours=$((total_seconds / 3600))
+    local minutes=$(( (total_seconds % 3600) / 60 ))
+    local seconds=$((total_seconds % 60))
+
+    # Build formatted string based on duration
+    local duration_str=""
+
+    if [[ ${hours} -gt 0 ]]; then
+        if [[ ${hours} -eq 1 ]]; then
+            duration_str="${hours} hour"
+        else
+            duration_str="${hours} hours"
+        fi
+
+        if [[ ${minutes} -gt 0 ]]; then
+            if [[ ${minutes} -eq 1 ]]; then
+                duration_str="${duration_str} ${minutes} minute"
+            else
+                duration_str="${duration_str} ${minutes} minutes"
+            fi
+        fi
+    elif [[ ${minutes} -gt 0 ]]; then
+        if [[ ${minutes} -eq 1 ]]; then
+            duration_str="${minutes} minute"
+        else
+            duration_str="${minutes} minutes"
+        fi
+
+        if [[ ${seconds} -gt 0 ]]; then
+            if [[ ${seconds} -eq 1 ]]; then
+                duration_str="${duration_str} ${seconds} second"
+            else
+                duration_str="${duration_str} ${seconds} seconds"
+            fi
+        fi
+    else
+        # Less than 1 minute - show seconds only
+        if [[ ${seconds} -eq 1 ]]; then
+            duration_str="${seconds} second"
+        else
+            duration_str="${seconds} seconds"
+        fi
+    fi
+
+    echo "${duration_str}"
+    return 0
+}
+
+# Function: display_installed_components
+# Purpose: Display summary of installed components (Nix, nix-darwin, profile, apps)
+# Arguments: None (reads from environment: INSTALL_PROFILE)
+# Returns: 0 always (non-critical display)
+# Output: Formatted component list to stdout
+display_installed_components() {
+    local nix_version
+    nix_version=$(nix --version 2>/dev/null | head -1 || echo "unknown")
+
+    local app_count="unknown"
+    case "${INSTALL_PROFILE:-standard}" in
+        standard)
+            app_count="47 applications"
+            ;;
+        power)
+            app_count="51 applications"
+            ;;
+        *)
+            app_count="~50 applications"
+            ;;
+    esac
+
+    echo "Components Installed:"
+    echo "  ✓ Nix Package Manager (${nix_version})"
+    echo "  ✓ nix-darwin System Configuration"
+    echo "  ✓ Home Manager User Configuration"
+    echo "  ✓ Profile: ${INSTALL_PROFILE:-unknown} (${app_count})"
+    echo ""
+
+    return 0
+}
+
+# Function: display_next_steps
+# Purpose: Display numbered next steps for user post-installation
+# Arguments: None (reads from environment: INSTALL_PROFILE)
+# Returns: 0 always (non-critical display)
+# Output: Numbered steps to stdout (profile-aware)
+display_next_steps() {
+    echo "Next Steps:"
+    echo ""
+    echo "  1. Restart your terminal or run: source ~/.zshrc"
+    echo ""
+    echo "  2. Activate licensed applications (see list below)"
+    echo ""
+    echo "  3. Install Office 365 manually (not available via Nix/Homebrew)"
+    echo ""
+
+    # Ollama verification step only for Power profile
+    if [[ "${INSTALL_PROFILE:-standard}" == "power" ]]; then
+        echo "  4. Verify Ollama models (Power profile):"
+        echo "     ollama list"
+        echo "     Expected: gpt-oss:20b, qwen2.5-coder:32b, llama3.1:70b, deepseek-r1:32b"
+        echo ""
+    fi
+
+    return 0
+}
+
+# Function: display_useful_commands
+# Purpose: Display useful commands for managing the system post-installation
+# Arguments: None (reads from environment: REPO_CLONE_DIR)
+# Returns: 0 always (non-critical display)
+# Output: Command reference to stdout
+display_useful_commands() {
+    echo "Useful Commands:"
+    echo ""
+    echo "  rebuild       Apply configuration changes from ${REPO_CLONE_DIR}"
+    echo "  update        Update packages and rebuild system"
+    echo "  health-check  Verify system health and configuration"
+    echo "  cleanup       Run garbage collection and free disk space"
+    echo ""
+
+    return 0
+}
+
+# Function: display_manual_activation_apps
+# Purpose: Display list of apps requiring manual license activation
+# Arguments: None (reads from environment: INSTALL_PROFILE)
+# Returns: 0 always (non-critical display)
+# Output: Bulleted list to stdout (profile-aware)
+display_manual_activation_apps() {
+    echo "Apps Requiring Manual Activation:"
+    echo ""
+    echo "  • 1Password"
+    echo "  • Office 365 (manual installation required)"
+
+    # Parallels Desktop only for Power profile
+    if [[ "${INSTALL_PROFILE:-standard}" == "power" ]]; then
+        echo "  • Parallels Desktop"
+    fi
+
+    echo ""
+
+    return 0
+}
+
+# Function: display_documentation_paths
+# Purpose: Display paths to documentation for further reference
+# Arguments: None (reads from environment: REPO_CLONE_DIR)
+# Returns: 0 always (non-critical display)
+# Output: Documentation paths to stdout
+display_documentation_paths() {
+    echo "Documentation:"
+    echo ""
+    echo "  • Quick Start:     ${REPO_CLONE_DIR}/README.md"
+    echo "  • Troubleshooting: ${REPO_CLONE_DIR}/docs/"
+    echo ""
+
+    return 0
+}
+
+# Function: installation_summary_phase
+# Purpose: Main orchestration function for Phase 9 (Installation Summary)
+# Workflow: Calculate duration → Display banner → Show all sections
+# Arguments: None (reads from environment: BOOTSTRAP_START_TIME, INSTALL_PROFILE)
+# Returns: 0 always (final phase, non-critical)
+# Output: Complete installation summary to stdout
+installation_summary_phase() {
+    echo ""
+    echo "════════════════════════════════════════════════════════════════════"
+    log_success "  INSTALLATION SUMMARY"
+    echo "════════════════════════════════════════════════════════════════════"
+    echo ""
+
+    # Calculate total installation duration
+    local bootstrap_end_time duration_str
+    bootstrap_end_time=$(date +%s)
+    duration_str=$(format_installation_duration "${BOOTSTRAP_START_TIME:-${bootstrap_end_time}}" "${bootstrap_end_time}")
+
+    log_info "Total Installation Time: ${duration_str}"
+    echo ""
+
+    # Display all summary sections
+    echo "════════════════════════════════════════════════════════════════════"
+    display_installed_components
+
+    echo "════════════════════════════════════════════════════════════════════"
+    display_next_steps
+
+    echo "════════════════════════════════════════════════════════════════════"
+    display_useful_commands
+
+    echo "════════════════════════════════════════════════════════════════════"
+    display_manual_activation_apps
+
+    echo "════════════════════════════════════════════════════════════════════"
+    display_documentation_paths
+
+    echo "════════════════════════════════════════════════════════════════════"
+    log_success "✨ Bootstrap Complete! Enjoy your declaratively configured MacBook!"
+    echo "════════════════════════════════════════════════════════════════════"
+    echo ""
+
+    return 0
+}
+
 # Main execution flow
 main() {
+    # Track bootstrap start time for installation summary (Phase 9)
+    BOOTSTRAP_START_TIME=$(date +%s)
+    readonly BOOTSTRAP_START_TIME
+
     echo ""
     log_info "========================================"
     log_info "Nix-Darwin macOS Bootstrap"
@@ -4238,12 +4473,19 @@ main() {
     fi
 
     # ==========================================================================
-    # FUTURE PHASES (9-10)
+    # PHASE 9: INSTALLATION SUMMARY
     # ==========================================================================
-    # Future phases will be added here in subsequent stories
-    log_warn "Bootstrap implementation incomplete - Phases 9-10 not yet implemented"
-    log_warn "Remaining phases will be added in future stories"
+    # Story 01.8-001: Display comprehensive installation summary
+    # Shows duration, installed components, next steps, useful commands
+    # This is the final phase - always runs (non-critical)
+    # ==========================================================================
 
+    installation_summary_phase
+
+    # ==========================================================================
+    # BOOTSTRAP COMPLETE
+    # ==========================================================================
+    log_success "Bootstrap completed successfully!"
     exit 0
 }
 

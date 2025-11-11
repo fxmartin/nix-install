@@ -9,9 +9,9 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **14.3% complete** (16/112 stories, 101/601 points)
-  - Epic-01: **84.2% complete** (16/19 stories, 101/113 points) 🟡 In Progress
-  - Next story: **01.8-001** (Installation Summary & Next Steps - 3 points)
+  - Current project status: **15.2% complete** (17/112 stories, 104/601 points)
+  - Epic-01: **89.5% complete** (17/19 stories, 104/113 points) 🟡 In Progress
+  - Next story: **01.1-003** (Progress Indicators - 3 points, P1 optional)
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns
@@ -27,9 +27,9 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ## 🎯 Current Status (Quick Reference)
 
-**Epic-01: Bootstrap & Installation System** - 84.2% complete (89.4% by points)
+**Epic-01: Bootstrap & Installation System** - 89.5% complete (92.0% by points)
 
-### ✅ Completed Stories (16)
+### ✅ Completed Stories (17)
 1. **01.1-001** - Pre-flight Environment Checks (5 pts) - 2025-11-08
 2. **01.1-002** - Idempotency Check (3 pts) - 2025-11-10
 3. **01.2-001** - User Information Prompts (5 pts) - 2025-11-09
@@ -46,15 +46,15 @@ Welcome to the nix-install development documentation. This directory contains al
 14. **01.6-003** - GitHub SSH Connection Test (8 pts) - 2025-11-11
 15. **01.7-001** - Full Repository Clone (5 pts) - 2025-11-11
 16. **01.7-002** - Final Darwin Rebuild (8 pts) - 2025-11-11
+17. **01.8-001** - Installation Summary & Next Steps (3 pts) - 2025-11-11
 
 ### 🚧 Next Story
-- **01.8-001** - Installation Summary & Next Steps (3 pts) - **READY TO START**
-  - Display final summary after bootstrap completes
-  - Show installed applications and next steps
+- **01.1-003** - Progress Indicators (3 pts) - **P1 OPTIONAL ENHANCEMENT**
+  - Display progress indicators during bootstrap phases
+  - Visual feedback for long-running operations
 
-### ⏳ Remaining Epic-01 Stories (3)
-- **01.8-001** - Installation Summary & Next Steps (3 pts) - NEXT
-- **01.1-003** - Progress Indicators (3 pts) - P1
+### ⏳ Remaining Epic-01 Stories (2)
+- **01.1-003** - Progress Indicators (3 pts) - P1, optional enhancement
 - **01.1-004** - Modular Bootstrap Architecture (8 pts) - P1, deferred to post-Epic-01
 
 ## 🛠️ What to Read First?
@@ -84,19 +84,20 @@ Welcome to the nix-install development documentation. This directory contains al
 ## 📊 Development Metrics
 
 ### Test Coverage
-- **Automated BATS tests**: 675+ tests across all stories
-- **Manual VM scenarios**: 66 documented test cases
-- **Shellcheck validation**: 0 errors, 0 warnings on bootstrap.sh
+- **Automated BATS tests**: 729+ tests across all stories
+- **Manual VM scenarios**: 76 documented test cases
+- **Shellcheck validation**: 0 errors, 0 warnings on Phase 9 code
 
 ### Code Quality
 - **TDD Approach**: All stories developed with tests-first methodology
 - **Multi-Agent Review**: senior-code-reviewer validates all implementations
-- **VM Testing**: All Epic-01 stories validated in Parallels macOS VM
+- **VM Testing**: 16 Epic-01 stories validated in Parallels macOS VM
 
 ### Bootstrap Script Growth
-- **Current Size**: 4,222 lines (from initial 168 lines in Story 01.1-001)
-- **Phases Implemented**: 8 phases (Pre-flight through Final Darwin Rebuild)
-- **Functions**: 60+ functions across 8 phases
+- **Current Size**: 4,506 lines (from initial 168 lines in Story 01.1-001)
+- **Phases Implemented**: 9 phases (Pre-flight through Installation Summary)
+- **Functions**: 67+ functions across 9 phases
+- **Status**: ✅ **FUNCTIONALLY COMPLETE** - All core phases implemented!
 
 ## 🔗 File Organization
 

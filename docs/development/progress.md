@@ -5,7 +5,7 @@
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 19 | 113 | **16** | **101** | 84.2% | 89.4% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -13,9 +13,9 @@
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **112** | **601** | **16** | **101** | **14.3%** | **16.8%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **112** | **601** | **17** | **104** | **15.2%** | **17.3%** | 🟡 In Progress |
 
-### Epic-01 Completed Stories (15/19)
+### Epic-01 Completed Stories (17/19)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -35,6 +35,7 @@
 | 01.6-003 | GitHub SSH Connection Test | 8 | ✅ Complete | feature/01.6-003-ssh-connection-test | 2025-11-11 |
 | 01.7-001 | Full Repository Clone | 5 | ✅ Complete | feature/01.7-001-repo-clone | 2025-11-11 |
 | 01.7-002 | Final Darwin Rebuild (Phase 8) | 8 | ✅ Complete | main | 2025-11-11 |
+| 01.8-001 | Installation Summary & Next Steps | 3 | ✅ Complete | feature/01.8-001 | 2025-11-11 |
 
 **Notes**:
 - **2025-11-10**: Story 01.6-002 scope changed from manual approach (8 points) to automated GitHub CLI approach (5 points), reducing Epic-01 by 3 points
@@ -43,14 +44,41 @@
 ### Overall Project Status
 
 - **Total Project Scope**: 112 stories, 601 story points
-- **Completed**: 16 stories (14.3%), 101 points (16.8%)
-- **In Progress**: Epic-01 Bootstrap & Installation (84.2% complete by stories, 89.4% by points)
+- **Completed**: 17 stories (15.2%), 104 points (17.3%)
+- **In Progress**: Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points)
 - **Current Phase**: Phase 0-2 (Foundation + Bootstrap, Week 1-2)
-- **Next Story**: 01.8-001 (Installation Summary & Next Steps - 3 points) - READY TO START
+- **Next Story**: 01.1-003 (Progress Indicators - 3 points) - P1, optional enhancement
 - **Deferred**: Story 01.1-004 (Modular Bootstrap, 8 points) - P1, implement post-Epic-01
 
 ### Recent Activity
 
+- **2025-11-11**: ✅ **COMPLETED Story 01.8-001** (Installation Summary & Next Steps - 3 points) - **READY FOR VM TESTING**
+  - Added Phase 9 to bootstrap.sh (7 functions, ~242 lines)
+  - 54 comprehensive BATS tests (TDD methodology) in tests/09-installation-summary.bats
+  - Installation duration tracking and human-readable formatting
+  - Comprehensive component summary (Nix, nix-darwin, Home Manager, profile, app count)
+  - Numbered next steps with profile-aware messaging
+  - Useful command reference (rebuild, update, health-check, cleanup)
+  - Manual activation app list (1Password, Office 365, Parallels for Power)
+  - Documentation path display
+  - Function breakdown:
+    - `format_installation_duration()`: Time calculation and formatting (64 lines)
+    - `display_installed_components()`: Component summary display (30 lines)
+    - `display_next_steps()`: Profile-aware next steps (20 lines)
+    - `display_useful_commands()`: Command reference (12 lines)
+    - `display_manual_activation_apps()`: Licensed app list (14 lines)
+    - `display_documentation_paths()`: Documentation locations (10 lines)
+    - `installation_summary_phase()`: Orchestration function (45 lines)
+  - **All 54 BATS tests PASSED** ✅
+  - Shellcheck validation: **0 errors, 0 warnings** (Phase 9 code) ✅
+  - Bash syntax check: **PASSED** ✅
+  - Created comprehensive VM testing guide: docs/testing-installation-summary.md (10 scenarios)
+  - **Profile-specific content**: Ollama verification for Power profile only
+  - **Professional formatting**: Clean banner-based summary display
+  - Commit: 32fe3b6 (feature/01.8-001 branch)
+  - Epic-01 now **92.0% complete** (104/113 points) 🎉
+  - Bootstrap.sh size: 4,222 → 4,506 lines (+284 lines)
+  - **BOOTSTRAP SCRIPT NOW FUNCTIONALLY COMPLETE** - All 9 phases implemented! 🚀
 - **2025-11-11**: ✅ **COMPLETED Story 01.7-002** (Final Darwin Rebuild - 8 points) - **VM TESTED & VERIFIED**
   - Added Phase 8 to bootstrap.sh (5 functions, ~260 lines)
   - 50 comprehensive BATS tests (TDD methodology) in tests/08-final-darwin-rebuild.bats

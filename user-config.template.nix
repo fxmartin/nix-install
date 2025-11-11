@@ -9,6 +9,9 @@
   hostname = "@HOSTNAME@";  # Only letters, numbers, and hyphens
   signingKey = "";  # GPG key ID (leave empty initially)
 
+  # Installation Profile
+  installProfile = "@INSTALL_PROFILE@";  # "standard" or "power"
+
   # Directory Configuration
   directories = {
     dotfiles = "@DOTFILES_PATH@";  # Nix configuration repository location

@@ -218,3 +218,120 @@ On subsequent bootstrap runs or when running from an already-configured system, 
 
 ---
 
+## HOTFIX #4: Story 01.7-002 - Missing installProfile in user-config.nix
+**Date**: 2025-11-11
+**Issue**: Phase 8 fails with "Could not extract installProfile from user-config.nix"
+**Status**: ✅ FIXED
+**Branch**: main
+
+### Problem
+During VM testing of Story 01.7-002 (Phase 8: Final Darwin Rebuild), the bootstrap failed at the profile loading step:
+
+```
+[ERROR] Could not extract installProfile from user-config.nix
+[ERROR] File may be corrupted or invalid
+[ERROR] Failed to load profile from user-config.nix
+[ERROR] Bootstrap process terminated.
+```
+
+The `load_profile_from_user_config()` function was unable to extract the installation profile from the generated user-config.nix file.
+
+### Root Cause
+**Design Flaw in Phase 2**: The installation profile selection (standard vs power) in Phase 2 was only stored as an environment variable `$INSTALL_PROFILE` during bootstrap execution. It was **never written** to the user-config.nix file.
+
+**Workflow Analysis**:
+1. Line 4037: `select_installation_profile()` sets `$INSTALL_PROFILE` variable (in memory only)
+2. Line 4041: `generate_user_config()` creates user-config.nix from template
+3. Template (`user-config.template.nix`) had no `@INSTALL_PROFILE@` placeholder
+4. Phase 8: `load_profile_from_user_config()` tries to read profile from file → **FAILS**
+
+The profile existed only in the shell session, not persisted to disk.
+
+### Solution Implemented
+Added profile persistence to the user configuration file generation:
+
+**1. Updated user-config.template.nix** (added lines 12-13):
+```nix
+# Installation Profile
+installProfile = "@INSTALL_PROFILE@";  # "standard" or "power"
+```
+
+**2. Updated generate_user_config()** in bootstrap.sh (added line 578):
+```bash
+-e "s/@INSTALL_PROFILE@/${INSTALL_PROFILE}/g" \
+```
+
+**3. Updated load_profile_from_user_config()** in bootstrap.sh (lines 3756-3765):
+```bash
+# Extract installProfile value from user-config.nix
+# Pattern: installProfile = "standard"; or installProfile = "power";
+local profile_value
+profile_value=$(grep -E '^\s*installProfile\s*=\s*"(standard|power)";' "${user_config_path}" | sed -E 's/.*"([^"]+)".*/\1/')
+```
+
+Changed from `INSTALL_PROFILE = ` (all caps) to `installProfile = ` (camelCase) to match Nix attribute naming conventions.
+
+### Files Modified
+1. **user-config.template.nix**: Added `installProfile` field (+2 lines)
+2. **bootstrap.sh**:
+   - Line 578: Added sed substitution for `@INSTALL_PROFILE@`
+   - Lines 3756-3765: Updated grep pattern from `INSTALL_PROFILE` to `installProfile`
+   - Lines 3762-3764: Updated error messages to reference `installProfile`
+3. **tests/08-final-darwin-rebuild.bats**: Updated all 50 tests (+12 edits)
+   - Changed mock user-config.nix format from `INSTALL_PROFILE = ` to `installProfile = `
+   - Updated error message assertions to match new format
+
+### Testing
+- ✅ Bash syntax validated (bash -n)
+- ✅ All 50 BATS tests updated to new format
+- ✅ Template substitution verified
+- ⏳ VM testing required to confirm hotfix works end-to-end
+
+### Impact
+- **Fixes**: Phase 8 profile loading failure (CRITICAL blocker)
+- **Enables**: Bootstrap completion through Phase 8
+- **Design Improvement**: Profile now persisted correctly to disk
+- **User Impact**: Bootstrap can complete final darwin-rebuild successfully
+
+### Why This Wasn't Caught Earlier
+**Missing Test Coverage**: The original Phase 8 BATS tests mocked the user-config.nix file manually, using the **wrong format** (`INSTALL_PROFILE = ` instead of `installProfile = `). These tests passed because they never validated:
+1. That user-config.nix was generated correctly from the template
+2. That the template included the profile field
+3. That Phase 2 actually writes the profile to the file
+
+**Lesson Learned**: Integration tests should validate the **entire flow** (template → generation → reading), not just individual function behavior with mocked inputs.
+
+### Generated user-config.nix Format
+After this fix, the generated file now includes:
+
+```nix
+{
+  # Personal Information
+  username = "fxmartin";
+  fullName = "François-Xavier Martin";
+  email = "fx@example.com";
+  githubUsername = "fxmartin";
+  hostname = "fx-macbook";
+  signingKey = "";
+
+  # Installation Profile
+  installProfile = "power";  # ← NEW: Persisted from Phase 2
+
+  # Directory Configuration
+  directories = {
+    dotfiles = "Documents/nix-install";
+  };
+}
+```
+
+### Relationship to Other Fixes
+This hotfix is independent of previous hotfixes but essential for Epic-01 completion:
+- **Hotfix #1**: Nix-daemon detection (Phase 5)
+- **Hotfix #2**: GitHub CLI availability (Phase 6)
+- **Hotfix #3**: PATH update for Homebrew (Phase 6)
+- **Hotfix #4**: Profile persistence (Phase 8) ← THIS FIX
+
+Together, these enable the complete bootstrap flow from Phase 1 through Phase 8.
+
+---
+

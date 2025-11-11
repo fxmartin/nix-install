@@ -77,10 +77,16 @@ teardown() {
     # Create user-config.nix with standard profile
     cat > "${BOOTSTRAP_TEMP_DIR}/user-config.nix" << 'EOF'
 {
-  USER_FULL_NAME = "Test User";
-  USER_EMAIL = "test@example.com";
-  GITHUB_USERNAME = "testuser";
-  INSTALL_PROFILE = "standard";
+  username = "testuser";
+  fullName = "Test User";
+  email = "test@example.com";
+  githubUsername = "testuser";
+  hostname = "test-mac";
+  signingKey = "";
+  installProfile = "standard";
+  directories = {
+    dotfiles = "Documents/nix-install";
+  };
 }
 EOF
 
@@ -101,7 +107,7 @@ EOF
   USER_FULL_NAME = "Test User";
   USER_EMAIL = "test@example.com";
   GITHUB_USERNAME = "testuser";
-  INSTALL_PROFILE = "power";
+  installProfile = "power";
 }
 EOF
 
@@ -146,7 +152,7 @@ EOF
     assert_failure
 
     # Should show error message
-    assert_output --partial "Could not extract INSTALL_PROFILE"
+    assert_output --partial "Could not extract installProfile"
 }
 
 @test "load_profile_from_user_config: fails with invalid profile value" {
@@ -156,7 +162,7 @@ EOF
   USER_FULL_NAME = "Test User";
   USER_EMAIL = "test@example.com";
   GITHUB_USERNAME = "testuser";
-  INSTALL_PROFILE = "invalid";
+  installProfile = "invalid";
 }
 EOF
 
@@ -177,7 +183,7 @@ EOF
   USER_FULL_NAME = "Test User";
   USER_EMAIL = "test@example.com";
   GITHUB_USERNAME = "testuser";
-    INSTALL_PROFILE = "standard"  ;
+    installProfile = "standard"  ;
 }
 EOF
 
@@ -196,7 +202,7 @@ EOF
     cat > "${BOOTSTRAP_TEMP_DIR}/user-config.nix" << 'EOF'
 {
   CORRUPT DATA @#$%
-  INSTALL_PROFILE = "standard
+  installProfile = "standard
 }
 EOF
 
@@ -207,7 +213,7 @@ EOF
     assert_failure
 
     # Should show error message
-    assert_output --partial "Could not extract INSTALL_PROFILE"
+    assert_output --partial "Could not extract installProfile"
 }
 
 @test "load_profile_from_user_config: exports INSTALL_PROFILE as environment variable" {
@@ -217,7 +223,7 @@ EOF
   USER_FULL_NAME = "Test User";
   USER_EMAIL = "test@example.com";
   GITHUB_USERNAME = "testuser";
-  INSTALL_PROFILE = "power";
+  installProfile = "power";
 }
 EOF
 
@@ -236,7 +242,7 @@ EOF
   USER_FULL_NAME = "Test User";
   USER_EMAIL = "test@example.com";
   GITHUB_USERNAME = "testuser";
-  INSTALL_PROFILE = "standard";
+  installProfile = "standard";
 }
 EOF
 
@@ -254,7 +260,7 @@ EOF
   USER_FULL_NAME = "Test User";
   USER_EMAIL = "test@example.com";
   GITHUB_USERNAME = "testuser";
-  INSTALL_PROFILE = "power";
+  installProfile = "power";
   CUSTOM_VAR = "custom_value";
 }
 EOF
@@ -735,7 +741,7 @@ EOF
   USER_FULL_NAME = "Test User";
   USER_EMAIL = "test@example.com";
   GITHUB_USERNAME = "testuser";
-  INSTALL_PROFILE = "standard";
+  installProfile = "standard";
 }
 EOF
 
@@ -761,7 +767,7 @@ EOF
   USER_FULL_NAME = "Test User";
   USER_EMAIL = "test@example.com";
   GITHUB_USERNAME = "testuser";
-  INSTALL_PROFILE = "power";
+  installProfile = "power";
 }
 EOF
 
@@ -782,7 +788,7 @@ EOF
   USER_FULL_NAME = "Test User";
   USER_EMAIL = "test@example.com";
   GITHUB_USERNAME = "testuser";
-  INSTALL_PROFILE = "standard";
+  installProfile = "standard";
 }
 EOF
 
@@ -803,7 +809,7 @@ EOF
   USER_FULL_NAME = "Test User";
   USER_EMAIL = "test@example.com";
   GITHUB_USERNAME = "testuser";
-  INSTALL_PROFILE = "standard";
+  installProfile = "standard";
 }
 EOF
 
@@ -829,7 +835,7 @@ EOF
   USER_FULL_NAME = "Test User";
   USER_EMAIL = "test@example.com";
   GITHUB_USERNAME = "testuser";
-  INSTALL_PROFILE = "standard";
+  installProfile = "standard";
 }
 EOF
 
@@ -863,7 +869,7 @@ EOF
   USER_FULL_NAME = "Test User";
   USER_EMAIL = "test@example.com";
   GITHUB_USERNAME = "testuser";
-  INSTALL_PROFILE = "standard";
+  installProfile = "standard";
 }
 EOF
 
@@ -887,7 +893,7 @@ EOF
   USER_FULL_NAME = "Test User";
   USER_EMAIL = "test@example.com";
   GITHUB_USERNAME = "testuser";
-  INSTALL_PROFILE = "standard";
+  installProfile = "standard";
 }
 EOF
 
@@ -908,7 +914,7 @@ EOF
   USER_FULL_NAME = "Test User";
   USER_EMAIL = "test@example.com";
   GITHUB_USERNAME = "testuser";
-  INSTALL_PROFILE = "standard";
+  installProfile = "standard";
 }
 EOF
 
@@ -930,7 +936,7 @@ EOF
   USER_FULL_NAME = "Test User";
   USER_EMAIL = "test@example.com";
   GITHUB_USERNAME = "testuser";
-  INSTALL_PROFILE = "standard";
+  installProfile = "standard";
 }
 EOF
 
@@ -944,7 +950,7 @@ EOF
   USER_FULL_NAME = "Test User";
   USER_EMAIL = "test@example.com";
   GITHUB_USERNAME = "testuser";
-  INSTALL_PROFILE = "power";
+  installProfile = "power";
 }
 EOF
 

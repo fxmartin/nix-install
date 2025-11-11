@@ -575,6 +575,7 @@ generate_user_config() {
         -e "s/@EMAIL@/${USER_EMAIL}/g" \
         -e "s/@GITHUB_USERNAME@/${GITHUB_USERNAME}/g" \
         -e "s/@HOSTNAME@/${hostname}/g" \
+        -e "s/@INSTALL_PROFILE@/${INSTALL_PROFILE}/g" \
         -e "s|@DOTFILES_PATH@|${dotfiles_path}|g" \
         "${template_file}" > "${USER_CONFIG_PATH}"; then
         log_error "Failed to generate user config file"
@@ -3752,13 +3753,13 @@ load_profile_from_user_config() {
         return 1
     fi
 
-    # Extract INSTALL_PROFILE value from user-config.nix
-    # Pattern: INSTALL_PROFILE = "standard"; or INSTALL_PROFILE = "power";
+    # Extract installProfile value from user-config.nix
+    # Pattern: installProfile = "standard"; or installProfile = "power";
     local profile_value
-    profile_value=$(grep -E '^\s*INSTALL_PROFILE\s*=\s*"(standard|power)";' "${user_config_path}" | sed -E 's/.*"([^"]+)".*/\1/')
+    profile_value=$(grep -E '^\s*installProfile\s*=\s*"(standard|power)";' "${user_config_path}" | sed -E 's/.*"([^"]+)".*/\1/')
 
     if [[ -z "${profile_value}" ]]; then
-        log_error "Could not extract INSTALL_PROFILE from user-config.nix"
+        log_error "Could not extract installProfile from user-config.nix"
         log_error "File may be corrupted or invalid"
         return 1
     fi

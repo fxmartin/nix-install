@@ -1,3 +1,7 @@
 # Reference repositories
 mlgruby-repo-for-reference/
 .claude/
+
+# BATS test helpers (git clones)
+tests/test_helper/bats-support/
+tests/test_helper/bats-assert/

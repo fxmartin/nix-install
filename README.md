@@ -24,7 +24,7 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 19 | 113 | **13** | **80** | 68.4% | 70.8% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 19 | 113 | **14** | **88** | 73.7% | 77.9% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -32,7 +32,7 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **112** | **601** | **13** | **80** | **11.6%** | **13.3%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **112** | **601** | **14** | **88** | **12.5%** | **14.6%** | 🟡 In Progress |
 
 ### ✅ Completed
 - **Requirements Definition** ([REQUIREMENTS.md](./REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
@@ -53,10 +53,11 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - **Story 01.6-001** - SSH Key Generation (✅ Complete - 2025-11-10, 5 pts, VM TESTED)
 - **Story 01.1-002** - Idempotency Check (User Config Reuse) (✅ Complete - 2025-11-10, 3 pts, VM TESTED)
 - **Story 01.6-002** - Automated GitHub SSH Key Upload (✅ Complete - 2025-11-11, 5 pts, VM TESTED)
+- **Story 01.6-003** - GitHub SSH Connection Test (✅ Complete - 2025-11-11, 8 pts, VM TESTED)
 
 ### 🔄 In Progress
-- **Epic-01: Bootstrap System** (Week 1-2) - 13/19 stories complete (68.4%), 80/113 points (70.8%)
-- **Next Story**: 01.6-003 - GitHub SSH Connection Test (8 points)
+- **Epic-01: Bootstrap System** (Week 1-2) - 14/19 stories complete (73.7%), 88/113 points (77.9%)
+- **Next Story**: 01.7-001 - Full Repository Clone (5 points)
 - **Deferred**: 01.1-004 - Modular Bootstrap Architecture (8 points) - implement post-Epic-01
 - **Bootstrap Status**: Safe to re-run - detects existing user config and offers reuse (saves time during VM testing)
 - **OAuth Integration**: GitHub key upload ~90% automated (10 seconds user interaction)

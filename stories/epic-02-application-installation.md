@@ -54,10 +54,12 @@
 - Auto-update disable: Check app preferences, document if not configurable
 
 **Technical Notes**:
-- Homebrew cask names: `claude`, `chatgpt`, `perplexity`
-- Add to darwin/homebrew.nix casks list
+- Homebrew cask names: `claude`, `chatgpt`
+- Perplexity: Mac App Store only (App ID: 6714467650) - no Homebrew cask available
+- Add to darwin/homebrew.nix: casks list (Claude, ChatGPT) + masApps (Perplexity)
 - Auto-update: May require manual disable in app settings (document in post-install)
 - Test: Verify apps launch and show sign-in screens
+- **Hotfix #14 (Issue #24)**: Perplexity changed from Homebrew cask to Mac App Store installation
 
 **Definition of Done**:
 - [x] Code implemented in homebrew.nix
@@ -71,8 +73,15 @@
 **Implementation Date**: 2025-11-11
 **Branch**: feature/02.1-001-ai-chat-apps
 **Files Changed**:
-- darwin/homebrew.nix: Added `claude`, `chatgpt`, `perplexity` casks
+- darwin/homebrew.nix: Added `claude`, `chatgpt` casks + `Perplexity` masApp
 - docs/app-post-install-configuration.md: Created post-install configuration guide
+
+**Hotfixes**:
+- **Hotfix #14 (Issue #24, 2025-11-11)**: Perplexity moved to Mac App Store
+  - Removed `perplexity` from casks (does not exist in Homebrew)
+  - Added `Perplexity` to masApps with App Store ID 6714467650
+  - Updated documentation to reflect App Store installation
+  - Branch: hotfix/issue-24-perplexity-mas
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (nix-darwin installed)

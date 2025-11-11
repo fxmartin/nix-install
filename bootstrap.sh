@@ -4150,10 +4150,12 @@ display_next_steps() {
 display_useful_commands() {
     echo "Useful Commands:"
     echo ""
-    echo "  rebuild       Apply configuration changes from ${REPO_CLONE_DIR}"
-    echo "  update        Update packages and rebuild system"
-    echo "  health-check  Verify system health and configuration"
-    echo "  cleanup       Run garbage collection and free disk space"
+    echo "  sudo rebuild       Apply configuration changes from ${REPO_CLONE_DIR}"
+    echo "  sudo update        Update packages and rebuild system"
+    echo "  health-check       Verify system health and configuration"
+    echo "  cleanup            Run garbage collection and free disk space"
+    echo ""
+    echo "  Note: rebuild and update require sudo (they use darwin-rebuild)"
     echo ""
 
     return 0

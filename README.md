@@ -215,6 +215,46 @@ NIX_INSTALL_BRANCH=feature/my-branch \
 
 **Production users**: No environment variable needed - always use `main` branch as shown in installation instructions above.
 
+#### Customizing Repository Clone Location
+
+By default, the bootstrap script clones the nix-install repository to `~/Documents/nix-install`. You can customize this location using the `NIX_INSTALL_DIR` environment variable:
+
+```bash
+# Clone to home directory instead of Documents
+NIX_INSTALL_DIR="${HOME}/nix-install" \
+  curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh | bash
+```
+
+**Common alternative locations**:
+```bash
+# Hidden directory in home
+NIX_INSTALL_DIR="${HOME}/.nix-install" ...
+
+# XDG config directory
+NIX_INSTALL_DIR="${HOME}/.config/nix-install" ...
+
+# Absolute path (outside home directory)
+NIX_INSTALL_DIR="/opt/nix-install" ...
+```
+
+**Important notes**:
+- The `NIX_INSTALL_DIR` variable must be set **before** running `setup.sh`
+- If not specified, defaults to `~/Documents/nix-install` (maintains backward compatibility)
+- The path should NOT end with a trailing slash
+- Paths with spaces are supported but must be properly quoted
+- The repository clone location affects:
+  - Where the configuration files are stored
+  - The `dotfiles_path` used in `user-config.nix`
+  - The path shown in post-installation documentation
+
+**Example with feature branch + custom location**:
+```bash
+# Testing feature branch with custom clone location
+NIX_INSTALL_BRANCH=feature/my-branch \
+NIX_INSTALL_DIR="${HOME}/.config/nix-install" \
+  curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/feature/my-branch/setup.sh | bash
+```
+
 ---
 
 ## 🏗️ Architecture Overview

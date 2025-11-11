@@ -75,27 +75,41 @@ This document provides step-by-step instructions for configuring applications af
 
 ### Perplexity
 
-**Status**: Installed via Homebrew cask `perplexity` (Story 02.1-001)
+**Status**: Installed via **Mac App Store** (App ID: 6714467650) - Story 02.1-001
+
+**Important Notes**:
+- Perplexity is distributed via Mac App Store, not Homebrew
+- Released as native macOS app on October 24, 2024
+- Requires Apple ID sign-in to download from App Store
+- Auto-updates managed by App Store preferences (not app-level settings)
 
 **First Launch**:
 1. Launch Perplexity from Spotlight or Raycast
-2. Sign in with your Perplexity account (if required)
+2. Sign in with your Perplexity account (optional for basic features)
 3. Complete the onboarding flow
+4. Free tier: 5 Pro Searches per day
+5. Pro tier: $20/month for 600 Pro Searches daily
 
 **Auto-Update Configuration**:
-- **Current Status**: ⚠️ **Requires Manual Check**
-- **Steps to Disable** (if available):
-  1. Open Perplexity
-  2. Navigate to **Preferences** (Cmd+,) or **Settings**
-  3. Look for **General** or **Updates** section
-  4. Disable automatic update checking if option exists
-  5. Document actual steps after first VM test
+- **Managed by**: macOS App Store (system-level)
+- **To disable App Store auto-updates**:
+  1. Open **System Settings** → **App Store**
+  2. Uncheck **Automatic Updates** for all apps
+  3. Or manage per-app: Right-click app in Launchpad → **Options** → **Turn Off Automatic Updates**
+- **Note**: App Store updates are system-wide, not per-app for Mac App Store installations
 
 **Testing**:
-- [ ] Launch Perplexity successfully
-- [ ] Sign-in flow completes (if required)
+- [ ] Launch Perplexity successfully (installed from App Store)
+- [ ] Sign-in flow completes (optional, not required)
 - [ ] Accessible from Spotlight/Raycast
-- [ ] Check for auto-update setting in preferences
+- [ ] Verify App Store update settings are disabled system-wide
+
+**Features**:
+- Pro Search with advanced AI models (GPT-4, Claude 3)
+- Voice input for hands-free queries
+- Threaded conversations with context
+- Library feature for archived searches
+- All responses include cited sources
 
 ---
 
@@ -178,7 +192,10 @@ ollama run llama2 "Hello, world!"
 
 ## Story Tracking
 
-**Story 02.1-001**: Claude Desktop, ChatGPT, Perplexity - ✅ Installation implemented, ⚠️ Auto-update configuration pending VM test
+**Story 02.1-001**: Claude Desktop, ChatGPT, Perplexity - ✅ Installation implemented
+  - **Hotfix #14 (Issue #24)**: Perplexity moved to Mac App Store (no Homebrew cask available)
+  - ⚠️ Auto-update configuration pending VM test (Claude, ChatGPT)
+  - ℹ️ Perplexity auto-updates managed by App Store system preferences
 **Story 02.1-002**: Ollama Desktop App - ✅ Installation implemented, ⚠️ CLI and GUI testing pending VM test
 
 ---

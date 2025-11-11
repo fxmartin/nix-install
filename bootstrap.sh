@@ -3858,6 +3858,33 @@ main() {
     fi
 
     # ==========================================================================
+    # PHASE 5 (CONTINUED): UPDATE SHELL PATH FOR HOMEBREW
+    # ==========================================================================
+    # After nix-darwin build, update PATH to include Homebrew binaries
+    # This makes tools like 'gh' available without requiring shell reload
+    # ==========================================================================
+
+    log_info "Updating shell PATH to include Homebrew binaries..."
+
+    # Add Homebrew to PATH if not already present
+    if [[ ":$PATH:" != *":/opt/homebrew/bin:"* ]]; then
+        export PATH="/opt/homebrew/bin:$PATH"
+        log_success "✓ Homebrew added to PATH"
+    else
+        log_info "✓ Homebrew already in PATH"
+    fi
+
+    # Verify gh is now available
+    if command -v gh >/dev/null 2>&1; then
+        log_success "✓ GitHub CLI (gh) is available in PATH"
+        log_info "  Version: $(gh --version | head -1)"
+    else
+        log_warn "GitHub CLI (gh) still not in PATH after Homebrew update"
+        log_info "Will fall back to manual SSH key upload if needed"
+    fi
+    echo ""
+
+    # ==========================================================================
     # PHASE 6: SSH KEY GENERATION
     # ==========================================================================
     # Story 01.6-001: Generate SSH key for GitHub authentication

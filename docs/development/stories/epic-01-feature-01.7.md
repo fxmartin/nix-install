@@ -960,19 +960,49 @@ Phases 9-10 remain as "FUTURE PHASES" placeholders.
 
 ## Next Steps
 
-1. **FX to perform VM testing** (6 scenarios listed above)
-2. **Update progress tracking** after VM test results
-3. **Create pull request** with implementation
-4. **Code review** by senior-code-reviewer agent
-5. **Merge to main** after approval
-6. **Update Epic-01 progress** (story 01.7-002 complete)
+1. ✅ **FX VM testing completed** (all 6 scenarios tested)
+2. ✅ **Progress tracking updated**
+3. **Move to Story 01.8-001** (Installation Summary & Next Steps - 3 pts)
+
+### VM Test Results Summary
+
+**Test Date**: 2025-11-11
+**Test Environment**: Parallels macOS VM (Fresh Install)
+**Test Outcome**: ✅ **SUCCESS** - All scenarios passed after 4 hotfixes
+
+**Hotfixes Applied During Testing**:
+- **Hotfix #4 (a4a63f5)**: Profile persistence - Added installProfile field to user-config.template.nix
+- **Hotfix #5 (ac36f56)**: darwin-rebuild permission - Added sudo to Phase 8 rebuild command
+- **Hotfix #6 (f5f7ed6)**: Profile extraction regex - Fixed greedy pattern capturing comment text
+- **Hotfix #7 (442bbfd)**: Git tracking for flakes - Auto git-add user-config.nix after copy
+
+**Scenarios Tested**:
+1. ✅ **Standard Profile Happy Path** - Full bootstrap completed successfully
+2. ✅ **Profile Loading** - Correctly extracted "standard" from user-config.nix
+3. ✅ **Darwin Rebuild Execution** - Completed in ~3 minutes (cached packages)
+4. ✅ **Home Manager Symlinks** - All symlinks created correctly
+5. ✅ **Success Message Display** - Comprehensive next steps shown
+6. ✅ **Flake Evaluation** - user-config.nix properly tracked and evaluated
+
+**Issues Found and Resolved**:
+- Profile field missing from template (Hotfix #4)
+- Missing sudo for darwin-rebuild (Hotfix #5)
+- Greedy regex captured wrong value (Hotfix #6)
+- Nix flake security required git-tracked files (Hotfix #7)
+
+**Final Validation**:
+- ✅ darwin-rebuild switch completed successfully
+- ✅ System configuration applied from repository
+- ✅ Home Manager modules activated
+- ✅ Zero errors in final execution
+- ✅ Phase 8 completed in ~180 seconds
 
 ## Story Completion Status
 
-**Status**: ✅ **CODE COMPLETE** (awaiting VM testing by FX)
-**VM Testing**: ⏳ **Pending**
-**Points Completed**: 8/8 (code implementation)
-**Progress**: Epic-01 will be 86.7% complete when VM tested (16/19 stories, 101/113 points)
+**Status**: ✅ **COMPLETE & VM TESTED**
+**VM Testing**: ✅ **ALL SCENARIOS PASSED** (2025-11-11)
+**Points Completed**: 8/8
+**Progress**: Epic-01 now 89.4% complete (16/19 stories, 101/113 points)
 
 ---
 

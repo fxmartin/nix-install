@@ -91,6 +91,24 @@ This robust approach ensures detection regardless of how the daemon is running.
 
 ### Recent Activity
 
+- **2025-11-11**: 🚧 **IMPLEMENTING Story 01.6-003** (GitHub SSH Connection Test - 8 points) - **⏳ AWAITING VM TESTING**
+  - Added Phase 6 (continued) to bootstrap.sh (5 functions, ~234 lines)
+  - 80 comprehensive BATS tests (TDD methodology) in tests/bootstrap_ssh_test.bats
+  - SSH connection test with `ssh -T git@github.com` (handles exit code 1 = success!)
+  - Retry mechanism: Up to 3 attempts with 2-second delays
+  - Troubleshooting display: 5 categories of common issues with actionable steps
+  - Abort prompt: User choice to continue or abort after 3 failed attempts
+  - Function breakdown:
+    - `test_github_ssh_connection()`: Core SSH test, username extraction (41 lines)
+    - `display_ssh_troubleshooting()`: Formatted help display (35 lines)
+    - `retry_ssh_connection()`: 3-attempt retry loop with progress (35 lines)
+    - `prompt_continue_without_ssh()`: Interactive abort/continue prompt (42 lines)
+    - `test_github_ssh_phase()`: Orchestration function for Phase 6 (continued) (48 lines)
+  - Integration: Added to main() flow after upload_github_key_phase() (line 3480)
+  - Shellcheck validation: **0 errors, 0 warnings** ✅
+  - Bash syntax check: **PASSED** ✅
+  - Bootstrap.sh size: 3284 → 3518 lines (+234 lines)
+  - **Ready for VM Testing by FX** (7 manual scenarios documented in tests file)
 - **2025-11-11**: ✅ **COMPLETED Story 01.6-002** (Automated GitHub SSH Key Upload - 5 points) - **VM TESTED & VERIFIED**
   - Added Phase 6 (continued) to bootstrap.sh (6 functions, ~306 lines with hotfix)
   - 82 comprehensive BATS tests (TDD methodology) + 7 manual VM scenarios

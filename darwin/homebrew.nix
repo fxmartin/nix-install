@@ -55,7 +55,7 @@
       # Auto-update disable: Check app preferences after first launch
       "claude" # Claude Desktop - Anthropic's AI assistant
       "chatgpt" # ChatGPT Desktop - OpenAI's conversational AI
-      "perplexity" # Perplexity - AI-powered search and research tool
+      # Note: Perplexity moved to Mac App Store (masApps) - no Homebrew cask available
       "ollama" # Ollama Desktop - Local LLM runner with GUI and CLI (Story 02.1-002)
     ];
 
@@ -70,7 +70,12 @@
     # Epic-02 will populate with:
     # - Kindle (302584613)
     # - WhatsApp (310633997)
-    masApps = {};
+    masApps = {
+      # AI & LLM Tools (Story 02.1-001)
+      # Perplexity AI desktop app (released October 24, 2024)
+      # No Homebrew cask available - distributed via Mac App Store only
+      "Perplexity" = 6714467650;
+    };
   };
 
   # Environment variable to prevent Homebrew auto-updates

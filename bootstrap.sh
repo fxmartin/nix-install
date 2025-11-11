@@ -2848,6 +2848,20 @@ authenticate_github_cli() {
     log_info "4. This takes about 10 seconds"
     echo ""
 
+    # Ensure gh config directory exists with proper permissions
+    # Prevents "permission denied" errors when gh tries to write config
+    local gh_config_dir="${HOME}/.config/gh"
+    if [[ ! -d "${gh_config_dir}" ]]; then
+        log_info "Creating GitHub CLI config directory..."
+        if ! mkdir -p "${gh_config_dir}"; then
+            log_warn "Could not create ${gh_config_dir} (non-critical, gh will try)"
+        else
+            chmod 755 "${gh_config_dir}" || true
+            log_info "✓ GitHub CLI config directory created"
+        fi
+        echo ""
+    fi
+
     # Run gh auth login with web OAuth flow
     # --hostname github.com: Authenticate to GitHub (not enterprise)
     # --git-protocol ssh: Use SSH for git operations (not HTTPS)

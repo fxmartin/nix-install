@@ -87,6 +87,23 @@ This robust approach ensures detection regardless of how the daemon is running.
 
 ### Recent Activity
 
+- **2025-11-11**: 🔧 **HOTFIX**: Story 01.6-002 - GitHub CLI config directory permission fix
+  - **Issue**: OAuth authentication succeeded but gh config write failed with "permission denied"
+  - **Root Cause**: ~/.config/gh/ directory didn't exist, gh couldn't create it automatically
+  - **Fix**: Added directory creation with 755 permissions before gh auth login
+  - **Location**: authenticate_github_cli() function in bootstrap.sh (+14 lines)
+  - **Tests Added**: 2 new BATS tests (82 total, was 80)
+  - **Files Modified**: bootstrap.sh (+14 lines), tests/bootstrap_github_key_upload.bats (+48 lines)
+  - **Commit**: To be pushed after validation
+- **2025-11-11**: ✅ **IMPLEMENTED Story 01.6-002** (Automated GitHub SSH Key Upload - 5 points)
+  - Added Phase 6 (continued) to bootstrap.sh (6 functions, ~292 lines)
+  - 80 comprehensive BATS tests (TDD methodology) + 7 manual VM scenarios
+  - OAuth authentication flow via gh auth login --web
+  - Automated key upload via gh ssh-key add with idempotency check
+  - ~90% automation achieved (user clicks "Authorize" in browser - 10 seconds)
+  - Graceful fallback to manual instructions with clipboard copy
+  - **Commit d8cb577** pushed to origin/main
+  - Epic-01 now **71.4% complete** (75/105 points) 🎉
 - **2025-11-10**: ✅ **COMPLETED Story 01.1-002** (Idempotency Check - 3 points) - **VM TESTED & VERIFIED**
   - Added `check_existing_user_config()` function (89 lines) to bootstrap.sh
   - Checks two locations: ~/Documents/nix-install/ (completed) and /tmp/nix-bootstrap/ (previous run)
@@ -1826,21 +1843,31 @@ tests/README.md (+267 lines, Phase 6 documentation)
 ## Story 01.6-002: Automated GitHub SSH Key Upload via GitHub CLI
 **Status**: ✅ Implemented (Pending FX VM Testing)
 **Date**: 2025-11-11
-**Branch**: main (to be committed)
+**Branch**: main
 **Story Points**: 5
+**Commits**: d8cb577 (initial), hotfix pending
+
+### Hotfix #1: GitHub CLI Config Directory Permissions (2025-11-11)
+**Issue**: OAuth succeeded but gh config write failed with "permission denied: /Users/fxmartin/.config/gh/config.yml"
+**Root Cause**: ~/.config/gh/ directory didn't exist when gh auth login tried to write config
+**Fix**: Added directory creation with 755 permissions before gh auth login in authenticate_github_cli()
+**Changes**:
+- bootstrap.sh: +14 lines (lines 2851-2863)
+- tests/bootstrap_github_key_upload.bats: +48 lines (2 new tests, now 82 total)
+**Testing**: Bash syntax validated, 82 tests passing
 
 ### Implementation Summary
 Implemented Phase 6 (continued) automated GitHub SSH key upload using GitHub CLI (`gh`) with OAuth authentication, achieving ~90% automation. Users only need to click "Authorize" in browser (~10 seconds) for the entire key upload process to complete automatically.
 
 ### Files Created/Modified
 
-1. **tests/bootstrap_github_key_upload.bats** (NEW - 1,305 lines)
-   - 80 comprehensive BATS tests following TDD methodology
+1. **tests/bootstrap_github_key_upload.bats** (NEW - 1,353 lines)
+   - 82 comprehensive BATS tests following TDD methodology (80 + 2 from hotfix)
    - 9 test categories covering all scenarios
    - Extensive mocking for gh, ssh-keygen, pbcopy commands
    - ABOUTME comments at file header
 
-2. **bootstrap.sh** (MODIFIED - added 292 lines, now 3,270 lines total)
+2. **bootstrap.sh** (MODIFIED - added 306 lines, now 3,284 lines total, +14 from hotfix)
    - Added 6 new functions for Phase 6 (continued) (lines 2812-3088):
      - `check_github_cli_authenticated()` - Check gh auth status (NON-CRITICAL)
      - `authenticate_github_cli()` - OAuth flow via gh auth login (CRITICAL)
@@ -1916,8 +1943,8 @@ Implemented Phase 6 (continued) automated GitHub SSH key upload using GitHub CLI
 - ✅ Follows existing bootstrap.sh patterns
 - ✅ Idempotent design (safe to re-run)
 
-### Test Coverage (80 tests)
-**Automated Tests**: 80 tests in tests/bootstrap_github_key_upload.bats
+### Test Coverage (82 tests)
+**Automated Tests**: 82 tests in tests/bootstrap_github_key_upload.bats (80 + 2 from hotfix)
 1. Function Existence (6 tests)
 2. Authentication Check (10 tests)
 3. OAuth Authentication Flow (12 tests)
@@ -1952,14 +1979,14 @@ Implemented Phase 6 (continued) automated GitHub SSH key upload using GitHub CLI
 - Manual upload only if automation fails (rare)
 
 ### Implementation Statistics
-- **Lines Added**: bootstrap.sh +292 lines (6 functions + main integration)
-- **Test Lines**: tests/bootstrap_github_key_upload.bats = 1,305 lines
+- **Lines Added**: bootstrap.sh +306 lines (6 functions + main integration + hotfix)
+- **Test Lines**: tests/bootstrap_github_key_upload.bats = 1,353 lines (includes hotfix)
 - **Documentation**: tests/README.md +257 lines
-- **Total Lines Added**: ~1,854 lines (implementation + tests + docs)
-- **Test/Code Ratio**: 4.47:1 (1,305 test lines / 292 implementation lines)
+- **Total Lines Added**: ~1,916 lines (implementation + tests + docs)
+- **Test/Code Ratio**: 4.42:1 (1,353 test lines / 306 implementation lines)
 - **Functions Implemented**: 6
-- **Bootstrap Total**: 3,270 lines (from 2,978 baseline)
-- **Test Suite Total**: 725 automated tests (645 + 80)
+- **Bootstrap Total**: 3,284 lines (from 2,978 baseline)
+- **Test Suite Total**: 727 automated tests (645 + 82)
 
 ### Next Steps for FX (VM Testing)
 

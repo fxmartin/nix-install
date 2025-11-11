@@ -370,6 +370,54 @@ teardown() {
     [ "$status" -ne 0 ]
 }
 
+@test "authenticate_github_cli creates gh config directory if missing" {
+    # Create temp home directory for test
+    local test_home
+    test_home=$(mktemp -d)
+    export HOME="${test_home}"
+
+    gh() {
+        if [[ "$1" == "auth" ]] && [[ "$2" == "login" ]]; then
+            return 0
+        fi
+        command gh "$@"
+    }
+    export -f gh
+
+    run authenticate_github_cli
+    [ "$status" -eq 0 ]
+    [ -d "${test_home}/.config/gh" ]
+
+    # Cleanup
+    rm -rf "${test_home}"
+}
+
+@test "authenticate_github_cli sets correct permissions on gh config directory" {
+    # Create temp home directory for test
+    local test_home
+    test_home=$(mktemp -d)
+    export HOME="${test_home}"
+
+    gh() {
+        if [[ "$1" == "auth" ]] && [[ "$2" == "login" ]]; then
+            return 0
+        fi
+        command gh "$@"
+    }
+    export -f gh
+
+    run authenticate_github_cli
+    [ "$status" -eq 0 ]
+
+    # Check permissions are 755
+    local perms
+    perms=$(stat -f "%A" "${test_home}/.config/gh" 2>/dev/null || stat -c "%a" "${test_home}/.config/gh" 2>/dev/null)
+    [[ "${perms}" == "755" ]]
+
+    # Cleanup
+    rm -rf "${test_home}"
+}
+
 @test "authenticate_github_cli uses --web flag for browser OAuth" {
     local uses_web_flag=false
     gh() {

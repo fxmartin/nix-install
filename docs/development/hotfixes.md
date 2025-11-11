@@ -867,3 +867,172 @@ Together, all 8 hotfixes ensure bootstrap works correctly AND communicates accur
 
 ---
 
+## HOTFIX #9: Story 01.8-001 - Confusing Command Reference (sudo requirement unclear)
+**Date**: 2025-11-11
+**Issue**: Phase 9 summary shows "rebuild" and "update" without sudo, causing user confusion
+**Status**: ✅ FIXED
+**Branch**: main
+
+### Problem
+The "Useful Commands" section in Phase 9 installation summary displayed:
+
+```
+Useful Commands:
+
+  rebuild       Apply configuration changes from ~/Documents/nix-install
+  update        Update packages and rebuild system
+  health-check  Verify system health and configuration
+  cleanup       Run garbage collection and free disk space
+```
+
+**User Experience Issue**:
+1. User sees "rebuild" command without sudo
+2. User tries: `rebuild` → Permission denied error
+3. User confused: "Why doesn't it work as shown?"
+4. User doesn't know `rebuild` uses `darwin-rebuild` internally
+5. User doesn't realize sudo is required
+
+This created a confusing and frustrating experience immediately after successful bootstrap completion.
+
+### Root Cause
+**Missing Context**: The command reference didn't communicate that `rebuild` and `update` are shell aliases/functions that internally call `darwin-rebuild`, which requires sudo.
+
+**Design Oversight**: The summary showed command names but not their execution requirements (sudo vs non-sudo), even though:
+- `darwin-rebuild` always requires sudo (documented in Hotfix #8)
+- `rebuild` and `update` are convenience wrappers around `darwin-rebuild`
+- Users need to know this upfront to use commands successfully
+
+### Solution Implemented
+Updated `display_useful_commands()` function to explicitly show sudo requirement:
+
+**Changes (lines 4150-4162)**:
+```bash
+# BEFORE
+display_useful_commands() {
+    echo "Useful Commands:"
+    echo ""
+    echo "  rebuild       Apply configuration changes from ${REPO_CLONE_DIR}"
+    echo "  update        Update packages and rebuild system"
+    echo "  health-check  Verify system health and configuration"
+    echo "  cleanup       Run garbage collection and free disk space"
+    echo ""
+    return 0
+}
+
+# AFTER
+display_useful_commands() {
+    echo "Useful Commands:"
+    echo ""
+    echo "  sudo rebuild       Apply configuration changes from ${REPO_CLONE_DIR}"
+    echo "  sudo update        Update packages and rebuild system"
+    echo "  health-check       Verify system health and configuration"
+    echo "  cleanup            Run garbage collection and free disk space"
+    echo ""
+    echo "  Note: rebuild and update require sudo (they use darwin-rebuild)"
+    echo ""
+    return 0
+}
+```
+
+**Key Changes**:
+1. ✅ **Added `sudo` prefix** to rebuild and update commands
+2. ✅ **Left health-check and cleanup without sudo** (they don't need it)
+3. ✅ **Added explanatory note** clarifying why sudo is needed
+4. ✅ **Improved spacing** for better readability
+
+### Files Modified
+1. **bootstrap.sh**: Updated `display_useful_commands()` function (+3 lines)
+   - Lines 4153-4154: Added sudo to rebuild and update
+   - Lines 4158-4159: Added explanatory note
+2. **tests/09-installation-summary.bats**: Added sudo verification test (+9 lines)
+   - New test: "mentions sudo requirement for darwin-rebuild commands"
+   - Validates sudo prefix shown for rebuild and update
+   - Validates explanatory note is present
+   - Updated test count: 54 → 55 tests
+
+### Testing
+- ✅ All 55 BATS tests PASSING (added 1 new test)
+- ✅ Shellcheck validation: CLEAN (0 errors, 0 warnings)
+- ✅ Bash syntax check: PASSED
+
+### Impact
+- **Fixes**: User confusion about command requirements
+- **Prevents**: Permission denied errors when first using rebuild
+- **Improves**: Command reference accuracy and clarity
+- **User Experience**: Clear expectations, no surprises
+
+### User Experience (Before vs After)
+
+**BEFORE (Confusing)**:
+```
+Useful Commands:
+
+  rebuild       Apply configuration changes
+  update        Update packages and rebuild
+  health-check  Verify system health
+  cleanup       Run garbage collection
+
+[User tries: rebuild]
+[ERROR] Permission denied
+[User confused and frustrated]
+```
+
+**AFTER (Clear)**:
+```
+Useful Commands:
+
+  sudo rebuild       Apply configuration changes
+  sudo update        Update packages and rebuild
+  health-check       Verify system health
+  cleanup            Run garbage collection
+
+  Note: rebuild and update require sudo (they use darwin-rebuild)
+
+[User tries: sudo rebuild]
+[SUCCESS] System rebuilds correctly
+[User happy and informed]
+```
+
+### Why This Is Important
+This fix addresses a critical UX issue:
+
+**First Impression Matters**: The installation summary is the first thing users see after bootstrap completes. If the first command they try fails with a permission error, it creates:
+- ❌ Frustration ("The instructions don't work")
+- ❌ Confusion ("Why does it need sudo when it didn't say so?")
+- ❌ Lost confidence ("Can I trust this system?")
+
+**With This Fix**:
+- ✅ Confidence ("The instructions are accurate")
+- ✅ Clarity ("I know exactly what to do")
+- ✅ Success ("It works as documented")
+
+### Identified By
+FX - "darwin-rebuild requires sudo. Update the summary accordingly it is confusing"
+
+Direct user feedback highlighting the UX issue immediately after reviewing the Phase 9 implementation.
+
+### Relationship to Other Fixes
+This completes the Phase 9 messaging improvements:
+- **Hotfix #8**: Office 365 messaging and darwin-rebuild documentation ✅
+- **Hotfix #9**: Command reference sudo clarity ✅ **← THIS FIX**
+
+Together, these ensure Phase 9 provides accurate, helpful, and non-confusing information to users at the end of bootstrap.
+
+### Follow-up Considerations
+**Future Improvement**: Consider creating actual shell aliases that handle sudo internally:
+
+```bash
+# In ~/.zshrc or similar
+alias rebuild='sudo darwin-rebuild switch --flake ~/Documents/nix-install#$(profile)'
+alias update='sudo nix flake update ~/Documents/nix-install && rebuild'
+```
+
+This would allow users to just type `rebuild` without sudo, while the alias handles it internally. However, this requires:
+1. Determining user's profile dynamically
+2. Home Manager shell configuration updates
+3. Careful sudo handling (avoid password caching issues)
+
+For now, the explicit `sudo rebuild` approach is clearer and safer.
+
+---
+

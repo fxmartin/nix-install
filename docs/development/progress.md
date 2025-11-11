@@ -5,7 +5,7 @@
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 19 | 113 | **14** | **88** | 73.7% | 77.9% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 19 | 113 | **15** | **93** | 78.9% | 82.3% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -13,9 +13,9 @@
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **112** | **601** | **14** | **88** | **12.5%** | **14.6%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **112** | **601** | **15** | **93** | **13.4%** | **15.5%** | 🟡 In Progress |
 
-### Epic-01 Completed Stories (14/19)
+### Epic-01 Completed Stories (15/19)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -33,6 +33,7 @@
 | 01.6-001 | SSH Key Generation | 5 | ✅ Complete | feature/01.6-001-ssh-key-generation | 2025-11-10 |
 | 01.6-002 | GitHub SSH Key Upload (Automated) | 5 | ✅ Complete | main | 2025-11-11 |
 | 01.6-003 | GitHub SSH Connection Test | 8 | ✅ Complete | feature/01.6-003-ssh-connection-test | 2025-11-11 |
+| 01.7-001 | Full Repository Clone | 5 | ✅ Complete | feature/01.7-001-repo-clone | 2025-11-11 |
 
 **Notes**:
 - **2025-11-10**: Story 01.6-002 scope changed from manual approach (8 points) to automated GitHub CLI approach (5 points), reducing Epic-01 by 3 points
@@ -41,14 +42,45 @@
 ### Overall Project Status
 
 - **Total Project Scope**: 112 stories, 601 story points
-- **Completed**: 14 stories (12.5%), 88 points (14.6%)
-- **In Progress**: Epic-01 Bootstrap & Installation (73.7% complete by stories, 77.9% by points)
+- **Completed**: 15 stories (13.4%), 93 points (15.5%)
+- **In Progress**: Epic-01 Bootstrap & Installation (78.9% complete by stories, 82.3% by points)
 - **Current Phase**: Phase 0-2 (Foundation + Bootstrap, Week 1-2)
-- **Next Story**: 01.7-001 (Full Repository Clone - 5 points) - READY TO START
+- **Next Story**: 01.7-002 (Final Darwin Rebuild - 8 points) - READY TO START
 - **Deferred**: Story 01.1-004 (Modular Bootstrap, 8 points) - P1, implement post-Epic-01
 
 ### Recent Activity
 
+- **2025-11-11**: ✅ **COMPLETED Story 01.7-001** (Full Repository Clone - 5 points) - **VM TESTED & VERIFIED**
+  - Added Phase 7 to bootstrap.sh (9 functions, ~400 lines)
+  - 118 comprehensive BATS tests (TDD methodology) in tests/bootstrap_repo_clone_test.bats
+  - Git clone via SSH to ~/Documents/nix-install with idempotent handling
+  - Existing directory detection with interactive prompt (remove/skip)
+  - user-config.nix preservation (no overwrite if exists in repo)
+  - Repository integrity validation (4-point check: .git, flake.nix, user-config.nix, git status)
+  - Disk space check before clone (warns if <500MB available)
+  - Function breakdown:
+    - `create_documents_directory()`: Ensures ~/Documents exists
+    - `check_existing_repo_directory()`: Detects existing repository
+    - `prompt_remove_existing_repo()`: Interactive prompt for existing dir
+    - `remove_existing_repo_directory()`: Removes existing directory safely
+    - `clone_repository()`: Core git clone with disk space check
+    - `copy_user_config_to_repo()`: Copies config, preserves existing
+    - `verify_repository_clone()`: Multi-point validation
+    - `display_clone_success_message()`: Success banner
+    - `clone_repository_phase()`: Main orchestration function
+  - Created comprehensive VM testing guide: docs/testing-repo-clone-phase.md (8 scenarios)
+  - **All 8 VM tests PASSED** ✅
+  - **Hotfix #2 (3 commits)**: GitHub CLI availability and permissions
+    - **Commit a4e210c**: Moved gh installation from Home Manager to Homebrew (immediate PATH availability)
+    - **Commit 4f97c59**: Improved config directory permission handling
+    - **Commit aa4f344**: Added PATH update after Phase 5 (eliminates shell reload requirement)
+  - Shellcheck validation: **0 errors, 0 warnings** ✅
+  - Bash syntax check: **PASSED** ✅
+  - Phase execution time: **2 seconds** ⚡
+  - Repository cloned to: /Users/fxmartin/Documents/nix-install
+  - Commits: a4f161a (initial) + 186b1df + e8846b6 + a4e210c + e577f93 + 4f97c59 + aa4f344 (hotfixes) merged to main
+  - Epic-01 now **82.3% complete** (93/113 points) 🎉
+  - Bootstrap.sh size: 3518 → 3908 lines (+390 lines)
 - **2025-11-11**: ✅ **COMPLETED Story 01.6-003** (GitHub SSH Connection Test - 8 points) - **VM TESTED & VERIFIED**
   - Added Phase 6 (continued) to bootstrap.sh (5 functions, ~234 lines)
   - 80 comprehensive BATS tests (TDD methodology) in tests/bootstrap_ssh_test.bats

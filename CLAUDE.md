@@ -95,7 +95,7 @@ FX's role: ALL testing, execution, and validation.
 - `docs/REQUIREMENTS.md`: Comprehensive PRD (1600+ lines) - **THE SOURCE OF TRUTH** for requirements
 - `docs/development/README.md`: Development documentation master index - **CHECK THIS FIRST** for:
   - Navigation to progress tracking, story details, workflows
-  - Current status: Epic-01 73.7% complete (77.9% by points), next story: 01.7-001
+  - Current status: Epic-01 78.9% complete (82.3% by points), next story: 01.7-002
   - Quick reference for completed stories and testing metrics
 - `docs/development/progress.md`: Epic overview table, completed stories, recent activity
 - `docs/development/stories/epic-01-feature-*.md`: Detailed Epic-01 story implementations (split by feature)
@@ -103,6 +103,7 @@ FX's role: ALL testing, execution, and validation.
   - `epic-01-feature-01.4.md`: Nix Installation
   - `epic-01-feature-01.5.md`: Nix-Darwin Installation
   - `epic-01-feature-01.6.md`: SSH Setup & GitHub Integration
+  - `epic-01-feature-01.7.md`: Repository Clone
 - `docs/development/multi-agent-workflow.md`: Agent selection strategy and usage patterns
 - `docs/development/tools-and-testing.md`: Development environment setup and testing
 - `docs/development/hotfixes.md`: Production hotfix documentation

@@ -2856,16 +2856,52 @@ authenticate_github_cli() {
 
     # Ensure gh config directory exists with proper permissions
     # Prevents "permission denied" errors when gh tries to write config
+    # Note: Must create both ~/.config and ~/.config/gh with correct ownership
+    local config_dir="${HOME}/.config"
     local gh_config_dir="${HOME}/.config/gh"
+
+    # Create ~/.config if it doesn't exist
+    if [[ ! -d "${config_dir}" ]]; then
+        log_info "Creating ~/.config directory..."
+        if ! mkdir -p "${config_dir}"; then
+            log_error "Failed to create ${config_dir}"
+            log_error "This will prevent GitHub CLI from saving authentication"
+            return 1
+        fi
+        # Set proper ownership and permissions
+        chmod 755 "${config_dir}" || true
+        log_info "✓ ~/.config directory created"
+    fi
+
+    # Create ~/.config/gh if it doesn't exist
     if [[ ! -d "${gh_config_dir}" ]]; then
         log_info "Creating GitHub CLI config directory..."
         if ! mkdir -p "${gh_config_dir}"; then
-            log_warn "Could not create ${gh_config_dir} (non-critical, gh will try)"
-        else
-            chmod 755 "${gh_config_dir}" || true
-            log_info "✓ GitHub CLI config directory created"
+            log_error "Failed to create ${gh_config_dir}"
+            log_error "This will prevent GitHub CLI from saving authentication"
+            return 1
         fi
+        # Set proper ownership and permissions
+        chmod 755 "${gh_config_dir}" || true
+        log_info "✓ GitHub CLI config directory created"
         echo ""
+    fi
+
+    # Ensure the directory is writable (fix any permission issues)
+    if [[ -d "${gh_config_dir}" ]]; then
+        if ! touch "${gh_config_dir}/.test_write" 2>/dev/null; then
+            log_warn "GitHub CLI config directory exists but is not writable"
+            log_info "Attempting to fix permissions..."
+            chmod 755 "${gh_config_dir}" || true
+            # Try again
+            if ! touch "${gh_config_dir}/.test_write" 2>/dev/null; then
+                log_error "Cannot write to ${gh_config_dir}"
+                log_error "Manual fix: sudo chown -R $(whoami) ${config_dir}"
+                return 1
+            fi
+        fi
+        # Clean up test file
+        rm -f "${gh_config_dir}/.test_write" 2>/dev/null || true
     fi
 
     # Run gh auth login with web OAuth flow

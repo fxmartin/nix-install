@@ -9,9 +9,9 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **12.5% complete** (14/112 stories, 88/601 points)
-  - Epic-01: **73.7% complete** (14/19 stories, 88/113 points) 🟡 In Progress
-  - Next story: **01.7-001** (Full Repository Clone - 5 points)
+  - Current project status: **13.4% complete** (15/112 stories, 93/601 points)
+  - Epic-01: **78.9% complete** (15/19 stories, 93/113 points) 🟡 In Progress
+  - Next story: **01.7-002** (Final Darwin Rebuild - 8 points)
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns
@@ -27,9 +27,9 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ## 🎯 Current Status (Quick Reference)
 
-**Epic-01: Bootstrap & Installation System** - 73.7% complete (77.9% by points)
+**Epic-01: Bootstrap & Installation System** - 78.9% complete (82.3% by points)
 
-### ✅ Completed Stories (14)
+### ✅ Completed Stories (15)
 1. **01.1-001** - Pre-flight Environment Checks (5 pts) - 2025-11-08
 2. **01.1-002** - Idempotency Check (3 pts) - 2025-11-10
 3. **01.2-001** - User Information Prompts (5 pts) - 2025-11-09
@@ -44,15 +44,15 @@ Welcome to the nix-install development documentation. This directory contains al
 12. **01.6-001** - SSH Key Generation (5 pts) - 2025-11-10
 13. **01.6-002** - GitHub SSH Key Upload (Automated) (5 pts) - 2025-11-11
 14. **01.6-003** - GitHub SSH Connection Test (8 pts) - 2025-11-11
+15. **01.7-001** - Full Repository Clone (5 pts) - 2025-11-11
 
 ### 🚧 Next Story
-- **01.7-001** - Full Repository Clone (5 pts) - **READY TO START**
-  - Clone nix-install repository via SSH to final location
-  - Verify repository integrity after clone
+- **01.7-002** - Final Darwin Rebuild (8 pts) - **READY TO START**
+  - Perform final darwin-rebuild switch from cloned repository
+  - Validate system configuration applied from repo
 
-### ⏳ Remaining Epic-01 Stories (5)
-- **01.7-001** - Repository Clone via SSH (5 pts) - NEXT
-- **01.7-002** - Final Darwin Rebuild (8 pts)
+### ⏳ Remaining Epic-01 Stories (4)
+- **01.7-002** - Final Darwin Rebuild (8 pts) - NEXT
 - **01.8-001** - Installation Summary & Next Steps (3 pts)
 - **01.1-003** - Progress Indicators (3 pts) - P1
 - **01.1-004** - Modular Bootstrap Architecture (8 pts) - P1, deferred to post-Epic-01

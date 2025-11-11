@@ -131,3 +131,90 @@ fi
 
 ---
 
+## HOTFIX #3: Story 01.6-002 - PATH Update for Homebrew After Phase 5
+**Date**: 2025-11-11
+**Issue**: Shell reload required between Phase 5 and Phase 6 for gh availability
+**Status**: ✅ FIXED
+**Commit**: aa4f344
+**Branch**: main
+
+### Problem
+During VM testing, FX discovered that even after installing gh via Homebrew (Hotfix #2a), the terminal needed to be restarted before `gh` became available in Phase 6. This broke the single-shell execution flow of the bootstrap.
+
+**User Experience**:
+```
+Phase 5: darwin-rebuild completes (installs gh via Homebrew)
+Phase 6: gh: command not found
+[User must exit terminal and start new one]
+Phase 6: gh now works
+```
+
+This violated the design goal of single-shell bootstrap execution.
+
+### Root Cause
+When Homebrew installs packages via nix-darwin, the binaries are placed in `/opt/homebrew/bin/`. However, the current shell session's PATH environment variable doesn't automatically update to include this directory until one of:
+1. Shell reload (source ~/.zshrc or restart terminal)
+2. Explicit PATH update (export PATH="/opt/homebrew/bin:$PATH")
+
+The bootstrap was relying on PATH already including Homebrew, which isn't true for fresh macOS installs.
+
+### Solution Implemented
+Added explicit PATH update after Phase 5 validation (lines 3860-3886 in bootstrap.sh):
+
+```bash
+# After nix-darwin validation completes
+log_info "Updating shell PATH to include Homebrew binaries..."
+
+# Add Homebrew to PATH if not already present
+if [[ ":$PATH:" != *":/opt/homebrew/bin:"* ]]; then
+    export PATH="/opt/homebrew/bin:$PATH"
+    log_success "✓ Homebrew added to PATH"
+else
+    log_info "✓ Homebrew already in PATH"
+fi
+
+# Verify gh is now available
+if command -v gh >/dev/null 2>&1; then
+    log_success "✓ GitHub CLI (gh) is available in PATH"
+    log_info "  Version: $(gh --version | head -1)"
+else
+    log_warn "GitHub CLI (gh) still not in PATH after Homebrew update"
+fi
+```
+
+**Behavior**:
+- Check if `/opt/homebrew/bin` already in PATH (skip if present)
+- Export PATH with Homebrew directory prepended
+- Verify `gh` command now works
+- Display gh version for confirmation
+- Log warning if still not available (fallback indicators)
+
+### Files Modified
+- `bootstrap.sh`: Added PATH update section after validate_nix_darwin_phase() (+27 lines)
+- Lines 3860-3886 implement the PATH update logic
+
+### Testing
+- ✅ Bash syntax validated (bash -n)
+- ✅ VM testing confirmed: `gh` available immediately after Phase 5
+- ✅ No shell reload required between phases
+- ✅ Single-shell execution from start to finish
+
+### Impact
+- **Fixes**: Shell reload requirement between Phase 5 and Phase 6
+- **Maintains**: Single-shell bootstrap execution model
+- **Enables**: Automated OAuth flow in Phase 6 (no interruptions)
+- **User Impact**: Seamless bootstrap from Phase 1 through Phase 7
+
+### Relationship to Hotfix #2
+This hotfix complements Hotfix #2:
+- **Hotfix #2a**: Install gh via Homebrew (makes it installable)
+- **Hotfix #2b**: Fix config directory permissions (makes it configurable)
+- **Hotfix #3**: Update PATH after install (makes it immediately usable)
+
+Together, these three commits ensure gh works perfectly for automated SSH key upload.
+
+### Long-term Considerations
+On subsequent bootstrap runs or when running from an already-configured system, Homebrew will already be in PATH from shell initialization files (managed by nix-darwin). This fix handles the first-run scenario gracefully.
+
+---
+

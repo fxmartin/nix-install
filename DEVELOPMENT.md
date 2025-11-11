@@ -48,7 +48,7 @@ This robust approach ensures detection regardless of how the daemon is running.
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 18 | 105 | **13** | **78** | 72.2% | 74.3% | 🟡 In Progress |
+| **Epic-01** | Bootstrap & Installation System | 18 | 105 | **13** | **80** | 72.2% | 76.2% | 🟡 In Progress |
 | **Epic-02** | Application Installation | 22 | 113 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
@@ -56,7 +56,7 @@ This robust approach ensures detection regardless of how the daemon is running.
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **111** | **593** | **13** | **78** | **11.7%** | **13.2%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **111** | **593** | **13** | **80** | **11.7%** | **13.5%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (13/18)
 
@@ -74,35 +74,30 @@ This robust approach ensures detection regardless of how the daemon is running.
 | 01.5-001 | Initial Nix-Darwin Build | 13 | ✅ Complete | feature/01.5-001-nix-darwin-build | 2025-11-09 |
 | 01.5-002 | Post-Darwin System Validation | 5 | ✅ Complete | main | 2025-11-10 |
 | 01.6-001 | SSH Key Generation | 5 | ✅ Complete | feature/01.6-001-ssh-key-generation | 2025-11-10 |
+| 01.6-002 | GitHub SSH Key Upload (Automated) | 5 | ✅ Complete | main | 2025-11-11 |
 
 **Note**: Story 01.6-002 scope changed on 2025-11-10 from manual approach (8 points) to automated GitHub CLI approach (5 points), reducing Epic-01 total from 108 to 105 points.
 
 ### Overall Project Status
 
 - **Total Project Scope**: 111 stories, 593 story points (revised from 596 after Story 01.6-002 update)
-- **Completed**: 13 stories (11.7%), 78 points (13.2%)
-- **In Progress**: Epic-01 Bootstrap & Installation (72.2% complete by stories, 74.3% by points)
+- **Completed**: 13 stories (11.7%), 80 points (13.5%)
+- **In Progress**: Epic-01 Bootstrap & Installation (72.2% complete by stories, 76.2% by points)
 - **Current Phase**: Phase 0-2 (Foundation + Bootstrap, Week 1-2)
-- **Next Story**: 01.6-002 (GitHub SSH Key Upload - 5 points) - READY TO START
+- **Next Story**: 01.6-003 (GitHub SSH Connection Test - 8 points) - READY TO START
 
 ### Recent Activity
 
-- **2025-11-11**: 🔧 **HOTFIX**: Story 01.6-002 - GitHub CLI config directory permission fix
-  - **Issue**: OAuth authentication succeeded but gh config write failed with "permission denied"
-  - **Root Cause**: ~/.config/gh/ directory didn't exist, gh couldn't create it automatically
-  - **Fix**: Added directory creation with 755 permissions before gh auth login
-  - **Location**: authenticate_github_cli() function in bootstrap.sh (+14 lines)
-  - **Tests Added**: 2 new BATS tests (82 total, was 80)
-  - **Files Modified**: bootstrap.sh (+14 lines), tests/bootstrap_github_key_upload.bats (+48 lines)
-  - **Commit**: To be pushed after validation
-- **2025-11-11**: ✅ **IMPLEMENTED Story 01.6-002** (Automated GitHub SSH Key Upload - 5 points)
-  - Added Phase 6 (continued) to bootstrap.sh (6 functions, ~292 lines)
-  - 80 comprehensive BATS tests (TDD methodology) + 7 manual VM scenarios
+- **2025-11-11**: ✅ **COMPLETED Story 01.6-002** (Automated GitHub SSH Key Upload - 5 points) - **VM TESTED & VERIFIED**
+  - Added Phase 6 (continued) to bootstrap.sh (6 functions, ~306 lines with hotfix)
+  - 82 comprehensive BATS tests (TDD methodology) + 7 manual VM scenarios
   - OAuth authentication flow via gh auth login --web
   - Automated key upload via gh ssh-key add with idempotency check
-  - ~90% automation achieved (user clicks "Authorize" in browser - 10 seconds)
+  - ~90% automation achieved (user clicks "Authorize" in browser - 10 seconds) ✅
   - Graceful fallback to manual instructions with clipboard copy
-  - **Commit d8cb577** pushed to origin/main
+  - **Hotfix #1 (aa7d2d6)**: Fixed permission denied error (gh config directory creation)
+  - **Commit d8cb577** (initial) + **aa7d2d6** (hotfix) pushed to origin/main
+  - **All VM tests PASSED** ✅
   - Epic-01 now **71.4% complete** (75/105 points) 🎉
 - **2025-11-10**: ✅ **COMPLETED Story 01.1-002** (Idempotency Check - 3 points) - **VM TESTED & VERIFIED**
   - Added `check_existing_user_config()` function (89 lines) to bootstrap.sh
@@ -1841,11 +1836,11 @@ tests/README.md (+267 lines, Phase 6 documentation)
 ---
 
 ## Story 01.6-002: Automated GitHub SSH Key Upload via GitHub CLI
-**Status**: ✅ Implemented (Pending FX VM Testing)
+**Status**: ✅ **COMPLETE & VM TESTED**
 **Date**: 2025-11-11
 **Branch**: main
 **Story Points**: 5
-**Commits**: d8cb577 (initial), hotfix pending
+**Commits**: d8cb577 (initial), aa7d2d6 (hotfix #1)
 
 ### Hotfix #1: GitHub CLI Config Directory Permissions (2025-11-11)
 **Issue**: OAuth succeeded but gh config write failed with "permission denied: /Users/fxmartin/.config/gh/config.yml"
@@ -1855,6 +1850,7 @@ tests/README.md (+267 lines, Phase 6 documentation)
 - bootstrap.sh: +14 lines (lines 2851-2863)
 - tests/bootstrap_github_key_upload.bats: +48 lines (2 new tests, now 82 total)
 **Testing**: Bash syntax validated, 82 tests passing
+**VM Testing**: ✅ **VERIFIED** - Hotfix resolved permission denied error, OAuth and key upload working
 
 ### Implementation Summary
 Implemented Phase 6 (continued) automated GitHub SSH key upload using GitHub CLI (`gh`) with OAuth authentication, achieving ~90% automation. Users only need to click "Authorize" in browser (~10 seconds) for the entire key upload process to complete automatically.
@@ -1931,7 +1927,7 @@ Implemented Phase 6 (continued) automated GitHub SSH key upload using GitHub CLI
 - ✅ Key title format: `hostname-YYYYMMDD`
 - ✅ Clipboard copy for manual fallback
 - ✅ 80 automated BATS tests written
-- ⏳ 7 manual VM tests (FX to perform)
+- ✅ 7 manual VM tests (ALL PASSED - OAuth working, key uploaded successfully)
 
 ### Code Quality
 - ✅ TDD methodology: Tests written FIRST before implementation
@@ -2102,20 +2098,21 @@ Implemented Phase 6 (continued) automated GitHub SSH key upload using GitHub CLI
 - SSH key rotation automation
 
 ### Story Completion Summary
-**Development**: ✅ Complete (6 functions implemented, ~292 lines)
-**Testing**: ✅ Complete (80 automated BATS tests, 7 manual scenarios)
+**Development**: ✅ Complete (6 functions implemented, ~306 lines with hotfix)
+**Testing**: ✅ Complete (82 automated BATS tests, 7 manual scenarios)
 **Code Quality**: ✅ Complete (bash syntax validated, TDD methodology followed)
 **Documentation**: ✅ Complete (tests/README.md updated, DEVELOPMENT.md updated)
-**VM Testing**: ⏳ **PENDING FX** (7 manual test scenarios documented)
-**Git Commit**: ⏳ Pending (awaiting FX testing and commit)
+**VM Testing**: ✅ **COMPLETE** - All 7 manual test scenarios PASSED
+**Hotfix Applied**: ✅ **VERIFIED** - Permission denied error resolved
+**Git Commits**: ✅ Pushed (d8cb577 initial, aa7d2d6 hotfix)
 
-**OAuth browser flow (~10 seconds user interaction) achieves ~90% automation goal. Phase 6 (continued) ready for VM testing.**
+**OAuth browser flow (~10 seconds user interaction) achieves ~90% automation goal. Phase 6 (continued) COMPLETE and production ready! ✅**
 
 ---
 
 **Last Updated**: 2025-11-11
 **Current Story**: Story 01.6-003 (GitHub SSH Connection Test - 8 points) - NEXT
-**Epic-01 Progress**: 12/18 stories (75/105 points = 71.4%) 🎉
+**Epic-01 Progress**: 13/18 stories (80/105 points = 76.2%) 🎉
 **Epic-01 Total**: 105 points (revised from 108 after Story 01.6-002 update)
 **Phase 2 Status**: 100% complete (User Configuration & Profile Selection)
 **Phase 3 Status**: 100% complete (Xcode CLI Tools)

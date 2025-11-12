@@ -283,13 +283,15 @@ ollama run llama2 "Hello, world!"
 
 **Status**: Installed via Homebrew cask `zed` (Story 02.2-001)
 
-**✅ AUTO-CONFIGURED**: Settings automatically copied on first darwin-rebuild (Issue #26 resolution)
+**✅ AUTO-CONFIGURED with BIDIRECTIONAL SYNC**: Settings symlinked to repo (Issue #26 resolution)
 
-**How Auto-Configuration Works**:
-1. Template settings stored in repo: `config/zed/settings.json`
-2. On first `darwin-rebuild`, activation script copies template to `~/.config/zed/settings.json`
-3. Subsequent rebuilds preserve your modifications (no overwrite)
-4. Zed has full write access to modify settings as needed
+**How Bidirectional Sync Works**:
+1. Settings file in repo: `config/zed/settings.json` (version controlled)
+2. On `darwin-rebuild`, activation script creates: `~/.config/zed/settings.json` → `~/nix-install/config/zed/settings.json`
+3. Changes sync both ways:
+   - **Zed → Repo**: Modify settings in Zed → Changes instantly appear in repo (git shows them)
+   - **Repo → Zed**: Pull updates or edit repo file → Zed sees changes immediately
+4. Zed has full write access (symlink points to working directory, not read-only /nix/store)
 
 **First Launch**:
 1. Launch Zed from Spotlight, Raycast, or `/Applications/Zed.app`
@@ -334,16 +336,46 @@ The following settings are automatically configured from `config/zed/settings.js
 
 **Viewing/Modifying Settings**:
 - **View current settings**: Press `Cmd+,` or click **Zed → Settings**
-- **Settings location**: `~/.config/zed/settings.json` (automatically created from template)
-- **Template source**: `config/zed/settings.json` in this repo
-- **Modify anytime**: Zed has full write access, changes persist across rebuilds
+- **Settings location**: `~/.config/zed/settings.json` (symlinked to `~/nix-install/config/zed/settings.json`)
+- **Modify anytime**: Zed has full write access, changes instantly sync to repo
+- **Version controlled**: Settings tracked by git, can commit/revert changes
 
-**To customize settings**:
-1. Open Zed settings (Cmd+,)
-2. Modify any values in settings.json
-3. Save (Cmd+S)
-4. Changes take effect immediately
-5. Your modifications are preserved on future darwin-rebuilds
+**Workflow Options**:
+
+1. **Edit in Zed** (most common):
+   ```bash
+   # 1. Open Zed settings (Cmd+,)
+   # 2. Modify settings.json
+   # 3. Save (Cmd+S)
+   # 4. Check git status to see changes:
+   git status
+   # Shows: modified: config/zed/settings.json
+
+   # 5. Commit your changes:
+   git add config/zed/settings.json
+   git commit -m "feat(zed): enable vim mode"
+   git push
+   ```
+
+2. **Edit in repo** (for bulk changes):
+   ```bash
+   # 1. Edit directly in repo
+   vim ~/nix-install/config/zed/settings.json
+
+   # 2. Zed sees changes immediately (if running)
+   # 3. Commit and push
+   git add config/zed/settings.json
+   git commit -m "feat(zed): update theme preferences"
+   git push
+   ```
+
+3. **Pull updates** (sync from other machines):
+   ```bash
+   # Pull changes from repo
+   git pull
+
+   # Zed automatically uses updated settings (if running, may need restart)
+   ```
 
 **Theme Switching Verification**:
 - **Light Mode**: System Settings → Appearance → Light → Zed should use Catppuccin Latte
@@ -365,10 +397,11 @@ The following settings are automatically configured from `config/zed/settings.js
 - **Language Servers**: Epic-04 will add LSP servers for Python, Nix, Bash, etc.
 
 **Known Issues**:
-- **Issue #26**: ✅ **RESOLVED** - Settings template automatically copied on first run
-  - Previous issue: Home Manager symlinks were read-only
-  - Current solution: Activation script copies template, Zed has write access
-  - User modifications preserved across rebuilds
+- **Issue #26**: ✅ **RESOLVED** - Settings symlinked to repo for bidirectional sync
+  - Previous issue: Home Manager symlinks to /nix/store were read-only
+  - Current solution: Symlink to repo working directory (not /nix/store)
+  - Benefits: Bidirectional sync, version control, git tracking
+  - Changes in Zed instantly appear in repo, pull updates instantly apply to Zed
 - If Catppuccin theme not available:
   - Check **Zed → Extensions** and install "Catppuccin" theme
   - Theme should be built-in as of Zed 0.130+

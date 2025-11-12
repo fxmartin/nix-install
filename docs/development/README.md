@@ -9,10 +9,11 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **15.0% complete** (17/113 stories, 104/606 points)
-  - Epic-01: **89.5% complete** (17/19 stories, 104/113 points) 🟡 In Progress
-  - Next story: **01.1-003** (Progress Indicators - 3 points, P1 optional)
-  - Recent: Epic-02 expanded to 23 stories/118 points (Story 02.10-001 added)
+  - Current project status: **19.5% complete** (22/113 stories, 130/606 points)
+  - Epic-01: **89.5% complete** (17/19 stories, 104/113 points) 🟢 Bootstrap functional
+  - Epic-02: **21.7% complete** (5/23 stories, 26/118 points) 🟡 In Progress
+  - Next stories: Epic-02 (VSCode, Ghostty, browsers) or Epic-01 cleanup (Progress Indicators)
+  - Recent: Feature 02.1 (AI Tools) and Story 02.2-001 (Zed) completed and VM tested
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns
@@ -28,9 +29,14 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ## 🎯 Current Status (Quick Reference)
 
-**Epic-01: Bootstrap & Installation System** - 89.5% complete (92.0% by points)
+**Overall Project**: 19.5% complete (22/113 stories, 130/606 points)
 
-### ✅ Completed Stories (17)
+**Epic-01: Bootstrap & Installation System** - 89.5% complete (92.0% by points) 🟢
+**Epic-02: Application Installation** - 21.7% complete (22.0% by points) 🟡
+
+### ✅ Completed Stories (22)
+
+#### Epic-01 Stories (17)
 1. **01.1-001** - Pre-flight Environment Checks (5 pts) - 2025-11-08
 2. **01.1-002** - Idempotency Check (3 pts) - 2025-11-10
 3. **01.2-001** - User Information Prompts (5 pts) - 2025-11-09
@@ -49,14 +55,27 @@ Welcome to the nix-install development documentation. This directory contains al
 16. **01.7-002** - Final Darwin Rebuild (8 pts) - 2025-11-11
 17. **01.8-001** - Installation Summary & Next Steps (3 pts) - 2025-11-11
 
-### 🚧 Next Story
-- **01.1-003** - Progress Indicators (3 pts) - **P1 OPTIONAL ENHANCEMENT**
-  - Display progress indicators during bootstrap phases
-  - Visual feedback for long-running operations
+#### Epic-02 Stories (5)
+18. **02.1-001** - Claude Desktop and AI Chat Apps (3 pts) - 2025-11-12 (VM tested)
+19. **02.1-002** - Ollama Desktop App Installation (5 pts) - 2025-11-12 (VM tested)
+20. **02.1-003** - Standard Profile Ollama Model (5 pts) - 2025-11-12 (VM tested)
+21. **02.1-004** - Power Profile Additional Ollama Models (8 pts) - 2025-11-12 (VM tested)
+22. **02.2-001** - Zed Editor Installation and Configuration (5 pts) - 2025-11-12 (VM tested)
 
-### ⏳ Remaining Epic-01 Stories (2)
-- **01.1-003** - Progress Indicators (3 pts) - P1, optional enhancement
+### 🚧 Next Stories
+
+**Epic-02 Options** (Continue application installation):
+- **02.2-002** - VSCode Installation (3 pts)
+- **02.2-003** - Ghostty Terminal Installation (5 pts)
+- **02.3-001** - Brave Browser Installation (3 pts)
+
+**Epic-01 Cleanup** (Optional enhancements):
+- **01.1-003** - Progress Indicators (3 pts) - P1 optional enhancement
 - **01.1-004** - Modular Bootstrap Architecture (8 pts) - P1, deferred to post-Epic-01
+
+### ⏳ Remaining Stories
+- **Epic-01**: 2 stories remaining (01.1-003, 01.1-004) - both P1 optional/deferred
+- **Epic-02**: 18 stories remaining (5 completed, 18 to go)
 
 ## 🛠️ What to Read First?
 

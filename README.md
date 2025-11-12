@@ -25,18 +25,18 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
-| **Epic-02** | Application Installation | 23 | 118 | **5** | **26** | 21.7% | 22.0% | 🟡 In Progress |
+| **Epic-02** | Application Installation | 25 | 118 | **6** | **31** | 24.0% | 26.3% | 🟡 In Progress |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **113** | **606** | **22** | **130** | **19.5%** | **21.5%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **115** | **606** | **23** | **135** | **20.0%** | **22.3%** | 🟡 In Progress |
 
 ### ✅ Completed
 - **Requirements Definition** ([REQUIREMENTS.md](./docs/REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
-- **User Story Breakdown** ([STORIES.md](./STORIES.md)) - 113 stories across 7 epics + NFR
+- **User Story Breakdown** ([STORIES.md](./STORIES.md)) - 115 stories across 7 epics + NFR
 - **Story Management Protocol** - Modular epic structure with detailed acceptance criteria
 - **Requirements Baseline** - v1.1 approved (change control re-approval completed)
 - **Project Architecture** - Two-tier profiles (Standard/Power), Stylix theming, nixpkgs-unstable
@@ -48,19 +48,20 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - 01.7-001, 01.7-002, 01.8-001 ✅
 - All VM tested and validated
 
-**Epic-02 Stories (5/23 complete - 21.7%)**:
+**Epic-02 Stories (6/25 complete - 24.0%)**:
 - **Story 02.1-001** - Claude Desktop and AI Chat Apps (✅ Complete - 2025-11-12, 3 pts, VM TESTED)
-- **Story 02.1-002** - Ollama Desktop App (✅ Complete - 2025-11-12, 5 pts, VM TESTED)
-- **Story 02.1-003** - Standard Profile Ollama Model (✅ Complete - 2025-11-12, 5 pts, VM TESTED)
+- **Story 02.1-002** - Ollama Desktop App (✅ Complete - 2025-11-12, 3 pts, VM TESTED)
+- **Story 02.1-003** - Standard Profile Ollama Model (✅ Complete - 2025-11-12, 2 pts, VM TESTED)
 - **Story 02.1-004** - Power Profile Ollama Models (✅ Complete - 2025-11-12, 8 pts, VM TESTED)
-- **Story 02.2-001** - Zed Editor with Bidirectional Sync (✅ Complete - 2025-11-12, 5 pts, VM TESTED)
+- **Story 02.2-001** - Zed Editor with Bidirectional Sync (✅ Complete - 2025-11-12, 12 pts, VM TESTED)
+- **Story 02.2-002** - VSCode with Auto Dark Mode (✅ Complete - 2025-11-12, 3 pts, VM TESTED)
 
 ### 🔄 In Progress
 - **Epic-01: Bootstrap System** - 17/19 stories (89.5%), 104/113 points (92.0%) - **FUNCTIONAL** 🟢
-- **Epic-02: Application Installation** - 5/23 stories (21.7%), 26/118 points (22.0%) - **IN PROGRESS** 🟡
-- **Next Stories**: 02.2-002 (VSCode), 02.2-003 (Ghostty), 02.3-001 (Brave)
+- **Epic-02: Application Installation** - 6/25 stories (24.0%), 31/118 points (26.3%) - **IN PROGRESS** 🟡
+- **Next Stories**: 02.2-003 (Ghostty), 02.3-001 (Browsers), 02.4-001 (Productivity)
 - **Bootstrap Status**: ALL 9 phases working! Phases 1-8 VM tested and verified ✅
-- **Recent Milestone**: Feature 02.1 (AI Tools) + Zed Editor completed (5 stories, 26 points)
+- **Recent Milestone**: Feature 02.1 (AI Tools) + Zed & VSCode editors completed (6 stories, 31 points)
 
 ### 📅 Upcoming
 - **Phase 1-2**: Core bootstrap implementation (Week 2)

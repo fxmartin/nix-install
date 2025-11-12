@@ -6,14 +6,14 @@
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
-| **Epic-02** | Application Installation | 23 | 118 | **5** | **26** | 21.7% | 22.0% | 🟡 In Progress |
+| **Epic-02** | Application Installation | 25 | 118 | **6** | **31** | 24.0% | 26.3% | 🟡 In Progress |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **113** | **606** | **22** | **130** | **19.5%** | **21.5%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **115** | **606** | **23** | **135** | **20.0%** | **22.3%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -41,47 +41,52 @@
 - **2025-11-10**: Story 01.6-002 scope changed from manual approach (8 points) to automated GitHub CLI approach (5 points), reducing Epic-01 by 3 points
 - **2025-11-11**: Story 01.1-004 added (Modular Bootstrap Architecture, 8 points), increasing Epic-01 by 8 points, **deferred to post-Epic-01**
 
-### Epic-02 Completed Stories (5/23)
+### Epic-02 Completed Stories (6/25)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
 | 02.1-001 | Claude Desktop and AI Chat Apps | 3 | ✅ Complete | feature/02.1-001-ai-chat-apps | 2025-11-12 |
-| 02.1-002 | Ollama Desktop App Installation | 5 | ✅ Complete | feature/02.1-001-ai-chat-apps | 2025-11-12 |
-| 02.1-003 | Standard Profile Ollama Model | 5 | ✅ Complete | feature/02.1-001-ai-chat-apps | 2025-11-12 |
+| 02.1-002 | Ollama Desktop App Installation | 3 | ✅ Complete | feature/02.1-001-ai-chat-apps | 2025-11-12 |
+| 02.1-003 | Standard Profile Ollama Model | 2 | ✅ Complete | feature/02.1-001-ai-chat-apps | 2025-11-12 |
 | 02.1-004 | Power Profile Additional Ollama Models | 8 | ✅ Complete | feature/02.1-001-ai-chat-apps | 2025-11-12 |
-| 02.2-001 | Zed Editor Installation and Configuration | 5 | ✅ Complete | feature/02.2-001-zed-editor | 2025-11-12 |
+| 02.2-001 | Zed Editor Installation and Configuration | 12 | ✅ Complete | feature/02.2-001-zed-editor | 2025-11-12 |
+| 02.2-002 | VSCode Installation with Auto Dark Mode | 3 | ✅ Complete | feature/02.2-002-vscode | 2025-11-12 |
 
 **Notes**:
-- **2025-11-12**: Feature 02.1 (AI & LLM Tools) completed - all 4 stories VM tested by FX
-- **2025-11-12**: Story 02.2-001 (Zed Editor) completed - VM tested by FX
-- **2025-11-12**: Epic-02 increased from 22 to 23 stories, 113 to 118 points after adding Story 02.10-001 (Email Configuration)
+- **2025-11-12**: Feature 02.1 (AI & LLM Tools) completed - all 4 stories VM tested by FX (16 points)
+- **2025-11-12**: Story 02.2-001 (Zed Editor) completed - VM tested by FX, bidirectional sync implemented (12 points)
+- **2025-11-12**: Story 02.2-002 (VSCode) completed - VM tested by FX, auto theme switching working (3 points)
+- **2025-11-12**: Epic-02 increased from 23 to 25 stories after story reconciliation (total points unchanged at 118)
 
 ### Overall Project Status
 
-- **Total Project Scope**: 113 stories, 606 story points
-- **Completed**: 22 stories (19.5%), 130 points (21.5%)
+- **Total Project Scope**: 115 stories, 606 story points
+- **Completed**: 23 stories (20.0%), 135 points (22.3%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL**
-  - Epic-02 Application Installation (21.7% complete by stories, 22.0% by points) - **IN PROGRESS**
+  - Epic-02 Application Installation (24.0% complete by stories, 26.3% by points) - **IN PROGRESS**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - Epic-02: 02.2-002 (VSCode), 02.2-003 (Ghostty), 02.3-001 (Brave)
+  - Epic-02: 02.2-003 (Ghostty), 02.3-001 (Browsers), 02.4-001 (Productivity)
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: Feature 02.1 (AI Tools) completed and VM validated (5 stories, 26 points)
+- **Recent Milestone**: Feature 02.1 (AI Tools) + Zed & VSCode editors completed and VM validated (6 stories, 31 points)
 
 ### Recent Activity
 
-- **2025-11-12**: 🎉 **Feature 02.1 & Story 02.2-001 COMPLETED** - AI Tools and Zed Editor (5 stories, 26 points)
+- **2025-11-12**: 🎉 **Feature 02.1 & Stories 02.2-001, 02.2-002 COMPLETED** - AI Tools, Zed, and VSCode (6 stories, 31 points)
   - **Story 02.1-001**: Claude Desktop and AI Chat Apps ✅ VM tested
   - **Story 02.1-002**: Ollama Desktop App Installation ✅ VM tested
   - **Story 02.1-003**: Standard Profile Ollama Model (gpt-oss:20b) ✅ VM tested
   - **Story 02.1-004**: Power Profile Additional Ollama Models (4 models, ~90GB) ✅ VM tested
   - **Story 02.2-001**: Zed Editor with Catppuccin theme and bidirectional sync ✅ VM tested
+  - **Story 02.2-002**: VSCode with Auto Dark Mode extension and bidirectional sync ✅ VM tested
   - **Hotfix #14**: Made Zed settings path dynamic for custom NIX_INSTALL_DIR support
   - **Issue #26 Resolution**: Zed bidirectional sync (symlink to working directory, not /nix/store)
-  - **Epic-02 Progress**: 21.7% complete (5/23 stories, 26/118 points)
+  - **Issue #28 Resolution**: VSCode auto theme switching (Auto Dark Mode + window.autoDetectColorScheme)
+  - **Issue #29 Resolution**: VSCode CLI PATH detection (multi-location fallback)
+  - **Epic-02 Progress**: 24.0% complete (6/25 stories, 31/118 points)
   - All stories validated by FX in VM testing on both Standard and Power profiles
-  - Commits: 578c13c, f2d10dd, b989484, b719d7e, 6498145, 96d5c98
+  - Commits: 578c13c, f2d10dd, b989484, b719d7e, 6498145, 96d5c98, b932aae (VSCode merge)
 - **2025-11-12**: 📝 **Story Updates & Hotfixes** - Configuration enhancements and fresh Mac workarounds
   - **Story 02.10-001 ADDED**: Email Account Configuration (5 points, Feature 02.10)
     - macOS Mail.app automation with 1 Gmail (OAuth) + 4 Gandi.net accounts (password)

@@ -99,7 +99,7 @@
       fi
     fi
 
-    # Auto-install required VSCode extensions (Issue #28)
+    # Auto-install required VSCode extensions (Issue #28, Issue #29)
     # Extensions must be installed for full functionality:
     #   1. Catppuccin Theme (provides Mocha/Latte themes)
     #   2. Auto Dark Mode (automatic theme switching based on macOS appearance)
@@ -107,10 +107,23 @@
     # Why automation: Aligns with project goal of "zero manual intervention"
     # Extension installation via VSCode CLI is idempotent and safe
 
-    # Check if VSCode CLI is available
+    # Find VSCode CLI command (Issue #29 fix)
+    # PATH during activation may not include /opt/homebrew/bin, so check multiple locations
+    CODE_CLI=""
     if command -v code &> /dev/null; then
+      CODE_CLI="code"
+    elif [ -f "/opt/homebrew/bin/code" ]; then
+      CODE_CLI="/opt/homebrew/bin/code"
+    elif [ -f "/usr/local/bin/code" ]; then
+      CODE_CLI="/usr/local/bin/code"
+    elif [ -f "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" ]; then
+      CODE_CLI="/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
+    fi
+
+    if [ -n "$CODE_CLI" ]; then
       echo ""
       echo "Installing VSCode extensions..."
+      echo "  Using VSCode CLI: $CODE_CLI"
 
       # Extension IDs
       CATPPUCCIN_EXT="Catppuccin.catppuccin-vsc"
@@ -119,7 +132,7 @@
       # Function to check if extension is already installed
       is_extension_installed() {
         local ext_id="$1"
-        code --list-extensions 2>/dev/null | grep -q "^''${ext_id}$"
+        "$CODE_CLI" --list-extensions 2>/dev/null | grep -q "^''${ext_id}$"
       }
 
       # Install Catppuccin Theme (MUST be first - provides the themes)
@@ -127,11 +140,19 @@
         echo "  ✓ Catppuccin Theme already installed"
       else
         echo "  Installing Catppuccin Theme..."
-        if $DRY_RUN_CMD code --install-extension "$CATPPUCCIN_EXT" --force &> /dev/null; then
-          echo "  ✓ Catppuccin Theme installed successfully"
+        # Don't use $DRY_RUN_CMD - we want extensions to actually install
+        # Remove error suppression to see actual errors
+        if "$CODE_CLI" --install-extension "$CATPPUCCIN_EXT" --force 2>&1 | grep -v "is already installed"; then
+          # Verify installation succeeded
+          if is_extension_installed "$CATPPUCCIN_EXT"; then
+            echo "  ✓ Catppuccin Theme installed successfully"
+          else
+            echo "  ⚠️  Warning: Installation reported success but extension not found in list"
+          fi
         else
-          echo "  ⚠️  Warning: Failed to install Catppuccin Theme"
-          echo "     Manual installation: Open VSCode → Extensions (Cmd+Shift+X) → Search 'Catppuccin'"
+          echo "  ❌ ERROR: Failed to install Catppuccin Theme"
+          echo "     Manual installation required:"
+          echo "     $CODE_CLI --install-extension Catppuccin.catppuccin-vsc"
         fi
       fi
 
@@ -140,24 +161,34 @@
         echo "  ✓ Auto Dark Mode already installed"
       else
         echo "  Installing Auto Dark Mode..."
-        if $DRY_RUN_CMD code --install-extension "$AUTO_DARK_MODE_EXT" --force &> /dev/null; then
-          echo "  ✓ Auto Dark Mode installed successfully"
-          echo "  ✓ VSCode will now auto-switch themes based on macOS system appearance"
-          echo "     • Light Mode → Catppuccin Latte"
-          echo "     • Dark Mode → Catppuccin Mocha"
+        if "$CODE_CLI" --install-extension "$AUTO_DARK_MODE_EXT" --force 2>&1 | grep -v "is already installed"; then
+          # Verify installation succeeded
+          if is_extension_installed "$AUTO_DARK_MODE_EXT"; then
+            echo "  ✓ Auto Dark Mode installed successfully"
+            echo "  ✓ VSCode will now auto-switch themes based on macOS system appearance"
+            echo "     • Light Mode → Catppuccin Latte"
+            echo "     • Dark Mode → Catppuccin Mocha"
+          else
+            echo "  ⚠️  Warning: Installation reported success but extension not found in list"
+          fi
         else
-          echo "  ⚠️  Warning: Failed to install Auto Dark Mode"
-          echo "     Manual installation: Open VSCode → Extensions (Cmd+Shift+X) → Search 'Auto Dark Mode'"
+          echo "  ❌ ERROR: Failed to install Auto Dark Mode"
+          echo "     Manual installation required:"
+          echo "     $CODE_CLI --install-extension LinusU.auto-dark-mode"
         fi
       fi
 
       echo "✓ VSCode extension installation complete"
     else
       echo ""
-      echo "⚠️  VSCode CLI 'code' command not found"
+      echo "⚠️  VSCode CLI not found in any standard location"
+      echo "   Searched:"
+      echo "     - PATH (command -v code)"
+      echo "     - /opt/homebrew/bin/code"
+      echo "     - /usr/local/bin/code"
+      echo "     - /Applications/Visual Studio Code.app/.../bin/code"
       echo "   Extensions will not be auto-installed"
-      echo "   Solution: Launch VSCode once, then run 'darwin-rebuild' again"
-      echo "   OR manually install extensions:"
+      echo "   Manual installation required:"
       echo "     1. Open VSCode → Extensions (Cmd+Shift+X)"
       echo "     2. Search 'Catppuccin' → Install 'Catppuccin for VSCode'"
       echo "     3. Search 'Auto Dark Mode' → Install 'Auto Dark Mode' by LinusU"

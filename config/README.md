@@ -9,6 +9,13 @@ This directory contains configuration files for the nix-darwin MacBook setup.
   - **Status**: Active - Used in Story 02.2-003 and Epic-05
   - Referenced in Home Manager as: `xdg.configFile."ghostty/config".source = ../config/config.ghostty;`
 
+- **starship.toml** - Starship prompt configuration (adapted from p10k lean style)
+  - **Status**: Active - Used in Story 04.2-001 (Starship Prompt)
+  - **Adapted from**: config/p10k.zsh (Powerlevel10k configuration)
+  - **Style**: 2-line, lean, disconnected, transient prompt support
+  - **Features**: os_icon, directory, git, comprehensive right prompt (status, duration, languages, cloud, nix_shell)
+  - Referenced in Home Manager as: `programs.starship.configFile = ../config/starship.toml;`
+
 ### Wallpaper
 - **wallpaper/Ropey_Photo_by_Bob_Farrell.jpg** - Desktop wallpaper
   - **Status**: Active - Used in Story 05.1-001 (Stylix configuration)

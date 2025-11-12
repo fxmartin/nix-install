@@ -283,109 +283,67 @@ ollama run llama2 "Hello, world!"
 
 **Status**: Installed via Homebrew cask `zed` (Story 02.2-001)
 
-**⚠️ IMPORTANT - MANUAL CONFIGURATION REQUIRED** (Issue #26):
+**✅ AUTO-CONFIGURED**: Settings automatically copied on first darwin-rebuild (Issue #26 resolution)
 
-Zed requires manual post-install configuration because it expects to manage its own settings.json file. Attempting to manage settings declaratively via Home Manager causes "failed to write to /nix/store" errors, as Home Manager creates read-only symlinks.
+**How Auto-Configuration Works**:
+1. Template settings stored in repo: `config/zed/settings.json`
+2. On first `darwin-rebuild`, activation script copies template to `~/.config/zed/settings.json`
+3. Subsequent rebuilds preserve your modifications (no overwrite)
+4. Zed has full write access to modify settings as needed
 
 **First Launch**:
 1. Launch Zed from Spotlight, Raycast, or `/Applications/Zed.app`
-2. On first launch, Zed will create default settings
+2. Settings already configured from template
 3. No sign-in required (Zed is free and open source)
 
-**Required Configuration Steps**:
+**Pre-Configured Settings** (from template):
 
-After first launch, configure Zed manually:
+The following settings are automatically configured from `config/zed/settings.json`:
 
-1. **Open Settings**: Press `Cmd+,` or click **Zed → Settings**
+1. **Auto-Update Disabled** (CRITICAL):
+   - `"auto_update": false`
+   - Updates only via `rebuild` or `update` commands
+   - Ensures controlled update philosophy
 
-2. **Disable Auto-Update** (CRITICAL):
-   - Navigate to settings.json (should open automatically in Zed)
-   - Add or modify: `"auto_update": false`
-   - Save file (Cmd+S)
+2. **Catppuccin Theme with System Appearance**:
+   - `"theme": { "mode": "system", "light": "Catppuccin Latte", "dark": "Catppuccin Mocha" }`
+   - Automatically follows macOS system appearance (light/dark mode)
+   - Instant theme switching when macOS appearance changes
 
-3. **Set Catppuccin Theme**:
-   - In settings.json, add:
-     ```json
-     "theme": {
-       "mode": "system",
-       "light": "Catppuccin Latte",
-       "dark": "Catppuccin Mocha"
-     }
-     ```
-   - This makes theme follow macOS system appearance automatically
+3. **JetBrains Mono Font with Ligatures**:
+   - `"buffer_font_family": "JetBrains Mono"`
+   - `"buffer_font_size": 14`
+   - `"buffer_font_features": { "calt": true }` - Enables ligatures (→ ≠ ≥ ≤ etc.)
+   - Consistent with terminal (Ghostty) font
 
-4. **Set JetBrains Mono Font with Ligatures**:
-   - In settings.json, add:
-     ```json
-     "buffer_font_family": "JetBrains Mono",
-     "buffer_font_size": 14,
-     "buffer_font_features": {
-       "calt": true
-     }
-     ```
-   - `calt: true` enables ligatures (→ ≠ ≥ ≤ etc.)
+4. **Telemetry Disabled**:
+   - `"telemetry": { "diagnostics": false, "metrics": false }`
+   - Privacy-focused configuration
 
-5. **Disable Telemetry** (optional but recommended):
-   - In settings.json, add:
-     ```json
-     "telemetry": {
-       "diagnostics": false,
-       "metrics": false
-     }
-     ```
+5. **Git Integration Enabled**:
+   - `"git": { "git_gutter": "tracked_files", "inline_blame": { "enabled": true } }`
+   - Shows git changes in gutter
+   - Displays inline blame information
 
-6. **Enable Git Integration** (optional):
-   - In settings.json, add:
-     ```json
-     "git": {
-       "git_gutter": "tracked_files",
-       "inline_blame": {
-         "enabled": true
-       }
-     }
-     ```
+6. **Additional Settings**:
+   - Tab size: 2 spaces
+   - Soft wrap at editor width
+   - Terminal integration with Zsh
+   - Project panel docked left (240px width)
+   - Vim mode disabled (set to `true` if preferred)
 
-**Complete settings.json Example**:
-```json
-{
-  "auto_update": false,
-  "theme": {
-    "mode": "system",
-    "light": "Catppuccin Latte",
-    "dark": "Catppuccin Mocha"
-  },
-  "buffer_font_family": "JetBrains Mono",
-  "buffer_font_size": 14,
-  "buffer_font_features": {
-    "calt": true
-  },
-  "ui_font_family": "JetBrains Mono",
-  "ui_font_size": 14,
-  "tab_size": 2,
-  "soft_wrap": "editor_width",
-  "show_whitespace": "selection",
-  "vim_mode": false,
-  "git": {
-    "git_gutter": "tracked_files",
-    "inline_blame": {
-      "enabled": true
-    }
-  },
-  "telemetry": {
-    "diagnostics": false,
-    "metrics": false
-  },
-  "terminal": {
-    "shell": {
-      "program": "zsh"
-    },
-    "font_family": "JetBrains Mono",
-    "font_size": 14
-  }
-}
-```
+**Viewing/Modifying Settings**:
+- **View current settings**: Press `Cmd+,` or click **Zed → Settings**
+- **Settings location**: `~/.config/zed/settings.json` (automatically created from template)
+- **Template source**: `config/zed/settings.json` in this repo
+- **Modify anytime**: Zed has full write access, changes persist across rebuilds
 
-**Settings Location**: `~/.config/zed/settings.json`
+**To customize settings**:
+1. Open Zed settings (Cmd+,)
+2. Modify any values in settings.json
+3. Save (Cmd+S)
+4. Changes take effect immediately
+5. Your modifications are preserved on future darwin-rebuilds
 
 **Theme Switching Verification**:
 - **Light Mode**: System Settings → Appearance → Light → Zed should use Catppuccin Latte
@@ -407,9 +365,10 @@ After first launch, configure Zed manually:
 - **Language Servers**: Epic-04 will add LSP servers for Python, Nix, Bash, etc.
 
 **Known Issues**:
-- **Issue #26**: Cannot manage settings.json declaratively via Home Manager
-  - Root cause: Home Manager creates read-only /nix/store symlinks
-  - Solution: Manual configuration required (documented above)
+- **Issue #26**: ✅ **RESOLVED** - Settings template automatically copied on first run
+  - Previous issue: Home Manager symlinks were read-only
+  - Current solution: Activation script copies template, Zed has write access
+  - User modifications preserved across rebuilds
 - If Catppuccin theme not available:
   - Check **Zed → Extensions** and install "Catppuccin" theme
   - Theme should be built-in as of Zed 0.130+

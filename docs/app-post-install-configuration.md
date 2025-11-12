@@ -67,6 +67,78 @@ mas account
 - WhatsApp (if using mas instead of Homebrew)
 - Any other Mac App Store apps in your masApps list
 
+### Requirement 3: Terminal Full Disk Access for Homebrew Cleanup (Hotfix #18)
+
+**⚠️ OPTIONAL**: When disabling or removing apps via darwin-rebuild, Homebrew may need **Full Disk Access** to completely uninstall applications.
+
+**When This Is Needed**:
+- You see a message: "Terminal needs Full Disk Access to complete uninstallation"
+- You're removing/disabling apps via Homebrew configuration changes
+- You want complete cleanup of removed applications
+
+**Symptoms Without Permission**:
+```
+Warning: To complete uninstallation, grant Full Disk Access to your Terminal app
+Settings → Privacy & Security → Full Disk Access
+```
+
+**What Happens Without Permission**:
+- ✅ App is disabled in configuration
+- ✅ darwin-rebuild completes successfully
+- ✅ System works correctly
+- ⚠️ Some app remnant files may remain in `/Applications/` or `~/Library/`
+
+**Solution - Grant Full Disk Access (Optional)**:
+
+1. **Open System Settings**:
+   - Click **Apple menu** () → **System Settings**
+   - Navigate to **Privacy & Security** → **Full Disk Access**
+
+2. **Add Your Terminal App**:
+   - Click the **lock icon** 🔒 and authenticate
+   - Click the **+** button (plus sign)
+   - Navigate to and select your terminal app:
+     - **Ghostty**: `/Applications/Ghostty.app`
+     - **Terminal**: `/Applications/Utilities/Terminal.app`
+     - **iTerm2**: `/Applications/iTerm.app`
+   - Click **Open**
+
+3. **Enable the Toggle**:
+   - Ensure the checkbox next to your terminal app is **ON** (blue)
+
+4. **Re-run darwin-rebuild** (for complete cleanup):
+   ```bash
+   sudo darwin-rebuild switch --flake ~/nix-install#power
+   # or
+   sudo darwin-rebuild switch --flake ~/nix-install#standard
+   ```
+
+5. **Verify Cleanup**:
+   - Homebrew should now complete uninstallation cleanly
+   - No warning messages about Full Disk Access
+
+**Why This Is Needed**:
+- macOS privacy protection prevents apps from deleting certain files without explicit permission
+- Homebrew needs access to `/Applications/`, `~/Library/`, and other system locations
+- Full Disk Access allows Homebrew to completely remove disabled apps
+
+**Is This Required?**:
+- ✅ **NO** - Your system works without it
+- ✅ **YES** - If you want perfectly clean uninstallation
+- ✅ **Optional** - Grant permission only if you want complete cleanup
+
+**Security Note**:
+- Full Disk Access is a powerful permission
+- Only grant to terminal apps you trust
+- You can revoke it later in System Settings → Privacy & Security
+
+**Example - VSCode Removal (Hotfix #18)**:
+When VSCode was disabled due to Electron crashes:
+1. darwin-rebuild disabled VSCode successfully ✅
+2. Homebrew requested Full Disk Access for complete removal ⚠️
+3. Granting access allowed Homebrew to clean up all VSCode files ✅
+4. System works correctly with or without granting access ✅
+
 ---
 
 ## Table of Contents

@@ -9,7 +9,9 @@ This document provides step-by-step instructions for configuring applications af
 
 ---
 
-## ⚠️ IMPORTANT: Mac App Store Sign-In Required
+## ⚠️ IMPORTANT: Mac App Store Requirements
+
+### Requirement 1: Sign-In Required
 
 **Before running darwin-rebuild**, you MUST sign in to the Mac App Store:
 
@@ -36,6 +38,34 @@ mas account
 **If you see "Not signed in":**
 - Sign in via App Store app GUI (cannot be done via CLI)
 - Then verify: `mas account` shows your email
+
+### Requirement 2: Fresh Machine First-Install (Issue #25, #26)
+
+**⚠️ CRITICAL**: On **brand new Macs**, the Mac App Store requires **one manual GUI install** before `mas` CLI will work.
+
+**Symptoms of Fresh Machine**:
+- Bootstrap fails with: `Error Domain=PKInstallErrorDomain Code=201`
+- Error message: `"The installation could not be started"`
+- Homebrew bundle fails, blocking darwin-rebuild
+
+**Solution - Manual First Install**:
+1. Open **App Store** app
+2. Search for any Mac App Store app (e.g., "Perplexity")
+3. Click the **cloud download icon** (☁️↓) or **GET** button
+4. Wait for installation to complete
+5. **Then** re-run bootstrap or darwin-rebuild
+
+**Why This Happens**:
+- Fresh macOS needs to initialize App Store installation services
+- First install must be manual to accept terms, set up cache, establish permissions
+- After first manual install, `mas` CLI works normally
+- This is a macOS limitation, not a nix-darwin bug
+
+**Apps Requiring This Workaround**:
+- Perplexity (6714467650)
+- Kindle (302584613) - if added to masApps
+- WhatsApp (if using mas instead of Homebrew)
+- Any other Mac App Store apps in your masApps list
 
 ---
 
@@ -107,12 +137,29 @@ mas account
 
 **Status**: Installed via **Mac App Store** (App ID: 6714467650) - Story 02.1-001
 
+**⚠️ CRITICAL - FRESH MACHINE REQUIREMENT**: On brand new Macs, Perplexity MUST be installed manually via App Store GUI first, then darwin-rebuild can manage it.
+
+**First-Time Installation on Fresh Mac** (Issue #25, #26):
+1. Open **App Store** app
+2. Search for **"Perplexity"** or navigate to your Purchased apps
+3. Click the **cloud download icon** (☁️↓) to install manually
+4. Wait for installation to complete
+5. **Then** run darwin-rebuild (mas CLI will work after first manual install)
+
+**Why Manual Install Required**:
+- Fresh macOS installations require the first App Store install to be manual (GUI-based)
+- This initializes Mac App Store services and permissions
+- The `mas` CLI tool (used by nix-darwin) cannot install apps on completely fresh systems
+- Error: `Code=201 "The installation could not be started"`
+- After one manual install, `mas` works normally for all subsequent installs
+
 **⚠️ PREREQUISITE**: You must be signed into the Mac App Store BEFORE running darwin-rebuild (see prerequisite section above)
 
 **Important Notes**:
 - Perplexity is distributed via Mac App Store, not Homebrew
 - Released as native macOS app on October 24, 2024
 - **Installation requires**: Mac App Store sign-in (mas authentication)
+- **Fresh machines**: Manual GUI install required first (see above)
 - Auto-updates managed by App Store preferences (not app-level settings)
 
 **First Launch**:

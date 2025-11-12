@@ -58,17 +58,26 @@
 - Homebrew cask names: `claude`, `chatgpt`
 - Perplexity: Mac App Store only (App ID: 6714467650) - no Homebrew cask available
 - Add to darwin/homebrew.nix: casks list (Claude, ChatGPT) + masApps (Perplexity)
+- **CRITICAL**: `mas` CLI tool must be in brews list (Issue #25: mas not found on fresh Mac)
+- **Fresh Machine Requirement** (Issue #26): Perplexity must be installed manually via App Store GUI first
+  - Fresh macOS requires first Mac App Store install to be manual (initializes services)
+  - After one manual install, `mas` CLI works normally for subsequent installs
+  - Error without manual install: `PKInstallErrorDomain Code=201` - installation service cannot start
+  - Workaround: Open App Store → Search "Perplexity" → Click cloud icon → Install → Then run bootstrap
 - Auto-update: May require manual disable in app settings (document in post-install)
 - Test: Verify apps launch and show sign-in screens
 - **Hotfix #14 (Issue #24)**: Perplexity changed from Homebrew cask to Mac App Store installation
+- **Hotfix #15 (Issue #25)**: Added `mas` to brews list (required for masApps installations)
 
 **Definition of Done**:
 - [x] Code implemented in homebrew.nix
+- [x] `mas` CLI tool added to brews (Hotfix #15, Issue #25)
 - [ ] All three apps install successfully (VM testing by FX)
 - [ ] Apps launch without errors (VM testing by FX)
 - [x] Auto-update preferences documented (docs/app-post-install-configuration.md)
 - [ ] Tested in VM with both profiles (VM testing by FX)
 - [x] Documentation notes first-run sign-in required
+- [x] Fresh machine manual install requirement documented (Issue #26)
 
 **Implementation Status**: ✅ **CODE COMPLETE** - Ready for VM testing by FX
 **Implementation Date**: 2025-11-11

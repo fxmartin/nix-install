@@ -95,7 +95,9 @@ FX's role: ALL testing, execution, and validation.
 - `docs/REQUIREMENTS.md`: Comprehensive PRD (1600+ lines) - **THE SOURCE OF TRUTH** for requirements
 - `docs/development/README.md`: Development documentation master index - **CHECK THIS FIRST** for:
   - Navigation to progress tracking, story details, workflows
-  - Current status: Epic-01 89.5% complete (92.0% by points), 17/19 stories, 104/113 points
+  - Current status: 19.5% complete overall (22/113 stories, 130/606 points)
+  - Epic-01: 89.5% complete (17/19 stories, 104/113 points) - Bootstrap system functional
+  - Epic-02: 21.7% complete (5/23 stories, 26/118 points) - AI tools and Zed editor done
   - Next stories: 01.1-003 (Progress Indicators, P1 optional), 01.1-004 (Modular Bootstrap, deferred)
   - Quick reference for completed stories and testing metrics
 - `docs/development/progress.md`: Epic overview table, completed stories, recent activity

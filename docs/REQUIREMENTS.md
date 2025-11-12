@@ -738,6 +738,35 @@ Consistency: 100% (declarative config)
 - App-specific: Configuration files managed by Home Manager
 - Documentation: README explains update philosophy and how to update
 
+**REQ-NFR-008**: Configuration File Management via Repository Symlinks
+- **All application settings files MUST be symlinked to repository, not /nix/store**
+- **Pattern**: `~/.config/app/settings.json` → `$REPO_ROOT/config/app/settings.json`
+- **Rationale**: Enables bidirectional sync between app and version control
+  - Changes made in application → Instantly visible in repository (can be committed)
+  - Changes pulled from repository → Instantly apply to application
+  - Settings are version controlled and can be reverted
+  - Apps have full write access (symlink points to regular file, not read-only /nix/store)
+- **Implementation via Home Manager activation scripts**:
+  - Use `home.activation.*` to create symlinks in user's config directories
+  - Dynamically detect repository location (handles custom NIX_INSTALL_DIR)
+  - Validate source file exists before creating symlink
+  - Back up existing files before symlinking
+- **Apps requiring this pattern** (examples from implementations):
+  - ✅ Zed: `~/.config/zed/settings.json` → `$REPO/config/zed/settings.json` (implemented)
+  - Ghostty: `~/.config/ghostty/config` → `$REPO/config/ghostty/config`
+  - Any app that expects to write to its own configuration files
+- **Anti-pattern to avoid**:
+  - ❌ Do NOT use `programs.app.settings = {...}` in Home Manager
+  - ❌ Reason: Creates read-only symlink to /nix/store, breaks app write access
+  - ❌ Example: `programs.gh.settings` caused Issue #18 (fixed in Hotfix #11)
+- **Reference implementation**: See `home-manager/modules/zed.nix` and Hotfix #14 for complete example
+
+**Acceptance Criteria**:
+- Settings files are symlinks pointing to repository, not /nix/store
+- Apps can write to their configuration files without permission errors
+- Changes in app appear in `git status` immediately
+- Changes pulled via `git pull` apply to running apps
+
 ---
 
 ## Success Criteria & Metrics

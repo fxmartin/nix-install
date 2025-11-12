@@ -454,14 +454,49 @@
 - Document Claude Code extension install: Extensions → Search "Claude Code" → Install
 
 **Definition of Done**:
-- [ ] VSCode installed via homebrew.nix
-- [ ] Settings symlinked to repository (REQ-NFR-008 compliant)
-- [ ] Auto-update disabled in settings
-- [ ] VSCode launches successfully
-- [ ] Extension installation documented
-- [ ] Tested in VM
-- [ ] Theme configured (Stylix or manual)
-- [ ] Bidirectional sync verified (changes in VSCode appear in repo)
+- [x] VSCode installed via homebrew.nix
+- [x] Settings symlinked to repository (REQ-NFR-008 compliant)
+- [x] Auto-update disabled in settings
+- [x] VSCode launches successfully (VM testing by FX - 2025-11-12)
+- [x] Extension installation documented
+- [x] Tested in VM (VM testing by FX - 2025-11-12)
+- [x] Theme configured (automated Catppuccin + Auto Dark Mode extensions)
+- [x] Bidirectional sync verified (VM testing by FX - 2025-11-12)
+- [x] Auto theme switching works (Light → Latte, Dark → Mocha) (VM testing by FX - 2025-11-12)
+
+**Implementation Status**: ✅ **COMPLETE** - VM tested and validated by FX
+**Implementation Date**: 2025-11-12
+**Branch**: feature/02.2-002-vscode (ready to merge to main)
+**Files Changed**:
+- darwin/homebrew.nix: Added `visual-studio-code` cask
+- config/vscode/settings.json: Created comprehensive settings (3.5 KB) with auto-update disabled and Catppuccin theme
+- home-manager/modules/vscode.nix: Created Home Manager module (4.8 KB) with REQ-NFR-008 compliant activation script
+- home-manager/home.nix: Imported vscode module
+- docs/app-post-install-configuration.md: Added VSCode section (180+ lines) with extension installation guide
+
+**Implementation Details**:
+- REQ-NFR-008 compliant: Bidirectional symlink to repository (NOT /nix/store)
+- Settings location: `~/Library/Application Support/Code/User/settings.json` → `$REPO/config/vscode/settings.json`
+- Auto-update disabled: `update.mode: "none"`, `extensions.autoUpdate: false`, `extensions.autoCheckUpdates: false`
+- Theme: Catppuccin with auto-switching (Issue #28 resolution):
+  - Extension 1: Catppuccin Theme (provides Mocha/Latte themes) - **AUTOMATICALLY INSTALLED**
+  - Extension 2: Auto Dark Mode (monitors macOS appearance, switches themes automatically) - **AUTOMATICALLY INSTALLED**
+  - Extensions auto-install via Home Manager activation script using VSCode CLI
+  - Installation is idempotent (checks if already installed, skips if present)
+  - Light Mode → Catppuccin Latte, Dark Mode → Catppuccin Mocha
+  - Matches Zed editor behavior (system appearance sync)
+  - Zero manual intervention (extensions installed during darwin-rebuild)
+  - Required setting: `window.autoDetectColorScheme: true` (enables Auto Dark Mode extension)
+- Font: JetBrains Mono with ligatures (matches Ghostty and Zed)
+- Language-specific settings: Nix (2-space indent), Python (4-space indent, Ruff formatter), Markdown, JSON, YAML
+- Privacy: Telemetry disabled, crash reporter disabled
+- Git integration: Decorations, inline changes, autofetch disabled
+- Terminal integration: Integrated terminal uses Zsh
+
+**Issues Resolved**:
+- **Issue #28**: VSCode theme auto-switching - Implemented Auto Dark Mode extension with window.autoDetectColorScheme setting
+- **Issue #29**: VSCode CLI PATH issue - Multi-location CLI detection (/opt/homebrew/bin, /usr/local/bin, app bundle path)
+- **Issue #30**: Duplicate of #28 (closed as duplicate)
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (Homebrew managed)

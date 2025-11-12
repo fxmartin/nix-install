@@ -328,7 +328,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 Requirements are baselined and change-controlled:
 - **Current Version**: v1.1 (Change Control Re-Approval completed 2025-11-08)
 - **Baseline Hash**: `ed51883bb71d31dbae500606ac42ed9e81f853ff8ed3e720c3e9a5ac1be6d5b0`
-- **Verification**: Run `./verify-requirements-integrity.sh` to validate integrity
+- **Verification**: Run `./scripts/verify-requirements-integrity.sh` to validate integrity
 - **Changes**: Must follow change control process (see CLAUDE.md)
 - **Tracking**: All changes logged in REQUIREMENTS.md Post-Approval Change Log
 - **Audit Trail**: Complete version history maintained in `requirements-integrity.json`

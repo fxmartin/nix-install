@@ -15,8 +15,8 @@
     ./modules/github.nix
     # Zed editor configuration (Story 02.2-001)
     ./modules/zed.nix
-    # VSCode configuration (Story 02.2-002)
-    ./modules/vscode.nix
+    # VSCode configuration (Story 02.2-002) - DISABLED: Electron crash issues
+    # ./modules/vscode.nix
     # Ghostty terminal configuration (Story 02.2-003)
     ./modules/ghostty.nix
   ];

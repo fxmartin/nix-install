@@ -76,6 +76,8 @@ mas account
   - [ChatGPT Desktop](#chatgpt-desktop)
   - [Perplexity](#perplexity)
   - [Ollama Desktop](#ollama-desktop)
+- [Development Environment Applications](#development-environment-applications)
+  - [Zed Editor](#zed-editor)
 
 ---
 
@@ -275,6 +277,81 @@ ollama run llama2 "Hello, world!"
 
 ---
 
+## Development Environment Applications
+
+### Zed Editor
+
+**Status**: Installed via Homebrew cask `zed` (Story 02.2-001)
+
+**Configuration**: Managed declaratively via Home Manager (`home-manager/modules/zed.nix`)
+
+**Key Features Configured**:
+- **Theme**: Catppuccin (Mocha for dark mode, Latte for light mode)
+- **Font**: JetBrains Mono Nerd Font with ligatures enabled
+- **Auto-Update**: Disabled in settings.json (updates via `rebuild` command only)
+- **System Theme Sync**: Automatically follows macOS system appearance (light/dark)
+
+**First Launch**:
+1. Launch Zed from Spotlight, Raycast, or `/Applications/Zed.app`
+2. Zed should open with Catppuccin theme already applied
+3. Font should be JetBrains Mono with ligatures
+4. No sign-in required (Zed is free and open source)
+
+**Configuration Verification**:
+```bash
+# Check Zed settings.json (managed by Home Manager)
+cat ~/.config/zed/settings.json
+
+# Expected to see:
+# - "auto_update": false
+# - "theme": { "mode": "system", "light": "Catppuccin Latte", "dark": "Catppuccin Mocha" }
+# - "buffer_font_family": "JetBrains Mono"
+# - "buffer_font_features": { "calt": true }
+```
+
+**Auto-Update Configuration**:
+- **Status**: ✅ **Disabled via settings.json**
+- **Implementation**: Home Manager writes `"auto_update": false` to settings.json
+- **Verification**: Check **Zed → Settings** (Cmd+,) → should NOT see update prompts
+- **Note**: If Zed shows update notifications, check that settings.json is present
+
+**Theme Switching**:
+- **Light Mode**: macOS System Settings → Appearance → Light → Zed uses Catppuccin Latte
+- **Dark Mode**: macOS System Settings → Appearance → Dark → Zed uses Catppuccin Mocha
+- **Automatic**: Theme switches instantly when macOS appearance changes
+
+**Customization**:
+- Edit `home-manager/modules/zed.nix` to modify settings
+- Run `darwin-rebuild switch` to apply changes
+- Zed will automatically reload settings.json changes
+
+**Testing**:
+- [ ] Launch Zed successfully
+- [ ] Theme matches macOS system appearance (Catppuccin Latte/Mocha)
+- [ ] Font is JetBrains Mono with ligatures working (→ ≠ ≥ ≤ etc.)
+- [ ] Auto-update disabled (no update prompts)
+- [ ] Theme switches when toggling macOS light/dark mode
+- [ ] Settings.json exists at ~/.config/zed/settings.json
+- [ ] Zed recognizes common file types (nix, md, py, sh, json)
+
+**Optional Features** (can be enabled later):
+- **AI Assistant**: Zed supports AI features via API keys (disabled by default)
+- **Vim Mode**: Set `"vim_mode": true` in zed.nix if desired
+- **Language Servers**: Epic-04 will add LSP servers for Python, Nix, Bash, etc.
+
+**Known Issues**:
+- None currently known
+- If theme doesn't apply, verify Catppuccin theme is installed in Zed
+  - Check: **Zed → Extensions** for "Catppuccin" theme
+  - Theme should be built-in as of Zed 0.130+
+
+**Resources**:
+- Zed Documentation: https://zed.dev/docs
+- Catppuccin Theme: https://github.com/catppuccin/zed
+- JetBrains Mono Font: https://www.jetbrains.com/lp/mono/
+
+---
+
 ## Notes for FX
 
 **VM Testing Workflow**:
@@ -305,5 +382,12 @@ ollama run llama2 "Hello, world!"
   - ⚠️ Auto-update configuration pending VM test (Claude, ChatGPT)
   - ℹ️ Perplexity auto-updates managed by App Store system preferences
 **Story 02.1-002**: Ollama Desktop App - ✅ Installation implemented, ⚠️ CLI and GUI testing pending VM test
+**Story 02.2-001**: Zed Editor - ✅ Installation and configuration implemented
+  - ✅ Homebrew cask added to darwin/homebrew.nix
+  - ✅ Home Manager module created (home-manager/modules/zed.nix)
+  - ✅ Catppuccin theming configured (Latte/Mocha with system appearance sync)
+  - ✅ JetBrains Mono font with ligatures enabled
+  - ✅ Auto-update disabled in settings.json
+  - ⚠️ VM testing pending: Theme application, font rendering, auto-update behavior
 
 ---

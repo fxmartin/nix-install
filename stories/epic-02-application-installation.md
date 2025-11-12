@@ -547,16 +547,17 @@
 - [x] Home Manager module created for config symlink (home-manager/modules/ghostty.nix)
 - [x] Module imported in home.nix
 - [x] Documentation added to app-post-install-configuration.md
-- [ ] Ghostty launches with correct theme (VM testing by FX)
-- [ ] Font and ligatures working (VM testing by FX)
-- [ ] Opacity and blur effects active (VM testing by FX)
-- [ ] Keybindings functional (VM testing by FX)
-- [ ] Config symlink verified (VM testing by FX)
-- [ ] Tested in VM (VM testing by FX)
+- [x] Ghostty launches with correct theme (VM tested by FX - 2025-11-12)
+- [x] Font and ligatures working (VM tested by FX - 2025-11-12)
+- [x] Opacity and blur effects active (VM tested by FX - 2025-11-12)
+- [x] Keybindings functional (VM tested by FX - 2025-11-12)
+- [x] Config symlink verified (VM tested by FX - 2025-11-12)
+- [x] Tested in VM (VM tested by FX - 2025-11-12)
 
-**Implementation Status**: ✅ **CODE COMPLETE** - Ready for VM testing by FX
+**Implementation Status**: ✅ **COMPLETE** - VM tested and validated by FX
 **Implementation Date**: 2025-11-12
-**Branch**: feature/02.2-003-ghostty (ready to merge after VM testing)
+**VM Testing Date**: 2025-11-12
+**Branch**: feature/02.2-003-ghostty (merged to main)
 
 **Files Changed**:
 - home-manager/modules/ghostty.nix: Created Home Manager module (117 lines) with REQ-NFR-008 compliant activation script

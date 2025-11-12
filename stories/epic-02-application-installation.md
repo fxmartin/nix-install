@@ -72,14 +72,14 @@
 **Definition of Done**:
 - [x] Code implemented in homebrew.nix
 - [x] `mas` CLI tool added to brews (Hotfix #15, Issue #25)
-- [ ] All three apps install successfully (VM testing by FX)
-- [ ] Apps launch without errors (VM testing by FX)
+- [x] All three apps install successfully (VM testing by FX - 2025-11-12)
+- [x] Apps launch without errors (VM testing by FX - 2025-11-12)
 - [x] Auto-update preferences documented (docs/app-post-install-configuration.md)
-- [ ] Tested in VM with both profiles (VM testing by FX)
+- [x] Tested in VM with both profiles (VM testing by FX - 2025-11-12)
 - [x] Documentation notes first-run sign-in required
 - [x] Fresh machine manual install requirement documented (Issue #26)
 
-**Implementation Status**: ✅ **CODE COMPLETE** - Ready for VM testing by FX
+**Implementation Status**: ✅ **COMPLETE** - VM tested and validated by FX
 **Implementation Date**: 2025-11-11
 **Branch**: feature/02.1-001-ai-chat-apps
 **Files Changed**:
@@ -138,16 +138,16 @@
 
 **Definition of Done**:
 - [x] Ollama Desktop App added to homebrew.nix casks
-- [ ] Desktop app launches successfully with menubar icon (VM testing by FX)
-- [ ] `ollama --version` works in terminal (VM testing by FX)
-- [ ] Can pull and run a test model (VM testing by FX)
-- [ ] Daemon runs automatically (VM testing by FX)
-- [ ] GUI shows model management interface (VM testing by FX)
+- [x] Desktop app launches successfully with menubar icon (VM testing by FX - 2025-11-12)
+- [x] `ollama --version` works in terminal (VM testing by FX - 2025-11-12)
+- [x] Can pull and run a test model (VM testing by FX - 2025-11-12)
+- [x] Daemon runs automatically (VM testing by FX - 2025-11-12)
+- [x] GUI shows model management interface (VM testing by FX - 2025-11-12)
 - [x] Auto-update disable steps documented (docs/app-post-install-configuration.md)
-- [ ] Tested in VM (VM testing by FX)
+- [x] Tested in VM (VM testing by FX - 2025-11-12)
 - [x] Documentation notes model storage location
 
-**Implementation Status**: ✅ **CODE COMPLETE** - Ready for VM testing by FX
+**Implementation Status**: ✅ **COMPLETE** - VM tested and validated by FX
 **Implementation Date**: 2025-11-11 (Updated: 2025-11-12 - cask renamed to ollama-app)
 **Branch**: feature/02.1-001-ai-chat-apps (combined with 02.1-001)
 **Files Changed**:
@@ -212,13 +212,13 @@
 
 **Definition of Done**:
 - [x] Activation script implemented for Standard profile
-- [ ] Model pulls during first rebuild (VM testing by FX)
+- [x] Model pulls during first rebuild (VM testing by FX - 2025-11-12)
 - [x] Script is idempotent (doesn't re-pull)
-- [ ] `ollama list` shows model after rebuild (VM testing by FX)
-- [ ] Model runs successfully (VM testing by FX)
-- [ ] Tested in VM with Standard profile (VM testing by FX)
+- [x] `ollama list` shows model after rebuild (VM testing by FX - 2025-11-12)
+- [x] Model runs successfully (VM testing by FX - 2025-11-12)
+- [x] Tested in VM with Standard profile (VM testing by FX - 2025-11-12)
 
-**Implementation Status**: ✅ **CODE COMPLETE** - Ready for VM testing by FX
+**Implementation Status**: ✅ **COMPLETE** - VM tested and validated by FX
 **Implementation Date**: 2025-11-11
 **Branch**: feature/02.1-001-ai-chat-apps (combined with 02.1-001 and 02.1-002)
 **Files Changed**:
@@ -283,14 +283,14 @@
 
 **Definition of Done**:
 - [x] Activation script implemented for Power profile
-- [ ] All 4 models pull during first rebuild (VM testing by FX)
+- [x] All 4 models pull during first rebuild (VM testing by FX - 2025-11-12)
 - [x] Script is idempotent
-- [ ] `ollama list` shows all models (VM testing by FX)
-- [ ] Each model runs successfully (VM testing by FX)
-- [ ] Tested in VM with Power profile (VM testing by FX)
+- [x] `ollama list` shows all models (VM testing by FX - 2025-11-12)
+- [x] Each model runs successfully (VM testing by FX - 2025-11-12)
+- [x] Tested in VM with Power profile (VM testing by FX - 2025-11-12)
 - [x] Documentation notes expected download time
 
-**Implementation Status**: ✅ **CODE COMPLETE** - Ready for VM testing by FX
+**Implementation Status**: ✅ **COMPLETE** - VM tested and validated by FX
 **Implementation Date**: 2025-11-11
 **Branch**: feature/02.1-001-ai-chat-apps (combined with 02.1-001, 02.1-002, 02.1-003)
 **Files Changed**:
@@ -371,13 +371,34 @@
 - Verify theme switching with system appearance
 
 **Definition of Done**:
-- [ ] Zed installed via homebrew.nix
-- [ ] Zed configuration in home-manager module
-- [ ] Catppuccin theme applied
-- [ ] JetBrains Mono font active
-- [ ] Auto-update disabled
-- [ ] Theme switches with system appearance
-- [ ] Tested in VM
+- [x] Zed installed via homebrew.nix
+- [x] Zed configuration in home-manager module (bidirectional sync via activation script)
+- [x] Catppuccin theme applied (VM testing by FX - 2025-11-12)
+- [x] JetBrains Mono font active (VM testing by FX - 2025-11-12)
+- [x] Auto-update disabled (VM testing by FX - 2025-11-12)
+- [x] Theme switches with system appearance (VM testing by FX - 2025-11-12)
+- [x] Tested in VM (VM testing by FX - 2025-11-12)
+
+**Implementation Status**: ✅ **COMPLETE** - VM tested and validated by FX
+**Implementation Date**: 2025-11-11
+**Branch**: feature/02.2-001-zed-editor
+**Files Changed**:
+- darwin/homebrew.nix: Added `zed` cask
+- home-manager/modules/zed.nix: Created Zed configuration module with bidirectional sync
+- home-manager/home.nix: Imported zed module
+- config/zed/settings.json: Created template settings with Catppuccin theme
+- config/README.md: Documented Zed settings sync approach
+- docs/app-post-install-configuration.md: Added Zed configuration section
+
+**Implementation Notes**:
+- **Issue #26**: Resolved /nix/store write access issue with bidirectional sync
+- **Hotfix #14**: Made repo path dynamic for custom NIX_INSTALL_DIR support
+- **Activation Script**: Searches common locations, validates with flake.nix + config/zed/
+- **Symlink**: ~/.config/zed/settings.json → $REPO_ROOT/config/zed/settings.json
+- **Bidirectional**: Changes in Zed instantly appear in repo, pull updates apply to Zed
+- **Theme**: Catppuccin Mocha (dark) and Latte (light) via system appearance
+- **Font**: JetBrains Mono with ligatures enabled
+- **Auto-update**: Disabled via "auto_update": false in settings.json
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (nix-darwin + Home Manager)
@@ -1640,15 +1661,22 @@
 ## Epic Progress Tracking
 
 ### Completion Status
-- **Stories Completed**: 0 of 23 (0%)
-- **Story Points Completed**: 0 of 118 (0%)
-- **MVP Stories Completed**: 0 of 23 (0%)
+- **Stories Completed**: 5 of 23 (21.7%)
+- **Story Points Completed**: 26 of 118 (22.0%)
+- **MVP Stories Completed**: 5 of 23 (21.7%)
 
 ### Sprint Progress
 | Sprint | Planned Points | Completed Points | Stories Done | Status |
 |--------|----------------|------------------|--------------|--------|
-| Sprint 3 | 85 | 0 | 0/17 | Not Started |
+| Sprint 3 | 85 | 26 | 5/17 | In Progress |
 | Sprint 4 | 33 | 0 | 0/6 | Not Started |
+
+### Recently Completed Stories (2025-11-12)
+- ✅ **Story 02.1-001**: Claude Desktop and AI Chat Apps (3 points) - VM tested
+- ✅ **Story 02.1-002**: Ollama Desktop App Installation (5 points) - VM tested
+- ✅ **Story 02.1-003**: Standard Profile Ollama Model (5 points) - VM tested
+- ✅ **Story 02.1-004**: Power Profile Additional Ollama Models (8 points) - VM tested
+- ✅ **Story 02.2-001**: Zed Editor Installation and Configuration (5 points) - VM tested
 
 ## Epic Acceptance Criteria
 - [ ] All MVP stories (23/23) completed and accepted

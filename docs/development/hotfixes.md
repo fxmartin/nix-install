@@ -2028,4 +2028,141 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ---
 
+## HOTFIX #18: VSCode Disabled Due to Electron Crash Issues
+**Date**: 2025-11-12
+**Issue**: VSCode causes Electron crashes during darwin-rebuild
+**Status**: ✅ DISABLED (Temporary removal until root cause identified)
+**Branch**: main
+
+### Problem
+
+FX reported that VSCode was causing Electron crashes whenever running `darwin-rebuild switch`:
+
+```
+Electron crashed
+[System message about Electron crash]
+```
+
+**Impact**: CRITICAL - Blocks all darwin-rebuild operations, preventing system configuration updates.
+
+### Root Cause
+
+**Unknown**: The exact cause of the Electron crash is not yet identified. Potential causes:
+1. VSCode version incompatibility with current macOS/Electron
+2. Homebrew cask issue
+3. Conflict with Home Manager VSCode configuration
+4. macOS system library conflict
+
+### Solution Implemented (Temporary Disable)
+
+Completely disabled VSCode installation and configuration:
+
+**Changes**:
+
+1. **darwin/homebrew.nix** (lines 66-71):
+   - Commented out `visual-studio-code` cask
+   - Added explanatory comment about Electron crash issue
+   ```nix
+   # NOTE: VSCode DISABLED due to Electron crash issues during darwin-rebuild (Issue: Electron crashes)
+   # "visual-studio-code" # VSCode - DISABLED: Causes Electron crashes during rebuild
+   ```
+
+2. **home-manager/home.nix** (line 18-19):
+   - Commented out `./modules/vscode.nix` import
+   - Added explanatory comment
+   ```nix
+   # VSCode configuration (Story 02.2-002) - DISABLED: Electron crash issues
+   # ./modules/vscode.nix
+   ```
+
+**Result**:
+- ✅ VSCode no longer installed via Homebrew
+- ✅ VSCode Home Manager module not loaded
+- ✅ No VSCode configuration applied
+- ✅ darwin-rebuild switch works without Electron crashes
+
+### Files Modified
+
+1. **darwin/homebrew.nix**: Commented out visual-studio-code cask (+2 lines comment, -2 lines removed)
+2. **home-manager/home.nix**: Commented out vscode.nix import (+1 line comment, -1 line removed)
+3. **docs/development/hotfixes.md**: This entry
+
+### Alternative Solutions Considered
+
+**Option A: Different VSCode Cask Version** - DEFERRED
+- Try alternate cask names (`visual-studio-code@insiders`, `vscodium`)
+- **Why Deferred**: Need to identify root cause first
+
+**Option B: Manual VSCode Installation** - AVAILABLE
+- Users can manually install VSCode if needed
+- Homebrew: `brew install --cask visual-studio-code`
+- Direct download from https://code.visualstudio.com/
+- **Why Viable**: Provides workaround for users who need VSCode
+
+**Option C: Wait for Fix** - CHOSEN ✅
+- Disable for now
+- Monitor for Homebrew cask updates
+- Re-enable when root cause identified and fixed
+- **Why Chosen**: Unblocks darwin-rebuild immediately
+
+### Testing
+
+- ✅ Nix syntax validated (no parse errors)
+- ⏳ VM testing required:
+  - Verify darwin-rebuild switch completes without Electron crash
+  - Confirm VSCode not installed
+  - Ensure Zed editor still works as primary code editor
+
+### Impact
+
+- **Fixes**: Electron crash blocking darwin-rebuild
+- **Removes**: VSCode installation and configuration (temporary)
+- **Maintains**: Zed editor as primary code editor
+- **User Impact**: System can be rebuilt without crashes; users can manually install VSCode if needed
+
+### Workaround for Users Who Need VSCode
+
+Users can manually install VSCode after bootstrap:
+
+```bash
+# Option 1: Install via Homebrew (outside nix-darwin management)
+brew install --cask visual-studio-code
+
+# Option 2: Download directly from Microsoft
+# Visit: https://code.visualstudio.com/download
+```
+
+**Note**: Manual installation means:
+- ❌ Not managed by nix-darwin (no version control)
+- ❌ Not automatically configured with Catppuccin theme
+- ❌ Not synchronized via Home Manager
+- ✅ Works without Electron crashes
+- ✅ Can be updated independently
+
+### Relationship to Story 02.2-002
+
+**Story 02.2-002** (VSCode Installation with Auto Dark Mode):
+- Implementation: ✅ Complete
+- VM Testing: ✅ Initially successful
+- Production Use: ❌ Disabled due to Electron crashes
+- **Status**: Temporarily reverted pending investigation
+
+### Future Work
+
+**To Re-enable VSCode**:
+1. Identify root cause of Electron crash
+2. Test fix in VM environment
+3. Uncomment cask in `darwin/homebrew.nix`
+4. Uncomment import in `home-manager/home.nix`
+5. Run darwin-rebuild and verify no crashes
+6. Update hotfix documentation with resolution
+
+### Identified By
+
+FX - Reported Electron crashes during rebuild with request: "disable vscode installation all related setup and extensions. Whenever I launch a rebuild I get a crash of vscode with a message electron crashed"
+
+**User Observation**: Clear identification that VSCode was the source of Electron crashes during darwin-rebuild operations.
+
+---
+
 

@@ -543,20 +543,67 @@
 - Verify: `ls -la ~/.config/ghostty/config` should show symlink to repository (not /nix/store)
 
 **Definition of Done**:
-- [ ] Ghostty installed via homebrew.nix
-- [ ] Config symlinked to ~/.config/ghostty/
-- [ ] Ghostty launches with correct theme
-- [ ] Font and ligatures working
-- [ ] Opacity and blur effects active
-- [ ] Keybindings functional
-- [ ] Tested in VM
+- [x] Ghostty installed via homebrew.nix (already installed since Phase 5)
+- [x] Home Manager module created for config symlink (home-manager/modules/ghostty.nix)
+- [x] Module imported in home.nix
+- [x] Documentation added to app-post-install-configuration.md
+- [ ] Ghostty launches with correct theme (VM testing by FX)
+- [ ] Font and ligatures working (VM testing by FX)
+- [ ] Opacity and blur effects active (VM testing by FX)
+- [ ] Keybindings functional (VM testing by FX)
+- [ ] Config symlink verified (VM testing by FX)
+- [ ] Tested in VM (VM testing by FX)
+
+**Implementation Status**: ✅ **CODE COMPLETE** - Ready for VM testing by FX
+**Implementation Date**: 2025-11-12
+**Branch**: feature/02.2-003-ghostty (ready to merge after VM testing)
+
+**Files Changed**:
+- home-manager/modules/ghostty.nix: Created Home Manager module (117 lines) with REQ-NFR-008 compliant activation script
+- home-manager/home.nix: Added ghostty module import
+- docs/app-post-install-configuration.md: Added comprehensive Ghostty section (180+ lines)
+
+**Implementation Details**:
+- REQ-NFR-008 compliant: Bidirectional symlink to repository (NOT /nix/store)
+- Config location: `~/.config/ghostty/config` → `$REPO/config/config.ghostty`
+- Activation script pattern (same as Zed and VSCode):
+  - Dynamically finds repo location (~/nix-install, ~/.config/nix-install, ~/Documents/nix-install)
+  - Creates symlink on darwin-rebuild
+  - Backs up existing config if found
+  - Updates symlink target if changed
+- Auto-update disabled: `auto-update = off` in config/config.ghostty
+- Theme: Catppuccin with auto-switching (Latte for light mode, Mocha for dark mode)
+- Font: JetBrains Mono with ligatures (consistent with Zed and VSCode)
+- Configuration features:
+  - Background opacity 95% with blur effect
+  - Window padding 16px
+  - Shell integration enabled
+  - Comprehensive productivity keybindings
+  - Clipboard security settings
+
+**VM Testing Instructions** (for FX):
+1. Run `darwin-rebuild switch` in VM
+2. Verify symlink created: `ls -la ~/.config/ghostty/config`
+3. Launch Ghostty and verify:
+   - Theme is Catppuccin (Mocha for dark mode)
+   - Font is JetBrains Mono with ligatures working
+   - Background opacity and blur effect active
+   - Window padding visible
+   - Config reload works (Ctrl+Shift+,)
+4. Test theme auto-switching:
+   - Toggle macOS appearance (System Settings → Appearance)
+   - Verify Ghostty switches between Latte (light) and Mocha (dark)
+5. Test bidirectional sync:
+   - Edit config/config.ghostty in repo
+   - Reload config in Ghostty (Ctrl+Shift+,)
+   - Verify changes apply
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (Homebrew + Home Manager)
-- Epic-05, Story 05.1-001 (Stylix provides consistent theme)
+- Epic-05, Story 05.1-001 (Stylix provides consistent theme) - Optional dependency
 
 **Risk Level**: Low
-**Risk Mitigation**: Existing config.ghostty is proven to work
+**Risk Mitigation**: Existing config.ghostty is proven to work, same pattern as Zed and VSCode
 
 ---
 

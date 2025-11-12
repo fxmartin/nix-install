@@ -639,8 +639,8 @@ If auto-installation fails for any reason, install manually **IN ORDER**:
 **✅ AUTO-CONFIGURED with BIDIRECTIONAL SYNC**: Config symlinked to repo (REQ-NFR-008 compliant)
 
 **How Bidirectional Sync Works**:
-1. Config file in repo: `config/config.ghostty` (version controlled)
-2. On `darwin-rebuild`, activation script creates: `~/.config/ghostty/config` → `~/nix-install/config/config.ghostty`
+1. Config file in repo: `config/ghostty/config` (version controlled)
+2. On `darwin-rebuild`, activation script creates: `~/.config/ghostty/config` → `~/nix-install/config/ghostty/config`
 3. Changes sync both ways:
    - **Repo → Ghostty**: Pull updates or edit repo file → Ghostty sees changes on reload (Cmd+Shift+,)
    - **Manual edits**: Any direct edits to config file appear in repo
@@ -653,7 +653,7 @@ If auto-installation fails for any reason, install manually **IN ORDER**:
 
 **Pre-Configured Settings** (from template):
 
-The following settings are automatically configured from `config/config.ghostty`:
+The following settings are automatically configured from `config/ghostty/config`:
 
 1. **Catppuccin Theme with Auto-Switching**:
    - `theme = "light:Catppuccin Latte,dark:Catppuccin Mocha"`
@@ -715,10 +715,10 @@ Ghostty's configuration is managed through the symlinked file:
 ```bash
 # View config location
 ls -la ~/.config/ghostty/config
-# Should show: ~/.config/ghostty/config -> ~/nix-install/config/config.ghostty
+# Should show: ~/.config/ghostty/config -> ~/nix-install/config/ghostty/config
 
 # Edit config in repo
-vim ~/nix-install/config/config.ghostty
+vim ~/nix-install/config/ghostty/config
 
 # Or edit directly (same file due to symlink)
 vim ~/.config/ghostty/config
@@ -729,7 +729,7 @@ vim ~/.config/ghostty/config
 ```
 
 **Viewing/Modifying Settings**:
-- **Config location**: `~/.config/ghostty/config` (symlinked to `~/nix-install/config/config.ghostty`)
+- **Config location**: `~/.config/ghostty/config` (symlinked to `~/nix-install/config/ghostty/config`)
 - **Modify anytime**: Edit the config file (in repo or via symlink)
 - **Reload config**: Press `Ctrl+Shift+,` in Ghostty (no restart needed)
 - **Version controlled**: Settings tracked by git, can commit/revert changes
@@ -739,11 +739,11 @@ vim ~/.config/ghostty/config
 1. **Edit in repo** (recommended):
    ```bash
    # 1. Edit directly in repo
-   vim ~/nix-install/config/config.ghostty
+   vim ~/nix-install/config/ghostty/config
 
    # 2. Reload in Ghostty (Ctrl+Shift+,)
    # 3. Commit your changes:
-   git add config/config.ghostty
+   git add config/ghostty/config
    git commit -m "feat(ghostty): update keybindings"
    git push
    ```
@@ -756,7 +756,7 @@ vim ~/.config/ghostty/config
    # 2. Reload in Ghostty (Ctrl+Shift+,)
    # 3. Changes appear in repo automatically
    git status
-   # Shows: modified: config/config.ghostty
+   # Shows: modified: config/ghostty/config
    ```
 
 3. **Pull updates** (sync from other machines):
@@ -774,7 +774,7 @@ To see all available themes:
 ghostty +list-themes
 ```
 
-To change theme, edit `config/config.ghostty`:
+To change theme, edit `config/ghostty/config`:
 ```bash
 # Current (auto-switching)
 theme = "light:Catppuccin Latte,dark:Catppuccin Mocha"

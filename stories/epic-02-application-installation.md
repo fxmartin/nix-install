@@ -509,7 +509,7 @@
 ---
 
 ##### Story 02.2-003: Ghostty Terminal Installation
-**User Story**: As FX, I want Ghostty terminal installed with my existing config from `config/config.ghostty` so that I have a fast GPU-accelerated terminal with Catppuccin theming
+**User Story**: As FX, I want Ghostty terminal installed with my existing config from `config/ghostty/config` so that I have a fast GPU-accelerated terminal with Catppuccin theming
 
 **Priority**: Must Have
 **Story Points**: 5
@@ -518,7 +518,7 @@
 **Acceptance Criteria**:
 - **Given** darwin-rebuild completes successfully
 - **When** I launch Ghostty
-- **Then** it opens with configuration from `config/config.ghostty`
+- **Then** it opens with configuration from `config/ghostty/config`
 - **And** Catppuccin theme is applied (Latte/Mocha auto-switch)
 - **And** JetBrains Mono font with ligatures is active
 - **And** 95% opacity with blur effect works
@@ -534,11 +534,11 @@
 
 **Technical Notes**:
 - Homebrew cask: `ghostty`
-- **Configuration handled in Story 04.4-001** (Epic-04 Development Environment)
+- **Configuration implemented in Story 02.2-003** (This story)
 - **REQ-NFR-008 Note**:
   - ❌ Do NOT use `xdg.configFile."ghostty/config".source = ...` (creates /nix/store symlink)
-  - ✅ Use activation script pattern (see Story 04.4-001 for full implementation)
-  - Pattern: `~/.config/ghostty/config` → `$REPO/config/config.ghostty`
+  - ✅ Use activation script pattern (same as Zed and VSCode)
+  - Pattern: `~/.config/ghostty/config` → `$REPO/config/ghostty/config`
 - Existing config already has Catppuccin theme and auto-update=off
 - Verify: `ls -la ~/.config/ghostty/config` should show symlink to repository (not /nix/store)
 
@@ -565,7 +565,7 @@
 
 **Implementation Details**:
 - REQ-NFR-008 compliant: Bidirectional symlink to repository (NOT /nix/store)
-- Config location: `~/.config/ghostty/config` → `$REPO/config/config.ghostty`
+- Config location: `~/.config/ghostty/config` → `$REPO/config/ghostty/config`
 - Activation script pattern (same as Zed and VSCode):
   - Dynamically finds repo location (~/nix-install, ~/.config/nix-install, ~/Documents/nix-install)
   - Creates symlink on darwin-rebuild
@@ -594,7 +594,7 @@
    - Toggle macOS appearance (System Settings → Appearance)
    - Verify Ghostty switches between Latte (light) and Mocha (dark)
 5. Test bidirectional sync:
-   - Edit config/config.ghostty in repo
+   - Edit config/ghostty/config in repo
    - Reload config in Ghostty (Ctrl+Shift+,)
    - Verify changes apply
 

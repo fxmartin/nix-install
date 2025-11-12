@@ -59,6 +59,7 @@
   "workbench.startupEditor": "none",
   "window.titleBarStyle": "custom",
   "window.restoreWindows": "none",
+  "window.autoDetectColorScheme": true,  // Required for Auto Dark Mode extension to work
 
   // === Privacy and Telemetry ===
   "telemetry.telemetryLevel": "off",

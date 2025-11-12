@@ -77,6 +77,7 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 - **2025-11-10**: Epic-01 reduced from 108 to 105 points after Story 01.6-002 scope change
 - **2025-11-11**: Epic-01 increased to 113 points after adding Story 01.1-004 (Modular Bootstrap Architecture, 8 points, deferred to post-Epic-01)
 - **2025-11-12**: Epic-02 increased to 118 points after adding Story 02.10-001 (Email Account Configuration, 5 points)
+- **2025-11-12**: Additional updates - Story 02.3-001 (Firefox→Brave), 02.4-003 (+Marked 2), 05.1-001 (+wallpaper), 04.2-001 (Starship config)
 
 ## Project Metrics
 - **Total Stories**: 113

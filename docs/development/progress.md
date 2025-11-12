@@ -6,14 +6,14 @@
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟡 In Progress |
-| **Epic-02** | Application Installation | 22 | 113 | 0 (4 in progress) | 0 | 0% | 0% | 🟡 In Progress |
+| **Epic-02** | Application Installation | 23 | 118 | 0 (4 in progress) | 0 | 0% | 0% | 🟡 In Progress |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **112** | **601** | **17** | **104** | **15.2%** | **17.3%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **113** | **606** | **17** | **104** | **15.0%** | **17.2%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -43,15 +43,45 @@
 
 ### Overall Project Status
 
-- **Total Project Scope**: 112 stories, 601 story points
-- **Completed**: 17 stories (15.2%), 104 points (17.3%)
+- **Total Project Scope**: 113 stories, 606 story points
+- **Completed**: 17 stories (15.0%), 104 points (17.2%)
 - **In Progress**: Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points)
 - **Current Phase**: Phase 0-2 (Foundation + Bootstrap, Week 1-2)
 - **Next Story**: 01.1-003 (Progress Indicators - 3 points) - P1, optional enhancement
 - **Deferred**: Story 01.1-004 (Modular Bootstrap, 8 points) - P1, implement post-Epic-01
+- **Recent Changes**: Epic-02 increased from 113 to 118 points after adding Story 02.10-001 (Email Configuration - 5 points)
 
 ### Recent Activity
 
+- **2025-11-12**: 📝 **Story Updates & Hotfixes** - Configuration enhancements and fresh Mac workarounds
+  - **Story 02.10-001 ADDED**: Email Account Configuration (5 points, Feature 02.10)
+    - macOS Mail.app automation with 1 Gmail (OAuth) + 4 Gandi.net accounts (password)
+    - Configuration via .mobileconfig profiles
+    - Epic-02 increased from 22 to 23 stories, 113 to 118 points
+  - **Story 02.3-001 UPDATED**: Firefox → Brave browser (privacy-focused, built-in ad blocking)
+  - **Story 02.4-003 UPDATED**: Added Marked 2 (Mac App Store, ID: 890031187) for Markdown preview
+  - **Story 05.1-001 UPDATED**: Wallpaper configuration added to Stylix setup
+    - References wallpaper/Ropey_Photo_by_Bob_Farrell.jpg
+    - Applied via Stylix to all desktops/spaces
+  - **Story 04.2-001 UPDATED**: Starship prompt configuration adapted from p10k
+    - Analyzed config/p10k.zsh (88KB, lean 2-line style)
+    - Created config/starship.toml matching p10k layout
+    - Features: os_icon, directory, git, comprehensive right prompt (status, duration, languages, cloud, nix_shell)
+    - Saved reference files: config/p10k.zsh, config/zshrc, config/zprofile, config/oh-my-zsh-custom/
+  - **Hotfix #15 (Issue #25)**: Added `mas` to Homebrew brews list
+    - Bootstrap failed on fresh MacBook Pro M3 Max: "mas: command not found"
+    - Root cause: mas CLI required for masApps installations but not in brews list
+    - Solution: Added "mas" to darwin/homebrew.nix brews array
+    - Commit: 6626074
+  - **Hotfix #16 (Issue #26)**: Documented fresh Mac Perplexity workaround
+    - Error: PKInstallErrorDomain Code=201 - installation service cannot start
+    - Root cause: Fresh macOS requires first Mac App Store install to be manual (GUI)
+    - Solution: Manual install from App Store (click cloud icon), then mas CLI works
+    - Updated docs/app-post-install-configuration.md with "Requirement 2: Fresh Machine First-Install"
+    - Tested by FX on fresh MacBook Pro M3 Max - workaround successful
+    - Commit: cdf75ad
+  - **Project Totals Updated**: 113 stories (was 112), 606 points (was 601)
+  - Commits: 9e42be0, 76a6bed, a3fc681, d97e4ac, 031f778, 6626074, cdf75ad
 - **2025-11-11**: 🎉 **COMPLETED Feature 02.1** (AI & LLM Tools) - All 4 stories CODE COMPLETE!
   - Created feature branch: feature/02.1-001-ai-chat-apps
   - **Story 02.1-001**: Added AI chat apps (Claude, ChatGPT, Perplexity) - 3 points ✅

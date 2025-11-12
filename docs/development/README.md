@@ -9,9 +9,10 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **15.2% complete** (17/112 stories, 104/601 points)
+  - Current project status: **15.0% complete** (17/113 stories, 104/606 points)
   - Epic-01: **89.5% complete** (17/19 stories, 104/113 points) 🟡 In Progress
   - Next story: **01.1-003** (Progress Indicators - 3 points, P1 optional)
+  - Recent: Epic-02 expanded to 23 stories/118 points (Story 02.10-001 added)
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns

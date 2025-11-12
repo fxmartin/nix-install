@@ -14,9 +14,11 @@
 - Email accounts (1 Gmail, 4 Gandi.net) configured and functional in macOS Mail.app
 
 ## Epic Scope
-**Total Stories**: 23
+**Total Stories**: 25
 **Total Story Points**: 118
-**MVP Stories**: 23 (100% of epic)
+**Completed Stories**: 6 (24.0%)
+**Completed Points**: 31 (26.3%)
+**MVP Stories**: 25 (100% of epic)
 **Priority Level**: Must Have
 **Target Release**: Phase 2-3 (Week 2-3)
 

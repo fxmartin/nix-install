@@ -128,7 +128,7 @@
 - Auto-update disable documented
 
 **Technical Notes**:
-- Homebrew cask: `ollama`
+- Homebrew cask: `ollama-app` (renamed from `ollama` as of 2025-11-12)
 - Add to darwin/homebrew.nix casks list (NOT brews)
 - Desktop app includes CLI tools bundled
 - Daemon management: Automatic via desktop app
@@ -148,10 +148,10 @@
 - [x] Documentation notes model storage location
 
 **Implementation Status**: ✅ **CODE COMPLETE** - Ready for VM testing by FX
-**Implementation Date**: 2025-11-11
+**Implementation Date**: 2025-11-11 (Updated: 2025-11-12 - cask renamed to ollama-app)
 **Branch**: feature/02.1-001-ai-chat-apps (combined with 02.1-001)
 **Files Changed**:
-- darwin/homebrew.nix: Added `ollama` cask
+- darwin/homebrew.nix: Added `ollama-app` cask (renamed from `ollama`)
 - docs/app-post-install-configuration.md: Added Ollama Desktop section
 - stories/epic-02-application-installation.md: Updated story from CLI to Desktop App
 

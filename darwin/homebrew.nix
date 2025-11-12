@@ -60,7 +60,8 @@
       "claude" # Claude Desktop - Anthropic's AI assistant
       "chatgpt" # ChatGPT Desktop - OpenAI's conversational AI
       # Note: Perplexity moved to Mac App Store (masApps) - no Homebrew cask available
-      "ollama" # Ollama Desktop - Local LLM runner with GUI and CLI (Story 02.1-002)
+      "ollama-app" # Ollama Desktop - Local LLM runner with GUI and CLI (Story 02.1-002)
+                   # Note: Renamed from "ollama" to "ollama-app" in Homebrew
     ];
 
     # Global Homebrew options

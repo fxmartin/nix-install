@@ -194,7 +194,7 @@ mas account
 
 ### Ollama Desktop
 
-**Status**: Installed via Homebrew cask `ollama` (Story 02.1-002)
+**Status**: Installed via Homebrew cask `ollama-app` (Story 02.1-002)
 
 **⚠️ CRITICAL - FRESH MACHINE REQUIREMENT** (Issue #25):
 

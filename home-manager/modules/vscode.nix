@@ -140,15 +140,9 @@
         echo "  ✓ Catppuccin Theme already installed"
       else
         echo "  Installing Catppuccin Theme..."
-        # Don't use $DRY_RUN_CMD - we want extensions to actually install
-        # Remove error suppression to see actual errors
+        # Trust the exit code - verification happens too early (VSCode needs reload)
         if "$CODE_CLI" --install-extension "$CATPPUCCIN_EXT" --force 2>&1 | grep -v "is already installed"; then
-          # Verify installation succeeded
-          if is_extension_installed "$CATPPUCCIN_EXT"; then
-            echo "  ✓ Catppuccin Theme installed successfully"
-          else
-            echo "  ⚠️  Warning: Installation reported success but extension not found in list"
-          fi
+          echo "  ✓ Catppuccin Theme installed"
         else
           echo "  ❌ ERROR: Failed to install Catppuccin Theme"
           echo "     Manual installation required:"
@@ -162,15 +156,7 @@
       else
         echo "  Installing Auto Dark Mode..."
         if "$CODE_CLI" --install-extension "$AUTO_DARK_MODE_EXT" --force 2>&1 | grep -v "is already installed"; then
-          # Verify installation succeeded
-          if is_extension_installed "$AUTO_DARK_MODE_EXT"; then
-            echo "  ✓ Auto Dark Mode installed successfully"
-            echo "  ✓ VSCode will now auto-switch themes based on macOS system appearance"
-            echo "     • Light Mode → Catppuccin Latte"
-            echo "     • Dark Mode → Catppuccin Mocha"
-          else
-            echo "  ⚠️  Warning: Installation reported success but extension not found in list"
-          fi
+          echo "  ✓ Auto Dark Mode installed"
         else
           echo "  ❌ ERROR: Failed to install Auto Dark Mode"
           echo "     Manual installation required:"
@@ -178,7 +164,19 @@
         fi
       fi
 
+      echo ""
       echo "✓ VSCode extension installation complete"
+      echo ""
+      echo "⚠️  IMPORTANT: Reload VSCode to activate extensions"
+      echo "   If VSCode is open:"
+      echo "     1. Close all VSCode windows"
+      echo "     2. Relaunch VSCode"
+      echo "   Or use: Cmd+Shift+P → 'Developer: Reload Window'"
+      echo ""
+      echo "   After reload, themes will be available:"
+      echo "     • Catppuccin Mocha (dark mode)"
+      echo "     • Catppuccin Latte (light mode)"
+      echo "     • Auto-switching via macOS system appearance"
     else
       echo ""
       echo "⚠️  VSCode CLI not found in any standard location"

@@ -196,6 +196,35 @@ mas account
 
 **Status**: Installed via Homebrew cask `ollama` (Story 02.1-002)
 
+**⚠️ CRITICAL - FRESH MACHINE REQUIREMENT** (Issue #25):
+
+On **brand new Macs**, Ollama requires **manual first launch** before the daemon and CLI will work properly.
+
+**Symptoms of Fresh Machine**:
+- Activation scripts fail to pull Ollama models during darwin-rebuild
+- `ollama list` prompts for Gatekeeper validation
+- `ollama pull` commands fail silently or return errors
+- Ollama daemon cannot start programmatically
+
+**Solution - Manual First Launch**:
+1. Launch **Ollama Desktop** from Applications folder (or Spotlight)
+2. Approve macOS Gatekeeper dialog when prompted
+3. Wait for menubar icon to appear (llama icon)
+4. Verify daemon is running: `ollama list` (should return empty list or models)
+5. **Then** re-run `darwin-rebuild switch` to pull models automatically
+
+**Why This Happens**:
+- Fresh macOS requires first launch of GUI apps to approve Gatekeeper
+- Activation scripts cannot interact with GUI security prompts
+- Once manually launched, daemon can start automatically in future
+- This is a macOS security limitation, not a nix-darwin bug
+
+**Models Requiring This Workaround**:
+- Standard Profile: `gpt-oss:20b` (Story 02.1-003)
+- Power Profile: `gpt-oss:20b`, `qwen2.5-coder:32b`, `llama3.1:70b`, `deepseek-r1:32b` (Story 02.1-004)
+
+**Future Enhancement**: Consider using home-manager `services.ollama` with launchd (merged Jan 2025) for declarative daemon management. See Issue #25 for details.
+
 **First Launch**:
 1. Launch Ollama Desktop from Spotlight or Raycast
 2. Menubar icon appears (llama icon in top-right)

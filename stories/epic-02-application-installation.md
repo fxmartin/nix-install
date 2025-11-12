@@ -155,11 +155,24 @@
 - docs/app-post-install-configuration.md: Added Ollama Desktop section
 - stories/epic-02-application-installation.md: Updated story from CLI to Desktop App
 
+**Implementation Notes - Issue #25** (Fresh Mac Requirement):
+- **Fresh Mac Limitation**: On brand new Macs, Ollama requires manual first launch before daemon/CLI works
+- **Root Cause**: macOS Gatekeeper approval required for first GUI app launch
+- **Workaround**: Launch Ollama Desktop → Approve Gatekeeper → Re-run darwin-rebuild
+- **Documented**: docs/app-post-install-configuration.md (comprehensive fresh Mac section)
+- **Similar Issue**: Issue #26 (Perplexity Mac App Store requirement)
+
+**Future Enhancement** (Post-MVP):
+- Consider home-manager `services.ollama` with darwin launchd support (merged Jan 24, 2025)
+- Would provide declarative daemon management via launchd
+- Still requires manual first launch for Gatekeeper, but cleaner service management
+- See Issue #25 comment for full implementation details
+
 **Dependencies**:
 - Epic-01, Story 01.5-001 (Homebrew managed by nix-darwin)
 
-**Risk Level**: Low
-**Risk Mitigation**: N/A
+**Risk Level**: Low → Medium (fresh Mac Gatekeeper approval required)
+**Risk Mitigation**: Documented manual first-run requirement in post-install guide
 
 ---
 
@@ -220,9 +233,13 @@
 
 **Dependencies**:
 - Story 02.1-002 (Ollama installed)
+- Issue #25 workaround: Manual Ollama Desktop first launch required on fresh Macs
 
 **Risk Level**: Medium
-**Risk Mitigation**: Check Ollama daemon is running before pulling, handle network failures gracefully
+**Risk Mitigation**:
+- Check Ollama daemon is running before pulling
+- Handle network failures gracefully
+- Fresh Mac: Documented manual first-launch requirement (see docs/app-post-install-configuration.md)
 
 ---
 
@@ -292,9 +309,13 @@
 **Dependencies**:
 - Story 02.1-002 (Ollama installed)
 - Story 02.1-003 (Standard model pull pattern established)
+- Issue #25 workaround: Manual Ollama Desktop first launch required on fresh Macs
 
 **Risk Level**: Medium
-**Risk Mitigation**: Handle network interruptions, allow retry, document storage requirements
+**Risk Mitigation**:
+- Handle network interruptions, allow retry
+- Document storage requirements (~90GB for Power profile)
+- Fresh Mac: Documented manual first-launch requirement (see docs/app-post-install-configuration.md)
 
 ---
 

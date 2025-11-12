@@ -203,7 +203,7 @@ Once requirements are approved via `/approve-requirements` command:
 
 **External Integrity Validation**
 - **Integrity File**: `requirements-integrity.json` contains validation hashes
-- **Verification Script**: `verify-requirements-integrity.sh` validates document integrity
+- **Verification Script**: `scripts/verify-requirements-integrity.sh` validates document integrity
 - **Separation of Concerns**: Validation data stored externally to prevent circular dependencies
 - **Tamper Detection**: Any modification to requirements invalidates stored hash
 
@@ -232,7 +232,7 @@ All changes tracked in the Post-Approval Change Log in docs/REQUIREMENTS.md with
 **Integrity Verification Commands**
 ```bash
 # Quick integrity check
-./verify-requirements-integrity.sh
+./scripts/verify-requirements-integrity.sh
 
 # Manual verification
 STORED=$(grep '"final_document"' requirements-integrity.json | cut -d'"' -f4)

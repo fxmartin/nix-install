@@ -487,20 +487,18 @@ The following settings are automatically configured from `config/vscode/settings
 
 **Required Extensions**:
 
-After first launch, install these extensions **IN ORDER** for full functionality:
+✅ **AUTOMATICALLY INSTALLED** during `darwin-rebuild`:
 
-1. **Catppuccin Theme** (REQUIRED - Install First):
-   - Open Extensions panel (Cmd+Shift+X)
-   - Search: "Catppuccin"
-   - Install: "Catppuccin for VSCode" by Catppuccin
+The following extensions are automatically installed via Home Manager activation script:
+
+1. **Catppuccin Theme** (`Catppuccin.catppuccin-vsc`):
    - Provides both dark (Mocha) and light (Latte) themes
-   - Theme will activate automatically (already configured in settings.json)
+   - Auto-installed first (required for theme switching)
+   - Theme activates automatically (already configured in settings.json)
 
-2. **Auto Dark Mode** (REQUIRED - Install Second for auto-theme switching):
-   - Open Extensions panel (Cmd+Shift+X)
-   - Search: "Auto Dark Mode"
-   - Install: "Auto Dark Mode" by Narasimha Prasanna HN
-   - **Purpose**: Automatically switches VSCode theme based on macOS system appearance
+2. **Auto Dark Mode** (`LinusU.auto-dark-mode`):
+   - Automatically switches VSCode theme based on macOS system appearance
+   - Auto-installed second (requires Catppuccin to be installed first)
    - **Behavior**:
      - macOS Light Mode → Catppuccin Latte (light theme)
      - macOS Dark Mode → Catppuccin Mocha (dark theme)
@@ -508,11 +506,43 @@ After first launch, install these extensions **IN ORDER** for full functionality
    - **Why**: Matches Zed editor behavior (system appearance sync)
    - **Test**: Toggle macOS appearance (System Settings → Appearance) and VSCode will switch themes automatically
 
+**How Auto-Installation Works**:
+- Extensions install during `darwin-rebuild` via VSCode CLI (`code --install-extension`)
+- Installation is idempotent (safe to run multiple times)
+- If extensions already installed, script skips them
+- If VSCode CLI not available, displays instructions for manual installation
+
+**First-Time Setup Requirement**:
+If this is your first VSCode installation:
+1. Launch VSCode once (this registers the `code` CLI command)
+2. Quit VSCode
+3. Run `darwin-rebuild switch` again
+4. Extensions will auto-install
+5. Launch VSCode - themes active!
+
+**Manual Installation (Fallback)**:
+
+If auto-installation fails for any reason, install manually **IN ORDER**:
+
+1. **Catppuccin Theme** (REQUIRED - Install First):
+   - Open Extensions panel (Cmd+Shift+X)
+   - Search: "Catppuccin"
+   - Install: "Catppuccin for VSCode" by Catppuccin
+
+2. **Auto Dark Mode** (REQUIRED - Install Second):
+   - Open Extensions panel (Cmd+Shift+X)
+   - Search: "Auto Dark Mode"
+   - Install: "Auto Dark Mode" by LinusU
+   - Version: 0.1.7 (macOS-specific)
+
+**Optional Extensions**:
+
 3. **Claude Code** (RECOMMENDED for AI pair programming):
    - Open Extensions panel (Cmd+Shift+X)
    - Search: "Claude Code"
    - Install: "Claude Code" by Anthropic
    - Sign in with Anthropic account when prompted
+   - Note: Not auto-installed (license/account required)
 
 **Optional Extensions** (can be installed later):
 

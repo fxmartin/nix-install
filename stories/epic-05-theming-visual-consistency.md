@@ -45,12 +45,16 @@
 - **And** Stylix applies theming to supported applications
 - **And** I can verify theme via Stylix-managed config files
 - **And** theme is consistent across all Stylix-supported apps
+- **And** custom wallpaper from wallpaper/ directory is set as desktop background
+- **And** wallpaper applies to all desktops/spaces
 
 **Additional Requirements**:
 - Stylix via nix-darwin flake input
 - Base16 scheme: Catppuccin Mocha (dark theme primary)
 - Support for Catppuccin Latte (light theme) for auto-switching
 - Apply to: Ghostty, Zed (if supported), shell, other apps
+- Custom wallpaper: User-provided image from wallpaper/ directory
+- Wallpaper via Stylix: Applied via Stylix image setting
 - Persist across rebuilds
 
 **Technical Notes**:
@@ -68,21 +72,29 @@
         stylix = {
           enable = true;
           base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
-          image = ./wallpaper.png;  # Optional wallpaper
+          image = ./wallpaper/Ropey_Photo_by_Bob_Farrell.jpg;  # Custom wallpaper
         };
       }
     ];
   };
   ```
+- Wallpaper handling:
+  - File: `./wallpaper/Ropey_Photo_by_Bob_Farrell.jpg` (relative to flake.nix)
+  - Stylix sets wallpaper via macOS defaults
+  - Applies to all desktops/spaces automatically
+  - Image copied to Nix store and referenced immutably
 - Verify: Check ~/.config for Stylix-generated configs
 - Test: Launch apps, verify colors match Catppuccin Mocha
+- Test: Check desktop wallpaper is set correctly
 
 **Definition of Done**:
 - [ ] Stylix added to flake inputs
 - [ ] Stylix enabled in darwin configuration
 - [ ] Base16 scheme set to Catppuccin Mocha
+- [ ] Wallpaper from wallpaper/ directory configured in Stylix
 - [ ] Stylix applies theming to supported apps
 - [ ] Theme verified across applications
+- [ ] Wallpaper visible on desktop (all spaces)
 - [ ] Tested in VM
 
 **Dependencies**:

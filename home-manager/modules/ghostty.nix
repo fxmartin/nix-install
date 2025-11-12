@@ -20,11 +20,11 @@
   # - Same pattern as Zed (Story 02.2-001) and VSCode (Story 02.2-002)
   #
   # How it works:
-  # 1. Config file in repo: config/config.ghostty (version controlled)
+  # 1. Config file in repo: config/ghostty/config (version controlled)
   # 2. Activation script dynamically finds repo location
   #    - Searches: ~/nix-install, ~/.config/nix-install, ~/Documents/nix-install
   #    - Works with any NIX_INSTALL_DIR from bootstrap
-  # 3. Creates symlink: ~/.config/ghostty/config -> $REPO_ROOT/config/config.ghostty
+  # 3. Creates symlink: ~/.config/ghostty/config -> $REPO_ROOT/config/ghostty/config
   # 4. Bidirectional sync:
   #    - Changes in repo (git pull) → Instantly apply to Ghostty
   #    - Settings version controlled, can commit/revert changes
@@ -47,12 +47,12 @@
     GHOSTTY_CONFIG_FILE="$GHOSTTY_CONFIG_DIR/config"
 
     # Dynamically find repo location (works with any NIX_INSTALL_DIR)
-    # Search for nix-install repo by looking for flake.nix + config/config.ghostty
+    # Search for nix-install repo by looking for flake.nix + config/ghostty directory
     REPO_ROOT=""
     for candidate in "${config.home.homeDirectory}/nix-install" \
                      "${config.home.homeDirectory}/.config/nix-install" \
                      "${config.home.homeDirectory}/Documents/nix-install"; do
-      if [ -f "$candidate/flake.nix" ] && [ -f "$candidate/config/config.ghostty" ]; then
+      if [ -f "$candidate/flake.nix" ] && [ -d "$candidate/config/ghostty" ]; then
         REPO_ROOT="$candidate"
         break
       fi
@@ -63,7 +63,7 @@
       REPO_ROOT="${config.home.homeDirectory}/nix-install"
     fi
 
-    REPO_CONFIG="$REPO_ROOT/config/config.ghostty"
+    REPO_CONFIG="$REPO_ROOT/config/ghostty/config"
 
     # Create config directory if it doesn't exist
     if [ ! -d "$GHOSTTY_CONFIG_DIR" ]; then
@@ -81,7 +81,7 @@
 
       if [ -f "$REPO_CONFIG" ]; then
         $DRY_RUN_CMD ln -sf "$REPO_CONFIG" "$GHOSTTY_CONFIG_FILE"
-        echo "✓ Symlinked Ghostty config to repo: config/config.ghostty"
+        echo "✓ Symlinked Ghostty config to repo: config/ghostty/config"
         echo "  Ghostty config: $GHOSTTY_CONFIG_FILE"
         echo "  Repo file: $REPO_CONFIG"
         echo "  ✓ Bidirectional sync: Changes in repo appear in Ghostty on reload"

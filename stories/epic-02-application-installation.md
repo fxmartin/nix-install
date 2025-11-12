@@ -454,14 +454,35 @@
 - Document Claude Code extension install: Extensions → Search "Claude Code" → Install
 
 **Definition of Done**:
-- [ ] VSCode installed via homebrew.nix
-- [ ] Settings symlinked to repository (REQ-NFR-008 compliant)
-- [ ] Auto-update disabled in settings
-- [ ] VSCode launches successfully
-- [ ] Extension installation documented
-- [ ] Tested in VM
-- [ ] Theme configured (Stylix or manual)
-- [ ] Bidirectional sync verified (changes in VSCode appear in repo)
+- [x] VSCode installed via homebrew.nix
+- [x] Settings symlinked to repository (REQ-NFR-008 compliant)
+- [x] Auto-update disabled in settings
+- [ ] VSCode launches successfully (VM testing by FX - pending)
+- [x] Extension installation documented
+- [ ] Tested in VM (VM testing by FX - pending)
+- [x] Theme configured (manual Catppuccin extension)
+- [ ] Bidirectional sync verified (VM testing by FX - pending)
+
+**Implementation Status**: ✅ **CODE COMPLETE** - Ready for VM testing by FX
+**Implementation Date**: 2025-11-12
+**Branch**: feature/02.2-002-vscode
+**Files Changed**:
+- darwin/homebrew.nix: Added `visual-studio-code` cask
+- config/vscode/settings.json: Created comprehensive settings (3.5 KB) with auto-update disabled and Catppuccin theme
+- home-manager/modules/vscode.nix: Created Home Manager module (4.8 KB) with REQ-NFR-008 compliant activation script
+- home-manager/home.nix: Imported vscode module
+- docs/app-post-install-configuration.md: Added VSCode section (180+ lines) with extension installation guide
+
+**Implementation Details**:
+- REQ-NFR-008 compliant: Bidirectional symlink to repository (NOT /nix/store)
+- Settings location: `~/Library/Application Support/Code/User/settings.json` → `$REPO/config/vscode/settings.json`
+- Auto-update disabled: `update.mode: "none"`, `extensions.autoUpdate: false`, `extensions.autoCheckUpdates: false`
+- Theme: Catppuccin Mocha (requires manual extension install)
+- Font: JetBrains Mono with ligatures (matches Ghostty and Zed)
+- Language-specific settings: Nix (2-space indent), Python (4-space indent, Ruff formatter), Markdown, JSON, YAML
+- Privacy: Telemetry disabled, crash reporter disabled
+- Git integration: Decorations, inline changes, autofetch
+- Terminal integration: Integrated terminal uses Zsh
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (Homebrew managed)

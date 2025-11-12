@@ -502,9 +502,13 @@ The following extensions are automatically installed via Home Manager activation
    - **Behavior**:
      - macOS Light Mode → Catppuccin Latte (light theme)
      - macOS Dark Mode → Catppuccin Mocha (dark theme)
-   - **Configuration**: Already pre-configured in settings.json (Issue #28)
+   - **Configuration**: Already pre-configured in settings.json (Issue #28 resolution)
+     - `autoDarkMode.darkTheme: "Catppuccin Mocha"`
+     - `autoDarkMode.lightTheme: "Catppuccin Latte"`
+     - `window.autoDetectColorScheme: true` (REQUIRED - enables the extension)
    - **Why**: Matches Zed editor behavior (system appearance sync)
    - **Test**: Toggle macOS appearance (System Settings → Appearance) and VSCode will switch themes automatically
+   - **✅ VM Tested**: Confirmed working on 2025-11-12
 
 **How Auto-Installation Works**:
 - Extensions install during `darwin-rebuild` via VSCode CLI (`code --install-extension`)

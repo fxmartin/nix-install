@@ -283,70 +283,140 @@ ollama run llama2 "Hello, world!"
 
 **Status**: Installed via Homebrew cask `zed` (Story 02.2-001)
 
-**Configuration**: Managed declaratively via Home Manager (`home-manager/modules/zed.nix`)
+**⚠️ IMPORTANT - MANUAL CONFIGURATION REQUIRED** (Issue #26):
 
-**Key Features Configured**:
-- **Theme**: Catppuccin (Mocha for dark mode, Latte for light mode)
-- **Font**: JetBrains Mono Nerd Font with ligatures enabled
-- **Auto-Update**: Disabled in settings.json (updates via `rebuild` command only)
-- **System Theme Sync**: Automatically follows macOS system appearance (light/dark)
+Zed requires manual post-install configuration because it expects to manage its own settings.json file. Attempting to manage settings declaratively via Home Manager causes "failed to write to /nix/store" errors, as Home Manager creates read-only symlinks.
 
 **First Launch**:
 1. Launch Zed from Spotlight, Raycast, or `/Applications/Zed.app`
-2. Zed should open with Catppuccin theme already applied
-3. Font should be JetBrains Mono with ligatures
-4. No sign-in required (Zed is free and open source)
+2. On first launch, Zed will create default settings
+3. No sign-in required (Zed is free and open source)
 
-**Configuration Verification**:
-```bash
-# Check Zed settings.json (managed by Home Manager)
-cat ~/.config/zed/settings.json
+**Required Configuration Steps**:
 
-# Expected to see:
-# - "auto_update": false
-# - "theme": { "mode": "system", "light": "Catppuccin Latte", "dark": "Catppuccin Mocha" }
-# - "buffer_font_family": "JetBrains Mono"
-# - "buffer_font_features": { "calt": true }
+After first launch, configure Zed manually:
+
+1. **Open Settings**: Press `Cmd+,` or click **Zed → Settings**
+
+2. **Disable Auto-Update** (CRITICAL):
+   - Navigate to settings.json (should open automatically in Zed)
+   - Add or modify: `"auto_update": false`
+   - Save file (Cmd+S)
+
+3. **Set Catppuccin Theme**:
+   - In settings.json, add:
+     ```json
+     "theme": {
+       "mode": "system",
+       "light": "Catppuccin Latte",
+       "dark": "Catppuccin Mocha"
+     }
+     ```
+   - This makes theme follow macOS system appearance automatically
+
+4. **Set JetBrains Mono Font with Ligatures**:
+   - In settings.json, add:
+     ```json
+     "buffer_font_family": "JetBrains Mono",
+     "buffer_font_size": 14,
+     "buffer_font_features": {
+       "calt": true
+     }
+     ```
+   - `calt: true` enables ligatures (→ ≠ ≥ ≤ etc.)
+
+5. **Disable Telemetry** (optional but recommended):
+   - In settings.json, add:
+     ```json
+     "telemetry": {
+       "diagnostics": false,
+       "metrics": false
+     }
+     ```
+
+6. **Enable Git Integration** (optional):
+   - In settings.json, add:
+     ```json
+     "git": {
+       "git_gutter": "tracked_files",
+       "inline_blame": {
+         "enabled": true
+       }
+     }
+     ```
+
+**Complete settings.json Example**:
+```json
+{
+  "auto_update": false,
+  "theme": {
+    "mode": "system",
+    "light": "Catppuccin Latte",
+    "dark": "Catppuccin Mocha"
+  },
+  "buffer_font_family": "JetBrains Mono",
+  "buffer_font_size": 14,
+  "buffer_font_features": {
+    "calt": true
+  },
+  "ui_font_family": "JetBrains Mono",
+  "ui_font_size": 14,
+  "tab_size": 2,
+  "soft_wrap": "editor_width",
+  "show_whitespace": "selection",
+  "vim_mode": false,
+  "git": {
+    "git_gutter": "tracked_files",
+    "inline_blame": {
+      "enabled": true
+    }
+  },
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+  "terminal": {
+    "shell": {
+      "program": "zsh"
+    },
+    "font_family": "JetBrains Mono",
+    "font_size": 14
+  }
+}
 ```
 
-**Auto-Update Configuration**:
-- **Status**: ✅ **Disabled via settings.json**
-- **Implementation**: Home Manager writes `"auto_update": false` to settings.json
-- **Verification**: Check **Zed → Settings** (Cmd+,) → should NOT see update prompts
-- **Note**: If Zed shows update notifications, check that settings.json is present
+**Settings Location**: `~/.config/zed/settings.json`
 
-**Theme Switching**:
-- **Light Mode**: macOS System Settings → Appearance → Light → Zed uses Catppuccin Latte
-- **Dark Mode**: macOS System Settings → Appearance → Dark → Zed uses Catppuccin Mocha
-- **Automatic**: Theme switches instantly when macOS appearance changes
-
-**Customization**:
-- Edit `home-manager/modules/zed.nix` to modify settings
-- Run `darwin-rebuild switch` to apply changes
-- Zed will automatically reload settings.json changes
+**Theme Switching Verification**:
+- **Light Mode**: System Settings → Appearance → Light → Zed should use Catppuccin Latte
+- **Dark Mode**: System Settings → Appearance → Dark → Zed should use Catppuccin Mocha
+- Theme switches automatically when macOS appearance changes
 
 **Testing**:
 - [ ] Launch Zed successfully
 - [ ] Theme matches macOS system appearance (Catppuccin Latte/Mocha)
 - [ ] Font is JetBrains Mono with ligatures working (→ ≠ ≥ ≤ etc.)
-- [ ] Auto-update disabled (no update prompts)
+- [ ] Auto-update disabled (no update prompts in Zed menu)
 - [ ] Theme switches when toggling macOS light/dark mode
-- [ ] Settings.json exists at ~/.config/zed/settings.json
+- [ ] Settings.json saved successfully at ~/.config/zed/settings.json
 - [ ] Zed recognizes common file types (nix, md, py, sh, json)
 
 **Optional Features** (can be enabled later):
-- **AI Assistant**: Zed supports AI features via API keys (disabled by default)
-- **Vim Mode**: Set `"vim_mode": true` in zed.nix if desired
+- **AI Assistant**: Zed supports AI features via API keys (add `"assistant": { "enabled": true }`)
+- **Vim Mode**: Set `"vim_mode": true` in settings.json if desired
 - **Language Servers**: Epic-04 will add LSP servers for Python, Nix, Bash, etc.
 
 **Known Issues**:
-- None currently known
-- If theme doesn't apply, verify Catppuccin theme is installed in Zed
-  - Check: **Zed → Extensions** for "Catppuccin" theme
+- **Issue #26**: Cannot manage settings.json declaratively via Home Manager
+  - Root cause: Home Manager creates read-only /nix/store symlinks
+  - Solution: Manual configuration required (documented above)
+- If Catppuccin theme not available:
+  - Check **Zed → Extensions** and install "Catppuccin" theme
   - Theme should be built-in as of Zed 0.130+
 
 **Resources**:
 - Zed Documentation: https://zed.dev/docs
+- Zed Settings Reference: https://zed.dev/docs/configuring-zed
 - Catppuccin Theme: https://github.com/catppuccin/zed
 - JetBrains Mono Font: https://www.jetbrains.com/lp/mono/
 

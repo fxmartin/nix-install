@@ -45,6 +45,17 @@
     readline
     sqlite
     zlib
+
+    # Python Development Environment (Story 02.2-004)
+    python312           # Python 3.12 interpreter
+    uv                  # Fast Python package installer and resolver
+
+    # Python Development Tools
+    ruff                # Extremely fast Python linter and formatter
+    black               # Python code formatter
+    python312Packages.isort    # Import statement organizer
+    python312Packages.mypy     # Static type checker
+    python312Packages.pylint   # Comprehensive linter
   ];
 
   # Application Management & System Configuration

@@ -59,7 +59,7 @@
 - **2025-11-12**: Story 02.2-001 (Zed Editor) completed - VM tested by FX, bidirectional sync implemented (12 points)
 - **2025-11-12**: Story 02.2-002 (VSCode) completed - VM tested by FX, auto theme switching working (3 points)
 - **2025-11-12**: Story 02.2-003 (Ghostty Terminal) completed - VM tested by FX, REQ-NFR-008 compliant config (5 points)
-- **2025-11-12**: Story 02.2-004 (Python & Dev Tools) completed - Python 3.12 + uv + dev tools (ruff, black, isort, mypy, pylint) via Nix (5 points)
+- **2025-11-12**: Story 02.2-004 (Python & Dev Tools) completed - Python 3.12 + uv + dev tools (ruff, black, isort, mypy, pylint) via Nix (5 points) ✅ VM tested
 - **2025-11-12**: Epic-02 increased from 23 to 25 stories after story reconciliation (total points unchanged at 118)
 
 ### Overall Project Status
@@ -78,7 +78,7 @@
 ### Recent Activity
 
 - **2025-11-12**: 🎉 **Story 02.2-004 COMPLETED** - Python and Development Tools (5 points)
-  - **Story 02.2-004**: Python 3.12 and development tools via Nix ✅ Merged to main
+  - **Story 02.2-004**: Python 3.12 and development tools via Nix ✅ VM tested and validated
   - Added Python 3.12 interpreter to darwin/configuration.nix
   - Added uv (fast Python package installer, 10-100× faster than pip)
   - Added development tools: ruff, black, isort, mypy, pylint
@@ -86,6 +86,7 @@
   - All tools globally accessible in PATH
   - Zero configuration required (works out of the box)
   - Update philosophy: nix-darwin controlled (no pip/brew upgrades)
+  - **VM Testing**: All manual tests successful - Python, uv, and all dev tools working perfectly
   - **Epic-02 Progress**: 32.0% complete (8/25 stories, 41/118 points)
   - **Overall Project**: 21.7% complete (25/115 stories, 145/606 points)
   - Commit: aa896b1, PR #31 merged

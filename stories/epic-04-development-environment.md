@@ -259,39 +259,33 @@
   programs.starship = {
     enable = true;
     enableZshIntegration = true;
-    settings = {
-      format = "$directory$git_branch$git_status$python$character";
-      directory = {
-        truncation_length = 3;
-        truncate_to_repo = true;
-      };
-      git_branch = {
-        format = " [$symbol$branch]($style) ";
-      };
-      git_status = {
-        format = "([\\[$all_status$ahead_behind\\]]($style) )";
-      };
-      python = {
-        format = " [\\($virtualenv\\)]($style) ";
-      };
-      character = {
-        success_symbol = "[➜](bold green)";
-        error_symbol = "[➜](bold red)";
-      };
-    };
+    # Use custom config adapted from p10k lean style
+    configFile = ../config/starship.toml;
   };
   ```
+- Custom config at config/starship.toml:
+  - Adapted from existing p10k.zsh configuration (config/p10k.zsh)
+  - 2-line prompt: os_icon, directory, git | prompt_char
+  - Comprehensive right prompt: status, cmd_duration, jobs, language versions, cloud (aws/gcloud/azure/kubernetes), nix_shell, context
+  - Nerd Font v3 icons matching p10k style
+  - Transient prompt support (collapse previous prompts)
+  - Clean, disconnected lean style (no segment separators)
+  - Matches p10k LEFT_PROMPT_ELEMENTS and RIGHT_PROMPT_ELEMENTS
 - Integration: `enableZshIntegration` adds init to .zshrc
-- Test: Navigate to git repo (shows branch), activate venv (shows Python version)
+- Test: Navigate to git repo (shows branch), activate venv (shows Python version), check right prompt modules
 
 **Definition of Done**:
 - [ ] Starship installed via Nix
 - [ ] Configuration in home-manager module
-- [ ] Prompt shows directory, git, Python
-- [ ] Prompt is minimal and fast
+- [ ] Custom config/starship.toml used (adapted from p10k)
+- [ ] Prompt shows os_icon, directory, and git status
+- [ ] Right prompt shows status, duration, jobs, Python, Node, cloud (aws/gcloud/azure/k8s), nix_shell
+- [ ] Icons display correctly (Nerd Font v3)
+- [ ] Colors match Catppuccin theme (via Stylix)
+- [ ] Transient prompt works (previous prompts collapse)
 - [ ] Git status updates immediately
-- [ ] Startup time <500ms
-- [ ] Tested in VM and in git repo
+- [ ] Startup time <100ms (Starship is very fast)
+- [ ] Tested in VM and in git repo with various contexts
 
 **Dependencies**:
 - Story 04.1-001 (Zsh configured)

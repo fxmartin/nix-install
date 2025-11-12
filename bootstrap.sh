@@ -1650,6 +1650,36 @@ fetch_flake_from_github() {
         return 1
     }
 
+    log_info "  - home-manager/modules/zed.nix"
+    if ! curl -fsSL -o "home-manager/modules/zed.nix" "${base_url}/home-manager/modules/zed.nix"; then
+        log_error "Failed to fetch home-manager/modules/zed.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/zed.nix" ]] || {
+        log_error "Downloaded home-manager/modules/zed.nix is empty"
+        return 1
+    }
+
+    log_info "  - home-manager/modules/vscode.nix"
+    if ! curl -fsSL -o "home-manager/modules/vscode.nix" "${base_url}/home-manager/modules/vscode.nix"; then
+        log_error "Failed to fetch home-manager/modules/vscode.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/vscode.nix" ]] || {
+        log_error "Downloaded home-manager/modules/vscode.nix is empty"
+        return 1
+    }
+
+    log_info "  - home-manager/modules/ghostty.nix"
+    if ! curl -fsSL -o "home-manager/modules/ghostty.nix" "${base_url}/home-manager/modules/ghostty.nix"; then
+        log_error "Failed to fetch home-manager/modules/ghostty.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/ghostty.nix" ]] || {
+        log_error "Downloaded home-manager/modules/ghostty.nix is empty"
+        return 1
+    }
+
     echo ""
     log_success "All configuration files fetched successfully"
     log_info "Files downloaded:"
@@ -1661,6 +1691,9 @@ fetch_flake_from_github() {
     log_info "  • home-manager/home.nix"
     log_info "  • home-manager/modules/shell.nix"
     log_info "  • home-manager/modules/github.nix"
+    log_info "  • home-manager/modules/zed.nix"
+    log_info "  • home-manager/modules/vscode.nix"
+    log_info "  • home-manager/modules/ghostty.nix"
     echo ""
 
     return 0

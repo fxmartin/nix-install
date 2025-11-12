@@ -257,15 +257,9 @@
   font-family = "JetBrainsMono Nerd Font"
   font-feature = "+liga"  # Enable ligatures
   ```
-- Zed config (Home Manager or Stylix):
-  ```nix
-  programs.zed.settings = {
-    buffer_font_features = {
-      liga = true;
-      calt = true;
-    };
-  };
-  ```
+- Zed config: See Story 02.2-001 for REQ-NFR-008 compliant implementation
+  - Settings managed via repository symlink (config/zed/settings.json)
+  - Ligatures enabled via "buffer_font_features": {"liga": true, "calt": true}
 - Test: Create file with ligatures:
   ```python
   if x >= 10 and y != 5:
@@ -383,20 +377,14 @@
 - JetBrains Mono font
 
 **Technical Notes**:
-- Check if Stylix supports Zed natively
-- If yes, Stylix auto-applies theme
-- If no, configure manually in Home Manager:
-  ```nix
-  programs.zed.settings = {
-    theme = {
-      mode = "system";  # Follow macOS appearance
-      light = "Catppuccin Latte";
-      dark = "Catppuccin Mocha";
-    };
-    buffer_font_family = "JetBrainsMono Nerd Font";
-  };
-  ```
-- May need to install Catppuccin extension for Zed
+- **Zed configuration handled in Story 02.2-001** (Epic-02 Applications)
+- **REQ-NFR-008 Compliance**: Zed uses repository symlink pattern, NOT programs.zed.settings
+- Configuration file: config/zed/settings.json (managed via Home Manager activation script)
+- Theme settings already configured:
+  - Catppuccin Mocha (dark) / Latte (light)
+  - System appearance auto-switching
+  - JetBrains Mono font
+- **Do NOT use programs.zed.settings** - creates read-only /nix/store symlink
 - Verify: Open Zed, check theme matches Ghostty
 - Test: Switch system appearance, Zed theme updates
 

@@ -350,24 +350,22 @@
 - Theming via Stylix integration
 - Auto-update disabled: `"auto_update": false` in settings.json
 - Configuration managed declaratively
+- **REQ-NFR-008**: Settings file MUST use repository symlink pattern (not /nix/store)
 
 **Technical Notes**:
 - Homebrew cask: `zed`
 - Stylix should automatically theme Zed if supported
-- If not, manual config via Home Manager:
-  ```nix
-  home-manager.users.fx = {
-    programs.zed = {
-      enable = true;
-      settings = {
-        auto_update = false;
-        theme = "Catppuccin Mocha";
-        buffer_font_family = "JetBrains Mono";
-        # ... other settings
-      };
-    };
-  };
-  ```
+- **REQ-NFR-008 Implementation**:
+  - ❌ Do NOT use `programs.zed.settings = {...}` (creates read-only /nix/store symlink)
+  - ✅ Use `home.activation` script to create symlink to repository:
+    ```nix
+    home.activation.zedConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      ln -sf "$REPO_ROOT/config/zed/settings.json" "$HOME/.config/zed/settings.json"
+    '';
+    ```
+  - Pattern: `~/.config/zed/settings.json` → `$REPO/config/zed/settings.json`
+  - Enables bidirectional sync: changes in Zed appear in repo, git pull updates Zed
+  - Reference implementation: `home-manager/modules/zed.nix`
 - Verify theme switching with system appearance
 
 **Definition of Done**:
@@ -391,6 +389,7 @@
 - docs/app-post-install-configuration.md: Added Zed configuration section
 
 **Implementation Notes**:
+- **REQ-NFR-008 Compliance**: ✅ Fully implements repository symlink pattern
 - **Issue #26**: Resolved /nix/store write access issue with bidirectional sync
 - **Hotfix #14**: Made repo path dynamic for custom NIX_INSTALL_DIR support
 - **Activation Script**: Searches common locations, validates with flake.nix + config/zed/
@@ -399,6 +398,7 @@
 - **Theme**: Catppuccin Mocha (dark) and Latte (light) via system appearance
 - **Font**: JetBrains Mono with ligatures enabled
 - **Auto-update**: Disabled via "auto_update": false in settings.json
+- **Reference**: This implementation serves as the pattern for all apps requiring config file management
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (nix-darwin + Home Manager)
@@ -429,28 +429,39 @@
 - Auto-update disabled globally
 - Claude Code extension installation documented (manual step)
 - Optional: Stylix theming if supported
+- **REQ-NFR-008**: Settings file MUST use repository symlink pattern (not /nix/store)
 
 **Technical Notes**:
 - Homebrew cask: `visual-studio-code`
-- Auto-update disable via Home Manager settings:
-  ```nix
-  programs.vscode = {
-    enable = true;
-    userSettings = {
-      "update.mode" = "none";
-      "workbench.colorTheme" = "Catppuccin Mocha";
-    };
-  };
-  ```
+- **REQ-NFR-008 Implementation**:
+  - ❌ **ANTI-PATTERN**: Do NOT use `programs.vscode.userSettings = {...}`
+  - ❌ **Reason**: Creates read-only symlink to /nix/store, breaks VSCode write access
+  - ✅ **CORRECT**: Use `home.activation` script to create repository symlink:
+    ```nix
+    home.activation.vscodeConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      # Dynamically find repo location (same pattern as Zed)
+      REPO_ROOT=$(find_repo_root)  # Search ~/nix-install, ~/.config/nix-install, ~/Documents/nix-install
+      mkdir -p "$HOME/Library/Application Support/Code/User"
+      ln -sf "$REPO_ROOT/config/vscode/settings.json" "$HOME/Library/Application Support/Code/User/settings.json"
+    '';
+    ```
+  - Pattern: `~/Library/Application Support/Code/User/settings.json` → `$REPO/config/vscode/settings.json`
+  - Enables bidirectional sync: changes in VSCode appear in repo, git pull updates VSCode
+  - Reference: `home-manager/modules/zed.nix` for complete implementation pattern
+- Settings to include in config/vscode/settings.json:
+  - `"update.mode": "none"` (disable auto-update)
+  - `"workbench.colorTheme": "Catppuccin Mocha"` (theme)
 - Document Claude Code extension install: Extensions → Search "Claude Code" → Install
 
 **Definition of Done**:
 - [ ] VSCode installed via homebrew.nix
+- [ ] Settings symlinked to repository (REQ-NFR-008 compliant)
 - [ ] Auto-update disabled in settings
 - [ ] VSCode launches successfully
 - [ ] Extension installation documented
 - [ ] Tested in VM
 - [ ] Theme configured (Stylix or manual)
+- [ ] Bidirectional sync verified (changes in VSCode appear in repo)
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (Homebrew managed)
@@ -479,18 +490,20 @@
 
 **Additional Requirements**:
 - Installation via Homebrew Cask
-- Configuration via Home Manager (copy existing config)
+- Configuration via Home Manager activation script (see Story 04.4-001)
 - Theme consistency with Zed (same Catppuccin variant)
 - Config location: ~/.config/ghostty/config
+- **REQ-NFR-008**: Config MUST use repository symlink (see Story 04.4-001 for implementation)
 
 **Technical Notes**:
 - Homebrew cask: `ghostty`
-- Home Manager config:
-  ```nix
-  xdg.configFile."ghostty/config".source = ../config/config.ghostty;
-  ```
+- **Configuration handled in Story 04.4-001** (Epic-04 Development Environment)
+- **REQ-NFR-008 Note**:
+  - ❌ Do NOT use `xdg.configFile."ghostty/config".source = ...` (creates /nix/store symlink)
+  - ✅ Use activation script pattern (see Story 04.4-001 for full implementation)
+  - Pattern: `~/.config/ghostty/config` → `$REPO/config/config.ghostty`
 - Existing config already has Catppuccin theme and auto-update=off
-- Verify: `ls -la ~/.config/ghostty/config` should be symlink to Nix store
+- Verify: `ls -la ~/.config/ghostty/config` should show symlink to repository (not /nix/store)
 
 **Definition of Done**:
 - [ ] Ghostty installed via homebrew.nix

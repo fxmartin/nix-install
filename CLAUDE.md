@@ -288,6 +288,26 @@ Co-Authored-By: Claude <noreply@anthropic.com>
      - `bats` - Bash test framework (when running read-only static checks)
      - These tools NEVER modify the system or execute bootstrap code
 
+1.5. **CRITICAL - BOOTSTRAP SYNCHRONIZATION**: Whenever creating or modifying Nix configuration files, ALWAYS update bootstrap.sh Phase 4 download list:
+   - ❌ **DO NOT** create new .nix files without updating bootstrap.sh
+   - ✅ **ALWAYS** add new files to `download_darwin_files()` function in bootstrap.sh
+   - ✅ **ALWAYS** add files to the "Files downloaded:" log output
+   - **Why**: Bootstrap downloads specific files from GitHub before Nix is available. Missing files cause "Path does not exist in Git repository" errors.
+   - **Location**: bootstrap.sh lines ~1600-1700 (Phase 4 - Flake Infrastructure Setup)
+   - **Pattern**: For each new file, add:
+     ```bash
+     log_info "  - path/to/new/file.nix"
+     if ! curl -fsSL -o "path/to/new/file.nix" "${base_url}/path/to/new/file.nix"; then
+         log_error "Failed to fetch path/to/new/file.nix"
+         return 1
+     fi
+     [[ -s "path/to/new/file.nix" ]] || {
+         log_error "Downloaded path/to/new/file.nix is empty"
+         return 1
+     }
+     ```
+   - **Lesson**: Hotfix #17 (Issue #31) - Forgot to add zed.nix, vscode.nix, ghostty.nix causing VM test failures
+
 2. **No auto-updates**: Every app must have auto-update disabled. `rebuild` is the ONLY update mechanism.
 
 3. **VM testing required**: Never test directly on physical MacBooks until VM testing passes. (FX performs this testing, not Claude)

@@ -6,14 +6,14 @@
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
-| **Epic-02** | Application Installation | 25 | 118 | **7** | **36** | 28.0% | 30.5% | 🟡 In Progress |
+| **Epic-02** | Application Installation | 25 | 118 | **8** | **41** | 32.0% | 34.7% | 🟡 In Progress |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **115** | **606** | **24** | **140** | **20.9%** | **23.1%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **115** | **606** | **25** | **145** | **21.7%** | **23.9%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -41,7 +41,7 @@
 - **2025-11-10**: Story 01.6-002 scope changed from manual approach (8 points) to automated GitHub CLI approach (5 points), reducing Epic-01 by 3 points
 - **2025-11-11**: Story 01.1-004 added (Modular Bootstrap Architecture, 8 points), increasing Epic-01 by 8 points, **deferred to post-Epic-01**
 
-### Epic-02 Completed Stories (7/25)
+### Epic-02 Completed Stories (8/25)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -52,29 +52,43 @@
 | 02.2-001 | Zed Editor Installation and Configuration | 12 | ✅ Complete | feature/02.2-001-zed-editor | 2025-11-12 |
 | 02.2-002 | VSCode Installation with Auto Dark Mode | 3 | ✅ Complete | feature/02.2-002-vscode | 2025-11-12 |
 | 02.2-003 | Ghostty Terminal Installation | 5 | ✅ Complete | feature/02.2-003-ghostty | 2025-11-12 |
+| 02.2-004 | Python and Development Tools | 5 | ✅ Complete | feature/02.2-004-python-dev-tools | 2025-11-12 |
 
 **Notes**:
 - **2025-11-12**: Feature 02.1 (AI & LLM Tools) completed - all 4 stories VM tested by FX (16 points)
 - **2025-11-12**: Story 02.2-001 (Zed Editor) completed - VM tested by FX, bidirectional sync implemented (12 points)
 - **2025-11-12**: Story 02.2-002 (VSCode) completed - VM tested by FX, auto theme switching working (3 points)
 - **2025-11-12**: Story 02.2-003 (Ghostty Terminal) completed - VM tested by FX, REQ-NFR-008 compliant config (5 points)
+- **2025-11-12**: Story 02.2-004 (Python & Dev Tools) completed - Python 3.12 + uv + dev tools (ruff, black, isort, mypy, pylint) via Nix (5 points)
 - **2025-11-12**: Epic-02 increased from 23 to 25 stories after story reconciliation (total points unchanged at 118)
 
 ### Overall Project Status
 
 - **Total Project Scope**: 115 stories, 606 story points
-- **Completed**: 24 stories (20.9%), 140 points (23.1%)
+- **Completed**: 25 stories (21.7%), 145 points (23.9%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL**
-  - Epic-02 Application Installation (28.0% complete by stories, 30.5% by points) - **IN PROGRESS**
+  - Epic-02 Application Installation (32.0% complete by stories, 34.7% by points) - **IN PROGRESS**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - Epic-02: 02.2-004 (Python & Dev Tools), 02.2-005 (Podman), 02.3-001 (Browsers), 02.4-001 (Productivity)
+  - Epic-02: 02.2-005 (Podman & Container Tools), 02.3-001 (Browsers), 02.4-001 (Productivity Apps)
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: Feature 02.1 (AI Tools) + Feature 02.2 partial (Zed, VSCode, Ghostty) completed and VM validated (7 stories, 36 points)
+- **Recent Milestone**: Feature 02.1 (AI Tools) + Feature 02.2 partial (Zed, VSCode, Ghostty, Python) completed and VM validated (8 stories, 41 points)
 
 ### Recent Activity
 
+- **2025-11-12**: 🎉 **Story 02.2-004 COMPLETED** - Python and Development Tools (5 points)
+  - **Story 02.2-004**: Python 3.12 and development tools via Nix ✅ Merged to main
+  - Added Python 3.12 interpreter to darwin/configuration.nix
+  - Added uv (fast Python package installer, 10-100× faster than pip)
+  - Added development tools: ruff, black, isort, mypy, pylint
+  - Created comprehensive documentation section (150+ lines)
+  - All tools globally accessible in PATH
+  - Zero configuration required (works out of the box)
+  - Update philosophy: nix-darwin controlled (no pip/brew upgrades)
+  - **Epic-02 Progress**: 32.0% complete (8/25 stories, 41/118 points)
+  - **Overall Project**: 21.7% complete (25/115 stories, 145/606 points)
+  - Commit: aa896b1, PR #31 merged
 - **2025-11-12**: 🎉 **Story 02.2-003 COMPLETED** - Ghostty Terminal Installation (5 points)
   - **Story 02.2-003**: Ghostty Terminal with REQ-NFR-008 compliant bidirectional sync ✅ VM tested
   - Created home-manager/modules/ghostty.nix (108 lines)

@@ -22,12 +22,17 @@ This directory contains configuration files for the nix-darwin MacBook setup.
   - Referenced in Stylix config as: `image = ./wallpaper/Ropey_Photo_by_Bob_Farrell.jpg;`
 
 ### Application Configurations
-- **zed/settings.json** - Zed editor configuration template
+- **zed/settings.json** - Zed editor configuration (bidirectional sync)
   - **Status**: Active - Used in Story 02.2-001 (Zed Editor Installation)
   - **Configuration**: Catppuccin theme, JetBrains Mono font, auto-update disabled
-  - **Deployment**: Automatically copied to `~/.config/zed/settings.json` on first darwin-rebuild
-  - **Update Strategy**: Copy-on-first-run (preserves user modifications on subsequent rebuilds)
-  - **Why not symlink**: Zed needs write access to modify its own settings (Issue #26)
+  - **Deployment**: Symlinked to `~/.config/zed/settings.json` (bidirectional sync)
+  - **Sync Strategy**: `~/.config/zed/settings.json` → `~/nix-install/config/zed/settings.json`
+  - **Benefits**:
+    * Changes in Zed instantly appear in repo (trackable with git)
+    * Pulling repo updates instantly updates Zed settings
+    * Settings version controlled, can commit/revert changes
+    * Zed has full write access (symlink to working directory, not /nix/store)
+  - **Why this works**: Symlink points to repo working directory, not read-only /nix/store (Issue #26)
   - Referenced via activation script in `home-manager/modules/zed.nix`
 
 ## Reference Files (Legacy/Backup)

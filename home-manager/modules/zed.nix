@@ -11,18 +11,21 @@
   # Story 02.2-001: Install and configure Zed with Catppuccin theme
   #
   # Installation: Via Homebrew cask (darwin/homebrew.nix)
-  # Configuration: Template copied automatically on first run, then user-editable
+  # Configuration: Symlinked to repo for bidirectional sync
   #
   # Why this approach (Issue #26):
-  # - Zed expects to manage its own settings.json file
-  # - Home Manager's home.file creates read-only symlinks to /nix/store
-  # - Solution: Copy template once, then Zed has full write access
+  # - Zed expects to manage its own settings.json file (needs write access)
+  # - Home Manager's home.file creates read-only symlinks to /nix/store (breaks Zed)
+  # - Solution: Symlink to repo working directory (not /nix/store)
   #
   # How it works:
-  # 1. Template stored in repo: config/zed/settings.json
-  # 2. On first darwin-rebuild, activation script copies template to ~/.config/zed/settings.json
-  # 3. Subsequent rebuilds preserve existing settings (no overwrite)
-  # 4. Zed can modify settings.json freely
+  # 1. Settings file in repo: config/zed/settings.json (version controlled)
+  # 2. Activation script creates: ~/.config/zed/settings.json -> ~/nix-install/config/zed/settings.json
+  # 3. Bidirectional sync:
+  #    - Changes in Zed → Instantly appear in repo (git will show them)
+  #    - Changes in repo (git pull) → Instantly apply to Zed
+  #    - Settings version controlled, can commit/revert changes
+  # 4. Zed has full write access (symlink points to regular file, not /nix/store)
   #
   # Key Features (from template):
   # - Catppuccin Mocha theme (dark) or Latte (light) via system appearance
@@ -30,11 +33,11 @@
   # - Auto-update disabled (updates via 'rebuild' command only)
   # - Git integration, telemetry disabled, terminal integration
 
-  # Activation script to copy Zed settings template on first run
+  # Activation script to symlink Zed settings to repo (bidirectional sync)
   home.activation.zedConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
     ZED_CONFIG_DIR="$HOME/.config/zed"
     ZED_SETTINGS="$ZED_CONFIG_DIR/settings.json"
-    TEMPLATE="${config.home.homeDirectory}/nix-install/config/zed/settings.json"
+    REPO_SETTINGS="${config.home.homeDirectory}/nix-install/config/zed/settings.json"
 
     # Create config directory if it doesn't exist
     if [ ! -d "$ZED_CONFIG_DIR" ]; then
@@ -42,20 +45,32 @@
       echo "Created Zed config directory: $ZED_CONFIG_DIR"
     fi
 
-    # Copy template only if settings.json doesn't exist
-    if [ ! -f "$ZED_SETTINGS" ]; then
-      if [ -f "$TEMPLATE" ]; then
-        $DRY_RUN_CMD cp "$TEMPLATE" "$ZED_SETTINGS"
-        echo "✓ Copied Zed settings template from config/zed/settings.json"
-        echo "  Settings location: $ZED_SETTINGS"
-        echo "  Zed can now modify this file freely"
+    # Create/update symlink to repo settings (bidirectional sync)
+    if [ ! -L "$ZED_SETTINGS" ]; then
+      # If regular file exists, back it up first
+      if [ -f "$ZED_SETTINGS" ]; then
+        $DRY_RUN_CMD mv "$ZED_SETTINGS" "$ZED_SETTINGS.backup"
+        echo "Backed up existing settings to: $ZED_SETTINGS.backup"
+      fi
+
+      if [ -f "$REPO_SETTINGS" ]; then
+        $DRY_RUN_CMD ln -sf "$REPO_SETTINGS" "$ZED_SETTINGS"
+        echo "✓ Symlinked Zed settings to repo: config/zed/settings.json"
+        echo "  Zed settings: $ZED_SETTINGS"
+        echo "  Repo file: $REPO_SETTINGS"
+        echo "  ✓ Bidirectional sync: Changes in Zed appear in repo, and vice versa"
       else
-        echo "⚠️  Warning: Zed settings template not found at: $TEMPLATE"
+        echo "⚠️  Warning: Zed settings template not found at: $REPO_SETTINGS"
         echo "  Expected location: ~/nix-install/config/zed/settings.json"
         echo "  Zed will use default settings on first launch"
       fi
     else
-      echo "Zed settings.json already exists, preserving user modifications"
+      # Symlink exists, verify it points to the right place
+      CURRENT_TARGET=$(readlink "$ZED_SETTINGS")
+      if [ "$CURRENT_TARGET" != "$REPO_SETTINGS" ]; then
+        $DRY_RUN_CMD ln -sf "$REPO_SETTINGS" "$ZED_SETTINGS"
+        echo "Updated Zed settings symlink target to: $REPO_SETTINGS"
+      fi
     fi
   '';
 

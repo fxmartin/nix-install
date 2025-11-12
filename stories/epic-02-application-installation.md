@@ -755,8 +755,8 @@
 
 ---
 
-##### Story 02.4-003: File Utilities (Calibre, Kindle, Keka)
-**User Story**: As FX, I want Calibre, Kindle, and Keka installed so that I can manage ebooks and archives
+##### Story 02.4-003: File Utilities (Calibre, Kindle, Keka, Marked 2)
+**User Story**: As FX, I want Calibre, Kindle, Keka, and Marked 2 installed so that I can manage ebooks, archives, and preview Markdown files
 
 **Priority**: Must Have
 **Story Points**: 5
@@ -768,14 +768,18 @@
 - **Then** Calibre is installed (ebook manager) and launches
 - **And** Kindle is installed (via mas) and launches
 - **And** Keka is installed (archiver) and launches
+- **And** Marked 2 is installed (via mas) and launches
 - **And** Keka is set as default for .zip, .rar files (or documented)
 - **And** Calibre auto-update is disabled
+- **And** Marked 2 auto-update is disabled (Preferences)
 
 **Additional Requirements**:
 - Calibre: Homebrew Cask
 - Kindle: Mac App Store (mas)
 - Keka: Homebrew Cask
+- Marked 2: Mac App Store (mas) - Markdown preview app
 - Auto-update disable for Calibre (Preferences → Misc)
+- Auto-update disable for Marked 2 (Preferences → General)
 
 **Technical Notes**:
 - Add to darwin/homebrew.nix:
@@ -783,15 +787,20 @@
   homebrew.casks = [ "calibre" "keka" ];
   homebrew.masApps = {
     "Kindle" = 302584613;  # App Store ID
+    "Marked 2" = 890031187;  # App Store ID
   };
   ```
-- Auto-update: Calibre → Preferences → Misc → Auto-update (disable)
+- Auto-update:
+  - Calibre → Preferences → Misc → Auto-update (disable)
+  - Marked 2 → Preferences → General → Check for updates (disable)
 - Keka: May need UTI association for file types (document if manual)
+- Marked 2: Markdown preview with live reload, exports to PDF/HTML
 
 **Definition of Done**:
-- [ ] All three apps installed
+- [ ] All four apps installed
 - [ ] Each app launches successfully
 - [ ] Calibre auto-update disabled
+- [ ] Marked 2 auto-update disabled
 - [ ] File associations documented
 - [ ] Tested in VM
 - [ ] Documentation notes Kindle requires sign-in

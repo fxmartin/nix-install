@@ -21,6 +21,15 @@ This directory contains configuration files for the nix-darwin MacBook setup.
   - **Status**: Active - Used in Story 05.1-001 (Stylix configuration)
   - Referenced in Stylix config as: `image = ./wallpaper/Ropey_Photo_by_Bob_Farrell.jpg;`
 
+### Application Configurations
+- **zed/settings.json** - Zed editor configuration template
+  - **Status**: Active - Used in Story 02.2-001 (Zed Editor Installation)
+  - **Configuration**: Catppuccin theme, JetBrains Mono font, auto-update disabled
+  - **Deployment**: Automatically copied to `~/.config/zed/settings.json` on first darwin-rebuild
+  - **Update Strategy**: Copy-on-first-run (preserves user modifications on subsequent rebuilds)
+  - **Why not symlink**: Zed needs write access to modify its own settings (Issue #26)
+  - Referenced via activation script in `home-manager/modules/zed.nix`
+
 ## Reference Files (Legacy/Backup)
 
 These files are preserved as reference from the previous Oh My Zsh + Powerlevel10k setup:

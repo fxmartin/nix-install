@@ -17,6 +17,8 @@
     ./modules/zed.nix
     # VSCode configuration (Story 02.2-002)
     ./modules/vscode.nix
+    # Ghostty terminal configuration (Story 02.2-003)
+    ./modules/ghostty.nix
   ];
 
   home = {

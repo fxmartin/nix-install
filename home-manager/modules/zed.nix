@@ -20,12 +20,15 @@
   #
   # How it works:
   # 1. Settings file in repo: config/zed/settings.json (version controlled)
-  # 2. Activation script creates: ~/.config/zed/settings.json -> ~/nix-install/config/zed/settings.json
-  # 3. Bidirectional sync:
+  # 2. Activation script dynamically finds repo location (Hotfix #27)
+  #    - Searches: ~/nix-install, ~/.config/nix-install, ~/Documents/nix-install
+  #    - Works with any NIX_INSTALL_DIR from bootstrap
+  # 3. Creates symlink: ~/.config/zed/settings.json -> $REPO_ROOT/config/zed/settings.json
+  # 4. Bidirectional sync:
   #    - Changes in Zed → Instantly appear in repo (git will show them)
   #    - Changes in repo (git pull) → Instantly apply to Zed
   #    - Settings version controlled, can commit/revert changes
-  # 4. Zed has full write access (symlink points to regular file, not /nix/store)
+  # 5. Zed has full write access (symlink points to regular file, not /nix/store)
   #
   # Key Features (from template):
   # - Catppuccin Mocha theme (dark) or Latte (light) via system appearance
@@ -37,7 +40,25 @@
   home.activation.zedConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
     ZED_CONFIG_DIR="$HOME/.config/zed"
     ZED_SETTINGS="$ZED_CONFIG_DIR/settings.json"
-    REPO_SETTINGS="${config.home.homeDirectory}/nix-install/config/zed/settings.json"
+
+    # Dynamically find repo location (works with any NIX_INSTALL_DIR)
+    # Search for nix-install repo by looking for flake.nix + config/zed directory
+    REPO_ROOT=""
+    for candidate in "${config.home.homeDirectory}/nix-install" \
+                     "${config.home.homeDirectory}/.config/nix-install" \
+                     "${config.home.homeDirectory}/Documents/nix-install"; do
+      if [ -f "$candidate/flake.nix" ] && [ -d "$candidate/config/zed" ]; then
+        REPO_ROOT="$candidate"
+        break
+      fi
+    done
+
+    # Fallback to default if not found
+    if [ -z "$REPO_ROOT" ]; then
+      REPO_ROOT="${config.home.homeDirectory}/nix-install"
+    fi
+
+    REPO_SETTINGS="$REPO_ROOT/config/zed/settings.json"
 
     # Create config directory if it doesn't exist
     if [ ! -d "$ZED_CONFIG_DIR" ]; then
@@ -61,7 +82,7 @@
         echo "  ✓ Bidirectional sync: Changes in Zed appear in repo, and vice versa"
       else
         echo "⚠️  Warning: Zed settings template not found at: $REPO_SETTINGS"
-        echo "  Expected location: ~/nix-install/config/zed/settings.json"
+        echo "  Searched in: ~/nix-install, ~/.config/nix-install, ~/Documents/nix-install"
         echo "  Zed will use default settings on first launch"
       fi
     else

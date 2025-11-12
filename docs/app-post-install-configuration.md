@@ -487,15 +487,28 @@ The following settings are automatically configured from `config/vscode/settings
 
 **Required Extensions**:
 
-After first launch, install these extensions for full functionality:
+After first launch, install these extensions **IN ORDER** for full functionality:
 
-1. **Catppuccin Theme** (REQUIRED for theme):
+1. **Catppuccin Theme** (REQUIRED - Install First):
    - Open Extensions panel (Cmd+Shift+X)
    - Search: "Catppuccin"
    - Install: "Catppuccin for VSCode" by Catppuccin
+   - Provides both dark (Mocha) and light (Latte) themes
    - Theme will activate automatically (already configured in settings.json)
 
-2. **Claude Code** (RECOMMENDED for AI pair programming):
+2. **Auto Dark Mode** (REQUIRED - Install Second for auto-theme switching):
+   - Open Extensions panel (Cmd+Shift+X)
+   - Search: "Auto Dark Mode"
+   - Install: "Auto Dark Mode" by Narasimha Prasanna HN
+   - **Purpose**: Automatically switches VSCode theme based on macOS system appearance
+   - **Behavior**:
+     - macOS Light Mode → Catppuccin Latte (light theme)
+     - macOS Dark Mode → Catppuccin Mocha (dark theme)
+   - **Configuration**: Already pre-configured in settings.json (Issue #28)
+   - **Why**: Matches Zed editor behavior (system appearance sync)
+   - **Test**: Toggle macOS appearance (System Settings → Appearance) and VSCode will switch themes automatically
+
+3. **Claude Code** (RECOMMENDED for AI pair programming):
    - Open Extensions panel (Cmd+Shift+X)
    - Search: "Claude Code"
    - Install: "Claude Code" by Anthropic

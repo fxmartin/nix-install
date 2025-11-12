@@ -17,8 +17,17 @@
   "extensions.autoCheckUpdates": false,
 
   // === Theme and Appearance ===
+  // Default theme (overridden by Auto Dark Mode extension for system appearance sync)
   "workbench.colorTheme": "Catppuccin Mocha",
   "workbench.iconTheme": "catppuccin-mocha",
+
+  // Auto Dark Mode Extension (Issue #28)
+  // Automatically switches theme based on macOS system appearance (like Zed)
+  // REQUIRED EXTENSIONS:
+  //   1. Catppuccin Theme (provides the themes)
+  //   2. Auto Dark Mode (monitors system appearance and switches themes)
+  "autoDarkMode.darkTheme": "Catppuccin Mocha",
+  "autoDarkMode.lightTheme": "Catppuccin Latte",
 
   // === Font Configuration ===
   // JetBrains Mono Nerd Font with ligatures (matches Ghostty and Zed)
@@ -112,11 +121,14 @@
   },
 
   // === Extension Recommendations ===
-  // These will be installed manually or via Epic-04 development environment
-  // - Catppuccin Theme (required for theme)
-  // - Claude Code (for AI pair programming)
-  // - Nix IDE (for Nix language support)
-  // - Ruff (for Python linting/formatting)
-  // - markdownlint (for Markdown linting)
-  // - shellcheck (for shell script linting)
+  // REQUIRED (install first, in order):
+  //   1. Catppuccin Theme (Catppuccin for VSCode) - Provides Mocha/Latte themes
+  //   2. Auto Dark Mode (Auto Dark Mode) - Enables system appearance sync (Issue #28)
+  //
+  // RECOMMENDED (manual installation):
+  //   - Claude Code (for AI pair programming)
+  //   - Nix IDE (for Nix language support)
+  //   - Ruff (for Python linting/formatting)
+  //   - markdownlint (for Markdown linting)
+  //   - shellcheck (for shell script linting)
 }

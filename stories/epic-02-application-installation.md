@@ -477,11 +477,15 @@
 - REQ-NFR-008 compliant: Bidirectional symlink to repository (NOT /nix/store)
 - Settings location: `~/Library/Application Support/Code/User/settings.json` → `$REPO/config/vscode/settings.json`
 - Auto-update disabled: `update.mode: "none"`, `extensions.autoUpdate: false`, `extensions.autoCheckUpdates: false`
-- Theme: Catppuccin Mocha (requires manual extension install)
+- Theme: Catppuccin with auto-switching (Issue #28 resolution):
+  - Extension 1: Catppuccin Theme (provides Mocha/Latte themes)
+  - Extension 2: Auto Dark Mode (monitors macOS appearance, switches themes automatically)
+  - Light Mode → Catppuccin Latte, Dark Mode → Catppuccin Mocha
+  - Matches Zed editor behavior (system appearance sync)
 - Font: JetBrains Mono with ligatures (matches Ghostty and Zed)
 - Language-specific settings: Nix (2-space indent), Python (4-space indent, Ruff formatter), Markdown, JSON, YAML
 - Privacy: Telemetry disabled, crash reporter disabled
-- Git integration: Decorations, inline changes, autofetch
+- Git integration: Decorations, inline changes, autofetch disabled
 - Terminal integration: Integrated terminal uses Zsh
 
 **Dependencies**:

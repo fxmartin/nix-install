@@ -578,8 +578,8 @@
 
 #### Stories in This Feature
 
-##### Story 02.3-001: Firefox Installation
-**User Story**: As FX, I want Firefox installed with auto-update disabled so that I have a privacy-focused browser with version control
+##### Story 02.3-001: Brave Browser Installation
+**User Story**: As FX, I want Brave browser installed with auto-update disabled so that I have a privacy-focused browser with built-in ad blocking
 
 **Priority**: Must Have
 **Story Points**: 3
@@ -587,29 +587,31 @@
 
 **Acceptance Criteria**:
 - **Given** darwin-rebuild completes successfully
-- **When** I launch Firefox
+- **When** I launch Brave
 - **Then** it opens successfully
-- **And** auto-update is disabled (`app.update.auto = false` preference)
-- **And** Firefox is accessible from Spotlight/Raycast
+- **And** auto-update is disabled (via Brave preferences)
+- **And** Brave is accessible from Spotlight/Raycast
 - **And** I can set it as default browser if desired
+- **And** Brave Shields (ad blocker) is enabled by default
 
 **Additional Requirements**:
 - Installation via Homebrew Cask
-- Auto-update disabled via user.js or policies
+- Auto-update disabled via preferences
+- Privacy-focused: Built-in ad/tracker blocking
 - First run shows onboarding (expected)
 
 **Technical Notes**:
-- Homebrew cask: `firefox`
-- Auto-update disable options:
-  1. Via policies.json in Firefox.app/Contents/Resources/
-  2. Via user.js in profile (requires knowing profile path)
-  3. Document manual disable: Preferences → General → Firefox Updates → "Never check for updates"
-- May need activation script to set policy file
+- Homebrew cask: `brave-browser`
+- Auto-update disable: Brave → Settings → About Brave → Uncheck "Automatically update Brave"
+- Brave Shields: Enabled by default (blocks ads and trackers)
+- Privacy features: HTTPS Everywhere, anti-fingerprinting
+- Document manual disable: Settings → About Brave → Auto-update toggle
 
 **Definition of Done**:
-- [ ] Firefox installed via homebrew.nix
+- [ ] Brave installed via homebrew.nix
 - [ ] Auto-update disabled or documented
-- [ ] Firefox launches successfully
+- [ ] Brave launches successfully
+- [ ] Brave Shields working (test on ad-heavy site)
 - [ ] Tested in VM
 - [ ] Documentation notes update preferences
 

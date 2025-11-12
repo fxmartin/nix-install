@@ -1773,7 +1773,7 @@ date -u +"%Y-%m-%dT%H:%M:%SZ"
 ./update-requirements-integrity.sh
 
 # Verify document integrity
-./verify-requirements-integrity.sh
+./scripts/verify-requirements-integrity.sh
 ```
 
 ### Change Control Protection

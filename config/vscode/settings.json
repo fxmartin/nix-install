@@ -1,0 +1,122 @@
+{
+  // VSCode Configuration for nix-darwin + Home Manager
+  // Story 02.2-002: VSCode installation with Catppuccin theme
+  //
+  // This file is symlinked to:
+  //   ~/Library/Application Support/Code/User/settings.json
+  //
+  // Bidirectional sync:
+  //   - Changes in VSCode → Instantly appear in repo (git will show them)
+  //   - Changes in repo → Instantly apply to VSCode
+  //   - Version controlled, can commit/revert changes
+
+  // === CRITICAL: Disable Auto-Update ===
+  // Updates ONLY via 'rebuild' or 'update' commands
+  "update.mode": "none",
+  "extensions.autoUpdate": false,
+  "extensions.autoCheckUpdates": false,
+
+  // === Theme and Appearance ===
+  "workbench.colorTheme": "Catppuccin Mocha",
+  "workbench.iconTheme": "catppuccin-mocha",
+
+  // === Font Configuration ===
+  // JetBrains Mono Nerd Font with ligatures (matches Ghostty and Zed)
+  "editor.fontFamily": "JetBrains Mono, Menlo, Monaco, 'Courier New', monospace",
+  "editor.fontSize": 14,
+  "editor.fontLigatures": true,
+  "editor.lineHeight": 1.6,
+
+  // Terminal font (matches editor)
+  "terminal.integrated.fontFamily": "JetBrains Mono",
+  "terminal.integrated.fontSize": 14,
+
+  // === Editor Behavior ===
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": true,
+  "editor.wordWrap": "on",
+  "editor.minimap.enabled": true,
+  "editor.rulers": [80, 120],
+  "editor.renderWhitespace": "selection",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": "active",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+
+  // === Window and Startup ===
+  "workbench.startupEditor": "none",
+  "window.titleBarStyle": "custom",
+  "window.restoreWindows": "none",
+
+  // === Privacy and Telemetry ===
+  "telemetry.telemetryLevel": "off",
+  "redhat.telemetry.enabled": false,
+
+  // === Git Integration ===
+  "git.autofetch": false,
+  "git.confirmSync": false,
+  "git.enableSmartCommit": true,
+  "git.decorations.enabled": true,
+  "scm.defaultViewMode": "tree",
+
+  // === Terminal Integration ===
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.shell.osx": "/bin/zsh",
+
+  // === File Associations ===
+  "files.associations": {
+    "*.nix": "nix",
+    "flake.lock": "json",
+    "*.md": "markdown"
+  },
+
+  // === Language-Specific Settings ===
+  "[nix]": {
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true
+  },
+  "[markdown]": {
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "comments": "off",
+      "strings": "off",
+      "other": "off"
+    }
+  },
+  "[python]": {
+    "editor.tabSize": 4,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+
+  // === Explorer Settings ===
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "explorer.sortOrder": "type",
+
+  // === Search Settings ===
+  "search.exclude": {
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/result": true,
+    "**/.direnv": true
+  },
+
+  // === Extension Recommendations ===
+  // These will be installed manually or via Epic-04 development environment
+  // - Catppuccin Theme (required for theme)
+  // - Claude Code (for AI pair programming)
+  // - Nix IDE (for Nix language support)
+  // - Ruff (for Python linting/formatting)
+  // - markdownlint (for Markdown linting)
+  // - shellcheck (for shell script linting)
+}

@@ -1,7 +1,7 @@
 # Senior Code Reviewer - Project Analysis
 
 ## Mission
-Use the senior-code-reviewer agent to conduct a comprehensive technical and business analysis of this codebase. Focus on enterprise readiness, maintainability, and risk assessment. No fluff—actionable insights only.
+Use the senior-code-reviewer agent to conduct a comprehensive technical and business analysis of this codebase. Focus on enterprise readiness, maintainability, and risk assessment. No fluff—actionable insights only.  Your job is to create a REVIEW.md file that executives can scan in 30 seconds and engineers can use to assess the project's readiness and risks.
 
 ## Analysis Framework
 

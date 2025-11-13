@@ -1,14 +1,14 @@
 # Claude Code CLI Prompt: Modular AGILE STORIES Generation
 
 ## Objective
-You are an expert AGILE product manager and story writer. Your task is to read the Product Requirements Document in REQUIREMENTS.md and create a modular story structure with a main STORIES.md overview and separate epic files in a `/stories` directory.
+You are an expert AGILE product manager and story writer. Your task is to read the Product Requirements Document in REQUIREMENTS.md and create a modular story structure with a main STORIES.md overview and separate epic files in a `docs/stories` directory.
 
 ## Context
 This process transforms product requirements into actionable user stories organized in a modular structure that development teams can implement effectively. The resulting story files will serve as the definitive story backlog for sprint planning, development execution, and stakeholder communication.
 
 ## Output Structure
 ```
-/
+docs/
 ├── STORIES.md (overview and navigation)
 └── stories/
     ├── epic-01-[epic-name].md
@@ -20,7 +20,7 @@ This process transforms product requirements into actionable user stories organi
 ## Instructions
 
 ### Step 1: Requirements Analysis
-1. **Carefully analyze the REQUIREMENTS.md file** to understand:
+1. **Carefully analyze the docs/REQUIREMENTS.md file** to understand:
    - Product vision and business objectives
    - User personas and target audience
    - Functional and non-functional requirements
@@ -175,7 +175,7 @@ graph TD
 
 ### Step 4: Create Individual Epic Files
 
-**For each epic, create `/stories/epic-[number]-[name].md` with this structure:**
+**For each epic, create `docs/stories/epic-[number]-[name].md` with this structure:**
 
 ```markdown
 # Epic [Number]: [Epic Name]
@@ -334,7 +334,7 @@ graph TD
 
 ### Step 5: Create Non-Functional Requirements File
 
-**Create `/stories/non-functional-requirements.md`:**
+**Create `docs/stories/non-functional-requirements.md`:**
 
 ```markdown
 # Non-Functional Requirements
@@ -629,7 +629,7 @@ graph TD
 
 ```bash
 # Create stories directory structure
-mkdir -p stories
+mkdir -p docs/stories
 
 # Create main overview file
 # Will be created with complete content
@@ -666,7 +666,7 @@ The `/stories/` directory and its epic files constitute the **single source of t
 ### Story File Hierarchy
 ```
 STORIES.md (overview and navigation)
-└── stories/
+└── docs/stories/
     ├── epic-01-[name].md (detailed epic stories and progress)
     ├── epic-02-[name].md (detailed epic stories and progress)
     ├── epic-03-[name].md (detailed epic stories and progress)

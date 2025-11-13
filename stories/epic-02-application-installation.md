@@ -14,11 +14,11 @@
 - Email accounts (1 Gmail, 4 Gandi.net) configured and functional in macOS Mail.app
 
 ## Epic Scope
-**Total Stories**: 25
-**Total Story Points**: 118
-**Completed Stories**: 7 (28.0%)
-**Completed Points**: 36 (30.5%)
-**MVP Stories**: 25 (100% of epic)
+**Total Stories**: 26
+**Total Story Points**: 126
+**Completed Stories**: 7 (26.9%)
+**Completed Points**: 36 (28.6%)
+**MVP Stories**: 26 (100% of epic)
 **Priority Level**: Must Have
 **Target Release**: Phase 2-3 (Week 2-3)
 
@@ -322,10 +322,10 @@
 ---
 
 ### Feature 02.2: Development Environment Applications
-**Feature Description**: Install development editors, terminals, and container tools
-**User Value**: Complete development workflow support for Python and containerized applications
-**Story Count**: 5
-**Story Points**: 24
+**Feature Description**: Install development editors, terminals, AI tooling (Claude Code CLI + MCP servers), and container tools
+**User Value**: Complete development workflow support for Python, AI-assisted development with enhanced context, and containerized applications
+**Story Count**: 6
+**Story Points**: 32
 **Priority**: High
 **Complexity**: Medium
 
@@ -716,11 +716,12 @@
 - **And** Podman Desktop app is installed and launches
 - **And** I can run `podman run hello-world` successfully
 - **And** Podman machine is initialized and running
+- **And** The Desktop App is also installed
 
 **Additional Requirements**:
 - Podman CLI via Nix
 - podman-compose via Nix
-- Podman Desktop via Homebrew Cask (GUI app)
+- Podman Desktop via Nix
 - Machine initialization automated or documented
 
 **Technical Notes**:
@@ -753,6 +754,192 @@
 
 **Risk Level**: Medium
 **Risk Mitigation**: Document machine initialization clearly, provide troubleshooting for common issues
+
+---
+
+##### Story 02.2-006: Claude Code CLI and MCP Servers
+**User Story**: As FX, I want Claude Code CLI installed with Context7 and GitHub MCP servers configured so that I can use AI-assisted development with enhanced context awareness and repository integration
+
+**Priority**: Must Have
+**Story Points**: 8
+**Sprint**: Sprint 3
+
+**Acceptance Criteria**:
+- **Given** darwin-rebuild completes successfully
+- **When** I run `claude --version`
+- **Then** it shows Claude Code CLI version
+- **And** I can run `claude` to start an interactive session
+- **And** MCP servers are configured in `~/.config/claude/config.json`
+- **And** Context7 MCP server is available and responds to context queries
+- **And** GitHub MCP server is available and can query repositories
+- **And** I can verify MCP servers with `claude mcp list`
+- **And** Claude Code CLI auto-update is disabled or documented
+
+**Additional Requirements**:
+- Claude Code CLI installed via Nix (using sadjow/claude-code-nix)
+- MCP servers installed via Nix (using natsukium/mcp-servers-nix)
+- Configuration file created at ~/.config/claude/config.json
+- MCP servers: Context7, GitHub
+- All servers configured with appropriate permissions
+- Documentation for MCP server usage and authentication
+
+**Technical Notes**:
+- **Claude Code CLI Installation** (via Nix):
+  - Use package from https://github.com/sadjow/claude-code-nix/
+  - Add as flake input to flake.nix
+  - Install via darwin/configuration.nix systemPackages
+
+- **MCP Servers Installation** (via Nix):
+  - Use packages from https://github.com/natsukium/mcp-servers-nix/
+  - Add as flake input to flake.nix
+  - Install via darwin/configuration.nix systemPackages
+  - Fully declarative, no npm/npx needed
+
+- **Flake Inputs** (add to flake.nix):
+  ```nix
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nix-darwin.url = "github:LnL7/nix-darwin";
+    home-manager.url = "github:nix-community/home-manager";
+
+    # Claude Code CLI
+    claude-code-nix = {
+      url = "github:sadjow/claude-code-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # MCP Servers
+    mcp-servers-nix = {
+      url = "github:natsukium/mcp-servers-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+  ```
+
+- **System Packages** (darwin/configuration.nix):
+  ```nix
+  environment.systemPackages = [
+    # Claude Code CLI
+    inputs.claude-code-nix.packages.${system}.default
+
+    # MCP Servers
+    inputs.mcp-servers-nix.packages.${system}.mcp-server-context7
+    inputs.mcp-servers-nix.packages.${system}.mcp-server-github
+
+    # ... other packages
+  ];
+  ```
+
+- **Configuration File** (~/.config/claude/config.json):
+  ```json
+  {
+    "mcpServers": {
+      "context7": {
+        "command": "mcp-server-context7",
+        "args": [],
+        "enabled": true
+      },
+      "github": {
+        "command": "mcp-server-github",
+        "args": [],
+        "env": {
+          "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+        },
+        "enabled": true
+      }
+    }
+  }
+  ```
+  Note: Command names reference the Nix-installed binaries directly (not npx)
+
+- **Home Manager Module** (home-manager/modules/claude-code.nix):
+  ```nix
+  { config, lib, pkgs, ... }:
+
+  {
+    # Create Claude Code config directory and config file
+    home.activation.claudeCodeSetup = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      # Create config directory
+      mkdir -p "$HOME/.config/claude"
+
+      # Create config.json with MCP servers (Nix-installed binaries)
+      cat > "$HOME/.config/claude/config.json" <<'EOF'
+      {
+        "mcpServers": {
+          "context7": {
+            "command": "mcp-server-context7",
+            "args": [],
+            "enabled": true
+          },
+          "github": {
+            "command": "mcp-server-github",
+            "args": [],
+            "env": {
+              "GITHUB_TOKEN": "REPLACE_WITH_YOUR_GITHUB_TOKEN"
+            },
+            "enabled": true
+          }
+        }
+      }
+      EOF
+
+      echo "✓ Claude Code MCP servers configured"
+      echo "  NOTE: Edit ~/.config/claude/config.json to add:"
+      echo "  - GitHub personal access token (GITHUB_TOKEN)"
+      echo "  - Get token at: https://github.com/settings/tokens"
+      echo "  - Required scopes: repo, read:org, read:user"
+    '';
+  }
+  ```
+
+  **Key Changes**:
+  - No Node.js dependency needed (MCP servers are Nix packages)
+  - Commands use Nix binary names (`mcp-server-context7`, `mcp-server-github`)
+  - No `npx` or npm package installation required
+  - MCP servers already in PATH from systemPackages
+
+- **Authentication Setup**:
+  - **GitHub MCP**: Requires GitHub personal access token
+    - Create at: https://github.com/settings/tokens
+    - Scopes needed: `repo`, `read:org`, `read:user`
+    - Store in ~/.config/claude/config.json or environment variable
+  - **Context7 MCP**: No authentication required
+
+- **Post-Install Configuration**:
+  - Add to docs/app-post-install-configuration.md
+  - Document GitHub token creation and configuration
+  - Provide example queries for each MCP server
+
+**Definition of Done**:
+- [ ] claude-code-nix flake input added to flake.nix
+- [ ] mcp-servers-nix flake input added to flake.nix
+- [ ] Claude Code CLI installed via Nix and in PATH
+- [ ] `claude --version` command works
+- [ ] MCP servers (context7, github) installed via Nix and in PATH
+- [ ] MCP servers configured in ~/.config/claude/config.json with Nix binary paths
+- [ ] Context7 MCP server functional (test with `mcp-server-context7 --version`)
+- [ ] GitHub MCP server functional (with token configured)
+- [ ] Configuration documented in app-post-install-configuration.md
+- [ ] Token/credential setup documented (GitHub token creation guide)
+- [ ] Tested in VM with all MCP servers responding
+- [ ] Example queries documented for each MCP server
+- [ ] Verified no npm/npx dependencies needed
+
+**Implementation Status**: Not Started
+
+**Dependencies**:
+- Epic-01, Story 01.4-001 (Nix installed and flake.nix exists)
+- Epic-01, Story 01.5-001 (Home Manager available)
+
+**Risk Level**: Low
+**Risk Mitigation**:
+- Fully Nix-based installation (claude-code-nix + mcp-servers-nix)
+- No npm/npx dependencies - everything via Nix packages
+- Reproducible across all machines via flake.lock
+- MCP servers as system packages (no runtime downloads)
+- GitHub token stored in config file (document secure storage options)
+- Test each MCP server independently with version checks
+- Community-maintained Nix packages with active development
 
 ---
 
@@ -1776,7 +1963,7 @@
 ### Sprint Breakdown
 | Sprint | Stories | Story Points | Sprint Goal |
 |--------|---------|--------------|-------------|
-| Sprint 3 | 02.1-001 to 02.4-007 | 85 | AI tools, dev environment, browsers, productivity apps, utilities |
+| Sprint 3 | 02.1-001 to 02.4-007 | 93 | AI tools, dev environment (inc. Claude Code + MCP), browsers, productivity apps, utilities |
 | Sprint 4 | 02.5-001 to 02.10-001 | 33 | Communication tools, media apps, security, Parallels, Office 365, email accounts |
 
 ### Delivery Milestones
@@ -1798,15 +1985,15 @@
 ## Epic Progress Tracking
 
 ### Completion Status
-- **Stories Completed**: 5 of 23 (21.7%)
-- **Story Points Completed**: 26 of 118 (22.0%)
-- **MVP Stories Completed**: 5 of 23 (21.7%)
+- **Stories Completed**: 7 of 26 (26.9%)
+- **Story Points Completed**: 36 of 126 (28.6%)
+- **MVP Stories Completed**: 7 of 26 (26.9%)
 
 ### Sprint Progress
 | Sprint | Planned Points | Completed Points | Stories Done | Status |
 |--------|----------------|------------------|--------------|--------|
-| Sprint 3 | 85 | 26 | 5/17 | In Progress |
-| Sprint 4 | 33 | 0 | 0/6 | Not Started |
+| Sprint 3 | 93 | 36 | 7/18 | In Progress |
+| Sprint 4 | 33 | 0 | 0/8 | Not Started |
 
 ### Recently Completed Stories (2025-11-12)
 - ✅ **Story 02.1-001**: Claude Desktop and AI Chat Apps (3 points) - VM tested
@@ -1816,12 +2003,13 @@
 - ✅ **Story 02.2-001**: Zed Editor Installation and Configuration (5 points) - VM tested
 
 ## Epic Acceptance Criteria
-- [ ] All MVP stories (23/23) completed and accepted
+- [ ] All MVP stories (26/26) completed and accepted
 - [ ] All apps launch successfully on both profiles
 - [ ] Profile differentiation verified (Parallels and Ollama models on Power only)
 - [ ] Auto-updates disabled for all apps that support it
 - [ ] Licensed apps documented with activation instructions
-- [ ] All dev tools functional (Python, Podman, Git, editors)
+- [ ] All dev tools functional (Python, Podman, Git, editors, Claude Code CLI)
+- [ ] Claude Code CLI with MCP servers (Context7, GitHub) configured and functional
 - [ ] Browsers installed and configured
 - [ ] Communication tools working
 - [ ] Media apps functional

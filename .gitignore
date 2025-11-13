@@ -5,3 +5,4 @@ mlgruby-repo-for-reference/
 # BATS test helpers (git clones)
 tests/test_helper/bats-support/
 tests/test_helper/bats-assert/
+.DS_Store

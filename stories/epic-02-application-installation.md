@@ -758,7 +758,7 @@
 ---
 
 ##### Story 02.2-006: Claude Code CLI and MCP Servers
-**User Story**: As FX, I want Claude Code CLI installed with Context7 and GitHub MCP servers configured so that I can use AI-assisted development with enhanced context awareness and repository integration
+**User Story**: As FX, I want Claude Code CLI installed with Context7, GitHub, and Sequential Thinking MCP servers configured so that I can use AI-assisted development with enhanced context awareness, repository integration, and structured reasoning
 
 **Priority**: Must Have
 **Story Points**: 8
@@ -772,6 +772,7 @@
 - **And** MCP servers are configured in `~/.config/claude/config.json`
 - **And** Context7 MCP server is available and responds to context queries
 - **And** GitHub MCP server is available and can query repositories
+- **And** Sequential Thinking MCP server is available for structured reasoning
 - **And** I can verify MCP servers with `claude mcp list`
 - **And** `~/.claude/CLAUDE.md` is symlinked to repository (REQ-NFR-008)
 - **And** `~/.claude/agents/` is symlinked to repository (REQ-NFR-008)
@@ -783,7 +784,7 @@
 - Claude Code CLI installed via Nix (using sadjow/claude-code-nix)
 - MCP servers installed via Nix (using natsukium/mcp-servers-nix)
 - Configuration file created at ~/.config/claude/config.json
-- MCP servers: Context7, GitHub
+- MCP servers: Context7, GitHub, Sequential Thinking
 - All servers configured with appropriate permissions
 - **REQ-NFR-008**: Claude Code configuration MUST use repository symlink pattern (not /nix/store)
   - ~/.claude/CLAUDE.md → $REPO/config/claude/CLAUDE.md
@@ -833,6 +834,7 @@
     # MCP Servers
     inputs.mcp-servers-nix.packages.${system}.mcp-server-context7
     inputs.mcp-servers-nix.packages.${system}.mcp-server-github
+    inputs.mcp-servers-nix.packages.${system}.mcp-server-sequential-thinking
 
     # ... other packages
   ];
@@ -853,6 +855,11 @@
         "env": {
           "GITHUB_TOKEN": "${GITHUB_TOKEN}"
         },
+        "enabled": true
+      },
+      "sequential-thinking": {
+        "command": "mcp-server-sequential-thinking",
+        "args": [],
         "enabled": true
       }
     }
@@ -928,6 +935,11 @@
               "GITHUB_TOKEN": "REPLACE_WITH_YOUR_GITHUB_TOKEN"
             },
             "enabled": true
+          },
+          "sequential-thinking": {
+            "command": "mcp-server-sequential-thinking",
+            "args": [],
+            "enabled": true
           }
         }
       }
@@ -959,6 +971,7 @@
     - Scopes needed: `repo`, `read:org`, `read:user`
     - Store in ~/.config/claude/config.json or environment variable
   - **Context7 MCP**: No authentication required
+  - **Sequential Thinking MCP**: No authentication required
 
 - **Post-Install Configuration**:
   - Add to docs/app-post-install-configuration.md
@@ -970,10 +983,11 @@
 - [ ] mcp-servers-nix flake input added to flake.nix
 - [ ] Claude Code CLI installed via Nix and in PATH
 - [ ] `claude --version` command works
-- [ ] MCP servers (context7, github) installed via Nix and in PATH
+- [ ] MCP servers (context7, github, sequential-thinking) installed via Nix and in PATH
 - [ ] MCP servers configured in ~/.config/claude/config.json with Nix binary paths
 - [ ] Context7 MCP server functional (test with `mcp-server-context7 --version`)
 - [ ] GitHub MCP server functional (with token configured)
+- [ ] Sequential Thinking MCP server functional (test with `mcp-server-sequential-thinking --version`)
 - [ ] **REQ-NFR-008**: Repository symlinks verified:
   - [ ] `~/.claude/CLAUDE.md` → `$REPO/config/claude/CLAUDE.md` (bidirectional)
   - [ ] `~/.claude/agents/` → `$REPO/config/claude/agents/`
@@ -982,7 +996,7 @@
 - [ ] Configuration documented in app-post-install-configuration.md
 - [ ] Token/credential setup documented (GitHub token creation guide)
 - [ ] Tested in VM with all MCP servers responding
-- [ ] Example queries documented for each MCP server
+- [ ] Example queries documented for each MCP server (including sequential thinking use cases)
 - [ ] Verified no npm/npx dependencies needed
 - [ ] Bidirectional sync tested (edit in repo, changes visible in ~/.claude/)
 

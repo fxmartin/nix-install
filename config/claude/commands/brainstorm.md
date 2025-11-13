@@ -58,7 +58,7 @@ Operational risks
 
 Remember: If you can't defend a requirement in a room full of skeptical engineers, cut it. Make every word count.
 
-Ask if the user wants to create a git repo on github. if so, commit the REQUIREMENTS.md to git and push it to the newly created git repo.
+Ask if the user wants to create a git repo on github. if so, commit the docs/REQUIREMENTS.md to git and push it to the newly created git repo.
 
 Here’s the idea:
 $ARGUMENTS

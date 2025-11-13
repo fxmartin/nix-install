@@ -32,7 +32,7 @@ Available specialized agents:
 
 ## ARGUMENT VALIDATION & STORY SELECTION
 - If $ARGUMENTS="next":
-  - Parse STORIES.md to find highest priority unblocked story
+  - Parse /docs/STORIES.md to find highest priority unblocked story
   - Consider stories marked as TODO with satisfied dependencies
   - Prefer continuing existing epics over starting new ones
 - If $ARGUMENTS is story-id: validate it exists and is actionable
@@ -79,7 +79,7 @@ Based on story analysis, select primary and supporting agents:
 ## DISCOVERY PHASE
 1. **Read project context**:
    - STORIES.md for overall epic structure and relationships
-   - Locate and read relevant epic file: `stories/epic-XX-*.md`
+   - Locate and read relevant epic file: `docs/stories/epic-XX-*.md`
    - Extract: story details, acceptance criteria, dependencies, technical notes
    - **Agent Assignment**: Analyze story requirements to determine primary agent
 
@@ -391,7 +391,7 @@ Closes #STORY-ID"
 
 8. **Progress tracking**:
    - Update STORIES.md: mark story as DONE or IN_PROGRESS with % completion
-   - Update relevant `stories/epic-XX-*.md` with:
+   - Update relevant `docs/stories/epic-XX-*.md` with:
      - Completion status
      - Implementation notes
      - Any discovered dependencies or blockers

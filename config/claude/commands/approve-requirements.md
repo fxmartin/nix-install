@@ -1,7 +1,7 @@
 # Claude Code CLI Prompt: Approve Requirements (External Hash Validation)
 
 ## Objective
-You are a requirements management assistant. Your task is to update the REQUIREMENTS.md file with a formal stakeholder approval section and create external hash validation for tamper-evident integrity protection.
+You are a requirements management assistant. Your task is to update the docs/REQUIREMENTS.md file with a formal stakeholder approval section and create external hash validation for tamper-evident integrity protection.
 
 ## Context
 This command formalizes the requirements approval process by adding a clear audit trail to the REQUIREMENTS.md document and storing cryptographic validation data externally to avoid circular dependency issues.

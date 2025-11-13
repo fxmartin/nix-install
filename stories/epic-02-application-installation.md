@@ -1353,7 +1353,7 @@
 ---
 
 ##### Story 02.4-006: System Monitoring (btop, iStat Menus, macmon)
-**User Story**: As FX, I want btop, iStat Menus, and macmon installed so that I can monitor system performance
+**User Story**: As FX, I want gotop, iStat Menus, and macmon installed so that I can monitor system performance
 
 **Priority**: Must Have
 **Story Points**: 5
@@ -1361,7 +1361,7 @@
 
 **Acceptance Criteria**:
 - **Given** darwin-rebuild completes successfully
-- **When** I run `btop`
+- **When** I run `gotop`
 - **Then** it shows interactive system monitor (CPU, RAM, disk, network)
 - **When** I launch iStat Menus
 - **Then** menubar icons appear showing system stats
@@ -1371,27 +1371,26 @@
 - **And** auto-update is disabled for iStat Menus
 
 **Additional Requirements**:
-- btop: Nix package (CLI tool)
+- gotop, macmon: Nix package (CLI tool)
 - iStat Menus: Homebrew Cask (licensed app)
-- macmon: Homebrew Cask
 - Auto-update disable for iStat Menus
 
 **Technical Notes**:
 - Add to darwin/configuration.nix:
   ```nix
-  environment.systemPackages = with pkgs; [ btop ];
+  environment.systemPackages = with pkgs; [ gotop macmon ];
   ```
 - Add to darwin/homebrew.nix:
   ```nix
-  homebrew.casks = [ "istat-menus" "macmon" ];
+  homebrew.casks = [ "istat-menus" ];
   ```
 - iStat Menus: Preferences → General → Disable auto-update
 - Document iStat Menus in licensed-apps.md (trial or paid license)
 
 **Definition of Done**:
-- [ ] btop installed via Nix
-- [ ] iStat Menus and macmon installed via Homebrew
-- [ ] btop launches and shows system stats
+- [ ] gotop and macmon installed via Nix
+- [ ] iStat Menus installed via Homebrew
+- [ ] gotop launches and shows system stats
 - [ ] iStat Menus menubar icons appear
 - [ ] macmon launches successfully
 - [ ] Auto-update disabled for iStat Menus

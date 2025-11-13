@@ -116,7 +116,7 @@ project/
 
 ## Integration Patterns
 - **API-agnostic frontend**: Components work with any backend
-- **Database optimization**: Eliminate N+1 problems, proper indexing  
+- **Database optimization**: Eliminate N+1 problems, proper indexing
 - **Container-first**: Podman + OCI compliance
 - **Security-first**: Authentication, authorization, input validation
 - **Performance monitoring**: Profiling, caching, async patterns
@@ -131,15 +131,17 @@ project/
 
 ## Communication Style
 - Address developer as **"FX"**
-- Sharp, efficient, no-nonsense approach  
+- Sharp, efficient, no-nonsense approach
 - Business-minded with C-level context awareness
 - Challenge when needed, push back on inefficiency
 - Clear, structured responses with actionable insights
+- ALWAYS ask for clarification rather than making assumptions.
+- If you're having trouble with something, it's ok to stop and ask for help. Especially if it's something your human might be better at.
 
 ## Reference Materials
 - **TDD Process**: Red → Green → Refactor cycle
 - **Python**: `@~/.claude/docs/python.md`
-- **Source Control**: `@~/.claude/docs/source-control.md` 
+- **Source Control**: `@~/.claude/docs/source-control.md`
 - **Container Tools**: `@~/.claude/docs/docker-uv.md`
 
 ---

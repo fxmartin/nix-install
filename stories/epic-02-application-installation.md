@@ -773,6 +773,10 @@
 - **And** Context7 MCP server is available and responds to context queries
 - **And** GitHub MCP server is available and can query repositories
 - **And** I can verify MCP servers with `claude mcp list`
+- **And** `~/.claude/CLAUDE.md` is symlinked to repository (REQ-NFR-008)
+- **And** `~/.claude/agents/` is symlinked to repository (REQ-NFR-008)
+- **And** `~/.claude/commands/` is symlinked to repository (REQ-NFR-008)
+- **And** Changes to repository files immediately appear in ~/.claude/ (bidirectional sync)
 - **And** Claude Code CLI auto-update is disabled or documented
 
 **Additional Requirements**:
@@ -781,6 +785,10 @@
 - Configuration file created at ~/.config/claude/config.json
 - MCP servers: Context7, GitHub
 - All servers configured with appropriate permissions
+- **REQ-NFR-008**: Claude Code configuration MUST use repository symlink pattern (not /nix/store)
+  - ~/.claude/CLAUDE.md → $REPO/config/claude/CLAUDE.md
+  - ~/.claude/agents/ → $REPO/config/claude/agents/
+  - ~/.claude/commands/ → $REPO/config/claude/commands/
 - Documentation for MCP server usage and authentication
 
 **Technical Notes**:
@@ -857,9 +865,51 @@
   { config, lib, pkgs, ... }:
 
   {
-    # Create Claude Code config directory and config file
+    # Create Claude Code config and symlink repository files
     home.activation.claudeCodeSetup = lib.hm.dag.entryAfter ["writeBoundary"] ''
-      # Create config directory
+      # Find repository location (same pattern as Zed, VSCode, Ghostty)
+      REPO_ROOT=""
+      for location in "$HOME/nix-install" "$HOME/.config/nix-install" "$HOME/Documents/nix-install"; do
+        if [[ -d "$location" && -f "$location/flake.nix" && -d "$location/config/claude" ]]; then
+          REPO_ROOT="$location"
+          break
+        fi
+      done
+
+      if [[ -z "$REPO_ROOT" ]]; then
+        echo "⚠ WARNING: Could not find nix-install repository"
+        echo "  Searched: ~/nix-install, ~/.config/nix-install, ~/Documents/nix-install"
+        echo "  Claude Code configuration will not be linked"
+      else
+        # Create ~/.claude directory
+        mkdir -p "$HOME/.claude"
+
+        # Symlink CLAUDE.md (REQ-NFR-008 compliant)
+        if [[ -f "$REPO_ROOT/config/claude/CLAUDE.md" ]]; then
+          ln -sf "$REPO_ROOT/config/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+          echo "✓ Linked ~/.claude/CLAUDE.md → $REPO_ROOT/config/claude/CLAUDE.md"
+        else
+          echo "⚠ WARNING: $REPO_ROOT/config/claude/CLAUDE.md not found"
+        fi
+
+        # Symlink agents directory
+        if [[ -d "$REPO_ROOT/config/claude/agents" ]]; then
+          ln -sfn "$REPO_ROOT/config/claude/agents" "$HOME/.claude/agents"
+          echo "✓ Linked ~/.claude/agents/ → $REPO_ROOT/config/claude/agents/"
+        else
+          echo "⚠ WARNING: $REPO_ROOT/config/claude/agents/ directory not found"
+        fi
+
+        # Symlink commands directory
+        if [[ -d "$REPO_ROOT/config/claude/commands" ]]; then
+          ln -sfn "$REPO_ROOT/config/claude/commands" "$HOME/.claude/commands"
+          echo "✓ Linked ~/.claude/commands/ → $REPO_ROOT/config/claude/commands/"
+        else
+          echo "⚠ WARNING: $REPO_ROOT/config/claude/commands/ directory not found"
+        fi
+      fi
+
+      # Create ~/.config/claude directory for MCP config
       mkdir -p "$HOME/.config/claude"
 
       # Create config.json with MCP servers (Nix-installed binaries)
@@ -883,7 +933,7 @@
       }
       EOF
 
-      echo "✓ Claude Code MCP servers configured"
+      echo "✓ Claude Code MCP servers configured at ~/.config/claude/config.json"
       echo "  NOTE: Edit ~/.config/claude/config.json to add:"
       echo "  - GitHub personal access token (GITHUB_TOKEN)"
       echo "  - Get token at: https://github.com/settings/tokens"
@@ -897,6 +947,11 @@
   - Commands use Nix binary names (`mcp-server-context7`, `mcp-server-github`)
   - No `npx` or npm package installation required
   - MCP servers already in PATH from systemPackages
+  - **REQ-NFR-008 Compliance**: Symlinks ~/.claude/ files from repository
+    - CLAUDE.md → bidirectional sync (edit in repo or in ~/.claude/)
+    - agents/ directory → synced from repo
+    - commands/ directory → synced from repo
+  - Dynamic repo location detection (same pattern as Zed, VSCode, Ghostty)
 
 - **Authentication Setup**:
   - **GitHub MCP**: Requires GitHub personal access token
@@ -919,11 +974,17 @@
 - [ ] MCP servers configured in ~/.config/claude/config.json with Nix binary paths
 - [ ] Context7 MCP server functional (test with `mcp-server-context7 --version`)
 - [ ] GitHub MCP server functional (with token configured)
+- [ ] **REQ-NFR-008**: Repository symlinks verified:
+  - [ ] `~/.claude/CLAUDE.md` → `$REPO/config/claude/CLAUDE.md` (bidirectional)
+  - [ ] `~/.claude/agents/` → `$REPO/config/claude/agents/`
+  - [ ] `~/.claude/commands/` → `$REPO/config/claude/commands/`
+  - [ ] Verify: `ls -la ~/.claude/` shows symlinks to repository
 - [ ] Configuration documented in app-post-install-configuration.md
 - [ ] Token/credential setup documented (GitHub token creation guide)
 - [ ] Tested in VM with all MCP servers responding
 - [ ] Example queries documented for each MCP server
 - [ ] Verified no npm/npx dependencies needed
+- [ ] Bidirectional sync tested (edit in repo, changes visible in ~/.claude/)
 
 **Implementation Status**: Not Started
 

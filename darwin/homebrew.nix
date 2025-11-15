@@ -84,10 +84,15 @@
       "brave-browser" # Brave Browser - Privacy-focused browser with built-in ad/tracker blocking
       "arc"           # Arc Browser - Modern workspace-focused browser with unique UI
 
-      # Productivity & Utilities (Story 02.4-001, 02.4-002)
+      # Productivity & Utilities (Story 02.4-001, 02.4-002, 02.4-003)
       # Auto-update disable: Preferences → Advanced → Disable auto-update (manual step)
       "raycast" # Raycast - Application launcher and productivity tool (Story 02.4-001)
       "1password" # 1Password - Password manager and secure vault (Story 02.4-002)
+
+      # File Utilities (Story 02.4-003)
+      # Auto-update disable: Calibre (Preferences → Misc), Marked 2 (Preferences → General)
+      "calibre" # Calibre - Ebook library manager and converter (Story 02.4-003)
+      "keka"    # Keka - Archive utility for zip, rar, 7z, etc. (Story 02.4-003)
     ];
 
     # Global Homebrew options
@@ -106,6 +111,11 @@
       # Perplexity AI desktop app (released October 24, 2024)
       # No Homebrew cask available - distributed via Mac App Store only
       "Perplexity" = 6714467650;
+
+      # File Utilities (Story 02.4-003)
+      # Kindle and Marked 2 distributed via Mac App Store only
+      "Kindle" = 302584613;     # Kindle ebook reader app
+      "Marked 2" = 890031187;   # Markdown preview and export app
     };
   };
 

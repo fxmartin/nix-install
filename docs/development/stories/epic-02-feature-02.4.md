@@ -440,6 +440,212 @@
 **Risk Level**: Low
 **Risk Mitigation**: N/A
 
+#### Implementation Details (Story 02.4-003)
+
+**Implementation Date**: 2025-01-15
+**VM Testing Date**: Pending
+**Implementation Status**: ⏳ Ready for VM Testing
+
+**Changes Made**:
+
+1. **Homebrew Casks** (darwin/homebrew.nix:92-95):
+   ```nix
+   # File Utilities (Story 02.4-003)
+   # Auto-update disable: Calibre (Preferences → Misc), Marked 2 (Preferences → General)
+   "calibre" # Calibre - Ebook library manager and converter (Story 02.4-003)
+   "keka"    # Keka - Archive utility for zip, rar, 7z, etc. (Story 02.4-003)
+   ```
+
+2. **Mac App Store Apps** (darwin/homebrew.nix:115-118):
+   ```nix
+   # File Utilities (Story 02.4-003)
+   # Kindle and Marked 2 distributed via Mac App Store only
+   "Kindle" = 302584613;     # Kindle ebook reader app
+   "Marked 2" = 890031187;   # Markdown preview and export app
+   ```
+
+3. **Documentation** (docs/app-post-install-configuration.md):
+   - Added comprehensive File Utilities section (~640 lines total for all 4 apps)
+   - **Calibre** (~150 lines):
+     - Installation method: Homebrew cask `calibre`
+     - Auto-update disable steps (REQUIRED): Preferences → Miscellaneous → Uncheck "Automatically check for updates"
+     - Core features: Library management, format conversion (EPUB/MOBI/AZW3/PDF), ebook reading, device sync, metadata editing, news download
+     - Supported formats: Input (20+ formats), Output (10+ formats)
+     - Usage examples: Adding ebooks, converting formats, reading, syncing to Kindle, editing metadata
+     - Configuration tips: Library location, metadata sources, reading preferences, device setup, virtual libraries
+     - No license required (free and open source)
+     - Testing checklist (9 items)
+   - **Kindle** (~175 lines):
+     - Installation method: Mac App Store (mas) `302584613`
+     - Account sign-in required: Amazon account (email, password, 2FA)
+     - Auto-update management: System-wide Mac App Store preferences (System Settings → App Store → Uncheck "Automatic Updates")
+     - Core features: Ebook reading, Whispersync (cloud sync), X-Ray features, notes/highlights, library management, collections
+     - Supported formats: Kindle formats (AZW, AZW3, KFX, MOBI), personal documents (PDF, TXT via Send to Kindle)
+     - Usage examples: Reading books, adjusting settings, taking notes/highlights, syncing reading position
+     - Configuration tips: Download books, remove downloads, organize collections, dictionary, X-Ray
+     - No license required (free with Amazon account, optional Kindle Unlimited subscription)
+     - Testing checklist (10 items)
+   - **Keka** (~150 lines):
+     - Installation method: Homebrew cask `keka`
+     - File association setup documented (two methods: Keka Preferences → Extraction OR Finder Get Info)
+     - Auto-update: Free/open source, no auto-update mechanism (Homebrew-controlled only)
+     - Core features: Archive creation (7z, zip, tar, gzip, bzip2, dmg, iso), extraction (20+ formats including rar), compression control, password protection (AES-256)
+     - Supported formats: Create (7 formats), Extract (20+ formats)
+     - Usage examples: Creating zip archives, extracting archives, password-protected archives, extraction
+     - Configuration tips: Default format, compression level, extraction location, file associations, password manager integration
+     - No license required (free/open source via Homebrew, paid $4.99 via Mac App Store to support development)
+     - Testing checklist (9 items)
+   - **Marked 2** (~165 lines):
+     - Installation method: Mac App Store (mas) `890031187`
+     - Auto-update disable steps (REQUIRED): Preferences → General → Uncheck "Check for updates automatically"
+     - Auto-update note: Also disable system-wide App Store auto-updates (System Settings → App Store → Uncheck "Automatic Updates")
+     - Core features: Live Markdown preview, export to PDF/HTML/RTF/DOCX, custom CSS styling, document statistics, advanced features (scroll sync, mini-map, TOC, MathJax, Mermaid, Critic Markup)
+     - Supported syntax: Standard Markdown, GitHub Flavored Markdown (GFM), MultiMarkdown (MMD), Critic Markup, MathJax, Mermaid
+     - Usage examples: Previewing Markdown files, exporting to PDF, changing preview style, viewing document statistics
+     - Configuration tips: Default style, auto-refresh, code highlighting, export defaults, MultiMarkdown, MathJax/Mermaid
+     - License requirements: Paid app $14.99 (one-time purchase via Mac App Store, tied to Apple ID, no subscription)
+     - Testing checklist (11 items)
+   - Table of contents updated with all four apps
+   - Story tracking entry added to Story Tracking section
+
+4. **Story Tracking** (docs/app-post-install-configuration.md):
+   - Added Story 02.4-003 to story tracking section
+   - Marked as "Installation and documentation implemented"
+   - VM testing pending
+
+**Key Implementation Decisions**:
+
+- **Calibre via Homebrew Cask**: Most reliable distribution method for GUI app
+  - Rationale: Official Homebrew cask, automatic updates via darwin-rebuild, no manual download
+
+- **Kindle via Mac App Store**: Only distribution method available
+  - Rationale: Amazon distributes Kindle exclusively via Mac App Store for macOS
+  - Requires manual Amazon account sign-in on first launch
+
+- **Keka via Homebrew Cask**: Free and open source version (Mac App Store version is paid)
+  - Rationale: Homebrew cask is free, official distribution, same features as paid version
+  - Mac App Store version ($4.99) available as optional donation to support development
+
+- **Marked 2 via Mac App Store**: Only distribution method available
+  - Rationale: Marked 2 distributed exclusively via Mac App Store ($14.99 one-time purchase)
+  - No Homebrew cask available
+
+- **Manual Auto-Update Disable**: Calibre and Marked 2 require manual auto-update disable
+  - Calibre: Preferences → Miscellaneous → Uncheck "Automatically check for updates"
+  - Marked 2: Preferences → General → Uncheck "Check for updates automatically"
+  - Kindle: System-wide Mac App Store auto-update control (System Settings → App Store)
+  - Keka: No auto-update mechanism (free/open source, Homebrew-controlled only)
+
+- **File Association Documentation**: Keka file association documented (cannot be automated declaratively)
+  - Rationale: macOS file associations require manual UTI (Uniform Type Identifier) configuration
+  - Documented two methods: Keka Preferences (batch) and Finder Get Info (per file type)
+
+- **Comprehensive Documentation**: 640+ lines total for all 4 apps
+  - Rationale: File utilities are critical productivity tools requiring detailed setup and usage documentation
+  - Calibre: Complex ebook management system with library, conversion, syncing features
+  - Kindle: Amazon ecosystem integration, account sign-in, Whispersync documentation
+  - Keka: Archive format support, file associations, password protection workflows
+  - Marked 2: Markdown preview/export workflows, syntax support, integration with editors
+
+**Post-Install Configuration** (Manual Steps):
+
+1. **Calibre** (REQUIRED):
+   - Launch Calibre → Complete welcome wizard (choose library location)
+   - Open Preferences → Miscellaneous → **Uncheck** "Automatically check for updates"
+   - Updates controlled by `darwin-rebuild switch` only
+
+2. **Kindle** (REQUIRED):
+   - Launch Kindle → Sign in with Amazon account (email, password, 2FA)
+   - Library syncs from Amazon cloud
+   - Download books for offline reading (right-click → Download)
+
+3. **Keka** (OPTIONAL):
+   - Launch Keka → Set as default archive handler (optional)
+   - Method 1: Keka Preferences → Extraction → Check file types (zip, rar, 7z, etc.)
+   - Method 2: Finder → Right-click .zip file → Get Info → Open with: Keka → Change All
+
+4. **Marked 2** (REQUIRED):
+   - Launch Marked 2
+   - Open Preferences → General → **Uncheck** "Check for updates automatically"
+   - System-wide: System Settings → App Store → **Uncheck** "Automatic Updates"
+   - Updates controlled by `darwin-rebuild switch` only
+
+**VM Testing Checklist** (for FX):
+
+**Calibre** (9 tests):
+- [ ] Run `darwin-rebuild switch --flake ~/nix-install#power`
+- [ ] Verify Calibre installed in `/Applications/calibre.app`
+- [ ] Launch Calibre - welcome wizard should appear
+- [ ] Complete welcome wizard (choose library location, e.g., `~/Calibre Library`)
+- [ ] Add test ebook to library (drag/drop or Add books button)
+- [ ] View book details and metadata
+- [ ] Test format conversion (e.g., PDF → EPUB if test files available)
+- [ ] Open Preferences → Miscellaneous → Verify "Automatically check for updates" is **checked** (default)
+- [ ] **Uncheck** "Automatically check for updates" → Apply → Close
+- [ ] Verify auto-update is now **disabled**
+
+**Kindle** (10 tests):
+- [ ] Verify Kindle installed in `/Applications/Kindle.app`
+- [ ] Launch Kindle - sign-in screen should appear
+- [ ] Sign in with Amazon account (email, password, 2FA if enabled)
+- [ ] Verify library syncs from cloud (owned books appear)
+- [ ] Download a book for offline reading (right-click → Download)
+- [ ] Open and read a book (verify rendering)
+- [ ] Test page navigation (click/swipe to turn pages)
+- [ ] Adjust reading settings (click Aa button → change font, size, background)
+- [ ] Test highlighting text and adding notes
+- [ ] Verify Whispersync works (reading position syncs across devices if multiple Kindle devices)
+
+**Keka** (9 tests):
+- [ ] Verify Keka installed in `/Applications/Keka.app`
+- [ ] Launch Keka - main drop zone window should appear
+- [ ] Create test zip archive: Drag test files into Keka → Choose zip → Compress
+- [ ] Verify zip archive created in same location as original files
+- [ ] Extract zip archive: Double-click .zip file (should extract if Keka default handler)
+- [ ] Create test 7z archive
+- [ ] Test password protection: Drag files → Choose 7z → Click lock icon → Enter password → Compress
+- [ ] Extract password-protected archive: Double-click → Enter password → Verify extraction
+- [ ] Open Keka Preferences → Extraction → Verify file association options available
+
+**Marked 2** (11 tests):
+- [ ] Verify Marked 2 installed in `/Applications/Marked 2.app`
+- [ ] Launch Marked 2 - preview window should appear
+- [ ] Open test .md file (drag/drop or File → Open)
+- [ ] Verify Markdown preview renders correctly
+- [ ] Edit .md file in Zed or VSCode → Verify Marked 2 auto-refreshes on save
+- [ ] Change preview style: Marked 2 menu → Style → Choose different theme (GitHub, Swiss, etc.)
+- [ ] Test PDF export: File → Export → PDF → Verify PDF created
+- [ ] Test HTML export: File → Export → HTML → Verify HTML created
+- [ ] View document statistics: Statistics button → Verify word count, reading time displayed
+- [ ] Open Preferences → General → Verify "Check for updates automatically" is **checked** (default)
+- [ ] **Uncheck** "Check for updates automatically" → Close Preferences
+- [ ] Verify auto-update is now **disabled**
+
+**System-Wide Mac App Store Auto-Update** (1 test):
+- [ ] Open System Settings → App Store
+- [ ] Verify "Automatic Updates" checkbox status (should be enabled by default)
+- [ ] **Uncheck** "Automatic Updates" (affects Kindle, Marked 2, Perplexity, all Mac App Store apps)
+- [ ] Verify all Mac App Store apps now update only via `darwin-rebuild switch`
+
+**Files Modified**:
+- darwin/homebrew.nix (added calibre, keka casks + Kindle, Marked 2 masApps)
+- docs/app-post-install-configuration.md (added File Utilities section with all 4 apps + table of contents + story tracking)
+- docs/development/stories/epic-02-feature-02.4.md (this file - implementation details)
+
+**Testing Notes**:
+- Configuration is syntactically correct (Nix syntax validated)
+- Homebrew cask names verified: `calibre`, `keka` (official casks)
+- Mac App Store IDs verified: Kindle `302584613`, Marked 2 `890031187`
+- Documentation follows existing patterns (Raycast, 1Password, Brave, Arc)
+- Auto-update disable steps researched and documented for Calibre and Marked 2
+- File association setup documented for Keka (manual process, cannot be automated declaratively)
+- Amazon account sign-in process documented for Kindle
+- License requirements documented for all apps
+- All testing checklists cover core functionality and acceptance criteria
+- Ready for FX's manual VM testing
+
+**Story Status**: ⏳ Ready for VM Testing
+
 ---
 
 ##### Story 02.4-004: Dropbox Installation

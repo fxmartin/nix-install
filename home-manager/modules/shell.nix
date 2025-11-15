@@ -36,6 +36,8 @@
   #    - cat → bat (syntax highlighting)
   #    - grep → rg (ripgrep)
   #    - find → fd (faster alternative)
+  #    - docker → podman (container compatibility)
+  #    - docker-compose → podman-compose (compose compatibility)
   #    - Custom git aliases
   #    - Directory navigation shortcuts
 

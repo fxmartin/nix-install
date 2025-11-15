@@ -538,6 +538,8 @@
 - **Then** matches are highlighted in color
 - **And** all aliases work in fresh terminal
 
+**Note**: Docker/Podman aliases (`docker`, `docker-compose`) are defined in Story 04.8-002
+
 **Additional Requirements**:
 - ll: Detailed list with human-readable sizes
 - la: Show all files including hidden
@@ -933,7 +935,7 @@
 ---
 
 ##### Story 04.8-002: Podman Aliases and Docker Compatibility
-**User Story**: As FX, I want `docker` aliased to `podman` so that docker commands work seamlessly
+**User Story**: As FX, I want `docker` aliased to `podman` and `docker-compose` aliased to `podman-compose` so that docker commands work seamlessly
 
 **Priority**: Should Have
 **Story Points**: 5

@@ -62,7 +62,8 @@
 #### Implementation Details (Story 02.4-001)
 
 **Implementation Date**: 2025-01-15
-**Implementation Status**: ✅ Code Complete - Awaiting VM Testing
+**VM Testing Date**: 2025-01-15
+**Implementation Status**: ✅ VM Tested - Complete
 
 **Changes Made**:
 
@@ -136,22 +137,22 @@
    - Add favorite commands (star to pin)
 
 **VM Testing Checklist** (for FX):
-- [ ] Run `darwin-rebuild switch --flake ~/nix-install#power`
-- [ ] Verify Raycast installed in `/Applications/Raycast.app`
-- [ ] Launch Raycast - should show onboarding
-- [ ] Configure hotkey (`Option+Space` recommended)
-- [ ] Complete onboarding tour
-- [ ] Test application launcher (press hotkey → type app name → Enter)
-- [ ] Test file search (press hotkey → type filename)
-- [ ] Test clipboard history (press hotkey → type "Clipboard History")
-- [ ] Test window management (press hotkey → type "Left Half")
-- [ ] Test calculator (press hotkey → type "2+2")
-- [ ] Open Preferences → Advanced
-- [ ] Verify "Automatically download and install updates" is **checked** (default)
-- [ ] **Uncheck** "Automatically download and install updates"
-- [ ] Verify auto-update is now **disabled**
-- [ ] Test extensions available (press hotkey → type "Store")
-- [ ] Verify no license prompt (free for personal use)
+- [x] Run `darwin-rebuild switch --flake ~/nix-install#power` ✅
+- [x] Verify Raycast installed in `/Applications/Raycast.app` ✅
+- [x] Launch Raycast - should show onboarding ✅
+- [x] Configure hotkey (`Option+Space` recommended) ✅
+- [x] Complete onboarding tour ✅
+- [x] Test application launcher (press hotkey → type app name → Enter) ✅
+- [x] Test file search (press hotkey → type filename) ✅
+- [x] Test clipboard history (press hotkey → type "Clipboard History") ✅
+- [x] Test window management (press hotkey → type "Left Half") ✅
+- [x] Test calculator (press hotkey → type "2+2") ✅
+- [x] Open Preferences → Advanced ✅
+- [x] Verify "Automatically download and install updates" is **checked** (default) ✅
+- [x] **Uncheck** "Automatically download and install updates" ✅
+- [x] Verify auto-update is now **disabled** ✅
+- [x] Test extensions available (press hotkey → type "Store") ✅
+- [x] Verify no license prompt (free for personal use) ✅
 
 **Files Modified**:
 - darwin/homebrew.nix (added raycast cask)
@@ -164,9 +165,13 @@
 - Documentation follows existing patterns (Brave, Arc, Zed)
 - Auto-update disable steps researched and documented
 - Hotkey setup instructions clear and actionable
-- Ready for FX's manual VM testing
+- **VM Testing Results**: All 16 test steps passed ✅
+- Raycast launches successfully, all core features working
+- Auto-update successfully disabled in Preferences → Advanced
+- Hotkey configuration working (`Option+Space` tested)
+- No issues found during VM testing
 
-**Story Status**: ✅ Code Complete - Ready for VM Testing
+**Story Status**: ✅ VM Tested - Complete
 
 ---
 

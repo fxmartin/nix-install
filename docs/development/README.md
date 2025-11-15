@@ -9,11 +9,11 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **22.6% complete** (26/115 stories, 151/606 points)
+  - Current project status: **25.2% complete** (29/115 stories, 164/606 points)
   - Epic-01: **89.5% complete** (17/19 stories, 104/113 points) 🟢 Bootstrap functional
-  - Epic-02: **36.0% complete** (9/25 stories, 47/118 points) 🟡 In Progress
-  - Next stories: Epic-02 (Claude Code CLI, Browsers, Productivity) or Epic-01 cleanup (Progress Indicators)
-  - Recent: Feature 02.2 (Dev Apps) completed - Zed, VSCode, Ghostty, Python, Podman all VM tested
+  - Epic-02: **48.0% complete** (12/25 stories, 60/118 points) 🟡 In Progress
+  - Next stories: Epic-02 (Productivity Apps, Communication Tools) or Epic-01 cleanup (Progress Indicators)
+  - Recent: Features 02.2 & 02.3 completed - Dev tools + Browsers (12 stories, 60 points, all VM tested)
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns
@@ -34,12 +34,12 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ## 🎯 Current Status (Quick Reference)
 
-**Overall Project**: 22.6% complete (26/115 stories, 151/606 points)
+**Overall Project**: 25.2% complete (29/115 stories, 164/606 points)
 
 **Epic-01: Bootstrap & Installation System** - 89.5% complete (92.0% by points) 🟢
-**Epic-02: Application Installation** - 36.0% complete (39.8% by points) 🟡
+**Epic-02: Application Installation** - 48.0% complete (50.8% by points) 🟡
 
-### ✅ Completed Stories (22)
+### ✅ Completed Stories (29)
 
 #### Epic-01 Stories (17)
 1. **01.1-001** - Pre-flight Environment Checks (5 pts) - 2025-11-08
@@ -60,7 +60,7 @@ Welcome to the nix-install development documentation. This directory contains al
 16. **01.7-002** - Final Darwin Rebuild (8 pts) - 2025-11-11
 17. **01.8-001** - Installation Summary & Next Steps (3 pts) - 2025-11-11
 
-#### Epic-02 Stories (9)
+#### Epic-02 Stories (12)
 18. **02.1-001** - Claude Desktop and AI Chat Apps (3 pts) - 2025-11-12 (VM tested)
 19. **02.1-002** - Ollama Desktop App Installation (3 pts) - 2025-11-12 (VM tested)
 20. **02.1-003** - Standard Profile Ollama Model (2 pts) - 2025-11-12 (VM tested)
@@ -70,13 +70,16 @@ Welcome to the nix-install development documentation. This directory contains al
 24. **02.2-003** - Ghostty Terminal Installation (5 pts) - 2025-11-12 (VM tested)
 25. **02.2-004** - Python and Development Tools (5 pts) - 2025-11-12 (VM tested)
 26. **02.2-005** - Podman and Container Tools (6 pts) - 2025-11-15 (VM tested)
+27. **02.2-006** - Claude Code CLI and MCP Servers (8 pts) - 2025-11-15 (VM tested)
+28. **02.3-001** - Brave Browser Installation (3 pts) - 2025-11-15 (VM tested)
+29. **02.3-002** - Arc Browser Installation (2 pts) - 2025-11-15 (VM tested)
 
 ### 🚧 Next Stories
 
 **Epic-02 Options** (Continue application installation):
-- **02.2-006** - Claude Code CLI and MCP Servers (8 pts)
-- **02.3-001** - Brave Browser Installation (3 pts)
-- **02.4-001** - Productivity Apps (Raycast, 1Password, etc.) (8 pts)
+- **02.4-001** - Productivity Apps (Raycast, 1Password, Dropbox, etc.) (8 pts)
+- **02.5-001** - Communication Tools (Zoom, Webex, Slack, Teams, WhatsApp) (3 pts)
+- **02.6-001** - Media & Creative Tools (2 pts)
 
 **Epic-01 Cleanup** (Optional enhancements):
 - **01.1-003** - Progress Indicators (3 pts) - P1 optional enhancement
@@ -84,7 +87,7 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### ⏳ Remaining Stories
 - **Epic-01**: 2 stories remaining (01.1-003, 01.1-004) - both P1 optional/deferred
-- **Epic-02**: 16 stories remaining (9 completed, 16 to go)
+- **Epic-02**: 13 stories remaining (12 completed, 13 to go)
 
 ## 🛠️ What to Read First?
 

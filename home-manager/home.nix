@@ -13,6 +13,8 @@
     ./modules/shell.nix
     # GitHub CLI configuration (Story 01.6-002 dependency)
     ./modules/github.nix
+    # Git configuration (Story 02.4-007)
+    ./modules/git.nix
     # Zed editor configuration (Story 02.2-001)
     ./modules/zed.nix
     # VSCode configuration (Story 02.2-002) - DISABLED: Electron crash issues

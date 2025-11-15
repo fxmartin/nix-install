@@ -25,14 +25,14 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
-| **Epic-02** | Application Installation | 25 | 118 | **9** | **47** | 36.0% | 39.8% | 🟡 In Progress |
+| **Epic-02** | Application Installation | 25 | 118 | **12** | **60** | 48.0% | 50.8% | 🟡 In Progress |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **115** | **606** | **26** | **151** | **22.6%** | **24.9%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **115** | **606** | **29** | **164** | **25.2%** | **27.1%** | 🟡 In Progress |
 
 ### ✅ Completed
 - **Requirements Definition** ([REQUIREMENTS.md](./docs/REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
@@ -48,7 +48,7 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - 01.7-001, 01.7-002, 01.8-001 ✅
 - All VM tested and validated
 
-**Epic-02 Stories (9/25 complete - 36.0%)**:
+**Epic-02 Stories (12/25 complete - 48.0%)**:
 - **Story 02.1-001** - Claude Desktop and AI Chat Apps (✅ Complete - 2025-11-12, 3 pts, VM TESTED)
 - **Story 02.1-002** - Ollama Desktop App (✅ Complete - 2025-11-12, 3 pts, VM TESTED)
 - **Story 02.1-003** - Standard Profile Ollama Model (✅ Complete - 2025-11-12, 2 pts, VM TESTED)
@@ -58,13 +58,16 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - **Story 02.2-003** - Ghostty Terminal (✅ Complete - 2025-11-12, 5 pts, VM TESTED)
 - **Story 02.2-004** - Python and Development Tools (✅ Complete - 2025-11-12, 5 pts, VM TESTED)
 - **Story 02.2-005** - Podman and Container Tools (✅ Complete - 2025-11-15, 6 pts, VM TESTED)
+- **Story 02.2-006** - Claude Code CLI & MCP Servers (✅ Complete - 2025-11-15, 8 pts, VM TESTED)
+- **Story 02.3-001** - Brave Browser (✅ Complete - 2025-11-15, 3 pts, VM TESTED)
+- **Story 02.3-002** - Arc Browser (✅ Complete - 2025-11-15, 2 pts, VM TESTED)
 
 ### 🔄 In Progress
 - **Epic-01: Bootstrap System** - 17/19 stories (89.5%), 104/113 points (92.0%) - **FUNCTIONAL** 🟢
-- **Epic-02: Application Installation** - 9/25 stories (36.0%), 47/118 points (39.8%) - **IN PROGRESS** 🟡
-- **Next Stories**: 02.2-006 (Claude Code CLI & MCP Servers, 8 pts), 02.3-001 (Browsers, 3 pts), 02.4-001 (Productivity, 8 pts)
+- **Epic-02: Application Installation** - 12/25 stories (48.0%), 60/118 points (50.8%) - **IN PROGRESS** 🟡
+- **Next Stories**: 02.4-001 (Productivity Apps, 8 pts), 02.5-001 (Communication Tools, 3 pts)
 - **Bootstrap Status**: ALL 9 phases working! Phases 1-8 VM tested and verified ✅
-- **Recent Milestone**: Feature 02.2 complete - Development apps (Zed, VSCode, Ghostty, Python, Podman) - 9 stories, 47 points
+- **Recent Milestone**: Features 02.2 & 02.3 complete - Dev tools + Browsers (12 stories, 60 points)
 
 ### 📅 Upcoming
 - **Phase 1-2**: Core bootstrap implementation (Week 2)

@@ -1140,12 +1140,47 @@
 - Document manual disable: Settings → About Brave → Auto-update toggle
 
 **Definition of Done**:
-- [ ] Brave installed via homebrew.nix
-- [ ] Auto-update disabled or documented
-- [ ] Brave launches successfully
-- [ ] Brave Shields working (test on ad-heavy site)
-- [ ] Tested in VM
-- [ ] Documentation notes update preferences
+- [x] Brave installed via homebrew.nix
+- [x] Auto-update disabled or documented (comprehensive documentation with exact steps)
+- [ ] Brave launches successfully (VM testing by FX pending)
+- [ ] Brave Shields working (test on ad-heavy site) (VM testing by FX pending)
+- [ ] Tested in VM (VM testing by FX pending)
+- [x] Documentation notes update preferences (230+ line comprehensive section)
+
+**Implementation Status**: ✅ **CODE COMPLETE** - Awaiting VM testing by FX
+**Implementation Date**: 2025-11-15
+**Branch**: feature/02.3-001-brave-browser
+**Files Changed**:
+- darwin/homebrew.nix: Added `brave-browser` cask in Browsers section
+- docs/app-post-install-configuration.md: Added comprehensive Brave Browser section (230+ lines)
+
+**Implementation Details**:
+- Installation: Homebrew cask `brave-browser` added to darwin/homebrew.nix
+- Auto-update disable: Comprehensive step-by-step documentation with exact menu paths
+- Brave Shields: Documentation covers verification, testing, and per-site customization
+- Privacy features: HTTPS Everywhere, anti-fingerprinting, tracker blocking documented
+- First launch setup: Onboarding wizard walkthrough, import settings, default browser setup
+- Testing checklist: 10-item VM testing checklist for FX
+- Troubleshooting: Common issues documented (Shields breaking sites, import issues, extensions)
+
+**VM Testing Instructions** (for FX):
+1. Run `darwin-rebuild switch` in VM
+2. Verify Brave installed: `ls -la "/Applications/Brave Browser.app"`
+3. Launch Brave and complete onboarding wizard
+4. Disable auto-update: Brave → Settings → About Brave → Uncheck "Automatically update Brave"
+5. Test Brave Shields:
+   - Visit YouTube.com - verify no ads play before videos
+   - Visit news site - verify Shields icon shows blocked tracker count
+   - Click Shields icon - verify controls work (Aggressive/Standard/Allow)
+6. Test privacy features:
+   - Visit HTTP site - verify automatic HTTPS upgrade
+   - Check Settings → Privacy and security - verify anti-fingerprinting enabled
+7. Test integration:
+   - Search in Spotlight for "Brave" - verify app appears
+   - Open DevTools (Cmd+Option+I) - verify Chromium tools work
+8. Verify auto-update disabled:
+   - Check Brave → Settings → About Brave
+   - Confirm "Automatically update Brave" is UNCHECKED
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (Homebrew managed)

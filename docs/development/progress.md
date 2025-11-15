@@ -6,14 +6,14 @@
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
-| **Epic-02** | Application Installation | 25 | 118 | **16** | **76** | 64.0% | 64.4% | 🟡 In Progress |
+| **Epic-02** | Application Installation | 25 | 118 | **17** | **79** | 68.0% | 66.9% | 🟡 In Progress |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **115** | **606** | **33** | **180** | **28.7%** | **29.7%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **115** | **606** | **34** | **183** | **29.6%** | **30.2%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -41,7 +41,7 @@
 - **2025-11-10**: Story 01.6-002 scope changed from manual approach (8 points) to automated GitHub CLI approach (5 points), reducing Epic-01 by 3 points
 - **2025-11-11**: Story 01.1-004 added (Modular Bootstrap Architecture, 8 points), increasing Epic-01 by 8 points, **deferred to post-Epic-01**
 
-### Epic-02 Completed Stories (16/25)
+### Epic-02 Completed Stories (17/25)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -60,6 +60,7 @@
 | 02.4-001 | Raycast Installation | 3 | ✅ Complete | feature/02.4-001-raycast | 2025-01-15 |
 | 02.4-002 | 1Password Installation | 3 | ✅ Complete | main | 2025-01-15 |
 | 02.4-003 | File Utilities (Calibre, Kindle, Keka, Marked 2) | 5 | ✅ Complete | main | 2025-01-15 |
+| 02.4-004 | Dropbox Installation | 3 | ✅ Complete | main | 2025-01-15 |
 | 02.4-007 | Git and Git LFS | 5 | ✅ Complete | main | 2025-01-15 |
 
 **Notes**:
@@ -73,18 +74,35 @@
 ### Overall Project Status
 
 - **Total Project Scope**: 115 stories, 606 story points
-- **Completed**: 33 stories (28.7%), 180 points (29.7%)
+- **Completed**: 34 stories (29.6%), 183 points (30.2%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL**
-  - Epic-02 Application Installation (64.0% complete by stories, 64.4% by points) - **IN PROGRESS**
+  - Epic-02 Application Installation (68.0% complete by stories, 66.9% by points) - **IN PROGRESS**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - Epic-02: 02.4-004 (Dropbox - 3 pts), 02.4-005 (System Utilities - 3 pts), 02.5-001 (Communication Tools - 3 pts)
+  - Epic-02: 02.4-005 (System Utilities - 3 pts), 02.4-006 (System Monitoring - 5 pts), 02.5-001 (Communication Tools - 3 pts)
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: Feature 02.4 in progress - Productivity apps (4/7 stories complete: Raycast, 1Password, File Utilities, Git)
+- **Recent Milestone**: Feature 02.4 in progress - Productivity apps (5/7 stories complete: Raycast, 1Password, File Utilities, Dropbox, Git)
 
 ### Recent Activity
 
+- **2025-01-15**: 🎉 **Story 02.4-004 COMPLETED** - Dropbox Installation (3 points)
+  - **Story 02.4-004**: Dropbox cloud storage and file sync ✅ VM tested and validated
+  - Installed via Homebrew Cask
+  - Account sign-in required (free or paid Dropbox account)
+  - Auto-update disable documented (Preferences → General)
+  - Selective sync configuration documented (save disk space)
+  - Core features: File sync, sharing, Smart Sync, Camera Uploads
+  - License requirements: Free (2GB), Plus (2TB $11.99/mo), Professional (3TB $19.99/mo)
+  - All VM test steps passed ✅
+  - Dropbox launched successfully
+  - Account sign-in process working
+  - Auto-update disable instructions validated
+  - Selective sync and Smart Sync features documented
+  - No issues found during VM testing
+  - **Feature 02.4 Progress**: 5/7 stories complete (19/27 points, 70.4%)
+  - **Epic-02 Progress**: 68.0% complete (17/25 stories, 79/118 points)
+  - **Overall Project**: 29.6% complete (34/115 stories, 183/606 points)
 - **2025-01-15**: 🎉 **Story 02.4-003 COMPLETED** - File Utilities (Calibre, Kindle, Keka, Marked 2) (5 points)
   - **Story 02.4-003**: File utilities for ebooks, archives, and Markdown ✅ VM tested and validated
   - Installed via mixed methods: Homebrew (Calibre, Keka) + Mac App Store (Kindle, Marked 2)

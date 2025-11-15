@@ -25,14 +25,14 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
-| **Epic-02** | Application Installation | 25 | 118 | **16** | **76** | 64.0% | 64.4% | 🟡 In Progress |
+| **Epic-02** | Application Installation | 25 | 118 | **17** | **79** | 68.0% | 66.9% | 🟡 In Progress |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **115** | **606** | **33** | **180** | **28.7%** | **29.7%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **115** | **606** | **34** | **183** | **29.6%** | **30.2%** | 🟡 In Progress |
 
 ### ✅ Completed
 - **Requirements Definition** ([REQUIREMENTS.md](./docs/REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
@@ -48,7 +48,7 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - 01.7-001, 01.7-002, 01.8-001 ✅
 - All VM tested and validated
 
-**Epic-02 Stories (16/25 complete - 64.0%)**:
+**Epic-02 Stories (17/25 complete - 68.0%)**:
 - **Story 02.1-001** - Claude Desktop and AI Chat Apps (✅ Complete - 2025-11-12, 3 pts, VM TESTED)
 - **Story 02.1-002** - Ollama Desktop App (✅ Complete - 2025-11-12, 3 pts, VM TESTED)
 - **Story 02.1-003** - Standard Profile Ollama Model (✅ Complete - 2025-11-12, 2 pts, VM TESTED)
@@ -64,14 +64,15 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - **Story 02.4-001** - Raycast Installation (✅ Complete - 2025-01-15, 3 pts, VM TESTED)
 - **Story 02.4-002** - 1Password Installation (✅ Complete - 2025-01-15, 3 pts, VM TESTED)
 - **Story 02.4-003** - File Utilities (Calibre, Kindle, Keka, Marked 2) (✅ Complete - 2025-01-15, 5 pts, VM TESTED)
+- **Story 02.4-004** - Dropbox Installation (✅ Complete - 2025-01-15, 3 pts, VM TESTED)
 - **Story 02.4-007** - Git and Git LFS (✅ Complete - 2025-01-15, 5 pts, VM TESTED)
 
 ### 🔄 In Progress
 - **Epic-01: Bootstrap System** - 17/19 stories (89.5%), 104/113 points (92.0%) - **FUNCTIONAL** 🟢
-- **Epic-02: Application Installation** - 16/25 stories (64.0%), 76/118 points (64.4%) - **IN PROGRESS** 🟡
-- **Next Stories**: 02.4-004 (Dropbox, 3 pts), 02.4-005 (System Utilities, 3 pts), 02.5-001 (Communication Tools, 3 pts)
+- **Epic-02: Application Installation** - 17/25 stories (68.0%), 79/118 points (66.9%) - **IN PROGRESS** 🟡
+- **Next Stories**: 02.4-005 (System Utilities, 3 pts), 02.4-006 (System Monitoring, 5 pts), 02.5-001 (Communication Tools, 3 pts)
 - **Bootstrap Status**: ALL 9 phases working! Phases 1-8 VM tested and verified ✅
-- **Recent Milestone**: Feature 02.4 in progress - Productivity apps (4/7 stories complete: Raycast, 1Password, File Utilities, Git)
+- **Recent Milestone**: Feature 02.4 in progress - Productivity apps (5/7 stories complete: Raycast, 1Password, File Utilities, Dropbox, Git)
 
 ### 📅 Upcoming
 - **Phase 1-2**: Core bootstrap implementation (Week 2)

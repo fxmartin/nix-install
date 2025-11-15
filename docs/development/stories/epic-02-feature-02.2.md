@@ -8,15 +8,17 @@
 **Feature ID**: Feature 02.2
 **Feature Name**: Development Environment Applications
 **Epic**: Epic-02
-**Status**: 🔄 In Progress
+**Status**: 🔄 In Progress (5/6 stories complete)
 
 ### Feature 02.2: Development Environment Applications
 **Feature Description**: Install development editors, terminals, AI tooling (Claude Code CLI + MCP servers), and container tools
 **User Value**: Complete development workflow support for Python, AI-assisted development with enhanced context, and containerized applications
-**Story Count**: 6
-**Story Points**: 32
+**Story Count**: 6 (5/6 complete - Claude Code CLI pending)
+**Story Points**: 39 (31/39 complete - 79.5%)
 **Priority**: High
 **Complexity**: Medium
+**Completed Stories**: 02.2-001 (Zed), 02.2-002 (VSCode), 02.2-003 (Ghostty), 02.2-004 (Python), 02.2-005 (Podman)
+**Pending**: 02.2-006 (Claude Code CLI & MCP Servers - 8 pts)
 
 #### Stories in This Feature
 

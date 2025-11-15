@@ -1340,31 +1340,30 @@ podman run --rm -it alpine:latest echo "Podman works!"
    - Choose search engine (DuckDuckGo default, can change to Google, Brave Search, etc.)
 4. No sign-in required (optional: Sync across devices with Brave Sync)
 
-**Auto-Update Configuration** (CRITICAL):
+**Update Management** (IMPORTANT):
 
-Brave auto-updates are **enabled by default**. You MUST disable them to follow the controlled update philosophy.
+Brave updates are **controlled by Homebrew**, not by in-app settings.
 
-**Steps to Disable Auto-Update**:
+**How Brave Updates Work**:
+- ✅ Brave updates are managed by Homebrew (installed via `brave-browser` cask)
+- ✅ Updates ONLY occur when you run `darwin-rebuild switch` (rebuild command)
+- ✅ Version is controlled by the Homebrew cask formula (managed by nix-darwin)
+- ⚠️ **No in-app auto-update setting available** - Homebrew-managed apps don't expose this setting
+- ⚠️ **Do NOT use "Check for updates" in Brave's About menu** - This is disabled for Homebrew installations
 
-1. Open **Brave Browser**
-2. Click **Brave** menu (top-left) → **Settings** (or press `Cmd+,`)
-3. Navigate to **Settings** → **About Brave** (in left sidebar)
-4. Look for **Update Brave automatically** toggle or checkbox
-5. **Disable** the toggle/uncheck the box
-6. Verify: Setting should show "Brave will not update automatically"
+**Why No In-App Auto-Update Control?**:
+- Homebrew-installed applications receive updates through Homebrew, not the app's built-in updater
+- The app's auto-update mechanism is typically disabled or non-functional for Homebrew cask installations
+- This is the **correct behavior** - it ensures updates are controlled via your declarative configuration
 
-**Alternative Path** (if above doesn't work):
-1. Open **Brave** → **Settings** (Cmd+,)
-2. Search for "update" in the settings search bar
-3. Look for "Automatic Updates" or "Update Brave automatically"
-4. Disable the setting
-
-**Verification**:
+**Update Process**:
 ```bash
-# After disabling auto-update, restart Brave
-# Go to: Brave → About Brave
-# Verify: Should NOT see "Checking for updates..."
-# Verify: Should see current version number without auto-update status
+# To update Brave (along with all other apps):
+darwin-rebuild switch  # Uses current flake.lock versions
+
+# OR to get latest versions first:
+nix flake update      # Updates flake.lock with latest package versions
+darwin-rebuild switch # Applies the updates
 ```
 
 **Brave Shields Configuration**:
@@ -1461,7 +1460,7 @@ Brave Rewards allows earning BAT cryptocurrency for viewing privacy-respecting a
 - [ ] Launch Brave Browser successfully
 - [ ] Complete onboarding wizard (import settings optional)
 - [ ] Brave Shields icon visible in address bar
-- [ ] Auto-update disabled (verified in About Brave)
+- [ ] Verify updates controlled by Homebrew (About Brave shows version, no auto-update toggle)
 - [ ] Shields working: Test on ad-heavy site (YouTube, news site)
 - [ ] Verify blocked ad/tracker count in Shields icon
 - [ ] HTTPS upgrade working (visit HTTP site, check for HTTPS redirect)
@@ -1509,11 +1508,11 @@ Brave Rewards allows earning BAT cryptocurrency for viewing privacy-respecting a
    - Or adjust individual settings (allow scripts, cookies, etc.)
    - Add site to exceptions if permanently needed
 
-2. **Auto-update setting not found**:
-   - Check: Brave → About Brave
-   - Look for "Update automatically" checkbox
-   - If not present, updates may be controlled by system
-   - Verify Homebrew auto-update is disabled globally
+2. **Updates not working as expected**:
+   - **Expected behavior**: Brave updates are controlled by Homebrew, NOT by in-app settings
+   - About Brave menu will show current version but no auto-update toggle (this is correct)
+   - To update Brave: Run `darwin-rebuild switch` or `nix flake update && darwin-rebuild switch`
+   - Do NOT use "Check for updates" button in About Brave (disabled for Homebrew installations)
 
 3. **Import not working**:
    - Brave → Settings → Get Started → Import bookmarks and settings
@@ -1534,10 +1533,10 @@ Brave Rewards allows earning BAT cryptocurrency for viewing privacy-respecting a
 
 **Update Philosophy**:
 - ✅ Brave updates ONLY via Homebrew (`rebuild` or `update` commands)
-- ✅ Auto-update disabled in Brave preferences
+- ✅ In-app auto-update not available (Homebrew-managed installation)
 - ✅ Versions controlled by Homebrew (managed by nix-darwin)
-- ⚠️ Do NOT use "Update Brave" from About Brave menu
-- ✅ Brave Shields filter lists update automatically (separate from browser updates)
+- ⚠️ Do NOT use "Check for updates" in About Brave menu (disabled for Homebrew installations)
+- ✅ Brave Shields filter lists update automatically (separate from browser updates, this is expected)
 
 **Brave Shields Filter Lists**:
 - **Note**: Brave Shields uses ad/tracker filter lists that update independently

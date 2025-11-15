@@ -3,8 +3,8 @@
 {
   # Personal Information
   username = "fxmartin";  # macOS login username
-  fullName = "François Martin";
-  email = "fx@example.com";
+  fullName = "François-Xavier Martin";
+  email = "mail@fxmartin.me";
   githubUsername = "fxmartin";
   hostname = "fxmartins-MacBook-Pro";  # Only letters, numbers, and hyphens
   signingKey = "";  # GPG key ID (leave empty initially)

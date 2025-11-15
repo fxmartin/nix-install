@@ -358,5 +358,120 @@
 **Risk Level**: Low
 **Risk Mitigation**: N/A
 
+#### Implementation Details (Story 02.4-007)
+
+**Implementation Date**: 2025-01-15
+**Implementation Status**: ✅ Code Complete - Ready for VM Testing
+
+**Changes Made**:
+
+1. **System Packages** (darwin/configuration.nix:69-70):
+   ```nix
+   # Version Control (Story 02.4-007)
+   git                 # Git version control system
+   git-lfs             # Git Large File Storage
+   ```
+
+2. **Home Manager Git Module** (home-manager/modules/git.nix):
+   - Created comprehensive Git configuration module
+   - User identity from user-config.nix (fullName, email, githubUsername)
+   - Git LFS enabled globally via `lfs.enable = true`
+   - Modern Home Manager `settings` attribute structure
+   - Configuration includes:
+     - User identity (name, email)
+     - Git LFS support
+     - Default branch: `main`
+     - Core settings (vim editor, LF line endings, whitespace handling)
+     - Pull/push behavior (merge by default, auto-setup remote)
+     - GitHub username integration
+     - Diff/merge tools (vimdiff with diff3 conflict style)
+     - macOS Keychain credential helper
+     - Useful aliases (st, co, br, ci, unstage, last, visual)
+   - Global .gitignore patterns:
+     - macOS artifacts (.DS_Store, ._*, etc.)
+     - Editor artifacts (.vscode, .idea, .swp, etc.)
+     - Nix build artifacts (result, result-*)
+     - Language build artifacts (node_modules, __pycache__, dist, build)
+   - Post-activation verification message with usage instructions
+
+3. **Home Manager Import** (home-manager/home.nix:17):
+   - Added git.nix module import after github.nix
+
+4. **Bootstrap Download** (bootstrap.sh:1706-1718):
+   - Added git.nix to Phase 4 download list
+   - Positioned between github.nix and zed.nix
+   - Includes validation for empty file detection
+
+**Key Implementation Decisions**:
+
+- **System-level Git**: Installed via darwin/configuration.nix systemPackages (not Home Manager packages)
+  - Rationale: Git is fundamental system tool, should be available system-wide
+
+- **User config via Home Manager**: Git configuration managed via programs.git module
+  - Rationale: User-specific settings (name, email, aliases) belong in Home Manager
+
+- **Modern settings format**: Used `settings` attribute instead of deprecated `userName`/`userEmail`/`extraConfig`
+  - Avoided deprecation warnings from Home Manager
+  - Future-proof configuration structure
+
+- **Git LFS global init**: Enabled via `lfs.enable = true` instead of manual `git lfs install`
+  - Rationale: Declarative approach, automatic initialization on first darwin-rebuild
+
+- **Centralized user info**: All user identity data from user-config.nix
+  - Single source of truth for name, email, GitHub username
+  - Easy to update across all Git-using modules
+
+**Configuration Structure**:
+```nix
+programs.git = {
+  enable = true;
+  lfs = { enable = true; };  # Git LFS enabled globally
+  settings = {
+    user = { name = fullName; email = email; };
+    init = { defaultBranch = "main"; };
+    # ... all other settings nested here
+  };
+  ignores = [ ".DS_Store" "*.swp" /* etc */ ];
+};
+```
+
+**Post-Activation Verification**:
+The module includes activation script that displays after rebuild:
+```
+✓ Git configuration applied:
+  - User: François Martin <fx@example.com>
+  - GitHub: fxmartin
+  - Git LFS: Enabled
+  - Default branch: main
+
+Verify configuration:
+  → git config user.name
+  → git config user.email
+  → git lfs version
+```
+
+**VM Testing Checklist** (for FX):
+- [ ] Run `git --version` - should show Nix-managed Git (not Apple Git)
+- [ ] Run `git lfs version` - should show Git LFS version
+- [ ] Run `git config user.name` - should show "François Martin"
+- [ ] Run `git config user.email` - should show "fx@example.com"
+- [ ] Run `git config github.user` - should show "fxmartin"
+- [ ] Run `git config init.defaultBranch` - should show "main"
+- [ ] Test cloning a repo with LFS files (e.g., test repo with images)
+- [ ] Verify global gitignore patterns work (create .DS_Store, verify ignored)
+- [ ] Verify vim opens as commit message editor (`git commit` with no -m)
+
+**Files Modified**:
+- darwin/configuration.nix (added git, git-lfs packages)
+- home-manager/modules/git.nix (created)
+- home-manager/home.nix (added git.nix import)
+- bootstrap.sh (added git.nix download)
+
+**Testing Notes**:
+- Configuration is syntactically correct and uses modern Home Manager format
+- No deprecated options (verified via build warnings)
+- User-config.nix values properly passed to git.nix module
+- Ready for FX's manual VM testing
+
 ---
 

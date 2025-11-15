@@ -1121,31 +1121,32 @@
 - **Given** darwin-rebuild completes successfully
 - **When** I launch Brave
 - **Then** it opens successfully
-- **And** auto-update is disabled (via Brave preferences)
+- **And** updates are managed by Homebrew (About Brave shows version, no auto-update toggle)
 - **And** Brave is accessible from Spotlight/Raycast
 - **And** I can set it as default browser if desired
 - **And** Brave Shields (ad blocker) is enabled by default
 
 **Additional Requirements**:
 - Installation via Homebrew Cask
-- Auto-update disabled via preferences
+- Update management via Homebrew (no in-app auto-update setting - expected behavior)
 - Privacy-focused: Built-in ad/tracker blocking
 - First run shows onboarding (expected)
 
 **Technical Notes**:
 - Homebrew cask: `brave-browser`
-- Auto-update disable: Brave → Settings → About Brave → Uncheck "Automatically update Brave"
+- Update management: Controlled by Homebrew (no in-app auto-update setting available - this is expected)
+- Updates via: `darwin-rebuild switch` or `nix flake update && darwin-rebuild switch`
 - Brave Shields: Enabled by default (blocks ads and trackers)
 - Privacy features: HTTPS Everywhere, anti-fingerprinting
-- Document manual disable: Settings → About Brave → Auto-update toggle
+- About Brave menu: Shows version number but no auto-update toggle (Homebrew-managed installation)
 
 **Definition of Done**:
 - [x] Brave installed via homebrew.nix
-- [x] Auto-update disabled or documented (comprehensive documentation with exact steps)
+- [x] Update management documented (Homebrew-controlled, no in-app setting - expected behavior)
 - [ ] Brave launches successfully (VM testing by FX pending)
 - [ ] Brave Shields working (test on ad-heavy site) (VM testing by FX pending)
 - [ ] Tested in VM (VM testing by FX pending)
-- [x] Documentation notes update preferences (230+ line comprehensive section)
+- [x] Documentation notes update management and preferences (230+ line comprehensive section)
 
 **Implementation Status**: ✅ **CODE COMPLETE** - Awaiting VM testing by FX
 **Implementation Date**: 2025-11-15
@@ -1156,18 +1157,18 @@
 
 **Implementation Details**:
 - Installation: Homebrew cask `brave-browser` added to darwin/homebrew.nix
-- Auto-update disable: Comprehensive step-by-step documentation with exact menu paths
+- Update management: Documentation explains Homebrew-controlled updates (no in-app auto-update setting)
 - Brave Shields: Documentation covers verification, testing, and per-site customization
 - Privacy features: HTTPS Everywhere, anti-fingerprinting, tracker blocking documented
 - First launch setup: Onboarding wizard walkthrough, import settings, default browser setup
 - Testing checklist: 10-item VM testing checklist for FX
-- Troubleshooting: Common issues documented (Shields breaking sites, import issues, extensions)
+- Troubleshooting: Common issues documented (Shields breaking sites, update expectations, import issues)
 
 **VM Testing Instructions** (for FX):
 1. Run `darwin-rebuild switch` in VM
 2. Verify Brave installed: `ls -la "/Applications/Brave Browser.app"`
 3. Launch Brave and complete onboarding wizard
-4. Disable auto-update: Brave → Settings → About Brave → Uncheck "Automatically update Brave"
+4. Verify update management: Brave → About Brave (should show version, no auto-update toggle - this is correct)
 5. Test Brave Shields:
    - Visit YouTube.com - verify no ads play before videos
    - Visit news site - verify Shields icon shows blocked tracker count
@@ -1178,15 +1179,12 @@
 7. Test integration:
    - Search in Spotlight for "Brave" - verify app appears
    - Open DevTools (Cmd+Option+I) - verify Chromium tools work
-8. Verify auto-update disabled:
-   - Check Brave → Settings → About Brave
-   - Confirm "Automatically update Brave" is UNCHECKED
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (Homebrew managed)
 
 **Risk Level**: Low
-**Risk Mitigation**: Document manual auto-update disable if automated method doesn't work
+**Risk Mitigation**: Documentation clearly explains Homebrew-controlled updates (expected behavior)
 
 ---
 

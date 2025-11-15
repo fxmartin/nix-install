@@ -990,3 +990,181 @@ Verify configuration:
 
 ---
 
+## Implementation Details (Story 02.4-005)
+
+**Story**: System Utilities (Onyx, f.lux)
+**Implementation Date**: 2025-01-15
+**Status**: 🔄 Implementation Complete - VM Testing Pending
+
+### Changes Made
+
+**darwin/homebrew.nix**:
+- Added System Utilities section under Productivity & Utilities
+- Added `onyx` Homebrew cask (system maintenance and optimization utility)
+- Added `flux-app` Homebrew cask (display color temperature adjustment)
+- Added inline comments:
+  - `# Onyx - System maintenance and optimization utility (Story 02.4-005)`
+  - `# f.lux - Display color temperature adjustment (Story 02.4-005)`
+- Added section comment documenting permission requirements and auto-update status
+- Note: Correct cask name is `flux-app`, not `flux` (verified via `brew search`)
+
+**docs/app-post-install-configuration.md**:
+- Added comprehensive System Utilities section (430+ lines total)
+- **Onyx documentation (204 lines)**:
+  - Purpose: Free system maintenance and optimization utility for macOS
+  - First launch workflow: EULA acceptance, automatic disk verification (1-2 minutes)
+  - No account or license required (free and open source)
+  - Core features organized into 6 tabs:
+    - **Verification**: Startup disk, disk permissions, SMART status
+    - **Maintenance**: Scripts (daily/weekly/monthly), permission repair, rebuild services, launch services, Spotlight index, dyld cache
+    - **Cleaning**: System/user/font cache, logs, downloads, trash, temporary items, web browser cache
+    - **Utilities**: Hidden Finder/Dock/Safari settings, Spotlight customization, login items, file associations
+    - **Automation**: Create/schedule automated maintenance tasks
+    - **Info**: System information, disk, memory, network, logs
+  - Common use cases with step-by-step instructions:
+    - Routine system maintenance (monthly recommended)
+    - Cache clearing (when experiencing slowness)
+    - Fix "Open With" menu issues
+    - Enable hidden Finder features
+    - Check disk health (SMART status)
+  - Permission notes: Admin password required for maintenance tasks
+    - Why needed: System-level file modifications, protected directories, elevated privileges
+    - Safety assurance: Trusted utility since Mac OS X 10.2, developed by Titanium Software
+  - Auto-update: No mechanism requiring disable (Homebrew-controlled)
+  - Configuration tips: Regular maintenance, before major updates, after problems, cache issues
+  - Safety notes: Trusted since 2001, non-destructive operations, admin password expected
+  - Testing checklist (13 items)
+  - Documentation links: Official website, user manual, FAQ
+- **f.lux documentation (223 lines)**:
+  - Purpose: Free utility for automatic display color temperature adjustment based on time of day
+  - First launch workflow: Location setup (auto-detect or manual entry), menubar icon appears
+  - No account or license required (free and open source)
+  - Location Services permission (expected and safe):
+    - Why needed: Calculate local sunrise/sunset times
+    - How to grant: Click OK when prompted, or System Settings → Privacy & Security → Location Services
+    - Alternative: Manual location entry (city name or coordinates)
+  - Accessibility permission (may be requested):
+    - Why needed: Low-level display control for color adjustment
+    - Safe to approve: Required for smooth color transitions
+  - Core features:
+    - **Automatic Color Adjustment**: Daytime (6500K cool), Sunset (~60 min transition), Nighttime (2700K-3400K warm), Sunrise (~60 min transition)
+    - **Color Temperature Control**: Daytime 6500K, Nighttime 2700K-4200K adjustable
+    - **Manual Override**: Disable for 1 hour, disable until sunrise
+    - **Movie Mode**: 2.5 hour disable for color-accurate viewing
+    - **Darkroom Mode**: Extreme red/orange tint for minimal blue light
+    - **Custom Schedule**: Override automatic sunrise/sunset with custom wake/bedtime
+  - Basic usage examples:
+    - Normal daily use (no interaction needed)
+    - Temporarily disable for color work
+    - Adjust nighttime warmth
+    - Change location after moving/traveling
+    - Set custom schedule for non-standard sleep patterns
+  - Configuration tips by use case:
+    - Most users: 2700K-3400K nighttime, auto-detect location
+    - Late night workers: 2700K warmth, darkroom mode, custom schedule
+    - Designers/photographers: Disable during color work, movie mode
+    - Better sleep: 2700K warmth, extended day mode, 2-3 hours before bed
+  - Auto-update: No mechanism requiring disable (Homebrew-controlled)
+  - How it works (technical background): Location detection, sun position calculation, color curve, display adjustment, health benefits
+  - Research-based recommendations: Blue light and sleep studies, 2700K-3400K for 2-3 hours before sleep, 60-minute gradual transitions
+  - Testing checklist (13 items)
+  - Documentation links: Official website, FAQ, research, support forum
+- Updated Table of Contents with Onyx and f.lux entries
+- Added Story Tracking entry documenting implementation details
+
+### Key Decisions
+
+**Homebrew Cask Names**:
+- Onyx: `onyx` (standard cask name)
+- f.lux: `flux-app` NOT `flux` (verified via `brew search --cask flux`)
+  - `flux` does not exist as a Homebrew cask
+  - Correct cask is `flux-app` which installs `Flux.app`
+
+**Documentation Depth**:
+- Exceeded 150-200 lines per app target (204 for Onyx, 223 for f.lux)
+- Total 430+ lines provides comprehensive coverage
+- Rationale: Both apps have unique features requiring detailed explanation
+  - Onyx: 6 tabs with numerous system maintenance tasks
+  - f.lux: Color temperature science, permission requirements, multiple modes
+
+**Permission Documentation**:
+- Onyx: Admin password required for most tasks (expected, safe to approve)
+  - Explained WHY admin access is needed (system-level modifications)
+  - Assured safety (trusted since 2001, reputable developer)
+- f.lux: Location Services and Accessibility permissions (optional but recommended)
+  - Explained WHY each permission is needed (sunrise/sunset calculation, display control)
+  - Provided alternative (manual location entry if Location Services denied)
+
+**Auto-Update Handling**:
+- Both apps are free utilities with no built-in auto-update mechanism
+- No manual disable steps required (unlike Raycast, 1Password, Calibre)
+- Updates controlled entirely by Homebrew version pinning
+- Documented this explicitly to set expectations for VM testing
+
+### VM Testing Checklist
+
+**Onyx Testing** (13 items):
+- [ ] Onyx installed at `/Applications/OnyX.app`
+- [ ] Launches successfully from Spotlight or Applications folder
+- [ ] EULA agreement appears on first launch
+- [ ] Can accept EULA to proceed
+- [ ] Disk verification runs automatically (1-2 minutes)
+- [ ] Main interface appears with 6 tabs after verification
+- [ ] Can navigate between all tabs: Verification, Maintenance, Cleaning, Utilities, Automation, Info
+- [ ] Verification tab shows startup disk and SMART status
+- [ ] Maintenance tab shows scripts and rebuild options
+- [ ] Cleaning tab shows cache and log clearing options
+- [ ] Utilities tab shows hidden Finder/Dock/Safari settings
+- [ ] Info tab displays system information correctly
+- [ ] Admin password prompt appears when executing maintenance tasks (expected and documented)
+
+**f.lux Testing** (13 items):
+- [ ] f.lux installed at `/Applications/Flux.app`
+- [ ] Launches successfully from Spotlight or Applications folder
+- [ ] Location setup appears on first launch
+- [ ] Can set location via "Locate Me" (auto-detect) or manual entry
+- [ ] Menubar icon appears (🌙 or ☀️ symbol)
+- [ ] Color temperature adjusts based on time of day
+- [ ] Screen is warmer (orange/yellow) in evening (if testing at night)
+- [ ] Screen is cooler (white/blue) during day (if testing during day)
+- [ ] Can open Preferences via menubar icon
+- [ ] Can disable for 1 hour (menubar icon → Disable for one hour)
+- [ ] Can adjust nighttime warmth slider (Preferences → Sunset slider: 2700K-4200K)
+- [ ] Can change location (Preferences → Change Location)
+- [ ] Can enable Movie mode (menubar icon → Movie mode)
+
+**Permission Testing**:
+- [ ] Onyx: Admin password prompt appears when executing tasks (e.g., "Run maintenance scripts")
+  - Expected: Password prompt with explanation of task requiring admin access
+  - Action: Enter password to approve (safe to proceed)
+- [ ] f.lux: Location Services permission request may appear
+  - Expected: System prompt asking for location access
+  - Action: Click OK to approve (optional but recommended)
+  - Alternative: Deny and set location manually if preferred
+- [ ] f.lux: Accessibility permission request may appear
+  - Expected: System prompt asking for accessibility access
+  - Action: Open System Settings → Privacy & Security → Accessibility → Enable f.lux
+  - Why: Required for color temperature adjustment on some macOS versions
+
+**Functional Testing**:
+- [ ] Onyx: Can run maintenance scripts (Maintenance tab → Check "Run maintenance scripts" → Execute)
+  - Expected: Admin password prompt → Scripts run → Completion message
+  - Duration: 1-3 minutes
+- [ ] Onyx: Can view system information (Info tab → System subtab)
+  - Expected: Hardware specs, macOS version, system info displayed
+- [ ] f.lux: Color temperature adjusts in real-time (Preferences → Sunset slider → Move left/right)
+  - Expected: Screen warmth changes immediately as slider moves
+- [ ] f.lux: Disable for 1 hour works (Menubar icon → Disable for one hour)
+  - Expected: Color adjustment pauses, screen returns to normal color
+  - Auto-enable: Should re-enable automatically after 1 hour
+
+**Documentation Verification**:
+- [ ] All permission requests match documented expectations
+- [ ] No unexpected prompts or errors during testing
+- [ ] Auto-update status confirmed (no update prompts, Homebrew-controlled)
+- [ ] Testing checklists in documentation are accurate
+
+**Story Status**: ⚠️ Implementation Complete - VM Testing Pending
+
+---
+

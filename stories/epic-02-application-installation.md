@@ -725,19 +725,21 @@
 - Machine initialization automated or documented
 
 **Technical Notes**:
-- Add to darwin/configuration.nix:
-  ```nix
-  environment.systemPackages = with pkgs; [
-    podman
-    podman-compose
-  ];
-  ```
+- **Important**: All Podman tools installed via Homebrew (not Nix) for GUI integration
+- Podman Desktop (GUI app) requires podman CLI in standard PATH
+- GUI applications on macOS don't inherit shell PATH, so Nix packages may not be found
 - Add to darwin/homebrew.nix:
   ```nix
-  homebrew.casks = [ "podman-desktop" ];
+  homebrew.brews = [
+    "podman"          # Podman CLI
+    "podman-compose"  # Docker Compose compatibility
+  ];
+  homebrew.casks = [
+    "podman-desktop"  # Podman Desktop GUI
+  ];
   ```
 - Initialize Podman machine: `podman machine init && podman machine start`
-- May need activation script or user documentation
+- Machine initialization documented in post-install guide
 
 **Definition of Done**:
 - [x] Podman CLI installed via Nix
@@ -752,14 +754,14 @@
 **Implementation Date**: 2025-11-15
 **Branch**: feature/02.2-005-podman
 **Files Changed**:
-- darwin/configuration.nix: Added podman and podman-compose to systemPackages
-- darwin/homebrew.nix: Added podman-desktop cask
+- darwin/homebrew.nix: Added podman, podman-compose brews + podman-desktop cask
 - docs/app-post-install-configuration.md: Added comprehensive Podman section (240+ lines)
 
 **Implementation Details**:
-- Podman CLI via Nix package (podman)
-- podman-compose via Nix package (podman-compose)
+- Podman CLI via Homebrew brew (podman)
+- podman-compose via Homebrew brew (podman-compose)
 - Podman Desktop via Homebrew cask (podman-desktop)
+- **Rationale for Homebrew**: GUI integration - Podman Desktop needs podman CLI in standard PATH
 - Comprehensive documentation covering:
   - Machine initialization requirements (one-time setup)
   - Verification commands

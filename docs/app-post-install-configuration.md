@@ -1049,12 +1049,14 @@ We use **uv** instead of pip because:
 
 ### Podman and Container Tools
 
-**Status**: Installed via Nix packages + Homebrew cask (Story 02.2-005)
+**Status**: Installed via Homebrew (Story 02.2-005)
 
 **Installed Tools**:
-- **Podman CLI**: Container engine (Docker alternative)
-- **podman-compose**: Docker Compose compatibility for Podman
-- **Podman Desktop**: GUI application for managing containers
+- **Podman CLI**: Container engine (Docker alternative) - via Homebrew
+- **podman-compose**: Docker Compose compatibility for Podman - via Homebrew
+- **Podman Desktop**: GUI application for managing containers - via Homebrew cask
+
+**Note**: All Podman tools installed via Homebrew (not Nix) for better GUI integration. Podman Desktop requires podman CLI in standard PATH, which Homebrew provides but Nix installations may not (GUI apps don't inherit shell PATH).
 
 **✅ CRITICAL: Podman Machine Initialization Required**
 
@@ -1260,10 +1262,10 @@ podman run --rm -it alpine:latest echo "Podman works!"
 - **Projects**: Use Containerfiles instead of Dockerfiles (OCI-compliant)
 
 **Update Philosophy**:
-- ✅ Podman CLI updated via Nix (`rebuild` or `update` commands)
-- ✅ Podman Desktop updated via Homebrew (no auto-update)
-- ✅ Versions controlled by flake.lock and Homebrew
-- ⚠️ Do NOT use `brew upgrade podman-desktop` manually
+- ✅ All Podman tools updated via Homebrew (`rebuild` or `update` commands)
+- ✅ Versions controlled by Homebrew (auto-update disabled globally)
+- ⚠️ Do NOT use `brew upgrade podman` or `brew upgrade podman-desktop` manually
+- ✅ Updates ONLY via darwin-rebuild (Homebrew managed by nix-darwin)
 
 **Testing Checklist**:
 - [ ] Podman CLI installed and version shows

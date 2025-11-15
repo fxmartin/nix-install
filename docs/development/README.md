@@ -21,11 +21,16 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Reference Documentation
 - **[hotfixes.md](./hotfixes.md)** - Production hotfix documentation
-- **Epic-01 Story Implementations** (split by feature):
-  - **[stories/epic-01-feature-01.1-01.2.md](./stories/epic-01-feature-01.1-01.2.md)** - Pre-flight & User Config (399 lines)
-  - **[stories/epic-01-feature-01.4.md](./stories/epic-01-feature-01.4.md)** - Nix Installation (405 lines)
-  - **[stories/epic-01-feature-01.5.md](./stories/epic-01-feature-01.5.md)** - Nix-Darwin Installation (481 lines)
-  - **[stories/epic-01-feature-01.6.md](./stories/epic-01-feature-01.6.md)** - SSH Setup & GitHub Integration (542 lines)
+- **Story Implementations** (split by feature for maintainability - 44 feature files total):
+  - **Epic-01** (8 files): Bootstrap system - Pre-flight, User Config, Xcode, Nix, Nix-Darwin, SSH/GitHub, Clone/Rebuild, Post-Install
+  - **Epic-02** (10 files): Applications - AI Tools, Dev Apps, Browsers, Productivity, Communication, Media, Security, Profile-Specific, Office 365, Email
+  - **Epic-03** (6 files): System Config - Finder, Security, Trackpad, Display, Keyboard, Dock
+  - **Epic-04** (9 files): Dev Environment - Zsh, Starship, FZF, Ghostty, Aliases, Git, Python, Podman, Editors
+  - **Epic-05** (4 files): Theming - Stylix, Fonts, App Theming, Theme Verification
+  - **Epic-06** (4 files): Maintenance - Garbage Collection, Store Optimization, Monitoring Tools, Health Check
+  - **Epic-07** (4 files): Documentation - Quick Start Docs, License Guide, Troubleshooting, Customization
+  - All feature files in **[stories/](./stories/)** directory
+  - Epic overviews in **[/stories/epic-XX-*.md](../../stories/)** with links to detailed implementations
 
 ## 🎯 Current Status (Quick Reference)
 
@@ -92,9 +97,10 @@ Welcome to the nix-install development documentation. This directory contains al
 4. Read `./tools-and-testing.md` (review TDD workflow)
 
 **Reviewing a story implementation?**
-1. Read `./stories/epic-01-bootstrap.md` (find story section)
-2. Check implementation details, testing results, VM validation
-3. Review code quality metrics and acceptance criteria
+1. Read `/stories/epic-XX-*.md` (find story section in epic overview)
+2. Follow link to `./stories/epic-XX-feature-XX.X.md` (detailed implementation)
+3. Check implementation details, testing results, VM validation
+4. Review code quality metrics and acceptance criteria
 
 **Fixing a production issue?**
 1. Read `./hotfixes.md` (check for similar issues)
@@ -123,19 +129,65 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ```
 docs/development/
-├── README.md                          # This file - master index (156 lines)
-├── progress.md                        # Epic overview, story completion, recent activity (200+ lines)
-├── multi-agent-workflow.md            # Agent selection and workflow patterns (51 lines)
-├── tools-and-testing.md               # Dev tools, testing, git workflow (132 lines)
-├── hotfixes.md                        # Production hotfix documentation (44 lines)
-└── stories/
-    ├── epic-01-feature-01.1-01.2.md   # Epic-01 Features 01.1-01.2 (399 lines, ~11K tokens)
-    ├── epic-01-feature-01.4.md        # Epic-01 Feature 01.4 (405 lines, ~12K tokens)
-    ├── epic-01-feature-01.5.md        # Epic-01 Feature 01.5 (481 lines, ~15K tokens)
-    ├── epic-01-feature-01.6.md        # Epic-01 Feature 01.6 (542 lines, ~17K tokens)
-    ├── epic-01-feature-01.7.md        # Epic-01 Feature 01.7 (1,000+ lines, ~30K tokens)
-    ├── epic-02-*.md                   # (Future: Epic-02 stories by feature)
-    └── ...                            # (More epics as implemented)
+├── README.md                          # This file - master index
+├── progress.md                        # Epic overview, story completion, recent activity
+├── multi-agent-workflow.md            # Agent selection and workflow patterns
+├── tools-and-testing.md               # Dev tools, testing, git workflow
+├── hotfixes.md                        # Production hotfix documentation
+└── stories/                           # Feature implementation details (44 files)
+    ├── epic-01-feature-01.1-01.2.md   # Epic-01: Pre-flight & User Config
+    ├── epic-01-feature-01.3.md        # Epic-01: Xcode CLI Tools
+    ├── epic-01-feature-01.4.md        # Epic-01: Nix Installation
+    ├── epic-01-feature-01.5.md        # Epic-01: Nix-Darwin Installation
+    ├── epic-01-feature-01.6.md        # Epic-01: SSH Setup & GitHub
+    ├── epic-01-feature-01.7.md        # Epic-01: Repository Clone & Rebuild
+    ├── epic-01-feature-01.8.md        # Epic-01: Installation Summary
+    ├── epic-02-feature-02.1.md        # Epic-02: AI & LLM Tools
+    ├── epic-02-feature-02.2.md        # Epic-02: Dev Environment Apps
+    ├── epic-02-feature-02.3.md        # Epic-02: Browsers
+    ├── epic-02-feature-02.4.md        # Epic-02: Productivity & Utilities
+    ├── epic-02-feature-02.5.md        # Epic-02: Communication Tools
+    ├── epic-02-feature-02.6.md        # Epic-02: Media & Creative Tools
+    ├── epic-02-feature-02.7.md        # Epic-02: Security & VPN
+    ├── epic-02-feature-02.8.md        # Epic-02: Profile-Specific Apps
+    ├── epic-02-feature-02.9.md        # Epic-02: Office 365
+    ├── epic-02-feature-02.10.md       # Epic-02: Email Configuration
+    ├── epic-03-feature-03.1.md        # Epic-03: Finder Configuration
+    ├── epic-03-feature-03.2.md        # Epic-03: Security Configuration
+    ├── epic-03-feature-03.3.md        # Epic-03: Trackpad & Input
+    ├── epic-03-feature-03.4.md        # Epic-03: Display & Appearance
+    ├── epic-03-feature-03.5.md        # Epic-03: Keyboard & Text Input
+    ├── epic-03-feature-03.6.md        # Epic-03: Dock Configuration
+    ├── epic-04-feature-04.1.md        # Epic-04: Zsh & Oh My Zsh
+    ├── epic-04-feature-04.2.md        # Epic-04: Starship Prompt
+    ├── epic-04-feature-04.3.md        # Epic-04: FZF Integration
+    ├── epic-04-feature-04.4.md        # Epic-04: Ghostty Terminal
+    ├── epic-04-feature-04.5.md        # Epic-04: Shell Aliases
+    ├── epic-04-feature-04.6.md        # Epic-04: Git Configuration
+    ├── epic-04-feature-04.7.md        # Epic-04: Python Environment
+    ├── epic-04-feature-04.8.md        # Epic-04: Container Environment
+    ├── epic-04-feature-04.9.md        # Epic-04: Editor Configuration
+    ├── epic-05-feature-05.1.md        # Epic-05: Stylix System
+    ├── epic-05-feature-05.2.md        # Epic-05: Font Configuration
+    ├── epic-05-feature-05.3.md        # Epic-05: App-Specific Theming
+    ├── epic-05-feature-05.4.md        # Epic-05: Theme Verification
+    ├── epic-06-feature-06.1.md        # Epic-06: Garbage Collection
+    ├── epic-06-feature-06.2.md        # Epic-06: Store Optimization
+    ├── epic-06-feature-06.3.md        # Epic-06: System Monitoring
+    ├── epic-06-feature-06.4.md        # Epic-06: Health Check
+    ├── epic-07-feature-07.1.md        # Epic-07: Quick Start Docs
+    ├── epic-07-feature-07.2.md        # Epic-07: License Activation Guide
+    ├── epic-07-feature-07.3.md        # Epic-07: Troubleshooting Guide
+    └── epic-07-feature-07.4.md        # Epic-07: Customization Guide
+
+../../stories/                          # Epic overviews (link to feature files)
+├── epic-01-bootstrap-installation.md  # Epic-01 overview (60K → 60K, already split)
+├── epic-02-application-installation.md # Epic-02 overview (85K → 9.1K)
+├── epic-03-system-configuration.md    # Epic-03 overview (29K → 6.6K)
+├── epic-04-development-environment.md # Epic-04 overview (40K → 7.6K)
+├── epic-05-theming-visual-consistency.md # Epic-05 overview (21K → 5.8K)
+├── epic-06-maintenance-monitoring.md  # Epic-06 overview (21K → 5.3K)
+└── epic-07-documentation-user-experience.md # Epic-07 overview (30K → 5.3K)
 ```
 
 ## 🚀 Quick Commands
@@ -171,9 +223,11 @@ cat /stories/epic-*.md | grep -A 20 "STORY-ID"
 
 ## 📝 Notes
 
-- **Buffer Size Constraint**: DEVELOPMENT.md was split because it exceeded Claude Code's 25,000 token buffer limit
+- **Modular Structure**: Epic files split into feature-specific files for better maintainability (44 feature files total)
+- **Epic Overviews**: `/stories/epic-XX-*.md` files provide high-level summaries with links to detailed feature implementations
+- **Feature Details**: `docs/development/stories/epic-XX-feature-XX.X.md` files contain full implementation details, testing results, and lessons learned
+- **Buffer Size Constraint**: Large epic files (up to 85K) reduced to manageable sizes (5-10K) by extracting features
 - **Single Source of Truth**: This directory structure preserves all development documentation while staying within buffer limits
-- **Epic Files Mirror /stories/**: Each epic gets its own file matching `/stories/epic-*.md` structure
 - **Master Index**: This README.md provides navigation and quick reference across all files
 
 ## 🔍 Related Documentation

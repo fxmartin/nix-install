@@ -101,14 +101,15 @@ FX's role: ALL testing, execution, and validation.
   - Next stories: 01.1-003 (Progress Indicators, P1 optional), 01.1-004 (Modular Bootstrap, deferred)
   - Quick reference for completed stories and testing metrics
 - `docs/development/progress.md`: Epic overview table, completed stories, recent activity
-- `docs/development/stories/epic-01-feature-*.md`: Detailed Epic-01 story implementations (split by feature)
-  - `epic-01-feature-01.1-01.2.md`: Pre-flight & User Config
-  - `epic-01-feature-01.3.md`: Xcode CLI Tools
-  - `epic-01-feature-01.4.md`: Nix Installation
-  - `epic-01-feature-01.5.md`: Nix-Darwin Installation
-  - `epic-01-feature-01.6.md`: SSH Setup & GitHub Integration
-  - `epic-01-feature-01.7.md`: Repository Clone & Final Darwin Rebuild
-  - `epic-01-feature-01.8.md`: Installation Summary & Next Steps
+- `docs/development/stories/epic-XX-feature-XX.X.md`: Detailed story implementations (split by feature for maintainability)
+  - **Epic-01** (8 files): Pre-flight, User Config, Xcode, Nix, Nix-Darwin, SSH/GitHub, Clone/Rebuild, Post-Install
+  - **Epic-02** (10 files): AI Tools, Dev Apps, Browsers, Productivity, Communication, Media, Security, Profile-Specific, Office 365, Email
+  - **Epic-03** (6 files): Finder, Security, Trackpad, Display, Keyboard, Dock
+  - **Epic-04** (9 files): Zsh, Starship, FZF, Ghostty, Aliases, Git, Python, Podman, Editors
+  - **Epic-05** (4 files): Stylix, Fonts, App Theming, Theme Verification
+  - **Epic-06** (4 files): Garbage Collection, Store Optimization, Monitoring Tools, Health Check
+  - **Epic-07** (4 files): Quick Start Docs, License Guide, Troubleshooting, Customization
+  - See `stories/epic-XX-*.md` files for feature overviews with links to detailed implementations
 - `docs/development/multi-agent-workflow.md`: Agent selection strategy and usage patterns
 - `docs/development/tools-and-testing.md`: Development environment setup and testing
 - `docs/development/hotfixes.md`: Production hotfix documentation

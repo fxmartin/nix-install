@@ -13,9 +13,9 @@
 - FZF keybindings operational (Ctrl+R, Ctrl+T, Alt+C)
 
 ## Epic Scope
-**Total Stories**: 18
-**Total Story Points**: 97
-**MVP Stories**: 18 (100% of epic)
+**Total Stories**: 19
+**Total Story Points**: 105
+**MVP Stories**: 19 (100% of epic)
 **Priority Level**: Must Have
 **Target Release**: Phase 4-5 (Week 4)
 
@@ -45,8 +45,8 @@
 👉 **[View detailed implementation](../docs/development/stories/epic-04-feature-04.4.md)**
 
 ### Feature 04.5: Shell Aliases and Functions
-**Feature Description**: Configure shell aliases and custom functions
-**Story Count**: 3 | **Story Points**: 11 | **Priority**: Medium | **Complexity**: Medium
+**Feature Description**: Configure shell aliases, custom functions, and modern CLI tool replacements (ripgrep, bat, fd, eza, zoxide, httpie, tldr)
+**Story Count**: 3 | **Story Points**: 18 | **Priority**: High | **Complexity**: Medium
 👉 **[View detailed implementation](../docs/development/stories/epic-04-feature-04.5.md)**
 
 ### Feature 04.6: Git Configuration
@@ -91,7 +91,7 @@
 ### Sprint Breakdown
 | Sprint | Stories | Story Points | Sprint Goal |
 |--------|---------|--------------|-------------|
-| Sprint 5 | 04.1-001 to 04.8-002 | 82 | Shell, prompt, FZF, aliases, Git, Python, Podman |
+| Sprint 5 | 04.1-001 to 04.8-002 | 90 | Shell, prompt, FZF, modern CLI tools, aliases, Git, Python, Podman |
 | Sprint 6 | 04.9-001 to 04.9-003 | 15 | Editor configuration and documentation |
 
 ### Delivery Milestones
@@ -110,23 +110,24 @@
 ## Epic Progress Tracking
 
 ### Completion Status
-- **Stories Completed**: 0 of 18 (0%)
-- **Story Points Completed**: 0 of 97 (0%)
-- **MVP Stories Completed**: 0 of 18 (0%)
+- **Stories Completed**: 0 of 19 (0%)
+- **Story Points Completed**: 0 of 105 (0%)
+- **MVP Stories Completed**: 0 of 19 (0%)
 
 ### Sprint Progress
 | Sprint | Planned Points | Completed Points | Stories Done | Status |
 |--------|----------------|------------------|--------------|--------|
-| Sprint 5 | 82 | 0 | 0/15 | Not Started |
+| Sprint 5 | 90 | 0 | 0/16 | Not Started |
 | Sprint 6 | 15 | 0 | 0/3 | Not Started |
 
 ## Epic Acceptance Criteria
-- [ ] All MVP stories (18/18) completed and accepted
+- [ ] All MVP stories (19/19) completed and accepted
 - [ ] Shell startup time <500ms
 - [ ] All dev tools (Python, Podman, Git) functional
+- [ ] Modern CLI tools operational (ripgrep, bat, fd, eza, zoxide, httpie, tldr)
 - [ ] Aliases work in fresh terminal (rebuild, update, gc, cleanup, ll, etc.)
 - [ ] Zed and Ghostty themed consistently with Catppuccin
-- [ ] FZF keybindings operational (Ctrl+R, Ctrl+T, Alt+C)
+- [ ] FZF keybindings operational (Ctrl+R, Ctrl+T, Alt+C) with bat preview
 - [ ] Git config includes user info, LFS, SSH
 - [ ] Python and uv ready for project work
 - [ ] Podman machine initialized and running

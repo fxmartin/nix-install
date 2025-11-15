@@ -80,7 +80,7 @@
 ---
 
 ##### Story 04.1-002: Oh My Zsh Installation and Plugin Configuration
-**User Story**: As FX, I want Oh My Zsh installed with git, fzf, zsh-autosuggestions, and z plugins so that I have enhanced shell features
+**User Story**: As FX, I want Oh My Zsh installed with git, fzf, and zsh-autosuggestions plugins so that I have enhanced shell features (note: directory jumping via zoxide in Story 04.5-003 replaces the z plugin)
 
 **Priority**: Must Have
 **Story Points**: 8
@@ -92,14 +92,15 @@
 - **Then** Oh My Zsh is installed and active
 - **And** git plugin provides aliases (gst, gco, gcm, etc.)
 - **And** zsh-autosuggestions shows grayed-out command suggestions
-- **And** z plugin allows jumping to directories (e.g., `z nix-install`)
-- **And** fzf plugin enables fuzzy finding (integrated in next story)
+- **And** fzf plugin enables fuzzy finding (integrated in Story 04.3-001)
 - **And** Oh My Zsh theme is NOT set (Starship handles prompt)
 - **And** startup time is still <500ms (lazy loading)
 
+**Note**: Directory jumping is handled by zoxide (Story 04.5-003), not the z plugin
+
 **Additional Requirements**:
 - Oh My Zsh via Home Manager (not manual sh install)
-- Plugins: git, fzf, zsh-autosuggestions, z
+- Plugins: git, fzf, zsh-autosuggestions (NOT z - replaced by zoxide in Story 04.5-003)
 - Theme: Empty or blank (Starship replaces Oh My Zsh themes)
 - Fast startup: Lazy-load where possible
 
@@ -114,24 +115,26 @@
         "git"
         "fzf"
         "zsh-autosuggestions"
-        "z"
+        # NOTE: z plugin NOT included - zoxide (Story 04.5-003) provides superior directory jumping
       ];
     };
   };
   ```
 - zsh-autosuggestions: May need to install separately via Nix if not in Oh My Zsh
 - Test: `gst` should run `git status`, typing partial command shows suggestion
-- z: Run `z <partial-directory-name>` to jump
+- Directory jumping: zoxide (installed in Story 04.5-003) provides frecency-based jumping with `z <partial-directory-name>`
 
 **Definition of Done**:
 - [ ] Oh My Zsh enabled in Home Manager
-- [ ] All plugins active
+- [ ] All plugins active (git, fzf, zsh-autosuggestions - NOT z)
 - [ ] git aliases work (gst, gco, etc.)
 - [ ] Autosuggestions appear when typing
-- [ ] z plugin jumps to directories
+- [ ] fzf plugin integrates with Story 04.3-001
 - [ ] No Oh My Zsh theme set
 - [ ] Startup time <500ms
 - [ ] Tested in VM
+
+**Note**: Directory jumping testing deferred to Story 04.5-003 (zoxide replaces z plugin)
 
 **Dependencies**:
 - Story 04.1-001 (Zsh configured)

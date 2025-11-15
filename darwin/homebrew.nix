@@ -93,6 +93,12 @@
       # Auto-update disable: Calibre (Preferences → Misc), Marked 2 (Preferences → General)
       "calibre" # Calibre - Ebook library manager and converter (Story 02.4-003)
       "keka"    # Keka - Archive utility for zip, rar, 7z, etc. (Story 02.4-003)
+
+      # System Utilities (Story 02.4-005)
+      # Auto-update disable: None required (both free utilities, Homebrew-controlled)
+      # Permission notes: Onyx requires admin password for system tasks, f.lux may request accessibility
+      "onyx"     # Onyx - System maintenance and optimization utility (Story 02.4-005)
+      "flux-app" # f.lux - Display color temperature adjustment (Story 02.4-005)
     ];
 
     # Global Homebrew options

@@ -160,6 +160,7 @@ When VSCode was disabled due to Electron crashes:
 - [Productivity & Utilities](#productivity--utilities)
   - [Raycast](#raycast)
   - [1Password](#1password)
+  - [Dropbox](#dropbox)
   - [Calibre](#calibre)
   - [Kindle](#kindle)
   - [Keka](#keka)
@@ -2755,6 +2756,309 @@ darwin-rebuild switch # Applies the updates
 
 ---
 
+### Dropbox
+
+**Status**: Installed via Homebrew cask `dropbox` (Story 02.4-004)
+
+**Purpose**: Cloud storage and file synchronization service. Sync files across all devices (MacBooks, mobile, web), share files and folders, collaborate on documents, and backup important files automatically.
+
+**First Launch**:
+1. Launch Dropbox from Spotlight (`Cmd+Space`, type "Dropbox") or from `/Applications/Dropbox.app`
+2. Welcome screen appears with account setup wizard
+3. Follow setup steps:
+   - **Account Sign-In** (REQUIRED): Sign in with existing Dropbox account
+     - Enter your email address
+     - Enter your password
+     - Complete two-factor authentication if enabled
+   - **OR Create New Account**: Create a new Dropbox account
+     - Choose account type (Basic Free, Plus, Professional, Family)
+     - Set up password and verify email
+   - **Selective Sync** (Optional): Choose which folders to sync locally
+   - **Menubar Icon**: Dropbox icon appears in menubar after sign-in
+
+**Account Sign-In Process**:
+
+Dropbox requires a Dropbox account (free or paid subscription).
+
+**If You Already Have a Dropbox Account**:
+1. Launch Dropbox
+2. Click "Sign In"
+3. Enter your email address → Continue
+4. Enter your password
+5. Complete two-factor authentication (if enabled)
+6. Click "Sign In"
+7. Dropbox creates local folder at `~/Dropbox` and begins syncing from cloud
+
+**If You Need to Create a New Account**:
+1. Launch Dropbox
+2. Click "Create an Account"
+3. Enter your name, email address, and password
+4. Agree to terms and click "Create an Account"
+5. Verify email address (check inbox for verification email)
+6. Choose plan:
+   - **Basic** (Free): 2GB storage, file sync, file recovery
+   - **Plus** ($11.99/month): 2TB storage, 30-day file recovery, priority support
+   - **Professional** ($19.99/month): 3TB storage, advanced sharing, watermarking, analytics
+   - **Family** ($19.99/month): 2TB storage shared with up to 6 users, family room
+7. Complete sign-up
+8. Dropbox creates local folder at `~/Dropbox` and syncs to cloud
+
+**Auto-Update Configuration** (REQUIRED):
+
+Dropbox updates must be disabled to maintain declarative configuration control.
+
+**Steps to Disable Auto-Update**:
+1. Launch Dropbox (or click menubar icon)
+2. Click **Dropbox icon** in menubar (⌄ icon)
+3. Click **Profile icon** (top-right) → **Preferences** (or press `Cmd+,`)
+4. Navigate to **Account** tab
+5. Find **Updates** section
+6. **Uncheck** "Automatically download and install updates"
+7. Close Preferences
+
+**Verification**:
+- Open Dropbox Preferences → Account
+- Confirm "Automatically download and install updates" is **unchecked**
+- Updates will now only occur via `darwin-rebuild switch` (controlled by Homebrew)
+
+**Update Process** (Controlled by Homebrew):
+```bash
+# To update Dropbox (along with all other apps):
+darwin-rebuild switch  # Uses current flake.lock versions
+
+# OR to get latest versions first:
+nix flake update      # Updates flake.lock with latest package versions
+darwin-rebuild switch # Applies the updates
+```
+
+**Selective Sync Configuration** (RECOMMENDED for MacBook Airs):
+
+Selective Sync allows you to choose which folders sync locally, saving disk space.
+
+**Setting Up Selective Sync**:
+1. Click **Dropbox icon** in menubar
+2. Click **Profile icon** → **Preferences**
+3. Navigate to **Sync** tab
+4. Click **Selective Sync** button
+5. Uncheck folders you don't want to sync locally (cloud-only)
+6. Check folders you want available offline (local)
+7. Click **Update**
+8. Dropbox removes unchecked folders from Mac (still in cloud)
+
+**Selective Sync Strategy for Multiple MacBooks**:
+- **MacBook Pro M3 Max** (large disk): Sync all important folders
+- **MacBook Air** (smaller disk): Sync only essential folders, use cloud-only for large files
+- **Cloud-Only**: Photos, videos, archives, old projects
+- **Local Sync**: Active projects, documents, important files
+
+**Core Features**:
+
+Dropbox provides comprehensive cloud storage and file synchronization:
+
+1. **File Sync Across Devices**:
+   - Automatic background sync across all devices
+   - Real-time file updates
+   - Version history (30 days Basic, extended with Plus/Pro)
+   - File recovery and undelete
+   - Offline access to synced files
+
+2. **Selective Sync (Smart Sync)**:
+   - Choose which folders to download locally
+   - Cloud-only files (view in Finder, download on demand)
+   - Local files (always available offline)
+   - Automatic space management
+   - Mixed sync (some folders local, some cloud-only)
+
+3. **File Sharing**:
+   - Share files with simple link (anyone with link)
+   - Share folders (collaborative editing)
+   - Set permissions (view-only, edit, comment)
+   - Password protection for links
+   - Expiration dates for shared links
+   - Track who viewed shared files
+
+4. **Dropbox Paper**:
+   - Collaborative documents
+   - Real-time editing with team members
+   - Rich media support (images, videos, code blocks)
+   - Task lists and assignments
+   - Comment threads
+
+5. **File Requests**:
+   - Collect files from others without Dropbox account
+   - Create file request link
+   - Others upload files directly to your Dropbox
+   - Organize uploaded files into specific folders
+
+6. **Camera Uploads**:
+   - Automatically backup photos and videos from mobile devices
+   - Configure upload quality (original or reduced)
+   - Choose upload method (Wi-Fi only or cellular)
+   - Background uploads
+
+7. **Version History**:
+   - Restore previous versions of files
+   - 30-day version history (Basic)
+   - Extended version history (Plus/Professional)
+   - Compare versions
+   - Recover deleted files
+
+8. **Smart Sync** (Plus/Professional):
+   - Online-only files (appear in Finder, stored in cloud)
+   - Local files (downloaded, available offline)
+   - Automatic space savings
+   - On-demand download
+   - Recommended files (frequently accessed = local)
+
+**Basic Usage Examples**:
+
+**Adding Files to Dropbox**:
+1. Drag files/folders into `~/Dropbox` folder in Finder
+2. OR: Right-click file → "Save to Dropbox" (if desktop app installed)
+3. OR: Use "Save As" dialog → Navigate to Dropbox folder
+4. Files sync automatically to cloud and other devices
+
+**Accessing Dropbox Files**:
+1. **Finder**: Open `~/Dropbox` folder (appears in Finder sidebar)
+2. **Web Interface**: Visit https://www.dropbox.com in browser
+3. **Mobile Apps**: iOS/Android Dropbox apps
+4. **Menubar**: Click Dropbox icon → "Open Dropbox Folder"
+
+**Sharing a File**:
+1. Right-click file in `~/Dropbox` folder
+2. Select "Share..." from context menu
+3. Choose sharing method:
+   - **Copy Link**: Anyone with link can view
+   - **Email**: Send link via email directly
+   - **Permissions**: Set view-only or allow editing
+4. Share link with recipient
+5. Track views and downloads (if Professional plan)
+
+**Sharing a Folder** (Collaborative Editing):
+1. Right-click folder in `~/Dropbox` folder
+2. Select "Share..." from context menu
+3. Enter email addresses of people to share with
+4. Set permissions (can edit or can view)
+5. Click "Share"
+6. Recipients receive invitation to join folder
+7. Folder appears in their Dropbox with real-time sync
+
+**Managing Selective Sync**:
+1. Click Dropbox menubar icon
+2. Preferences → Sync → Selective Sync
+3. **Uncheck** folders to make cloud-only (frees disk space)
+4. **Check** folders to download locally (offline access)
+5. Click Update
+6. Dropbox adjusts local storage
+
+**Checking Sync Status**:
+1. Look at Dropbox menubar icon:
+   - **Blue checkmark**: All files synced
+   - **Rotating arrows**: Syncing in progress
+   - **Red X**: Sync error (click for details)
+2. Click menubar icon → View recent files/activity
+
+**Configuration Tips**:
+
+1. **Organize with Folders**:
+   - Create clear folder structure in `~/Dropbox`
+   - Separate work and personal files
+   - Use descriptive folder names
+   - Avoid deeply nested folders (sync performance)
+
+2. **Use Selective Sync to Save Space** (MacBook Airs):
+   - Keep active projects local
+   - Make archive folders cloud-only
+   - Large media files cloud-only (photos, videos)
+   - Review selective sync quarterly
+
+3. **Enable Camera Uploads** (Mobile):
+   - Automatic photo/video backup
+   - Settings → Camera Uploads → Enable
+   - Choose quality (original or space-saving)
+   - Wi-Fi only recommended (saves cellular data)
+
+4. **Configure Notifications**:
+   - Preferences → General → Notifications
+   - Enable notifications for shared folder changes
+   - Enable notifications when someone views shared files
+   - Disable excessive notifications if distracting
+
+5. **Use Smart Sync** (Plus/Professional):
+   - Preferences → Sync → Smart Sync
+   - Set folders to "Online-only" (cloud storage, local placeholder)
+   - Set folders to "Local" (always downloaded)
+   - Dropbox recommends frequently accessed files automatically
+
+6. **Bandwidth Settings** (Optimize Performance):
+   - Preferences → Network
+   - Limit upload rate (don't saturate internet connection)
+   - Limit download rate (optional)
+   - Pause syncing during important video calls/uploads
+
+**License Requirements**:
+
+Dropbox uses **account-based subscription model** (no separate license key):
+- **Basic** (Free): 2GB storage, file sync, basic sharing, 30-day version history
+- **Plus** ($11.99/month): 2TB storage, Smart Sync, priority support, advanced sharing
+- **Professional** ($19.99/month): 3TB storage, watermarking, analytics, showcase
+- **Family** ($19.99/month): 2TB storage shared with up to 6 users, family room
+- **Account Required**: Sign in with Dropbox account (created during first launch or at dropbox.com)
+
+**Post-Install Checklist**:
+1. Launch Dropbox from Applications or Spotlight
+2. Sign in with existing Dropbox account (or create new account)
+3. Verify `~/Dropbox` folder created and syncing
+4. Disable auto-update: Preferences → Account → Uncheck "Automatically download and install updates"
+5. Configure selective sync (if needed): Preferences → Sync → Selective Sync
+6. Verify menubar icon shows sync status
+7. Add test file to Dropbox folder and verify it syncs to web interface
+8. Set up Camera Uploads on mobile devices (optional)
+9. Configure notifications: Preferences → General → Notifications
+10. Configure bandwidth limits (optional): Preferences → Network
+
+**Testing Checklist** (for VM validation):
+1. Verify Dropbox installed in `/Applications/Dropbox.app`
+2. Launch Dropbox - account sign-in screen should appear
+3. Sign in with existing account (or create test account)
+4. Verify `~/Dropbox` folder created in Finder sidebar
+5. Verify menubar icon appears after sign-in
+6. Create test file in `~/Dropbox` folder and verify sync status icon
+7. Verify file appears in web interface (https://www.dropbox.com)
+8. Test selective sync: Preferences → Sync → Selective Sync (uncheck/check folder)
+9. Test file sharing: Right-click file → Share → Copy Link
+10. Open Preferences → Account
+11. Verify "Automatically download and install updates" is **checked** (default)
+12. **Uncheck** "Automatically download and install updates"
+13. Verify auto-update is now **disabled**
+
+**Troubleshooting**:
+
+**Issue**: Dropbox not syncing
+- **Solution**: Check internet connection
+- Click Dropbox menubar icon → Check sync status
+- Preferences → Account → Relink Dropbox account
+- Quit and restart Dropbox
+
+**Issue**: Selective sync folders still taking disk space
+- **Solution**: Preferences → Sync → Selective Sync → Uncheck folders → Update
+- Wait for Dropbox to remove local files (cloud copies remain)
+- Check Finder → `~/Dropbox` → Folder should show cloud icon (not downloaded)
+
+**Issue**: File conflicts after editing on multiple devices
+- **Solution**: Dropbox creates "conflicted copy" when simultaneous edits occur
+- Search for "conflicted copy" in Dropbox folder
+- Manually merge changes from conflicted copy into main file
+- Delete conflicted copy after merging
+
+**Issue**: Slow sync speed
+- **Solution**: Preferences → Network → Limit upload/download bandwidth
+- Pause sync during important internet activities
+- Check for large files syncing (menubar icon → Recent)
+- Consider upgrading internet connection for faster sync
+
+---
+
 ### Calibre
 
 **Status**: Installed via Homebrew cask `calibre` (Story 02.4-003)
@@ -3520,5 +3824,16 @@ Marked 2 is a **paid application** purchased via Mac App Store.
   - ✅ License requirements documented: Calibre (free/open source), Kindle (free with Amazon account), Keka (free/open source), Marked 2 (paid $14.99 Mac App Store)
   - ✅ Table of contents updated with all four apps
   - ⚠️ VM testing pending: All four apps installation, auto-update disable (Calibre, Marked 2), file association setup (Keka), Amazon sign-in (Kindle)
+**Story 02.4-004**: Dropbox - ✅ Installation and documentation implemented
+  - ✅ Homebrew cask added to darwin/homebrew.nix (dropbox)
+  - ✅ Comprehensive documentation added to app-post-install-configuration.md (300+ lines)
+  - ✅ Account sign-in process documented (existing account vs new account creation)
+  - ✅ Auto-update disable instructions documented (Preferences → Account → Uncheck "Automatically download and install updates")
+  - ✅ Selective Sync configuration documented (RECOMMENDED for MacBook Airs to save disk space)
+  - ✅ Core features documented: File sync across devices, Selective Sync/Smart Sync, file sharing, Dropbox Paper, file requests, camera uploads, version history
+  - ✅ Configuration tips: Folder organization, selective sync strategy for multiple MacBooks, camera uploads, notifications, bandwidth settings
+  - ✅ License requirements documented: Account-based (Basic Free 2GB, Plus $11.99/month 2TB, Professional $19.99/month 3TB, Family $19.99/month 2TB for 6 users)
+  - ✅ Troubleshooting guide included (sync issues, selective sync, file conflicts, slow sync speed)
+  - ⚠️ VM testing pending: Installation verification, account sign-in, auto-update disable, selective sync functionality, file sharing
 
 ---

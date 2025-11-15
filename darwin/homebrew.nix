@@ -78,6 +78,10 @@
 
       # Container Tools (Story 02.2-005)
       "podman-desktop" # Podman Desktop - GUI for managing Podman containers
+
+      # Browsers (Story 02.3-001)
+      # Auto-update disable: Check app preferences after first launch
+      "brave-browser" # Brave Browser - Privacy-focused browser with built-in ad/tracker blocking
     ];
 
     # Global Homebrew options

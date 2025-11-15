@@ -9,11 +9,11 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **28.7% complete** (33/115 stories, 180/606 points)
+  - Current project status: **29.6% complete** (34/115 stories, 183/606 points)
   - Epic-01: **89.5% complete** (17/19 stories, 104/113 points) 🟢 Bootstrap functional
-  - Epic-02: **64.0% complete** (16/25 stories, 76/118 points) 🟡 In Progress
-  - Next stories: 02.4-004 (Dropbox, 3 pts), 02.4-005 (System Utilities, 3 pts), 02.5-001 (Communication Tools, 3 pts)
-  - Recent: Feature 02.4 in progress - Productivity apps (4/7 stories complete: Raycast, 1Password, File Utilities, Git)
+  - Epic-02: **68.0% complete** (17/25 stories, 79/118 points) 🟡 In Progress
+  - Next stories: 02.4-005 (System Utilities, 3 pts), 02.4-006 (System Monitoring, 5 pts), 02.5-001 (Communication Tools, 3 pts)
+  - Recent: Feature 02.4 in progress - Productivity apps (5/7 stories complete: Raycast, 1Password, File Utilities, Dropbox, Git)
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns
@@ -34,12 +34,12 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ## 🎯 Current Status (Quick Reference)
 
-**Overall Project**: 28.7% complete (33/115 stories, 180/606 points)
+**Overall Project**: 29.6% complete (34/115 stories, 183/606 points)
 
 **Epic-01: Bootstrap & Installation System** - 89.5% complete (92.0% by points) 🟢
-**Epic-02: Application Installation** - 64.0% complete (64.4% by points) 🟡
+**Epic-02: Application Installation** - 68.0% complete (66.9% by points) 🟡
 
-### ✅ Completed Stories (33)
+### ✅ Completed Stories (34)
 
 #### Epic-01 Stories (17)
 1. **01.1-001** - Pre-flight Environment Checks (5 pts) - 2025-11-08
@@ -60,7 +60,7 @@ Welcome to the nix-install development documentation. This directory contains al
 16. **01.7-002** - Final Darwin Rebuild (8 pts) - 2025-11-11
 17. **01.8-001** - Installation Summary & Next Steps (3 pts) - 2025-11-11
 
-#### Epic-02 Stories (16)
+#### Epic-02 Stories (17)
 18. **02.1-001** - Claude Desktop and AI Chat Apps (3 pts) - 2025-11-12 (VM tested)
 19. **02.1-002** - Ollama Desktop App Installation (3 pts) - 2025-11-12 (VM tested)
 20. **02.1-003** - Standard Profile Ollama Model (2 pts) - 2025-11-12 (VM tested)
@@ -76,14 +76,14 @@ Welcome to the nix-install development documentation. This directory contains al
 30. **02.4-001** - Raycast Installation (3 pts) - 2025-01-15 (VM tested)
 31. **02.4-002** - 1Password Installation (3 pts) - 2025-01-15 (VM tested)
 32. **02.4-003** - File Utilities (Calibre, Kindle, Keka, Marked 2) (5 pts) - 2025-01-15 (VM tested)
-33. **02.4-007** - Git and Git LFS (5 pts) - 2025-01-15 (VM tested)
+33. **02.4-004** - Dropbox Installation (3 pts) - 2025-01-15 (VM tested)
+34. **02.4-007** - Git and Git LFS (5 pts) - 2025-01-15 (VM tested)
 
 ### 🚧 Next Stories
 
 **Epic-02 Options** (Continue application installation):
-- **02.4-004** - Dropbox Installation (3 pts)
-- **02.4-005** - System Utilities (Keka, Alfred alternatives) (3 pts)
-- **02.4-006** - Menu Bar Utilities (Bartender, iStat Menus alternatives) (3 pts)
+- **02.4-005** - System Utilities (Onyx, f.lux) (3 pts)
+- **02.4-006** - System Monitoring (gotop, iStat Menus, macmon) (5 pts)
 - **02.5-001** - Communication Tools (Zoom, Webex, Slack, Teams, WhatsApp) (3 pts)
 - **02.6-001** - Media & Creative Tools (2 pts)
 
@@ -93,7 +93,7 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### ⏳ Remaining Stories
 - **Epic-01**: 2 stories remaining (01.1-003, 01.1-004) - both P1 optional/deferred
-- **Epic-02**: 9 stories remaining (16 completed, 9 to go)
+- **Epic-02**: 8 stories remaining (17 completed, 8 to go)
 
 ## 🛠️ What to Read First?
 

@@ -114,6 +114,7 @@
               githubUsername
               hostname
               ;
+            inherit mcp-servers-nix;  # Pass MCP servers flake to Home Manager
           };
           users.${validatedConfig.username} = {lib, ...}: {
             imports = [./home-manager/home.nix];

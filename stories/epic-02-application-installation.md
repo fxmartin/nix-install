@@ -742,16 +742,17 @@
 - Machine initialization documented in post-install guide
 
 **Definition of Done**:
-- [x] Podman CLI installed via Nix
-- [x] podman-compose installed
-- [x] Podman Desktop installed via Homebrew
-- [x] Can run containers successfully (pending VM test)
+- [x] Podman CLI installed via Homebrew
+- [x] podman-compose installed via Homebrew
+- [x] Podman Desktop installed via Homebrew cask
+- [x] Can run containers successfully ✅ VM tested
 - [x] Machine initialization documented
-- [ ] Tested in VM (pending FX validation)
+- [x] Tested in VM ✅ All manual tests successful (2025-11-15)
 - [x] Documentation includes setup steps
 
-**Implementation Status**: ✅ **CODE COMPLETE** - Pending VM testing by FX
+**Implementation Status**: ✅ **COMPLETE** - VM tested and validated by FX
 **Implementation Date**: 2025-11-15
+**VM Testing Date**: 2025-11-15
 **Branch**: feature/02.2-005-podman
 **Files Changed**:
 - darwin/homebrew.nix: Added podman, podman-compose brews + podman-desktop cask
@@ -770,6 +771,25 @@
   - Troubleshooting guide
   - Resource management tips
 - No Home Manager module needed (system-level packages only)
+
+**Issues Encountered and Resolved**:
+- **Issue #33**: Podman Desktop "extension not detected" error
+  - Root cause: Podman CLI via Nix not in GUI app PATH
+  - Resolution: Moved all Podman tools to Homebrew (commit b03bc37)
+- **Issue #34**: "Docker socket is not disguised correctly" error
+  - Root cause: Machine initialized without proper Docker compatibility flags
+  - Resolution: Use `podman machine init --now --rootful=false` (commit 15648d4)
+
+**VM Testing Results** (FX - 2025-11-15):
+- ✅ Podman CLI installed and accessible (/opt/homebrew/bin/podman)
+- ✅ podman-compose installed and functional
+- ✅ Podman Desktop launches without errors
+- ✅ Podman extension detected correctly
+- ✅ Machine initializes with correct flags (--now --rootful=false)
+- ✅ Docker socket configured properly (no errors)
+- ✅ Container execution successful (hello-world, alpine)
+- ✅ podman-compose works with docker-compose.yml files
+- ✅ All troubleshooting scenarios documented and tested
 
 **VM Testing Instructions** (for FX):
 1. Run `darwin-rebuild switch` in VM

@@ -59,6 +59,115 @@
 **Risk Level**: Low
 **Risk Mitigation**: N/A
 
+#### Implementation Details (Story 02.4-001)
+
+**Implementation Date**: 2025-01-15
+**Implementation Status**: ✅ Code Complete - Awaiting VM Testing
+
+**Changes Made**:
+
+1. **Homebrew Cask** (darwin/homebrew.nix:87-89):
+   ```nix
+   # Productivity & Utilities (Story 02.4-001)
+   # Auto-update disable: Preferences → Advanced → Disable auto-update (manual step)
+   "raycast" # Raycast - Application launcher and productivity tool (Story 02.4-001)
+   ```
+
+2. **Documentation** (docs/app-post-install-configuration.md):
+   - Added comprehensive Raycast section (~150 lines)
+   - Hotkey setup instructions:
+     - Recommended: `Option+Space` (preserves Spotlight)
+     - Alternative: `Cmd+Space` (replaces Spotlight)
+     - Configuration: Preferences → General → Raycast Hotkey
+   - Auto-update disable steps (REQUIRED):
+     - Preferences → Advanced → Uncheck "Automatically download and install updates"
+   - Core features documented:
+     - Application launcher (faster than Spotlight)
+     - File search (integrates with Spotlight index)
+     - Clipboard history (searchable, pinnable)
+     - Window management (keyboard-driven tiling)
+     - Snippets (text expansion)
+     - Extensions (GitHub, Slack, Jira, etc.)
+     - Calculator (inline math)
+     - System commands (quit apps, empty trash, sleep)
+   - Usage examples and configuration tips
+   - No license required (free for personal use, optional Pro)
+   - Testing checklist for VM validation
+
+3. **Story Tracking** (docs/app-post-install-configuration.md):
+   - Added Story 02.4-001 to story tracking section
+   - Marked as "Installation and documentation implemented"
+   - VM testing pending
+
+**Key Implementation Decisions**:
+
+- **Homebrew Cask**: Raycast distributed via Homebrew cask (most reliable method)
+  - Rationale: Official distribution channel, automatic PATH setup, easy updates
+
+- **Manual Hotkey Setup**: Hotkey configuration on first launch (cannot be automated)
+  - Rationale: Raycast requires interactive hotkey selection during onboarding
+  - Documented recommended hotkeys: `Option+Space` (preserves Spotlight) or `Cmd+Space` (replaces Spotlight)
+
+- **Manual Auto-Update Disable**: Auto-update must be disabled manually post-install
+  - Rationale: No declarative configuration option available
+  - Documented clear steps: Preferences → Advanced → Uncheck "Automatically download and install updates"
+
+- **No License Management**: Raycast is free for personal use
+  - Rationale: No license key or account required for basic functionality
+  - Optional Raycast Pro subscription available (user decides later)
+
+**Post-Install Configuration** (Manual Steps):
+
+1. **First Launch** (REQUIRED):
+   - Launch Raycast from Spotlight or Applications
+   - Choose hotkey during onboarding (`Option+Space` recommended)
+   - Complete onboarding tour
+
+2. **Auto-Update Disable** (REQUIRED):
+   - Open Raycast Preferences (Cmd+,)
+   - Navigate to Advanced tab
+   - Uncheck "Automatically download and install updates"
+   - Updates controlled by `darwin-rebuild switch` only
+
+3. **Optional Configuration**:
+   - Sign in with Raycast account (enables sync across devices)
+   - Explore extensions (Store command)
+   - Customize appearance (Preferences → Appearance)
+   - Add favorite commands (star to pin)
+
+**VM Testing Checklist** (for FX):
+- [ ] Run `darwin-rebuild switch --flake ~/nix-install#power`
+- [ ] Verify Raycast installed in `/Applications/Raycast.app`
+- [ ] Launch Raycast - should show onboarding
+- [ ] Configure hotkey (`Option+Space` recommended)
+- [ ] Complete onboarding tour
+- [ ] Test application launcher (press hotkey → type app name → Enter)
+- [ ] Test file search (press hotkey → type filename)
+- [ ] Test clipboard history (press hotkey → type "Clipboard History")
+- [ ] Test window management (press hotkey → type "Left Half")
+- [ ] Test calculator (press hotkey → type "2+2")
+- [ ] Open Preferences → Advanced
+- [ ] Verify "Automatically download and install updates" is **checked** (default)
+- [ ] **Uncheck** "Automatically download and install updates"
+- [ ] Verify auto-update is now **disabled**
+- [ ] Test extensions available (press hotkey → type "Store")
+- [ ] Verify no license prompt (free for personal use)
+
+**Files Modified**:
+- darwin/homebrew.nix (added raycast cask)
+- docs/app-post-install-configuration.md (added Raycast section + table of contents + story tracking)
+- docs/development/stories/epic-02-feature-02.4.md (this file - implementation details)
+
+**Testing Notes**:
+- Configuration is syntactically correct (Nix syntax validated)
+- Homebrew cask name verified: `raycast` (official cask)
+- Documentation follows existing patterns (Brave, Arc, Zed)
+- Auto-update disable steps researched and documented
+- Hotkey setup instructions clear and actionable
+- Ready for FX's manual VM testing
+
+**Story Status**: ✅ Code Complete - Ready for VM Testing
+
 ---
 
 ##### Story 02.4-002: 1Password Installation

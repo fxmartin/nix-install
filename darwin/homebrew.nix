@@ -38,6 +38,12 @@
     brews = [
       "gh"  # GitHub CLI - Required for automated SSH key upload in bootstrap
       "mas" # Mac App Store CLI - Required for masApps installations (Issue #25)
+
+      # Container Tools (Story 02.2-005)
+      # Note: Installed via Homebrew instead of Nix for better GUI integration
+      # Podman Desktop (GUI app) needs to find podman CLI in standard PATH
+      "podman"          # Podman container engine (Docker alternative)
+      "podman-compose"  # Docker Compose alternative for Podman
     ];
 
     # GUI Applications (Casks)

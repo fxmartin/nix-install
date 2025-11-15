@@ -62,9 +62,11 @@
 
     # Claude Code CLI and MCP Servers (Story 02.2-006)
     claude-code-nix.packages.${system}.default  # Claude Code CLI
-    mcp-servers-nix.packages.${system}.mcp-server-context7  # Context7 MCP server
-    mcp-servers-nix.packages.${system}.mcp-server-github    # GitHub MCP server
-    mcp-servers-nix.packages.${system}.mcp-server-sequential-thinking  # Sequential Thinking MCP server
+
+    # MCP Servers - Use legacyPackages instead of packages (Issue #35 fix)
+    mcp-servers-nix.legacyPackages.${system}.mcp-server-context7  # Context7 MCP server
+    mcp-servers-nix.legacyPackages.${system}.mcp-server-github    # GitHub MCP server
+    mcp-servers-nix.legacyPackages.${system}.mcp-server-sequential-thinking  # Sequential Thinking MCP server
   ];
 
   # Application Management & System Configuration

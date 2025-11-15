@@ -5,6 +5,9 @@
   pkgs,
   lib,
   userConfig,
+  claude-code-nix,
+  mcp-servers-nix,
+  system,
   ...
 }: {
   # Nix package manager settings
@@ -56,6 +59,12 @@
     python312Packages.isort    # Import statement organizer
     python312Packages.mypy     # Static type checker
     python312Packages.pylint   # Comprehensive linter
+
+    # Claude Code CLI (Story 02.2-006)
+    claude-code-nix.packages.${system}.default  # Claude Code CLI
+
+    # NOTE: MCP servers are configured via Home Manager using mcp-servers-nix.lib.mkConfig
+    # See home-manager/modules/claude-code.nix for MCP server configuration
   ];
 
   # Application Management & System Configuration

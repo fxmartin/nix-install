@@ -34,18 +34,19 @@
   programs.git = {
     enable = true;
 
-    # User Identity (from user-config.nix)
-    userName = fullName;              # e.g., "François Martin"
-    userEmail = email;                # e.g., "fx@example.com"
-
     # Git LFS Configuration
     lfs = {
       enable = true;                  # Enable Git Large File Storage
       # LFS will be initialized globally on first darwin-rebuild
     };
 
-    # Core Git Settings
-    extraConfig = {
+    # All Git configuration via settings attribute (modern Home Manager)
+    settings = {
+      # User Identity (from user-config.nix)
+      user = {
+        name = fullName;              # e.g., "François Martin"
+        email = email;                # e.g., "fx@example.com"
+      };
       # Default branch name
       init = {
         defaultBranch = "main";       # Use 'main' instead of 'master'

@@ -65,6 +65,10 @@
 
     # NOTE: MCP servers are configured via Home Manager using mcp-servers-nix.lib.mkConfig
     # See home-manager/modules/claude-code.nix for MCP server configuration
+
+    # Version Control (Story 02.4-007)
+    git                 # Git version control system
+    git-lfs             # Git Large File Storage
   ];
 
   # Application Management & System Configuration

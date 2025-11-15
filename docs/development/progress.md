@@ -6,14 +6,14 @@
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
-| **Epic-02** | Application Installation | 25 | 118 | **9** | **47** | 36.0% | 39.8% | 🟡 In Progress |
+| **Epic-02** | Application Installation | 25 | 118 | **12** | **60** | 48.0% | 50.8% | 🟡 In Progress |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **115** | **606** | **26** | **151** | **22.6%** | **24.9%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **115** | **606** | **29** | **164** | **25.2%** | **27.1%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -41,7 +41,7 @@
 - **2025-11-10**: Story 01.6-002 scope changed from manual approach (8 points) to automated GitHub CLI approach (5 points), reducing Epic-01 by 3 points
 - **2025-11-11**: Story 01.1-004 added (Modular Bootstrap Architecture, 8 points), increasing Epic-01 by 8 points, **deferred to post-Epic-01**
 
-### Epic-02 Completed Stories (9/25)
+### Epic-02 Completed Stories (12/25)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -54,6 +54,9 @@
 | 02.2-003 | Ghostty Terminal Installation | 5 | ✅ Complete | feature/02.2-003-ghostty | 2025-11-12 |
 | 02.2-004 | Python and Development Tools | 5 | ✅ Complete | feature/02.2-004-python-dev-tools | 2025-11-12 |
 | 02.2-005 | Podman and Container Tools | 6 | ✅ Complete | feature/02.2-005-podman | 2025-11-15 |
+| 02.2-006 | Claude Code CLI and MCP Servers | 8 | ✅ Complete | feature/02.2-006-claude-code | 2025-11-15 |
+| 02.3-001 | Brave Browser Installation | 3 | ✅ Complete | feature/02.3-001-brave-browser | 2025-11-15 |
+| 02.3-002 | Arc Browser Installation | 2 | ✅ Complete | feature/02.3-002-arc-browser | 2025-11-15 |
 
 **Notes**:
 - **2025-11-12**: Feature 02.1 (AI & LLM Tools) completed - all 4 stories VM tested by FX (16 points)
@@ -66,18 +69,37 @@
 ### Overall Project Status
 
 - **Total Project Scope**: 115 stories, 606 story points
-- **Completed**: 26 stories (22.6%), 151 points (24.9%)
+- **Completed**: 29 stories (25.2%), 164 points (27.1%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL**
-  - Epic-02 Application Installation (36.0% complete by stories, 39.8% by points) - **IN PROGRESS**
+  - Epic-02 Application Installation (48.0% complete by stories, 50.8% by points) - **IN PROGRESS**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - Epic-02: 02.2-006 (Claude Code CLI & MCP Servers - 8 pts), 02.3-001 (Browsers - 3 pts), 02.4-001 (Productivity Apps - 8 pts)
+  - Epic-02: 02.4-001 (Productivity Apps - 8 pts), 02.5-001 (Communication Tools - 3 pts)
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: Feature 02.2 completed - Development tools (Zed, VSCode, Ghostty, Python, Podman) - 9 stories, 47 points
+- **Recent Milestone**: Features 02.2 & 02.3 complete - Dev tools + Browsers (12 stories, 60 points total)
 
 ### Recent Activity
 
+- **2025-11-15**: 🎉 **Feature 02.3 COMPLETED** - Browsers (2 stories, 5 points)
+  - **Story 02.3-001**: Brave Browser ✅ VM tested and validated
+  - **Story 02.3-002**: Arc Browser ✅ VM tested and validated
+  - Brave: Privacy-focused with built-in Shields (ad/tracker blocking)
+  - Arc: Modern workspace-focused browser with unique features
+  - Both installed via Homebrew, updates controlled by nix-darwin
+  - **Feature 02.3 Progress**: 100% complete (2/2 stories, 5/5 points)
+  - **Epic-02 Progress**: 48.0% complete (12/25 stories, 60/118 points)
+  - Commits: f604c12 (Brave), 7a8a8e6 (Arc), 6ea8325 (Feature complete)
+- **2025-11-15**: 🎉 **Story 02.2-006 COMPLETED** - Claude Code CLI and MCP Servers (8 points)
+  - **Story 02.2-006**: Claude Code CLI with 3 MCP servers ✅ VM tested and validated
+  - Installed Claude Code CLI via Nix (sadjow/claude-code-nix)
+  - Configured 3 MCP servers: Context7, GitHub, Sequential Thinking
+  - Separate configs for Claude Desktop (no GitHub) vs CLI (with GitHub)
+  - REQ-NFR-008 compliant: ~/.claude/ symlinked to repository
+  - All 3 MCP servers working perfectly in VM
+  - **Feature 02.2 Progress**: 100% complete (6/6 stories, 39/39 points)
+  - **Epic-02 Progress**: 48.0% complete (12/25 stories, 60/118 points)
+  - Commits: d75706e (PR #34), ab24883 (VM testing complete)
 - **2025-11-15**: 🎉 **Story 02.2-005 COMPLETED** - Podman and Container Tools (6 points)
   - **Story 02.2-005**: Podman CLI, podman-compose, and Podman Desktop ✅ VM tested and validated
   - All tools installed via Homebrew for GUI integration
@@ -86,8 +108,8 @@
     - **Issue #33**: Podman Desktop extension not detected → Moved CLI tools to Homebrew (GUI PATH integration)
     - **Issue #34**: Docker socket error → Added proper initialization flags (--now --rootful=false)
   - **VM Testing**: All manual tests successful (CLI, GUI, containers, compose)
-  - **Epic-02 Progress**: 36.0% complete (9/25 stories, 47/118 points)
-  - **Overall Project**: 22.6% complete (26/115 stories, 151/606 points)
+  - **Epic-02 Progress**: 48.0% complete (12/25 stories, 60/118 points)
+  - **Overall Project**: 25.2% complete (29/115 stories, 164/606 points)
   - Commits: 8fdf763 (initial), b03bc37 (Homebrew fix), 15648d4 (socket fix), PR #32 merged
 - **2025-11-12**: 🎉 **Story 02.2-004 COMPLETED** - Python and Development Tools (5 points)
   - **Story 02.2-004**: Python 3.12 and development tools via Nix ✅ VM tested and validated

@@ -344,12 +344,12 @@
 - Verify: `git config user.name` shows correct name
 
 **Definition of Done**:
-- [ ] Git installed via Nix
-- [ ] Git LFS installed and initialized
-- [ ] User name and email configured
-- [ ] Can clone repos with LFS files
-- [ ] Tested in VM
-- [ ] Documentation notes Git config
+- [x] Git installed via Nix
+- [x] Git LFS installed and initialized
+- [x] User name and email configured
+- [x] Can clone repos with LFS files
+- [x] Tested in VM
+- [x] Documentation notes Git config
 
 **Dependencies**:
 - Epic-01, Story 01.4-001 (Nix installed)
@@ -361,7 +361,8 @@
 #### Implementation Details (Story 02.4-007)
 
 **Implementation Date**: 2025-01-15
-**Implementation Status**: ✅ Code Complete - Ready for VM Testing
+**VM Testing Date**: 2025-01-15
+**Implementation Status**: ✅ VM Tested - Complete
 
 **Changes Made**:
 
@@ -472,6 +473,27 @@ Verify configuration:
 - No deprecated options (verified via build warnings)
 - User-config.nix values properly passed to git.nix module
 - Ready for FX's manual VM testing
+
+**VM Test Results** (2025-01-15):
+- ✅ Git installed via Nix (version 2.51.0, not Apple Git 2.50.1)
+- ✅ Git LFS installed (version 3.7.0)
+- ✅ User name configured correctly: "François Martin"
+- ✅ Email configured correctly: "fx@example.com"
+- ✅ GitHub username configured: "fxmartin"
+- ✅ Default branch set to "main"
+- ✅ Post-activation verification message displayed
+- ✅ Nix Git takes precedence over Apple Git in PATH
+- ✅ All git config settings applied correctly
+
+**Issues Encountered**:
+- Initial buildEnv error due to flake.lock update (nixpkgs regression)
+  - Fixed by reverting flake.lock to previous working version
+- pathsToLink in darwin/configuration.nix needed list syntax fix
+  - Changed from `"/Applications"` to `[ "/Applications" ]`
+- Shell environment reload required after rebuild
+  - Nix Git only available in new shell sessions
+
+**Story Status**: ✅ Complete - VM Tested Successfully
 
 ---
 

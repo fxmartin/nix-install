@@ -14,11 +14,11 @@
 - Email accounts (1 Gmail, 4 Gandi.net) configured and functional in macOS Mail.app
 
 ## Epic Scope
-**Total Stories**: 26
-**Total Story Points**: 126
-**Completed Stories**: 7 (26.9%)
-**Completed Points**: 36 (28.6%)
-**MVP Stories**: 26 (100% of epic)
+**Total Stories**: 25
+**Total Story Points**: 118
+**Completed Stories**: 9 (36.0%)
+**Completed Points**: 47 (39.8%)
+**MVP Stories**: 25 (100% of epic)
 **Priority Level**: Must Have
 **Target Release**: Phase 2-3 (Week 2-3)
 
@@ -27,14 +27,14 @@
 
 > **Note**: Detailed story implementations have been moved to feature-specific files in `docs/development/stories/` for better maintainability. See links below.
 
-### Feature 02.1: AI & LLM Tools Installation
+### Feature 02.1: AI & LLM Tools Installation ✅ COMPLETE
 **Feature Description**: Install and configure AI/LLM applications and models
-**Story Count**: 4 | **Story Points**: 21 | **Priority**: High | **Complexity**: Medium
+**Story Count**: 4 (4/4 complete) | **Story Points**: 16 (16/16 complete) | **Priority**: High | **Complexity**: Medium
 👉 **[View detailed implementation](../docs/development/stories/epic-02-feature-02.1.md)**
 
-### Feature 02.2: Development Environment Applications
+### Feature 02.2: Development Environment Applications 🔄 In Progress (5/6)
 **Feature Description**: Install Zed, VSCode, Ghostty, Python, Podman, and Claude Code CLI with MCP servers
-**Story Count**: 6 | **Story Points**: 43 | **Priority**: High | **Complexity**: High
+**Story Count**: 6 (5/6 complete) | **Story Points**: 39 (31/39 complete) | **Priority**: High | **Complexity**: High
 👉 **[View detailed implementation](../docs/development/stories/epic-02-feature-02.2.md)**
 
 ### Feature 02.3: Browsers
@@ -120,25 +120,29 @@
 ## Epic Progress Tracking
 
 ### Completion Status
-- **Stories Completed**: 7 of 26 (26.9%)
-- **Story Points Completed**: 36 of 126 (28.6%)
-- **MVP Stories Completed**: 7 of 26 (26.9%)
+- **Stories Completed**: 9 of 25 (36.0%)
+- **Story Points Completed**: 47 of 118 (39.8%)
+- **MVP Stories Completed**: 9 of 25 (36.0%)
 
 ### Sprint Progress
 | Sprint | Planned Points | Completed Points | Stories Done | Status |
 |--------|----------------|------------------|--------------|--------|
-| Sprint 3 | 93 | 36 | 7/18 | In Progress |
+| Sprint 3 | 85 | 47 | 9/17 | In Progress |
 | Sprint 4 | 33 | 0 | 0/8 | Not Started |
 
-### Recently Completed Stories (2025-11-12)
-- ✅ **Story 02.1-001**: Claude Desktop and AI Chat Apps (3 points) - VM tested
-- ✅ **Story 02.1-002**: Ollama Desktop App Installation (5 points) - VM tested
-- ✅ **Story 02.1-003**: Standard Profile Ollama Model (5 points) - VM tested
-- ✅ **Story 02.1-004**: Power Profile Additional Ollama Models (8 points) - VM tested
-- ✅ **Story 02.2-001**: Zed Editor Installation and Configuration (5 points) - VM tested
+### Recently Completed Stories
+- ✅ **Story 02.1-001**: Claude Desktop and AI Chat Apps (3 points) - VM tested 2025-11-12
+- ✅ **Story 02.1-002**: Ollama Desktop App Installation (3 points) - VM tested 2025-11-12
+- ✅ **Story 02.1-003**: Standard Profile Ollama Model (2 points) - VM tested 2025-11-12
+- ✅ **Story 02.1-004**: Power Profile Additional Ollama Models (8 points) - VM tested 2025-11-12
+- ✅ **Story 02.2-001**: Zed Editor Installation and Configuration (12 points) - VM tested 2025-11-12
+- ✅ **Story 02.2-002**: VSCode with Auto Dark Mode (3 points) - VM tested 2025-11-12
+- ✅ **Story 02.2-003**: Ghostty Terminal Installation (5 points) - VM tested 2025-11-12
+- ✅ **Story 02.2-004**: Python and Development Tools (5 points) - VM tested 2025-11-12
+- ✅ **Story 02.2-005**: Podman and Container Tools (6 points) - VM tested 2025-11-15
 
 ## Epic Acceptance Criteria
-- [ ] All MVP stories (26/26) completed and accepted
+- [ ] All MVP stories (25/25) completed and accepted
 - [ ] All apps launch successfully on both profiles
 - [ ] Profile differentiation verified (Parallels and Ollama models on Power only)
 - [ ] Auto-updates disabled for all apps that support it

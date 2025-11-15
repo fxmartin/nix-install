@@ -990,3 +990,180 @@ Verify configuration:
 
 ---
 
+#### Implementation Details (Story 02.4-004)
+
+**Implementation Date**: 2025-01-15
+**Implementation Status**: ✅ Implementation Complete - VM Testing Pending
+
+**Changes Made**:
+
+1. **Homebrew Cask** (darwin/homebrew.nix:87-91):
+   ```nix
+   # Productivity & Utilities (Story 02.4-001, 02.4-002, 02.4-004)
+   # Auto-update disable: Raycast/1Password (Preferences → Advanced), Dropbox (Preferences → Account → Disable automatic updates)
+   "raycast" # Raycast - Application launcher and productivity tool (Story 02.4-001)
+   "1password" # 1Password - Password manager and secure vault (Story 02.4-002)
+   "dropbox" # Dropbox - Cloud storage and file sync (Story 02.4-004)
+   ```
+
+2. **Documentation** (docs/app-post-install-configuration.md):
+   - Added comprehensive Dropbox section (~300 lines)
+   - Account sign-in process:
+     - Existing account: Email + Password + 2FA
+     - New account: Create account + Choose plan (Basic/Plus/Professional/Family)
+   - Auto-update disable steps (REQUIRED):
+     - Dropbox menubar icon → Preferences → Account → Uncheck "Automatically download and install updates"
+   - Selective Sync configuration (RECOMMENDED for MacBook Airs):
+     - Choose which folders sync locally vs cloud-only
+     - Save disk space on smaller MacBook Airs
+     - Strategy for multiple MacBooks (Pro: sync all, Air: selective sync)
+   - Core features documented:
+     - File sync across devices (automatic background sync, real-time updates, version history, file recovery, offline access)
+     - Selective Sync/Smart Sync (cloud-only files, local files, automatic space management, mixed sync)
+     - File sharing (share links, shared folders, permissions, password protection, expiration dates, view tracking)
+     - Dropbox Paper (collaborative documents, real-time editing, rich media, task lists)
+     - File Requests (collect files from others without Dropbox account)
+     - Camera Uploads (automatic photo/video backup from mobile devices)
+     - Version History (restore previous versions, 30-day history on Basic, extended on Plus/Pro)
+     - Smart Sync (Plus/Professional: online-only files, local files, on-demand download)
+   - Usage examples:
+     - Adding files to Dropbox (drag/drop, right-click, Save As dialog)
+     - Accessing Dropbox (Finder sidebar, web interface, mobile apps, menubar)
+     - Sharing files (right-click → Share → Copy Link, set permissions)
+     - Sharing folders (collaborative editing with permissions)
+     - Managing selective sync (Preferences → Sync → Selective Sync)
+     - Checking sync status (menubar icon: blue checkmark, rotating arrows, red X)
+   - Configuration tips:
+     - Organize with folders (clear structure, separate work/personal)
+     - Use Selective Sync to save space (MacBook Airs: local for active projects, cloud-only for archives)
+     - Enable Camera Uploads (mobile photo backup, quality settings, Wi-Fi only)
+     - Configure notifications (shared folder changes, file view tracking)
+     - Use Smart Sync (Plus/Professional: automatic space savings)
+     - Bandwidth settings (limit upload/download rates, pause during calls)
+   - License requirements: Account-based (Basic Free 2GB, Plus $11.99/month 2TB, Professional $19.99/month 3TB, Family $19.99/month 2TB for 6 users)
+   - Post-install checklist (10 items)
+   - Testing checklist (13 items)
+   - Troubleshooting guide (4 common issues with solutions)
+   - Table of contents updated
+
+3. **Story Tracking** (docs/app-post-install-configuration.md):
+   - Added Story 02.4-004 to story tracking section
+   - Marked as "Installation and documentation implemented"
+   - VM testing pending
+
+4. **VM Testing Guide** (docs/testing-dropbox-installation.md):
+   - Created comprehensive VM testing guide (12 test scenarios)
+   - Installation verification
+   - Account sign-in (existing and new account creation)
+   - Dropbox folder creation and sync
+   - Auto-update disable validation
+   - Selective Sync configuration
+   - File sharing functionality
+   - Menubar icon sync status
+   - Preferences accessibility
+   - Account information display
+   - Web interface consistency (bidirectional sync)
+   - Troubleshooting (restart Dropbox)
+   - Acceptance criteria validation
+   - Estimated testing time: 45-60 minutes
+
+**Key Implementation Decisions**:
+
+- **Homebrew Cask**: Dropbox distributed via Homebrew cask (most reliable method)
+  - Rationale: Official distribution channel, automatic PATH setup, easy updates via darwin-rebuild
+
+- **Account-Based Service**: Dropbox requires account sign-in (free or paid subscription)
+  - Rationale: No separate license key, sign in with Dropbox.com account
+  - Documented both existing account sign-in and new account creation flows
+  - Free Basic plan (2GB) sufficient for testing
+
+- **Manual Auto-Update Disable**: Auto-update must be disabled manually post-install
+  - Rationale: No declarative configuration option available
+  - Documented clear steps: Preferences → Account → Uncheck "Automatically download and install updates"
+
+- **Selective Sync Strategy**: Documented strategy for multiple MacBooks
+  - Rationale: FX manages 3 MacBooks (1 Pro, 2 Airs) with different storage capacities
+  - MacBook Pro M3 Max (large disk): Sync all important folders
+  - MacBook Air (smaller disk): Selective sync for essential folders, cloud-only for large files
+  - Saves disk space on MacBook Airs while maintaining cloud access
+
+- **Comprehensive Documentation**: 300+ line documentation covering all features and workflows
+  - Rationale: Dropbox is critical productivity tool for file sync across 3 MacBooks
+  - Documented account creation, Selective Sync configuration, Smart Sync (Plus/Pro plans)
+  - Included troubleshooting for common issues (sync failures, selective sync, file conflicts, slow sync)
+
+**Post-Install Configuration** (Manual Steps):
+
+1. **First Launch** (REQUIRED):
+   - Launch Dropbox from Applications or Spotlight
+   - Sign in with existing Dropbox account OR create new account
+   - If creating new account:
+     - Choose plan (Basic Free, Plus, Professional, Family)
+     - Set up password and verify email
+   - Complete setup wizard
+   - Verify `~/Dropbox` folder created
+
+2. **Auto-Update Disable** (REQUIRED):
+   - Click Dropbox menubar icon
+   - Profile icon → Preferences (Cmd+,)
+   - Navigate to Account tab
+   - **Uncheck** "Automatically download and install updates"
+   - Updates controlled by `darwin-rebuild switch` only
+
+3. **Selective Sync Configuration** (RECOMMENDED for MacBook Airs):
+   - Preferences → Sync → Selective Sync
+   - Uncheck folders to make cloud-only (frees disk space)
+   - Check folders to download locally (offline access)
+   - Recommended strategy:
+     - MacBook Pro: Sync all important folders
+     - MacBook Air: Sync active projects, cloud-only for archives/media
+   - Click Update to apply changes
+
+4. **Optional Configuration**:
+   - Enable Camera Uploads on mobile devices
+   - Configure notifications (Preferences → General)
+   - Set bandwidth limits (Preferences → Network)
+   - Test file sharing (right-click → Share → Copy Link)
+
+**VM Testing Checklist** (for FX):
+- [ ] Run `darwin-rebuild switch --flake ~/nix-install#power`
+- [ ] Verify Dropbox installed in `/Applications/Dropbox.app`
+- [ ] Launch Dropbox - account sign-in screen should appear
+- [ ] Sign in with existing account (or create test account)
+- [ ] Verify `~/Dropbox` folder created in Finder sidebar
+- [ ] Verify menubar icon appears after sign-in
+- [ ] Create test file in `~/Dropbox` folder
+- [ ] Verify file syncs to cloud (blue checkmark icon)
+- [ ] Verify file appears in web interface (https://www.dropbox.com)
+- [ ] Test Selective Sync: Preferences → Sync → Selective Sync
+- [ ] Test file sharing: Right-click file → Share → Copy Link
+- [ ] Open Preferences → Account
+- [ ] Verify "Automatically download and install updates" is **checked** (default)
+- [ ] **Uncheck** "Automatically download and install updates"
+- [ ] Verify auto-update is now **disabled**
+- [ ] Test bidirectional sync (create file in web interface, verify appears locally)
+- [ ] Quit and restart Dropbox (verify menubar icon reappears, sync resumes)
+- [ ] **Comprehensive VM Testing**: See docs/testing-dropbox-installation.md for 12 detailed test scenarios
+
+**Files Modified**:
+- darwin/homebrew.nix (added dropbox cask)
+- docs/app-post-install-configuration.md (added Dropbox section + table of contents + story tracking)
+- docs/testing-dropbox-installation.md (created VM testing guide with 12 scenarios)
+- docs/development/stories/epic-02-feature-02.4.md (this file - implementation details)
+
+**Testing Notes**:
+- Configuration is syntactically correct (Nix syntax validated)
+- Homebrew cask name verified: `dropbox` (official cask)
+- Documentation follows existing patterns (Raycast, 1Password, Brave, Arc)
+- Auto-update disable steps researched and documented
+- Selective Sync configuration critical for disk space management on MacBook Airs
+- Account sign-in process documented for both existing and new accounts
+- License requirements documented (free Basic 2GB, paid Plus/Professional/Family plans)
+- Troubleshooting guide covers common issues
+- VM testing guide comprehensive (12 scenarios, ~45-60 minutes)
+- Ready for FX's manual VM testing
+
+**Story Status**: ✅ Implementation Complete - VM Testing Pending
+
+---
+

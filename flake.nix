@@ -27,6 +27,18 @@
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Claude Code CLI
+    claude-code-nix = {
+      url = "github:sadjow/claude-code-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # MCP Servers (Context7, GitHub, Sequential Thinking)
+    mcp-servers-nix = {
+      url = "github:natsukium/mcp-servers-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
@@ -36,6 +48,8 @@
     home-manager,
     nix-homebrew,
     stylix,
+    claude-code-nix,
+    mcp-servers-nix,
     ...
   }: let
     # User configuration validation
@@ -134,7 +148,7 @@
         inherit system;
         specialArgs = {
           userConfig = validatedConfig;
-          inherit nixpkgsConfig self isPowerProfile;
+          inherit nixpkgsConfig self isPowerProfile system claude-code-nix mcp-servers-nix;
         };
         modules = commonModules ++ modules;
       };

@@ -5,6 +5,9 @@
   pkgs,
   lib,
   userConfig,
+  claude-code-nix,
+  mcp-servers-nix,
+  system,
   ...
 }: {
   # Nix package manager settings
@@ -56,6 +59,12 @@
     python312Packages.isort    # Import statement organizer
     python312Packages.mypy     # Static type checker
     python312Packages.pylint   # Comprehensive linter
+
+    # Claude Code CLI and MCP Servers (Story 02.2-006)
+    claude-code-nix.packages.${system}.default  # Claude Code CLI
+    mcp-servers-nix.packages.${system}.mcp-server-context7  # Context7 MCP server
+    mcp-servers-nix.packages.${system}.mcp-server-github    # GitHub MCP server
+    mcp-servers-nix.packages.${system}.mcp-server-sequential-thinking  # Sequential Thinking MCP server
   ];
 
   # Application Management & System Configuration

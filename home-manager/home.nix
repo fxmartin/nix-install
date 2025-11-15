@@ -19,6 +19,8 @@
     # ./modules/vscode.nix
     # Ghostty terminal configuration (Story 02.2-003)
     ./modules/ghostty.nix
+    # Claude Code CLI and MCP servers configuration (Story 02.2-006)
+    ./modules/claude-code.nix
   ];
 
   home = {

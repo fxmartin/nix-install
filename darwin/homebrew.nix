@@ -63,12 +63,15 @@
       "ollama-app" # Ollama Desktop - Local LLM runner with GUI and CLI (Story 02.1-002)
                    # Note: Renamed from "ollama" to "ollama-app" in Homebrew
 
-      # Development Environment Applications (Story 02.2-001)
+      # Development Environment Applications (Story 02.2-001, 02.2-005)
       # Auto-update disable: Managed via Home Manager settings.json
       # NOTE: VSCode DISABLED due to Electron crash issues during darwin-rebuild (Issue: Electron crashes)
       # "visual-studio-code" # VSCode - DISABLED: Causes Electron crashes during rebuild
       "zed" # Zed Editor - Fast, modern code editor with GPU acceleration
             # Configuration: home-manager/modules/zed.nix (Catppuccin theme, JetBrains Mono)
+
+      # Container Tools (Story 02.2-005)
+      "podman-desktop" # Podman Desktop - GUI for managing Podman containers
     ];
 
     # Global Homebrew options

@@ -56,6 +56,10 @@
     python312Packages.isort    # Import statement organizer
     python312Packages.mypy     # Static type checker
     python312Packages.pylint   # Comprehensive linter
+
+    # Container Tools (Story 02.2-005)
+    podman              # Podman container engine (Docker alternative)
+    podman-compose      # Docker Compose alternative for Podman
   ];
 
   # Application Management & System Configuration

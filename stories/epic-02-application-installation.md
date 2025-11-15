@@ -779,11 +779,14 @@
    podman-compose --version
    open -a "Podman Desktop"
    ```
-3. Initialize Podman machine:
+3. Initialize Podman machine (with Docker compatibility):
    ```bash
-   podman machine init
-   podman machine start
+   # Initialize and start in one command
+   podman machine init --now --rootful=false
+
+   # Verify machine is running
    podman machine list
+   # Expected: Shows "Currently running"
    ```
 4. Test container execution:
    ```bash

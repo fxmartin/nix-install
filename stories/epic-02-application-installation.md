@@ -1221,12 +1221,13 @@
 **Definition of Done**:
 - [x] Arc installed via homebrew.nix
 - [x] Update management documented (Homebrew-controlled, no in-app setting - expected)
-- [ ] Arc launches successfully (VM testing by FX pending)
-- [ ] Tested in VM (VM testing by FX pending)
+- [x] Arc launches successfully ✅ VM tested by FX - 2025-11-15
+- [x] Tested in VM ✅ VM tested by FX - 2025-11-15
 - [x] Documentation notes preferences and features (365-line comprehensive section)
 
-**Implementation Status**: ✅ **CODE COMPLETE** - Awaiting VM testing by FX
+**Implementation Status**: ✅ **COMPLETE** - All VM tests passed
 **Implementation Date**: 2025-11-15
+**VM Testing Date**: 2025-11-15
 **Branch**: feature/02.3-002-arc-browser
 **Files Changed**:
 - darwin/homebrew.nix: Added `arc` cask in Browsers section

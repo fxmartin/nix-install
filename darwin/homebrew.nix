@@ -83,6 +83,10 @@
       # Auto-update disable: Updates managed by Homebrew (no in-app setting available)
       "brave-browser" # Brave Browser - Privacy-focused browser with built-in ad/tracker blocking
       "arc"           # Arc Browser - Modern workspace-focused browser with unique UI
+
+      # Productivity & Utilities (Story 02.4-001)
+      # Auto-update disable: Preferences → Advanced → Disable auto-update (manual step)
+      "raycast" # Raycast - Application launcher and productivity tool (Story 02.4-001)
     ];
 
     # Global Homebrew options

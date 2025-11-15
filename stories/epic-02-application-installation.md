@@ -725,28 +725,110 @@
 - Machine initialization automated or documented
 
 **Technical Notes**:
-- Add to darwin/configuration.nix:
-  ```nix
-  environment.systemPackages = with pkgs; [
-    podman
-    podman-compose
-  ];
-  ```
+- **Important**: All Podman tools installed via Homebrew (not Nix) for GUI integration
+- Podman Desktop (GUI app) requires podman CLI in standard PATH
+- GUI applications on macOS don't inherit shell PATH, so Nix packages may not be found
 - Add to darwin/homebrew.nix:
   ```nix
-  homebrew.casks = [ "podman-desktop" ];
+  homebrew.brews = [
+    "podman"          # Podman CLI
+    "podman-compose"  # Docker Compose compatibility
+  ];
+  homebrew.casks = [
+    "podman-desktop"  # Podman Desktop GUI
+  ];
   ```
 - Initialize Podman machine: `podman machine init && podman machine start`
-- May need activation script or user documentation
+- Machine initialization documented in post-install guide
 
 **Definition of Done**:
-- [ ] Podman CLI installed via Nix
-- [ ] podman-compose installed
-- [ ] Podman Desktop installed via Homebrew
-- [ ] Can run containers successfully
-- [ ] Machine initialization documented
-- [ ] Tested in VM
-- [ ] Documentation includes setup steps
+- [x] Podman CLI installed via Homebrew
+- [x] podman-compose installed via Homebrew
+- [x] Podman Desktop installed via Homebrew cask
+- [x] Can run containers successfully ✅ VM tested
+- [x] Machine initialization documented
+- [x] Tested in VM ✅ All manual tests successful (2025-11-15)
+- [x] Documentation includes setup steps
+
+**Implementation Status**: ✅ **COMPLETE** - VM tested and validated by FX
+**Implementation Date**: 2025-11-15
+**VM Testing Date**: 2025-11-15
+**Branch**: feature/02.2-005-podman
+**Files Changed**:
+- darwin/homebrew.nix: Added podman, podman-compose brews + podman-desktop cask
+- docs/app-post-install-configuration.md: Added comprehensive Podman section (240+ lines)
+
+**Implementation Details**:
+- Podman CLI via Homebrew brew (podman)
+- podman-compose via Homebrew brew (podman-compose)
+- Podman Desktop via Homebrew cask (podman-desktop)
+- **Rationale for Homebrew**: GUI integration - Podman Desktop needs podman CLI in standard PATH
+- Comprehensive documentation covering:
+  - Machine initialization requirements (one-time setup)
+  - Verification commands
+  - Basic usage examples (run, compose, build)
+  - Docker compatibility (aliases, drop-in replacement)
+  - Troubleshooting guide
+  - Resource management tips
+- No Home Manager module needed (system-level packages only)
+
+**Issues Encountered and Resolved**:
+- **Issue #33**: Podman Desktop "extension not detected" error
+  - Root cause: Podman CLI via Nix not in GUI app PATH
+  - Resolution: Moved all Podman tools to Homebrew (commit b03bc37)
+- **Issue #34**: "Docker socket is not disguised correctly" error
+  - Root cause: Machine initialized without proper Docker compatibility flags
+  - Resolution: Use `podman machine init --now --rootful=false` (commit 15648d4)
+
+**VM Testing Results** (FX - 2025-11-15):
+- ✅ Podman CLI installed and accessible (/opt/homebrew/bin/podman)
+- ✅ podman-compose installed and functional
+- ✅ Podman Desktop launches without errors
+- ✅ Podman extension detected correctly
+- ✅ Machine initializes with correct flags (--now --rootful=false)
+- ✅ Docker socket configured properly (no errors)
+- ✅ Container execution successful (hello-world, alpine)
+- ✅ podman-compose works with docker-compose.yml files
+- ✅ All troubleshooting scenarios documented and tested
+
+**VM Testing Instructions** (for FX):
+1. Run `darwin-rebuild switch` in VM
+2. Verify installations:
+   ```bash
+   podman --version
+   podman-compose --version
+   open -a "Podman Desktop"
+   ```
+3. Initialize Podman machine (with Docker compatibility):
+   ```bash
+   # Initialize and start in one command
+   podman machine init --now --rootful=false
+
+   # Verify machine is running
+   podman machine list
+   # Expected: Shows "Currently running"
+   ```
+4. Test container execution:
+   ```bash
+   podman run --rm hello-world
+   podman run --rm -it alpine:latest echo "Podman works!"
+   ```
+5. Test Podman Desktop:
+   - Launch app from Applications
+   - Verify machine status shown
+   - Check containers/images management UI
+6. Test podman-compose:
+   ```bash
+   echo 'version: "3"
+   services:
+     web:
+       image: nginx:latest
+       ports:
+         - "8080:80"' > docker-compose.yml
+   podman-compose up -d
+   curl localhost:8080
+   podman-compose down
+   ```
 
 **Dependencies**:
 - Epic-01, Story 01.4-001 (Nix installed)

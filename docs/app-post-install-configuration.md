@@ -1063,16 +1063,31 @@ We use **uv** instead of pip because:
 Before running containers, you must initialize and start a Podman machine (VM):
 
 ```bash
-# Initialize the default Podman machine (one-time setup)
-podman machine init
+# Initialize the default Podman machine with Docker compatibility (one-time setup)
+# The --now flag starts the machine immediately after initialization
+podman machine init --now --rootful=false
 
-# Start the Podman machine
-podman machine start
+# If already initialized without --now, start manually:
+# podman machine start
 
 # Verify machine is running
 podman machine list
 # Expected: NAME        VM TYPE     CREATED      LAST UP          CPUS        MEMORY      DISK SIZE
 #           podman-machine-default  qemu      X minutes ago  Currently running  2           2GiB        10GiB
+```
+
+**Important Flags Explained**:
+- `--now`: Starts the machine immediately after initialization
+- `--rootful=false`: Runs containers in rootless mode (better security, default behavior)
+
+**If You See "Docker socket is not disguised correctly" Error**:
+```bash
+# Remove the misconfigured machine
+podman machine stop
+podman machine rm podman-machine-default
+
+# Re-initialize with correct flags
+podman machine init --now --rootful=false
 ```
 
 **Why Machine Initialization is Needed**:
@@ -1226,7 +1241,21 @@ podman run --rm -it alpine:latest echo "Podman works!"
    podman machine start
    ```
 
-2. **Machine won't start**:
+2. **"Docker socket is not disguised correctly" error** (Podman Desktop):
+   ```bash
+   # Remove the misconfigured machine
+   podman machine stop
+   podman machine rm podman-machine-default
+
+   # Re-initialize with correct flags
+   podman machine init --now --rootful=false
+
+   # Verify
+   podman machine list
+   # Restart Podman Desktop
+   ```
+
+3. **Machine won't start**:
    ```bash
    # Check machine status
    podman machine list
@@ -1234,8 +1263,7 @@ podman run --rm -it alpine:latest echo "Podman works!"
    # If machine is corrupted, recreate it
    podman machine stop
    podman machine rm podman-machine-default
-   podman machine init
-   podman machine start
+   podman machine init --now --rootful=false
    ```
 
 3. **Port conflicts**:
@@ -1279,7 +1307,8 @@ podman run --rm -it alpine:latest echo "Podman works!"
 - [ ] podman-compose can start/stop services
 
 **Known Issues**:
-- **Machine initialization required**: First-time setup needs manual `podman machine init && podman machine start`
+- **Machine initialization required**: First-time setup needs manual `podman machine init --now --rootful=false`
+- **Docker socket error**: If you see "Docker socket is not disguised correctly", reinitialize machine with correct flags (see Troubleshooting)
 - **Resource usage**: Machine consumes ~2GB RAM when running (stop with `podman machine stop` if not needed)
 - **Slow first pulls**: Initial image downloads may be slow depending on network
 

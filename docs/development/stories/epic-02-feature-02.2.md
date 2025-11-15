@@ -771,11 +771,12 @@
 - [x] Verified no npm/npx dependencies needed (all via Nix)
 - [ ] Bidirectional sync tested (edit in repo, changes visible in ~/.claude/) ⚠️ VM testing pending
 
-**Implementation Status**: ✅ **COMPLETE** - CODE COMPLETE, VM testing pending by FX
+**Implementation Status**: ✅ **COMPLETE** - VM tested and validated by FX
 **Implementation Date**: 2025-11-15
-**Branch**: feature/02.2-006-claude-code-cli
-**PR**: #34
-**Commit**: f68fc29
+**VM Testing Date**: 2025-11-15
+**Branch**: feature/02.2-006-claude-code-cli (merged to main)
+**PR**: #34 (merged)
+**Commit**: d75706e
 
 **Files Changed**:
 - flake.nix: Added claude-code-nix and mcp-servers-nix flake inputs

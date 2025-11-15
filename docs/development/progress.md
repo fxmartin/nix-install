@@ -6,14 +6,14 @@
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
-| **Epic-02** | Application Installation | 25 | 118 | **12** | **60** | 48.0% | 50.8% | 🟡 In Progress |
+| **Epic-02** | Application Installation | 25 | 118 | **14** | **68** | 56.0% | 57.6% | 🟡 In Progress |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **115** | **606** | **29** | **164** | **25.2%** | **27.1%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **115** | **606** | **31** | **172** | **27.0%** | **28.4%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -41,7 +41,7 @@
 - **2025-11-10**: Story 01.6-002 scope changed from manual approach (8 points) to automated GitHub CLI approach (5 points), reducing Epic-01 by 3 points
 - **2025-11-11**: Story 01.1-004 added (Modular Bootstrap Architecture, 8 points), increasing Epic-01 by 8 points, **deferred to post-Epic-01**
 
-### Epic-02 Completed Stories (12/25)
+### Epic-02 Completed Stories (14/25)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -57,6 +57,8 @@
 | 02.2-006 | Claude Code CLI and MCP Servers | 8 | ✅ Complete | feature/02.2-006-claude-code | 2025-11-15 |
 | 02.3-001 | Brave Browser Installation | 3 | ✅ Complete | feature/02.3-001-brave-browser | 2025-11-15 |
 | 02.3-002 | Arc Browser Installation | 2 | ✅ Complete | feature/02.3-002-arc-browser | 2025-11-15 |
+| 02.4-001 | Raycast Installation | 3 | ✅ Complete | feature/02.4-001-raycast | 2025-01-15 |
+| 02.4-007 | Git and Git LFS | 5 | ✅ Complete | main | 2025-01-15 |
 
 **Notes**:
 - **2025-11-12**: Feature 02.1 (AI & LLM Tools) completed - all 4 stories VM tested by FX (16 points)
@@ -69,18 +71,41 @@
 ### Overall Project Status
 
 - **Total Project Scope**: 115 stories, 606 story points
-- **Completed**: 29 stories (25.2%), 164 points (27.1%)
+- **Completed**: 31 stories (27.0%), 172 points (28.4%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL**
-  - Epic-02 Application Installation (48.0% complete by stories, 50.8% by points) - **IN PROGRESS**
+  - Epic-02 Application Installation (56.0% complete by stories, 58.5% by points) - **IN PROGRESS**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - Epic-02: 02.4-001 (Productivity Apps - 8 pts), 02.5-001 (Communication Tools - 3 pts)
+  - Epic-02: 02.4-002 (1Password - 3 pts), 02.4-003 (File Utilities - 5 pts), 02.5-001 (Communication Tools - 3 pts)
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: Features 02.2 & 02.3 complete - Dev tools + Browsers (12 stories, 60 points total)
+- **Recent Milestone**: Feature 02.4 in progress - Productivity apps (Raycast + Git complete)
 
 ### Recent Activity
 
+- **2025-01-15**: 🎉 **Story 02.4-001 COMPLETED** - Raycast Installation (3 points)
+  - **Story 02.4-001**: Raycast application launcher ✅ VM tested and validated
+  - Installed via Homebrew Cask
+  - Comprehensive documentation (~150 lines) with hotkey setup and auto-update disable
+  - All core features tested: launcher, clipboard history, window management, calculator, extensions
+  - Auto-update successfully disabled (Preferences → Advanced)
+  - Hotkey configured (`Option+Space` preserves Spotlight)
+  - No license required (free for personal use)
+  - **Feature 02.4 Progress**: 2/7 stories complete (8/27 points)
+  - **Epic-02 Progress**: 56.0% complete (14/25 stories, 68/118 points)
+  - **Overall Project**: 27.0% complete (31/115 stories, 172/606 points)
+  - Commits: 18d75b0 (implementation), 380d785 (merge)
+- **2025-01-15**: 🎉 **Story 02.4-007 COMPLETED** - Git and Git LFS (5 points)
+  - **Story 02.4-007**: Git version control with Git LFS ✅ VM tested and validated
+  - Git and Git LFS installed via Nix systemPackages
+  - Home Manager module created (home-manager/modules/git.nix)
+  - User identity from user-config.nix (fullName, email, githubUsername)
+  - Git LFS enabled globally via `lfs.enable = true`
+  - Modern `settings` attribute structure (no deprecation warnings)
+  - Configuration includes: user identity, default branch (main), macOS Keychain credential helper
+  - Global .gitignore patterns (macOS, editors, Nix, language artifacts)
+  - Useful aliases (st, co, br, ci, unstage, last, visual)
+  - Commits: ffaa1ba (implementation), 755597c (VM testing complete)
 - **2025-11-15**: 🎉 **Feature 02.3 COMPLETED** - Browsers (2 stories, 5 points)
   - **Story 02.3-001**: Brave Browser ✅ VM tested and validated
   - **Story 02.3-002**: Arc Browser ✅ VM tested and validated

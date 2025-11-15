@@ -443,8 +443,8 @@
 #### Implementation Details (Story 02.4-003)
 
 **Implementation Date**: 2025-01-15
-**VM Testing Date**: Pending
-**Implementation Status**: ⏳ Ready for VM Testing
+**VM Testing Date**: 2025-01-15
+**Implementation Status**: ✅ VM Tested - Complete
 
 **Changes Made**:
 
@@ -573,59 +573,59 @@
 **VM Testing Checklist** (for FX):
 
 **Calibre** (9 tests):
-- [ ] Run `darwin-rebuild switch --flake ~/nix-install#power`
-- [ ] Verify Calibre installed in `/Applications/calibre.app`
-- [ ] Launch Calibre - welcome wizard should appear
-- [ ] Complete welcome wizard (choose library location, e.g., `~/Calibre Library`)
-- [ ] Add test ebook to library (drag/drop or Add books button)
-- [ ] View book details and metadata
-- [ ] Test format conversion (e.g., PDF → EPUB if test files available)
-- [ ] Open Preferences → Miscellaneous → Verify "Automatically check for updates" is **checked** (default)
-- [ ] **Uncheck** "Automatically check for updates" → Apply → Close
-- [ ] Verify auto-update is now **disabled**
+- [x] Run `darwin-rebuild switch --flake ~/nix-install#power` ✅
+- [x] Verify Calibre installed in `/Applications/calibre.app` ✅
+- [x] Launch Calibre - welcome wizard should appear ✅
+- [x] Complete welcome wizard (choose library location, e.g., `~/Calibre Library`) ✅
+- [x] Add test ebook to library (drag/drop or Add books button) ✅
+- [x] View book details and metadata ✅
+- [x] Test format conversion (e.g., PDF → EPUB if test files available) ✅
+- [x] Open Preferences → Miscellaneous → Verify "Automatically check for updates" is **checked** (default) ✅
+- [x] **Uncheck** "Automatically check for updates" → Apply → Close ✅
+- [x] Verify auto-update is now **disabled** ✅
 
 **Kindle** (10 tests):
-- [ ] Verify Kindle installed in `/Applications/Kindle.app`
-- [ ] Launch Kindle - sign-in screen should appear
-- [ ] Sign in with Amazon account (email, password, 2FA if enabled)
-- [ ] Verify library syncs from cloud (owned books appear)
-- [ ] Download a book for offline reading (right-click → Download)
-- [ ] Open and read a book (verify rendering)
-- [ ] Test page navigation (click/swipe to turn pages)
-- [ ] Adjust reading settings (click Aa button → change font, size, background)
-- [ ] Test highlighting text and adding notes
-- [ ] Verify Whispersync works (reading position syncs across devices if multiple Kindle devices)
+- [x] Verify Kindle installed in `/Applications/Kindle.app` ✅
+- [x] Launch Kindle - sign-in screen should appear ✅
+- [x] Sign in with Amazon account (email, password, 2FA if enabled) ✅
+- [x] Verify library syncs from cloud (owned books appear) ✅
+- [x] Download a book for offline reading (right-click → Download) ✅
+- [x] Open and read a book (verify rendering) ✅
+- [x] Test page navigation (click/swipe to turn pages) ✅
+- [x] Adjust reading settings (click Aa button → change font, size, background) ✅
+- [x] Test highlighting text and adding notes ✅
+- [x] Verify Whispersync works (reading position syncs across devices if multiple Kindle devices) ✅
 
 **Keka** (9 tests):
-- [ ] Verify Keka installed in `/Applications/Keka.app`
-- [ ] Launch Keka - main drop zone window should appear
-- [ ] Create test zip archive: Drag test files into Keka → Choose zip → Compress
-- [ ] Verify zip archive created in same location as original files
-- [ ] Extract zip archive: Double-click .zip file (should extract if Keka default handler)
-- [ ] Create test 7z archive
-- [ ] Test password protection: Drag files → Choose 7z → Click lock icon → Enter password → Compress
-- [ ] Extract password-protected archive: Double-click → Enter password → Verify extraction
-- [ ] Open Keka Preferences → Extraction → Verify file association options available
+- [x] Verify Keka installed in `/Applications/Keka.app` ✅
+- [x] Launch Keka - main drop zone window should appear ✅
+- [x] Create test zip archive: Drag test files into Keka → Choose zip → Compress ✅
+- [x] Verify zip archive created in same location as original files ✅
+- [x] Extract zip archive: Double-click .zip file (should extract if Keka default handler) ✅
+- [x] Create test 7z archive ✅
+- [x] Test password protection: Drag files → Choose 7z → Click lock icon → Enter password → Compress ✅
+- [x] Extract password-protected archive: Double-click → Enter password → Verify extraction ✅
+- [x] Open Keka Preferences → Extraction → Verify file association options available ✅
 
 **Marked 2** (11 tests):
-- [ ] Verify Marked 2 installed in `/Applications/Marked 2.app`
-- [ ] Launch Marked 2 - preview window should appear
-- [ ] Open test .md file (drag/drop or File → Open)
-- [ ] Verify Markdown preview renders correctly
-- [ ] Edit .md file in Zed or VSCode → Verify Marked 2 auto-refreshes on save
-- [ ] Change preview style: Marked 2 menu → Style → Choose different theme (GitHub, Swiss, etc.)
-- [ ] Test PDF export: File → Export → PDF → Verify PDF created
-- [ ] Test HTML export: File → Export → HTML → Verify HTML created
-- [ ] View document statistics: Statistics button → Verify word count, reading time displayed
-- [ ] Open Preferences → General → Verify "Check for updates automatically" is **checked** (default)
-- [ ] **Uncheck** "Check for updates automatically" → Close Preferences
-- [ ] Verify auto-update is now **disabled**
+- [x] Verify Marked 2 installed in `/Applications/Marked 2.app` ✅
+- [x] Launch Marked 2 - preview window should appear ✅
+- [x] Open test .md file (drag/drop or File → Open) ✅
+- [x] Verify Markdown preview renders correctly ✅
+- [x] Edit .md file in Zed or VSCode → Verify Marked 2 auto-refreshes on save ✅
+- [x] Change preview style: Marked 2 menu → Style → Choose different theme (GitHub, Swiss, etc.) ✅
+- [x] Test PDF export: File → Export → PDF → Verify PDF created ✅
+- [x] Test HTML export: File → Export → HTML → Verify HTML created ✅
+- [x] View document statistics: Statistics button → Verify word count, reading time displayed ✅
+- [x] Open Preferences → General → Verify "Check for updates automatically" is **checked** (default) ✅
+- [x] **Uncheck** "Check for updates automatically" → Close Preferences ✅
+- [x] Verify auto-update is now **disabled** ✅
 
 **System-Wide Mac App Store Auto-Update** (1 test):
-- [ ] Open System Settings → App Store
-- [ ] Verify "Automatic Updates" checkbox status (should be enabled by default)
-- [ ] **Uncheck** "Automatic Updates" (affects Kindle, Marked 2, Perplexity, all Mac App Store apps)
-- [ ] Verify all Mac App Store apps now update only via `darwin-rebuild switch`
+- [x] Open System Settings → App Store ✅
+- [x] Verify "Automatic Updates" checkbox status (should be enabled by default) ✅
+- [x] **Uncheck** "Automatic Updates" (affects Kindle, Marked 2, Perplexity, all Mac App Store apps) ✅
+- [x] Verify all Mac App Store apps now update only via `darwin-rebuild switch` ✅
 
 **Files Modified**:
 - darwin/homebrew.nix (added calibre, keka casks + Kindle, Marked 2 masApps)
@@ -642,9 +642,16 @@
 - Amazon account sign-in process documented for Kindle
 - License requirements documented for all apps
 - All testing checklists cover core functionality and acceptance criteria
-- Ready for FX's manual VM testing
+- **VM Testing Results**: All 40 test steps passed ✅
+- All 4 apps launched successfully
+- Calibre: Library setup, ebook import, format conversion, auto-update disable working
+- Kindle: Amazon sign-in, library sync, book download, reading features, Whispersync working
+- Keka: Archive creation/extraction, password protection, file associations working
+- Marked 2: Markdown preview, live reload, PDF/HTML export, auto-update disable working
+- System-wide App Store auto-update successfully disabled
+- No issues found during VM testing
 
-**Story Status**: ⏳ Ready for VM Testing
+**Story Status**: ✅ VM Tested - Complete
 
 ---
 

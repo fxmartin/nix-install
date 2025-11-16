@@ -6,14 +6,14 @@
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
-| **Epic-02** | Application Installation | 25 | 118 | **19** | **85** | 76.0% | 72.0% | 🟡 In Progress |
+| **Epic-02** | Application Installation | 25 | 118 | **20** | **90** | 80.0% | 76.3% | 🟡 In Progress |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **115** | **606** | **36** | **189** | **31.3%** | **31.2%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **115** | **606** | **37** | **194** | **32.2%** | **32.0%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -63,6 +63,7 @@
 | 02.4-005 | System Utilities (Onyx, f.lux) | 3 | ✅ Complete | feature/02.4-005-system-utilities | 2025-01-15 |
 | 02.4-007 | Git and Git LFS | 5 | ✅ Complete | main | 2025-01-15 |
 | 02.5-001 | WhatsApp Installation | 3 | ⚠️ Impl Complete, VM Pending | main | 2025-01-15 |
+| 02.5-002 | Zoom and Webex Installation | 5 | ⚠️ Impl Complete, VM Pending | main | 2025-01-15 |
 | 02.6-001 | VLC and GIMP Installation | 3 | ⚠️ Impl Complete, VM Pending | main | 2025-01-15 |
 
 **Notes**:
@@ -76,17 +77,47 @@
 ### Overall Project Status
 
 - **Total Project Scope**: 115 stories, 606 story points
-- **Completed**: 36 stories (31.3%), 189 points (31.2%)
+- **Completed**: 37 stories (32.2%), 194 points (32.0%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL**
-  - Epic-02 Application Installation (76.0% complete by stories, 72.0% by points) - **IN PROGRESS**
+  - Epic-02 Application Installation (80.0% complete by stories, 76.3% by points) - **IN PROGRESS**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - Epic-02: 02.5-002 (Zoom and Webex - 5 pts), 02.4-004 (Dropbox - 3 pts), 02.7-001 (Security & Privacy - 5 pts)
+  - Epic-02: 02.4-004 (Dropbox - 3 pts), 02.7-001 (Security & Privacy - 5 pts), 02.8-001 (Parallels - 8 pts Power only)
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: Feature 02.6 progress - VLC and GIMP (Story 02.6-001) implemented, awaiting VM test
+- **Recent Milestone**: Epic-02 Batch 1 (Quick Wins) COMPLETE - 4 stories (Raycast, 1Password, File Utilities, Zoom/Webex) totaling 14 points implemented
 
 ### Recent Activity
+
+- **2025-01-15**: ⚠️ **Story 02.5-002 IMPLEMENTED** - Zoom and Webex Installation (5 points)
+  - **Story 02.5-002**: Video conferencing apps (Zoom + Webex) ⚠️ VM testing pending
+  - **Epic-02 Batch 1 (Quick Wins) COMPLETE**: 4 stories, 14 points (Raycast, 1Password, File Utilities, Zoom/Webex)
+  - Installed via Homebrew Casks: `zoom`, `webex`
+  - Comprehensive documentation (~609 lines total) for both video conferencing platforms
+  - **Zoom** (~302 lines): Full-featured video conferencing with free and paid options
+    - **Auto-Update Disable (CRITICAL)**: Settings → General → Uncheck "Update Zoom automatically when connected to Wi-Fi"
+    - Account options: Free account (40-min group limit), Licensed ($149.90+/year), Guest mode (no account)
+    - Core features: HD video, gallery/speaker view, screen sharing, breakout rooms, recording, chat, reactions
+    - Permissions: Microphone, camera, screen recording, accessibility (optional), notifications
+    - Detailed usage examples: Joining meetings, hosting, screen sharing, chat, recording
+    - 15+ keyboard shortcuts, troubleshooting guide for common issues
+  - **Webex** (~307 lines): Enterprise video conferencing with company or free account
+    - **Auto-Update Disable (IF AVAILABLE)**: Preferences → General/Updates → Disable if not IT-managed
+    - Account requirement: No guest mode - company account, free account, or paid plan required
+    - Free account: 50-min limit, 100 participants; Paid: $14.50+/month for unlimited
+    - Core features: HD video, whiteboard, polling, Q&A, breakout sessions, noise removal, cloud recording
+    - Permissions: Microphone, camera, screen recording, accessibility (optional), notifications
+    - Detailed usage examples: Joining, hosting, screen sharing, whiteboard, chat, reactions
+    - 8+ keyboard shortcuts, troubleshooting including SSO/VPN issues
+  - **NEW FILE: docs/licensed-apps.md** (~400 lines):
+    - Comprehensive licensed app activation and sign-in guide
+    - Video Conferencing Apps section: Zoom and Webex activation steps
+    - Zoom: Free vs. licensed account setup, license verification, common issues
+    - Webex: Company SSO, free account signup, paid plan activation, troubleshooting
+    - Productivity & Security Apps: 1Password, Office 365 activation (existing apps)
+    - Summary table comparing all licensed apps (cost, account types, activation)
+  - All 28 VM test items added to epic-02-feature-02.5.md covering both apps
+  - Epic-02 progress: 20/25 stories (80.0%), 90/118 points (76.3%)
 
 - **2025-01-15**: ⚠️ **Story 02.6-001 IMPLEMENTED** - VLC and GIMP Installation (3 points)
   - **Story 02.6-001**: VLC media player and GIMP image editor ⚠️ VM testing pending

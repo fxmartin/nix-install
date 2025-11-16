@@ -1,0 +1,417 @@
+# ABOUTME: Licensed application activation and sign-in guide
+# ABOUTME: Documents apps requiring licenses, accounts, or activation after installation
+
+# Licensed Applications and Account Requirements
+
+This document provides guidance for applications that require licenses, subscriptions, or account activation after installation via nix-darwin.
+
+**Philosophy**: Some applications cannot be fully configured via nix-darwin and require manual activation, sign-in, or license key entry. This document tracks those apps and provides activation instructions.
+
+---
+
+## Overview
+
+The following apps require manual setup after installation:
+
+**Productivity & Security**:
+- **1Password**: Requires account sign-in (subscription or license)
+- **Microsoft Office 365**: Requires subscription and activation (manual install)
+
+**Video Conferencing**:
+- **Zoom**: Can use free account, but paid license may be needed for full features
+- **Webex**: Requires company account or free Webex account
+
+**Development Tools**:
+- None currently (all dev tools are free/open source)
+
+---
+
+## Video Conferencing Apps
+
+### Zoom
+
+**Installation**: Installed via Homebrew cask `zoom` (Story 02.5-002)
+
+**Account Options**:
+
+1. **Free Account** (No License Required):
+   - **Sign up**: https://zoom.us/signup
+   - **Meeting limits**: 40-minute limit for group meetings (3+ participants)
+   - **Participant limits**: Up to 100 participants
+   - **Features**: Join meetings, host short meetings, screen sharing, chat
+   - **Cost**: Free forever (no credit card required)
+
+2. **Licensed Account** (Paid Plans):
+   - **Pro Plan**: $149.90/year - Unlimited meeting duration, cloud recording
+   - **Business Plan**: $199.90/year/user - Admin controls, branding, managed domains
+   - **Enterprise Plan**: Custom pricing - Unlimited cloud storage, dedicated support
+   - **License source**: Provided by employer OR purchased at https://zoom.us/pricing
+
+**Activation Steps**:
+
+**Option A: Free Account**
+1. Launch Zoom from Spotlight (`Cmd+Space`, type "Zoom")
+2. Click **Sign Up Free** on sign-in screen
+3. Enter email address → Click **Sign Up**
+4. Check email for verification link → Click link
+5. Create password and complete profile
+6. Sign in to Zoom desktop app with new account
+7. You can now join and host meetings (with 40-minute limit for groups)
+
+**Option B: Licensed Account (Work/Purchased)**
+1. Launch Zoom from Spotlight (`Cmd+Space`, type "Zoom")
+2. Click **Sign In** on sign-in screen
+3. Enter your work email or licensed account email
+4. Enter password (or use SSO if company provides)
+5. Sign in completes automatically
+6. Verify license status: Zoom → Profile → Account Type (should show "Pro", "Business", or "Enterprise")
+
+**Option C: Guest Mode (No Account)**
+1. Launch Zoom from Spotlight (`Cmd+Space`, type "Zoom")
+2. Click **Join a Meeting** (skip sign-in)
+3. Enter Meeting ID from invite
+4. Enter your name and click **Join**
+5. You can join meetings but cannot host meetings
+
+**License Verification**:
+```bash
+# Check if signed in
+# Open Zoom → Click profile picture → Account should show:
+# - Free: "Basic" (free account)
+# - Licensed: "Pro", "Business", "Enterprise"
+```
+
+**Common Issues**:
+- **Forgot password**: Click "Forgot password?" on sign-in screen → Reset via email
+- **Cannot sign in with work email**: Contact IT admin (account may not be provisioned)
+- **Meeting time limit**: Upgrade to paid plan or create multiple 40-minute sessions
+
+**Documentation**: For full Zoom usage, see `docs/app-post-install-configuration.md` → Zoom section.
+
+---
+
+### Cisco Webex
+
+**Installation**: Installed via Homebrew cask `webex` (Story 02.5-002)
+
+**Account Requirement**: Webex **requires** an account. You cannot use Webex as a guest (unlike Zoom).
+
+**Account Options**:
+
+1. **Company Account** (Most Common):
+   - **Provided by**: Your employer for work meetings
+   - **Sign-in**: Company email and password (or SSO)
+   - **Features**: May include licensed features (cloud recording, large meetings)
+   - **IT-managed**: Policies, features, and restrictions may be controlled by IT
+   - **Activation**: No activation needed - sign in with company credentials
+
+2. **Free Webex Account**:
+   - **Sign up**: https://www.webex.com/pricing/free-trial.html
+   - **Meeting limits**: 50-minute limit for meetings
+   - **Participant limits**: Up to 100 participants
+   - **Features**: Host meetings, screen sharing, whiteboard, chat
+   - **Cost**: Free forever
+
+3. **Paid Plans** (Licensed):
+   - **Webex Meet**: $14.50/month - Unlimited meeting duration, 100 participants
+   - **Webex Suite**: $25/month - Calling, messaging, polling, cloud storage
+   - **Enterprise**: Custom pricing - Advanced features and support
+   - **Purchase**: https://www.webex.com/pricing/
+
+**Activation Steps**:
+
+**Option A: Company Account**
+1. Launch Webex from Spotlight (`Cmd+Space`, type "Webex")
+2. **Sign In** screen appears
+3. Enter your **company email address**
+4. Click **Next** or **Sign In**
+5. Enter password OR use **SSO** if prompted:
+   - **SSO**: Browser opens → Sign in via company portal (Google, Microsoft, Okta, etc.)
+   - **Password**: Enter company password directly
+6. Sign-in completes → Webex shows main interface with upcoming meetings
+7. Verify: Your company email should appear in top-right profile section
+
+**Option B: Free Account**
+1. Visit https://www.webex.com/pricing/free-trial.html in browser
+2. Click **Sign Up Free** (no credit card required)
+3. Enter email address → Click **Next**
+4. Check email for verification code → Enter code
+5. Create password and complete profile
+6. Launch Webex from Spotlight (`Cmd+Space`, type "Webex")
+7. Sign in with email and password
+8. You can now host and join meetings (with 50-minute limit)
+
+**Option C: Paid Plan**
+1. Visit https://www.webex.com/pricing/ in browser
+2. Choose plan: Webex Meet ($14.50/month) or Webex Suite ($25/month)
+3. Click **Buy Now** → Complete payment
+4. Create account or sign in with existing account
+5. License activates automatically
+6. Launch Webex desktop app → Sign in with account
+7. Verify license: Webex → Profile → Account should show "Meet" or "Suite"
+
+**Sign-In Troubleshooting**:
+- **Company Account**:
+  - Verify email is correct (use full company email)
+  - Try **SSO**: Select "Sign in with company portal" if available
+  - Contact IT admin if account not found (may need provisioning)
+  - Check if VPN required (some companies require VPN for Webex sign-in)
+
+- **Free/Paid Account**:
+  - Verify email and password are correct
+  - Check email for verification link (may be in spam folder)
+  - Reset password: Click "Forgot password?" on sign-in screen
+  - Contact Webex support if issues persist: https://help.webex.com/
+
+**License Verification**:
+```bash
+# Check account type and license
+# Open Webex → Click profile picture/icon → Settings → Account
+# Should show:
+# - Free: "Webex Free" or "Free Plan"
+# - Licensed: "Webex Meet", "Webex Suite", or "Enterprise"
+```
+
+**Common Issues**:
+- **Cannot sign in with company email**: Contact IT admin (account may not exist or may be locked)
+- **SSO not working**: Ensure company SSO portal is accessible (may require VPN)
+- **"Account not found"**: Sign up for free account first OR contact IT to provision company account
+- **Meeting time limit (50 minutes)**: Upgrade to paid plan for unlimited duration
+
+**Documentation**: For full Webex usage, see `docs/app-post-install-configuration.md` → Cisco Webex section.
+
+---
+
+## Productivity & Security Apps
+
+### 1Password
+
+**Installation**: Installed via Homebrew cask `1password` (Story 02.4-002)
+
+**License Requirement**: 1Password requires a **subscription** (individual or family plan) OR a **license key** (legacy standalone license, no longer sold).
+
+**Account Options**:
+
+1. **1Password Subscription** (Current Model):
+   - **Individual**: $2.99/month - 1 account, unlimited devices, all features
+   - **Families**: $4.99/month - 5 accounts, shared vaults, guest accounts
+   - **Teams**: $7.99/user/month - Business features, admin controls
+   - **Business**: $19.95/user/month - Advanced security, compliance, SSO
+   - **Sign up**: https://1password.com/sign-up/
+
+2. **Company-Provided License** (Teams/Business):
+   - Employer provides 1Password account
+   - Sign in with company email and master password
+   - May include SSO integration (Google, Microsoft, Okta)
+   - IT admin manages team settings and permissions
+
+3. **Legacy Standalone License** (No Longer Sold):
+   - One-time purchase license (v7 or earlier)
+   - No subscription required
+   - Limited to purchased version (no updates to v8+)
+   - Sync via iCloud/Dropbox (not 1Password.com)
+
+**Activation Steps**:
+
+**Option A: New Subscription**
+1. Launch 1Password from Spotlight (`Cmd+Space`, type "1Password")
+2. Click **Get Started** or **Sign Up**
+3. Visit https://1password.com/sign-up/ in browser
+4. Choose plan: Individual ($2.99/month) or Families ($4.99/month)
+5. Enter email, create master password (CRITICAL - store securely, cannot be recovered)
+6. Complete payment information
+7. Download Emergency Kit (PDF with account details - store safely)
+8. Return to 1Password app → Sign in with:
+   - **Email**: Your signup email
+   - **Secret Key**: From Emergency Kit PDF
+   - **Master Password**: Your chosen master password
+9. 1Password unlocks → Begin adding passwords
+
+**Option B: Company Account**
+1. Receive invitation email from IT admin with subject "You've been invited to [Company Name]"
+2. Click **Accept Invitation** link in email
+3. Create master password (or use SSO if configured)
+4. Download Emergency Kit (store safely)
+5. Launch 1Password from Spotlight (`Cmd+Space`, type "1Password")
+6. Sign in with company email and master password (or SSO)
+7. 1Password unlocks → Company vaults appear
+
+**Option C: Legacy Standalone License**
+1. Launch 1Password from Spotlight (`Cmd+Space`, type "1Password")
+2. Click **I have a license key**
+3. Enter license key (from purchase email or license file)
+4. Choose vault location:
+   - **iCloud**: Sync via iCloud Drive
+   - **Dropbox**: Sync via Dropbox
+   - **Local**: No sync (Mac only)
+5. Create master password for vault
+6. 1Password unlocks → Ready to use
+
+**Master Password Guidelines**:
+- **CRITICAL**: Master password cannot be recovered if forgotten (1Password cannot reset it)
+- Use 3-4 random words: e.g., "correct-horse-battery-staple" (easy to remember, hard to crack)
+- Minimum 16 characters recommended for strong security
+- Store Emergency Kit in safe place (physical safe, safety deposit box)
+- Never share master password (1Password staff will never ask for it)
+
+**License Verification**:
+```bash
+# Check subscription status
+# Open 1Password → Settings → Accounts → Should show:
+# - Subscription: "Individual", "Families", "Teams", "Business" with renewal date
+# - Standalone: "1Password 7 Standalone" or earlier version
+```
+
+**Common Issues**:
+- **Forgot master password**: Cannot be recovered (1Password has zero knowledge architecture)
+  - Solution: Use Emergency Kit to verify Secret Key, try password variations
+  - Last resort: Create new account (lose all data unless synced elsewhere)
+- **Cannot sign in**: Verify email, Secret Key, and master password are all correct
+- **Subscription expired**: Update payment method at https://1password.com (sign in on web)
+- **Company account locked**: Contact IT admin (may be security policy or account suspension)
+
+**Documentation**: For full 1Password usage, see `docs/app-post-install-configuration.md` → 1Password section.
+
+---
+
+### Microsoft Office 365
+
+**Installation**: **Manual installation required** (not via Homebrew/nix-darwin due to licensing complexity)
+
+**License Requirement**: Office 365 requires an **active subscription** (Microsoft 365 plan).
+
+**Subscription Options**:
+
+1. **Microsoft 365 Personal**: $69.99/year
+   - 1 person, 5 devices (PC, Mac, tablet, phone)
+   - Word, Excel, PowerPoint, Outlook, OneNote, OneDrive (1TB)
+   - Premium features and monthly updates
+
+2. **Microsoft 365 Family**: $99.99/year
+   - Up to 6 people, 5 devices each (30 devices total)
+   - Same apps as Personal + 1TB OneDrive per person
+   - Shared family calendar and locations
+
+3. **Company-Provided License** (Business/Enterprise):
+   - Employer provides Office 365 license
+   - Sign in with company email (Microsoft 365 Business/Enterprise)
+   - IT-managed licenses and policies
+   - May include Teams, SharePoint, Exchange
+
+**Manual Installation Steps**:
+
+**Option A: Personal/Family Subscription**
+1. **Purchase subscription**:
+   - Visit https://www.microsoft.com/en-us/microsoft-365/buy/compare-all-microsoft-365-products
+   - Choose Personal or Family plan
+   - Complete purchase with Microsoft account
+
+2. **Download Office**:
+   - Sign in to https://account.microsoft.com/services/
+   - Click **Install Office** button
+   - Download Office installer (`Office365Installer.pkg`)
+
+3. **Install**:
+   - Open downloaded `.pkg` file
+   - Follow installation wizard
+   - Apps install to `/Applications/` (Word, Excel, PowerPoint, Outlook, OneNote)
+
+4. **Activate**:
+   - Launch any Office app (e.g., Word)
+   - Sign in with Microsoft account email and password
+   - Office activates automatically (verifies subscription)
+   - All Office apps are now licensed
+
+**Option B: Company License**
+1. **Receive invitation**: IT admin sends Office 365 invitation to company email
+2. **Download Office**:
+   - Sign in to https://portal.office.com with company email
+   - Click **Install Office** button (top right)
+   - Download Office installer
+
+3. **Install and activate**: Same as Option A step 3-4, but use company email for sign-in
+
+**License Verification**:
+```bash
+# Check Office activation status
+# Open Word → Word menu → About Word
+# Should show: "Product Activated" with subscription type
+# If shows "Unlicensed Product", sign in again: Word → Sign In (top right)
+```
+
+**Common Issues**:
+- **"Unlicensed Product" error**:
+  - Sign in to Office app: Word → Sign In → Enter Microsoft account
+  - Verify subscription active: Visit https://account.microsoft.com/services/
+  - Check internet connection (Office verifies license online every 30 days)
+
+- **Cannot sign in**:
+  - Verify Microsoft account email and password correct
+  - Check if account has active subscription (may have expired)
+  - Company accounts: Contact IT admin (account may not be provisioned)
+
+- **Subscription expired**:
+  - Renew at https://account.microsoft.com/services/
+  - Enter payment information to reactivate
+  - Relaunch Office apps to re-verify license
+
+**Auto-Update Configuration**:
+- Office 365 has **automatic updates enabled by default**
+- To disable (not recommended for security):
+  1. Open any Office app (e.g., Word)
+  2. Click **Word** menu → **Preferences**
+  3. Navigate to **AutoUpdate** (under "Personal Settings")
+  4. Uncheck "Automatically download and install" (or set to "Manual")
+  5. Click **Update Options** → Choose "Disable Updates" (WARNING: Security risk)
+
+**Note**: Disabling Office auto-updates is **NOT recommended** due to security vulnerabilities. Office security patches are critical. Consider allowing auto-updates for Office even if other apps are controlled via darwin-rebuild.
+
+**Documentation**:
+- Office 365 Help: https://support.microsoft.com/en-us/office
+- Activation Guide: https://support.microsoft.com/en-us/office/activate-office-5bd38f38-db92-448b-a982-ad170b1e187e
+- Subscription Management: https://account.microsoft.com/services/
+
+---
+
+## Summary Table
+
+| App | Installation | Account Type | Cost | Activation Required |
+|-----|-------------|--------------|------|---------------------|
+| **Zoom** | Homebrew cask | Free or Licensed | Free or $149.90+/year | Yes (or guest mode) |
+| **Webex** | Homebrew cask | Company or Free | Free or $14.50+/month | Yes (required) |
+| **1Password** | Homebrew cask | Subscription or License | $2.99+/month or legacy | Yes (required) |
+| **Office 365** | Manual install | Subscription | $69.99+/year or company | Yes (required) |
+
+---
+
+## Next Steps After Activation
+
+After activating licensed apps:
+
+1. **Verify functionality**: Launch each app and confirm sign-in successful
+2. **Configure settings**: See `docs/app-post-install-configuration.md` for detailed setup
+3. **Test core features**: Ensure licenses unlock expected features (e.g., Zoom recording, 1Password sync)
+4. **Store credentials safely**: Save license keys, Emergency Kits, and recovery codes in secure location
+5. **Set calendar reminders**: Add renewal reminders 30 days before subscription expiration
+
+---
+
+## Troubleshooting Licensed Apps
+
+**General License Issues**:
+- Check internet connection (apps verify licenses online)
+- Sign out and sign back in (refresh license validation)
+- Verify subscription active (check payment method, expiration date)
+- Contact support or IT admin (may be account issue or provisioning delay)
+
+**Subscription Management**:
+- **Zoom**: https://zoom.us/account (sign in → Billing)
+- **Webex**: https://www.webex.com/ (sign in → Account → Subscription)
+- **1Password**: https://1password.com/ (sign in → Billing)
+- **Office 365**: https://account.microsoft.com/services/ (Manage subscription)
+
+**Support Contacts**:
+- **Zoom Support**: https://support.zoom.us/hc/en-us
+- **Webex Support**: https://help.webex.com/
+- **1Password Support**: https://support.1password.com/
+- **Office 365 Support**: https://support.microsoft.com/en-us/office

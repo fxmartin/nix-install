@@ -105,6 +105,17 @@
       # GIMP: No auto-update to disable (open source, Homebrew-controlled)
       "vlc"  # VLC - Universal media player supporting 100+ formats (Story 02.6-001)
       "gimp" # GIMP - Free image editor (Photoshop alternative) (Story 02.6-001)
+
+      # Communication Tools - Video Conferencing (Story 02.5-002)
+      # CRITICAL: Auto-update disable required for both apps
+      # Zoom: Preferences → General → Uncheck "Update Zoom automatically when connected to Wi-Fi"
+      # Webex: Preferences → General → Check for auto-update option (may vary by version)
+      # Both apps require account sign-in:
+      #   - Zoom: Free account available, license may be needed for full features (meeting duration, participant limits)
+      #   - Webex: Requires company account or free Webex account
+      # Permissions: Both apps request camera and microphone on first use
+      "zoom"  # Zoom - Video conferencing and meetings (Story 02.5-002)
+      "webex" # Cisco Webex - Enterprise video conferencing (Story 02.5-002)
     ];
 
     # Global Homebrew options

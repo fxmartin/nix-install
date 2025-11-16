@@ -66,13 +66,17 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - **Story 02.4-003** - File Utilities (Calibre, Kindle, Keka, Marked 2) (✅ Complete - 2025-01-15, 5 pts, VM TESTED)
 - **Story 02.4-004** - Dropbox Installation (✅ Complete - 2025-01-15, 3 pts, VM TESTED)
 - **Story 02.4-007** - Git and Git LFS (✅ Complete - 2025-01-15, 5 pts, VM TESTED)
+- **Story 02.4-005** - System Utilities (Onyx, f.lux) (✅ Complete - 2025-01-15, 3 pts, VM TESTED)
+- **Story 02.5-001** - WhatsApp Installation (✅ Complete - 2025-01-15, 3 pts, VM TESTED)
+- **Story 02.6-001** - VLC and GIMP (✅ Complete - 2025-01-15, 3 pts, VM TESTED)
+- **Story 02.5-002** - Zoom and Webex (✅ Complete - 2025-01-15, 5 pts, VM TESTED)
 
 ### 🔄 In Progress
 - **Epic-01: Bootstrap System** - 17/19 stories (89.5%), 104/113 points (92.0%) - **FUNCTIONAL** 🟢
-- **Epic-02: Application Installation** - 17/25 stories (68.0%), 79/118 points (66.9%) - **IN PROGRESS** 🟡
-- **Next Stories**: 02.4-005 (System Utilities, 3 pts), 02.4-006 (System Monitoring, 5 pts), 02.5-001 (Communication Tools, 3 pts)
+- **Epic-02: Application Installation** - 20/25 stories (80.0%), 90/118 points (76.3%) - **IN PROGRESS** 🟡
+- **Next Stories**: 02.4-006 (System Monitoring, 5 pts), 02.7-001 (NordVPN, 5 pts), 02.9-001 (Office 365, 5 pts)
 - **Bootstrap Status**: ALL 9 phases working! Phases 1-8 VM tested and verified ✅
-- **Recent Milestone**: Feature 02.4 in progress - Productivity apps (5/7 stories complete: Raycast, 1Password, File Utilities, Dropbox, Git)
+- **Recent Milestone**: Epic-02 Batch 1 (Quick Wins) COMPLETE - 4 stories (14 points) VM tested ✅
 
 ### 📅 Upcoming
 - **Phase 1-2**: Core bootstrap implementation (Week 2)

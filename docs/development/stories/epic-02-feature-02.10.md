@@ -8,34 +8,54 @@
 **Feature ID**: Feature 02.10
 **Feature Name**: Email Account Configuration
 **Epic**: Epic-02
-**Status**: 🔄 In Progress
+**Status**: ❌ **CANCELLED** - Automation abandoned, manual setup required
 
 ### Feature 02.10: Email Account Configuration
-**Feature Description**: Automated setup of email accounts in macOS Mail.app (1 Gmail with OAuth, 4 Gandi.net accounts with manual passwords)
-**User Value**: Email accounts configured automatically during bootstrap, ready to use immediately
+**Feature Description**: ~~Automated setup of email accounts in macOS Mail.app (1 Gmail with OAuth, 4 Gandi.net accounts with manual passwords)~~ **Manual setup via Mail.app preferences**
+**User Value**: Email accounts configured manually during post-install (5 minutes setup time)
 **Story Count**: 1
-**Story Points**: 5
-**Priority**: Must Have
-**Complexity**: Medium
+**Story Points**: 5 (automation attempted, cancelled due to UX issues)
+**Priority**: Must Have (manual setup acceptable)
+**Complexity**: Medium (automation complex, manual setup simple)
+
+**Cancellation Rationale**:
+- Configuration profile automation proved confusing for user (unclear credential prompts for 4 similar Gandi accounts)
+- "Account already exists" conflicts during profile installation
+- Manual Mail.app setup provides better UX (clear which account being configured)
+- 5-minute manual setup < time debugging profile installation issues
+- Recommendation: Manual setup is acceptable for infrequent task (once per machine)
+
+**Documentation**: Manual setup guide created at `docs/apps/productivity/email-configuration.md`
 
 #### Stories in This Feature
 
-##### Story 02.10-001: macOS Mail.app Email Account Automation
-**User Story**: As FX, I want my 5 email accounts (1 Gmail, 4 Gandi.net) automatically configured in macOS Mail.app so that I can start using email immediately after first launch
+##### Story 02.10-001: macOS Mail.app Email Account Configuration
+**User Story**: As FX, I want my 5 email accounts (1 Gmail, 4 Gandi.net) ~~automatically~~ configured in macOS Mail.app so that I can start using email ~~immediately after first launch~~ **after manual setup**
 
 **Priority**: Must Have
 **Story Points**: 5
 **Sprint**: Sprint 4
+**Status**: ❌ **CANCELLED** - Automation abandoned, manual setup documented
 
-**Acceptance Criteria**:
-- **Given** darwin-rebuild completes successfully
-- **When** I open Mail.app for the first time
-- **Then** all 5 email accounts are listed in the sidebar
-- **And** Gmail account prompts for OAuth sign-in (expected manual step)
-- **And** Gandi.net accounts prompt for password entry (expected manual step)
-- **And** after entering credentials, all accounts sync successfully
+**Original Acceptance Criteria** (automation approach - CANCELLED):
+- ~~**Given** darwin-rebuild completes successfully~~
+- ~~**When** I open Mail.app for the first time~~
+- ~~**Then** all 5 email accounts are listed in the sidebar~~
+- ~~**And** Gmail account prompts for OAuth sign-in (expected manual step)~~
+- ~~**And** Gandi.net accounts prompt for password entry (expected manual step)~~
+- ~~**And** after entering credentials, all accounts sync successfully~~
+- ~~**And** I can send and receive email from all accounts~~
+- ~~**And** account configuration includes correct IMAP and SMTP settings~~
+
+**Revised Acceptance Criteria** (manual setup approach - COMPLETED):
+- **Given** fresh macOS install after darwin-rebuild
+- **When** I follow the manual setup guide at `docs/apps/productivity/email-configuration.md`
+- **Then** I can add all 5 email accounts in ~5 minutes
+- **And** Gmail account uses OAuth2 or app-specific password
+- **And** Gandi.net accounts use IMAP/SMTP with password authentication
+- **And** all accounts sync successfully
 - **And** I can send and receive email from all accounts
-- **And** account configuration includes correct IMAP and SMTP settings
+- **And** setup process is clear and user-friendly
 
 **Additional Requirements**:
 - Gmail account: OAuth authentication (user must sign in)
@@ -176,19 +196,29 @@
   - Authentication: OAuth2 (user signs in via browser)
   - May require "Allow less secure apps" or app-specific password if OAuth fails
 
-**Definition of Done**:
-- [ ] Email configuration implementation chosen (profile, defaults, or script)
-- [ ] Email addresses configurable in user-config.nix or email-config.nix
-- [ ] Configuration profile or script created
-- [ ] Activation script installs account configuration
-- [ ] Tested in VM: Mail.app shows all 5 accounts
-- [ ] Tested credential entry: Gmail OAuth and Gandi password prompts work
-- [ ] All accounts sync successfully after credential entry
-- [ ] Documentation added to post-install guide
-- [ ] Bootstrap summary notes manual credential entry required
-- [ ] Works on both Standard and Power profiles
+**Definition of Done** (automation approach - OBSOLETE):
+- [x] ~~Email configuration implementation chosen (profile, defaults, or script)~~ - Configuration profile approach implemented
+- [x] ~~Email addresses configurable in user-config.nix or email-config.nix~~ - email-config.nix created
+- [x] ~~Configuration profile or script created~~ - darwin/email-accounts.nix created
+- [x] ~~Activation script installs account configuration~~ - Activation script implemented
+- [x] ~~Documentation added to post-install guide~~ - docs/apps/productivity/email-configuration.md created
+- [ ] ~~Tested in VM: Mail.app shows all 5 accounts~~ - **NOT TESTED** (cancelled before VM testing)
+- [ ] ~~Tested credential entry: Gmail OAuth and Gandi password prompts work~~ - **NOT TESTED**
+- [ ] ~~All accounts sync successfully after credential entry~~ - **NOT TESTED**
+- [x] ~~Bootstrap summary notes manual credential entry required~~ - Already documented
+- [ ] ~~Works on both Standard and Power profiles~~ - **NOT TESTED**
 
-**Implementation Status**: ✅ **CODE COMPLETE** (Ready for VM Testing)
+**Revised Definition of Done** (manual setup approach - COMPLETED):
+- [x] Manual setup guide created - docs/apps/productivity/email-configuration.md (327 lines)
+- [x] Step-by-step instructions for Gmail account - Section documented with OAuth and app-specific password options
+- [x] Step-by-step instructions for 4 Gandi accounts - All 4 accounts documented with IMAP/SMTP settings
+- [x] Troubleshooting guide added - 5 common issues with solutions
+- [x] Server settings reference documented - Gmail and Gandi IMAP/SMTP settings
+- [x] Security best practices documented - Keychain storage, 2FA, password management
+- [x] All automation code removed from codebase - bootstrap.sh, darwin/email-accounts.nix, email-config.nix, flake.nix cleaned
+- [x] Documentation references manual setup - Post-install guide updated
+
+**Implementation Status**: ❌ **CANCELLED** (Automation code removed, manual setup documented)
 
 **Dependencies**:
 - Epic-01, Story 01.2-003 (user-config.nix created with user email addresses) ✅
@@ -550,22 +580,44 @@ For each Gandi account:
 
 ## Post-Implementation Notes
 
-**Implementation Date**: 2025-01-16
+**Implementation Date**: 2025-01-16 (automation code written)
+**Cancellation Date**: 2025-01-16 (same day, before VM testing)
 **Implemented By**: Claude Code (bash-zsh-macos-engineer agent guidance)
-**Code Review**: Self-reviewed (senior-code-reviewer validation required in PR)
-**VM Testing**: ⏳ **PENDING** (FX will test manually in Parallels VM)
-**Physical Testing**: ⏳ **NOT STARTED** (after VM validation)
+**Code Review**: Self-reviewed (automation code written but cancelled)
+**VM Testing**: ❌ **CANCELLED** (automation abandoned before VM testing phase)
+**Physical Testing**: ❌ **CANCELLED** (not applicable for manual setup)
 
-**Next Steps for FX**:
-1. ✅ Review code changes (verify implementation correctness)
-2. ⏳ Create Parallels VM snapshot for testing
-3. ⏳ Run all 13 VM test phases
-4. ⏳ Document any issues found
-5. ⏳ Iterate on fixes if needed
-6. ⏳ Mark story as VM Tested ✅ after all tests pass
-7. ⏳ Test on physical MacBook Pro M3 Max (Power profile)
-8. ⏳ Test on physical MacBook Air (Standard profile)
-9. ⏳ Mark story as Complete ✅ after physical validation
+**Cancellation Decision Log**:
+1. ✅ Automation code completed (darwin/email-accounts.nix, bootstrap.sh functions, documentation)
+2. ✅ Configuration profile generated successfully (/tmp/email-accounts.mobileconfig)
+3. ❌ Profile installation attempted - encountered UX issues:
+   - Credential prompts unclear (couldn't distinguish between 4 Gandi accounts with same server)
+   - "Account already exists" error during installation
+   - User confusion about which password to enter
+4. ✅ User decision: "Ok so I do it manually. Document it as a manual step and remove all code related to this story and mark it as cancelled"
+5. ✅ Manual setup guide created (docs/apps/productivity/email-configuration.md)
+6. ✅ All automation code removed (darwin/email-accounts.nix, email-config.nix, email-config.template.nix, bootstrap.sh functions, flake.nix import, .gitignore entries)
+
+**Lessons Learned**:
+1. **Configuration Profiles Work for Single Accounts**: macOS configuration profiles are reliable for enterprise MDM scenarios
+2. **Multiple Similar Accounts = Poor UX**: 4 accounts sharing mail.gandi.net server created indistinguishable credential prompts
+3. **Manual Setup Has Better UX for Complex Cases**: Mail.app preferences UI clearly shows which account is being configured
+4. **Time Trade-off**: 5 minutes manual setup < hours debugging profile installation edge cases
+5. **Automation Not Always Better**: For infrequent tasks (once per machine), manual setup is acceptable
+6. **Pragmatic Decision-Making**: Cancel automation when manual alternative is faster/clearer
+7. **Document Why Cancelled**: Future reference to prevent re-attempting same approach
+
+**Current Status**:
+- ❌ Automation code: Removed from codebase
+- ✅ Manual setup: Documented in docs/apps/productivity/email-configuration.md (327 lines)
+- ✅ Story: Marked as CANCELLED in epic-02-feature-02.10.md
+- ⏳ Commit: Pending (all cleanup changes to be committed)
+
+**User Experience Outcome**:
+- User adds 5 email accounts manually via Mail.app → Preferences → Accounts in ~5 minutes
+- Setup process clear and straightforward
+- No profile installation confusion
+- Acceptable trade-off for infrequent task
 
 ---
 

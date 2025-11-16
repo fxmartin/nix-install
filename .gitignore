@@ -6,8 +6,3 @@ mlgruby-repo-for-reference/
 tests/test_helper/bats-support/
 tests/test_helper/bats-assert/
 .DS_Store
-
-# Private email configuration (Story 02.10-001)
-# Generated from email-config.template.nix during bootstrap
-# Contains real email addresses - keep private
-email-config.nix

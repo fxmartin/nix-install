@@ -1,165 +1,128 @@
-# Email Account Configuration (macOS Mail.app)
+# Email Account Configuration (Manual Setup)
+
+**Story**: 02.10-001 - macOS Mail.app Email Configuration
+**Status**: ❌ **CANCELLED** - Automation abandoned, manual setup required
+**Category**: Productivity / Email
+**Automation Level**: Manual (configuration profile automation proved too complex)
+**License**: Free (macOS built-in Mail.app)
 
 ## Overview
 
-**Story**: 02.10-001 - macOS Mail.app Email Account Automation
-**Category**: Productivity / Email
-**Automation Level**: Semi-Automated (accounts pre-configured, credentials entered manually)
-**Installation Method**: Configuration Profile (.mobileconfig)
-**License**: Free (macOS built-in Mail.app)
+This guide covers manual setup of 5 email accounts in macOS Mail.app:
+- 1 Gmail account (OAuth2 authentication)
+- 4 Gandi.net accounts (password authentication)
 
-## What Gets Installed
+**Why Manual Setup?**
 
-This automation configures **5 email accounts** in macOS Mail.app:
+Configuration profile automation was attempted but cancelled due to:
+- macOS profile installation complexity (credential prompts unclear for multiple accounts)
+- Conflicts with existing account configurations
+- Better user experience with manual setup (clearer which account is being configured)
+- Manual setup takes ~5 minutes vs. debugging profile installation issues
 
-1. **Gmail Account** (OAuth2 authentication)
-   - IMAP: imap.gmail.com (port 993, SSL)
-   - SMTP: smtp.gmail.com (port 587, STARTTLS)
-   - Auth: Password/App-Specific Password (OAuth2 via browser redirect)
+## Prerequisites
 
-2-5. **Gandi.net Accounts** (4 accounts, password authentication)
-   - IMAP: mail.gandi.net (port 993, SSL)
-   - SMTP: mail.gandi.net (port 587, STARTTLS)
-   - Auth: Password (full email address as username)
+Before starting, gather:
+- **Gmail**: Email address and App-Specific Password (https://myaccount.google.com/apppasswords)
+- **Gandi**: 4 email addresses and their mailbox passwords
 
-## How It Works
+## Manual Setup Instructions
 
-### During Bootstrap (Phase 2)
+### Step 1: Add Gmail Account
 
-1. **Email Address Collection**: Bootstrap prompts for 5 email addresses
-2. **Email Validation**: Each address validated with regex pattern (must contain `@` and domain)
-3. **Confirmation**: All 5 addresses displayed for confirmation
-4. **File Generation**: Creates `email-config.nix` (gitignored, contains your real email addresses)
-
-### During darwin-rebuild
-
-1. **Configuration Profile Generation**: Creates `.mobileconfig` XML file with all 5 accounts
-2. **Profile Placement**: Saves profile to `/tmp/email-accounts.mobileconfig`
-3. **Manual Installation Required**: You must install the profile via System Preferences > Profiles
-
-### After First Mail.app Launch
-
-1. **Credential Entry**: Mail.app prompts for passwords/OAuth for each account
-2. **Account Sync**: Accounts begin syncing mail after credential entry
-3. **Ready to Use**: All accounts accessible in Mail.app sidebar
-
-## Post-Install Configuration
-
-### Step 1: Install Configuration Profile
-
-1. Open **System Preferences** (macOS Ventura+) or **System Settings** (macOS Sonoma+)
-2. Navigate to **Profiles** (left sidebar, near bottom)
-3. Click **"FX Email Accounts"** profile
-4. Click **Install** button
-5. Enter your macOS password when prompted
-6. Click **Install** again to confirm
-
-**Security Note**: Configuration profiles are Apple-supported and safe. This profile only contains email server settings and your email addresses (no passwords).
-
-### Step 2: Launch Mail.app and Enter Credentials
-
-#### Gmail Account Setup
-
-1. **Open Mail.app** for the first time
-2. **Find Gmail account** in sidebar (should already be listed)
-3. **Click account** → Enter password when prompted
-4. **Choose authentication method**:
+1. **Open Mail.app**: `open -a Mail`
+2. **Open Mail Preferences**: Mail → Settings (Cmd+,)
+3. **Click Accounts tab**
+4. **Click + button** (bottom left)
+5. **Select Google** from provider list
+6. **Sign in with your Gmail address**
+7. **Enter password**:
    - **Option A (Recommended)**: Use App-Specific Password
-     - Go to https://myaccount.google.com/apppasswords
-     - Sign in to your Google account
-     - Generate new app password (select "Mail" and "Mac")
-     - Copy 16-character password (no spaces)
-     - Paste into Mail.app password prompt
+     - Visit https://myaccount.google.com/apppasswords
+     - Select "Mail" and "Mac"
+     - Copy 16-character password
+     - Paste in Mail.app
    - **Option B**: Use regular password + OAuth
      - Enter Gmail password
      - Complete 2FA if enabled
-     - Authorize Mail.app access via browser redirect
-5. **Wait for sync**: Gmail will begin downloading messages (~1-5 minutes)
+     - Authorize Mail.app via browser
+8. **Click Done**
+9. **Verify**: Gmail account appears in left sidebar
 
-**Troubleshooting Gmail Auth**:
-- If OAuth fails: Use App-Specific Password instead
-- If "Less Secure Apps" error: Enable 2FA and use App-Specific Password
-- If connection fails: Check firewall/VPN settings
+### Step 2: Add Gandi Account 1 (mail@fxmartin.me)
 
-#### Gandi.net Account Setup (4 accounts)
+1. **Click + button** (bottom left in Accounts preferences)
+2. **Select "Add Other Mail Account..."**
+3. **Enter account information**:
+   - **Name**: Your full name (e.g., "François-Xavier Martin")
+   - **Email Address**: `mail@fxmartin.me` (or your primary Gandi email)
+   - **Password**: Your Gandi mailbox password
+4. **Click Sign In**
+5. **If manual server configuration required**:
+   - **Account Type**: IMAP
+   - **Incoming Mail Server**: `mail.gandi.net`
+   - **User Name**: `mail@fxmartin.me` (full email address)
+   - **Password**: Your Gandi mailbox password
+   - **Outgoing Mail Server**: `mail.gandi.net`
+   - **User Name**: `mail@fxmartin.me`
+   - **Password**: Same as incoming
+   - ✅ Check "Use same password for outgoing mail"
+6. **Click Sign In** / **Create**
+7. **Verify**: Account appears in left sidebar
 
-For each of the 4 Gandi.net accounts:
+### Step 3: Add Remaining Gandi Accounts
 
-1. **Click account** in Mail.app sidebar
-2. **Enter password** when prompted:
-   - Username: Your full email address (e.g., `account1@yourdomain.com`)
-   - Password: Your Gandi.net mailbox password
-3. **Wait for sync**: IMAP sync begins immediately
+Repeat Step 2 for each remaining Gandi account:
+- `contact@fxmartin.me` (or your second Gandi email)
+- `pub@fxmartin.me` (or your third Gandi email)
+- `server@fxmartin.me` (or your fourth Gandi email)
 
-**Gandi.net Password Notes**:
-- Password is your **mailbox password** (not webmail login password)
-- If forgotten: Reset via Gandi.net webmail → Settings → Change Password
-- Password must be entered for **both IMAP (incoming) and SMTP (outgoing)**
-  - Checkbox "Use same password for outgoing" should be checked (enabled by default)
+**Server settings are the same for all Gandi accounts:**
+- IMAP: `mail.gandi.net` (port 993, SSL)
+- SMTP: `mail.gandi.net` (port 587, STARTTLS)
+- Username: Full email address
+- Password: Mailbox password for that specific account
 
-### Step 3: Verify All Accounts Work
+### Step 4: Verify All Accounts
 
-**Test Receiving**:
+After adding all 5 accounts, verify in Mail.app:
+
+**Check accounts list:**
+1. Mail → Settings → Accounts
+2. Should see 6 accounts total:
+   - iCloud (your existing account)
+   - Gmail (martinfxavier@gmail.com or your Gmail)
+   - Gandi 1 (mail@fxmartin.me or equivalent)
+   - Gandi 2 (contact@fxmartin.me or equivalent)
+   - Gandi 3 (pub@fxmartin.me or equivalent)
+   - Gandi 4 (server@fxmartin.me or equivalent)
+
+**Test receiving:**
 1. Send test email to each account from another device
 2. Verify emails appear in Mail.app inbox
-3. Check IMAP sync is working (emails sync across devices)
+3. Check IMAP sync is working
 
-**Test Sending**:
-1. Compose new email from each account (use "From:" dropdown)
-2. Send to yourself or test address
-3. Verify email sends successfully
-4. Check "Sent" folder syncs to IMAP server
-
-## Configuration File Structure
-
-### email-config.nix (Gitignored, Private)
-
-**Location**: `/Users/yourusername/Documents/nix-install/email-config.nix`
-**Generated by**: Bootstrap Phase 2
-**Contents**: Your 5 email addresses (private data)
-
-```nix
-{
-  gmail = "your-email@gmail.com";
-  gandi1 = "account1@yourdomain.com";
-  gandi2 = "account2@yourdomain.com";
-  gandi3 = "account3@yourdomain.com";
-  gandi4 = "account4@yourdomain.com";
-}
-```
-
-**Security**:
-- ✅ **Gitignored**: This file is NOT tracked in version control
-- ✅ **Local only**: Never pushed to GitHub
-- ⚠️ **Contains real emails**: Treat as sensitive data
-- ✅ **No passwords**: Only email addresses stored (passwords entered manually)
-
-### email-config.template.nix (Tracked, Template)
-
-**Location**: `/Users/yourusername/Documents/nix-install/email-config.template.nix`
-**Purpose**: Template file with placeholders (tracked in git)
-**Usage**: Bootstrap replaces `@EMAIL_GMAIL@` etc. with real values
-
-### darwin/email-accounts.nix (Tracked, Module)
-
-**Location**: `/Users/yourusername/Documents/nix-install/darwin/email-accounts.nix`
-**Purpose**: Nix-darwin module that reads email-config.nix and generates .mobileconfig
-**Execution**: Runs during `darwin-rebuild switch`
+**Test sending:**
+1. Compose new email (Cmd+N)
+2. Use **From:** dropdown to select each account
+3. Send test email to yourself
+4. Verify email sends successfully
+5. Check "Sent" folder syncs to server
 
 ## Mail.app Usage Tips
 
 ### Managing Multiple Accounts
 
-**Unified Inbox**:
+**Unified Inbox:**
 - Mail.app shows all accounts in one view by default
 - Use sidebar to view individual account folders
 
-**Composing from Specific Account**:
+**Composing from Specific Account:**
 1. Click **New Message** (Cmd+N)
 2. Use **From:** dropdown to select account
-3. Default account: Set in **Mail > Preferences > Composing > Send new messages from**
+3. Set default: Mail → Preferences → Composing → Send new messages from
 
-**Organizing with Folders**:
+**Organizing with Folders:**
 - Gmail: Uses labels (auto-synced via IMAP)
 - Gandi: Create folders with right-click → New Mailbox
 
@@ -176,52 +139,35 @@ For each of the 4 Gandi.net accounts:
 | Mark as Read | `Cmd+Shift+L` |
 | Mark as Unread | `Cmd+Shift+U` |
 | Search | `Cmd+Option+F` |
-| Next Message | `Cmd+]` |
-| Previous Message | `Cmd+[` |
 
 ### Preferences to Configure
 
-**Mail > Preferences > General**:
+**Mail → Preferences → General:**
 - ✅ Check for new messages: Every 5 minutes (or as desired)
 - ✅ Downloads folder: ~/Downloads
 - ✅ Remove unedited downloads: After Message is Deleted
 
-**Mail > Preferences > Accounts**:
-- ✅ Verify all 5 accounts are listed
-- ✅ Check "Enable this account" for each
+**Mail → Preferences → Accounts:**
+- ✅ Verify all accounts are listed and enabled
 - ✅ Set mailbox behaviors (Drafts, Sent, Junk, Trash)
 
-**Mail > Preferences > Junk Mail**:
+**Mail → Preferences → Junk Mail:**
 - ✅ Enable junk mail filtering
-- ✅ Move junk to Junk mailbox (not Trash)
-- ⚠️ Gmail: Use Gmail's web filters (more effective than Mail.app)
+- ✅ Move junk to Junk mailbox
+- ⚠️ Gmail: Use Gmail's web filters (more effective)
 
-**Mail > Preferences > Composing**:
-- ✅ Message Format: Rich Text or Plain Text (your preference)
+**Mail → Preferences → Composing:**
+- ✅ Message Format: Rich Text or Plain Text
 - ✅ Send new messages from: Select default account
 - ✅ Reply using same account: Enabled
 
 ## Troubleshooting
 
-### Problem: Accounts Not Appearing After darwin-rebuild
-
-**Symptoms**: Mail.app doesn't show any accounts after rebuild
-**Cause**: Configuration profile not installed
-**Solution**:
-1. Check if profile exists: `ls -la /tmp/email-accounts.mobileconfig`
-2. Open System Preferences → Profiles
-3. Manually install "FX Email Accounts" profile
-4. Restart Mail.app
-
-### Problem: Gmail Authentication Fails
+### Gmail Authentication Fails
 
 **Symptoms**: "Cannot verify account" or "Invalid credentials"
-**Causes**:
-1. OAuth redirect blocked
-2. Less Secure Apps disabled
-3. 2FA not configured
 
-**Solutions**:
+**Solutions:**
 1. **Use App-Specific Password** (recommended):
    - Visit https://myaccount.google.com/apppasswords
    - Generate new password for Mail
@@ -231,15 +177,11 @@ For each of the 4 Gandi.net accounts:
    - Visit https://myaccount.google.com/notifications
    - Approve Mail.app access if blocked
 
-### Problem: Gandi Account Shows "Cannot Connect"
+### Gandi Account Shows "Cannot Connect"
 
 **Symptoms**: IMAP/SMTP connection fails
-**Causes**:
-1. Incorrect password
-2. Firewall blocking ports 993/587
-3. Gandi mailbox not activated
 
-**Solutions**:
+**Solutions:**
 1. **Verify password**: Try logging in at https://mail.gandi.net/
 2. **Check mailbox status**:
    - Log in to Gandi.net admin panel
@@ -254,13 +196,13 @@ For each of the 4 Gandi.net accounts:
    openssl s_client -connect mail.gandi.net:587 -starttls smtp
    ```
 
-### Problem: Emails Not Syncing Across Devices
+### Emails Not Syncing Across Devices
 
 **Symptoms**: Emails on Mac don't appear on iPhone/iPad
-**Cause**: IMAP not syncing properly
-**Solution**:
+
+**Solution:**
 1. **Check IMAP folders**:
-   - Mail > Preferences > Accounts → [Account] → Mailbox Behaviors
+   - Mail → Preferences → Accounts → [Account] → Mailbox Behaviors
    - Verify "Store sent messages on server" is enabled
    - Verify "Store junk messages on server" is enabled
 2. **Force sync**:
@@ -268,17 +210,13 @@ For each of the 4 Gandi.net accounts:
 3. **Rebuild mailbox**:
    - Right-click account → Rebuild
 
-### Problem: Cannot Send Emails (SMTP Errors)
+### Cannot Send Emails (SMTP Errors)
 
 **Symptoms**: "Cannot send message" or "SMTP server not responding"
-**Causes**:
-1. SMTP authentication failed
-2. Port 587 blocked by firewall/VPN
-3. Outgoing mail server settings incorrect
 
-**Solutions**:
+**Solutions:**
 1. **Re-enter SMTP password**:
-   - Mail > Preferences > Accounts → [Account] → Server Settings
+   - Mail → Preferences → Accounts → [Account] → Server Settings
    - Outgoing Mail Server → Edit Server List
    - Re-enter password
 2. **Verify SMTP settings**:
@@ -286,89 +224,76 @@ For each of the 4 Gandi.net accounts:
    - Gandi: mail.gandi.net, port 587, TLS
 3. **Test with VPN disabled** (some VPNs block SMTP)
 
-### Problem: Profile Shows "Not Signed" Warning
+## Server Settings Reference
 
-**Symptoms**: macOS warns profile is not signed
-**Cause**: Profile generated locally, not from MDM server
-**Solution**: This is expected and safe. The profile only contains email settings (no executables or scripts). Click "Install" to proceed.
+### Gmail Account Settings
 
-## Advanced Configuration
+- **Email**: martinfxavier@gmail.com (or your Gmail address)
+- **Incoming (IMAP)**:
+  - Server: `imap.gmail.com`
+  - Port: 993
+  - Security: SSL/TLS
+  - Auth: OAuth2 or App-Specific Password
+- **Outgoing (SMTP)**:
+  - Server: `smtp.gmail.com`
+  - Port: 587
+  - Security: STARTTLS
+  - Auth: Same as incoming
 
-### Changing Email Addresses
+### Gandi Account Settings (All 4 Accounts)
 
-If you need to change any email addresses after installation:
-
-1. **Edit email-config.nix** directly:
-   ```bash
-   nano ~/Documents/nix-install/email-config.nix
-   ```
-2. **Run darwin-rebuild**:
-   ```bash
-   darwin-rebuild switch --flake ~/Documents/nix-install#standard
-   # OR
-   darwin-rebuild switch --flake ~/Documents/nix-install#power
-   ```
-3. **Reinstall profile**:
-   - System Preferences → Profiles
-   - Remove old "FX Email Accounts" profile
-   - Install new profile from `/tmp/email-accounts.mobileconfig`
-4. **Open Mail.app** and enter credentials for new accounts
-
-### Removing Email Accounts
-
-To remove email accounts from Mail.app:
-
-1. **System Preferences → Profiles**
-2. Select "FX Email Accounts" profile
-3. Click **Remove** (minus button)
-4. Confirm removal
-5. Open Mail.app → Accounts will be removed automatically
-
-**Note**: This only removes Mail.app configuration, not the actual email accounts from Gmail/Gandi servers.
-
-### Using with Other Email Clients
-
-If you prefer Thunderbird, Outlook, or other email clients instead of Mail.app:
-
-- Configuration profile only affects Mail.app (client-specific)
-- Other clients need manual account setup
-- Use same server settings:
-  - **Gmail**: imap.gmail.com (993), smtp.gmail.com (587)
-  - **Gandi**: mail.gandi.net (993/587)
+- **Email**: mail@fxmartin.me, contact@fxmartin.me, pub@fxmartin.me, server@fxmartin.me
+- **Incoming (IMAP)**:
+  - Server: `mail.gandi.net`
+  - Port: 993
+  - Security: SSL/TLS
+  - Auth: Password
+  - Username: Full email address
+- **Outgoing (SMTP)**:
+  - Server: `mail.gandi.net`
+  - Port: 587
+  - Security: STARTTLS
+  - Auth: Password
+  - Username: Full email address
 
 ## Security & Privacy
-
-### Data Stored in Configuration
-
-**In Git (Public)**:
-- ✅ Template file with placeholders
-- ✅ Nix module (darwin/email-accounts.nix)
-- ❌ NO email addresses
-- ❌ NO passwords
-
-**On Local Disk (Private)**:
-- ✅ Real email addresses (email-config.nix, gitignored)
-- ❌ NO passwords (entered manually each time)
-- ✅ Configuration profile (.mobileconfig, contains addresses but no passwords)
-
-**In macOS Keychain**:
-- ✅ Passwords stored securely by Mail.app
-- ✅ Encrypted with macOS keychain
-- ✅ Accessible only with macOS login password or Touch ID
 
 ### Best Practices
 
 1. **Use App-Specific Passwords** for Gmail (not your main password)
 2. **Enable 2FA** on all accounts (Gmail, Gandi)
 3. **Backup macOS Keychain** (contains saved passwords)
-4. **Never share email-config.nix** (contains real email addresses)
-5. **Keep macOS updated** for security patches
+4. **Keep macOS updated** for security patches
+5. **Never share passwords** via email or unencrypted channels
+
+### Where Passwords Are Stored
+
+- ✅ **macOS Keychain**: Passwords stored securely by Mail.app
+- ✅ **Encrypted**: With macOS keychain encryption
+- ✅ **Access Control**: Only accessible with macOS login password or Touch ID
+
+## Why Automation Was Cancelled
+
+**Original Plan**: Use macOS Configuration Profiles (.mobileconfig) to automate email account setup
+
+**Issues Encountered:**
+1. **Credential Prompt Confusion**: Profile installation prompts for credentials sequentially without clearly indicating which account (e.g., 4 Gandi accounts sharing mail.gandi.net server were indistinguishable)
+2. **Existing Account Conflicts**: "Account already exists" errors when partial/broken account data present
+3. **Poor User Experience**: Manual setup via Mail.app UI provides better visibility and control
+4. **Time Trade-off**: 5 minutes to manually configure < time spent debugging profile issues
+
+**Lessons Learned:**
+- Configuration profiles work well for enterprise MDM scenarios with pre-shared credentials
+- For personal/home use, manual Mail.app setup is more user-friendly
+- macOS automation complexity sometimes exceeds manual effort for infrequent tasks
+
+**Recommendation**: For future MacBook setups, continue using manual email configuration. The 5-minute manual setup is acceptable for a task performed once per machine.
 
 ## Verification Checklist
 
-After completing setup, verify:
+After completing manual setup:
 
-- [ ] All 5 accounts appear in Mail.app sidebar
+- [ ] All 5 email accounts appear in Mail.app sidebar
 - [ ] Gmail account can receive email (send test from another device)
 - [ ] Gmail account can send email (send to yourself)
 - [ ] Gandi account 1-4 can receive email
@@ -382,22 +307,21 @@ After completing setup, verify:
 
 ## Related Documentation
 
-- **Licensed Apps Guide**: See main [docs/licensed-apps.md](../../licensed-apps.md) for app activation workflows
-- **Bootstrap Documentation**: [docs/REQUIREMENTS.md](../../REQUIREMENTS.md) for full bootstrap process
-- **Productivity Apps**: Other apps in [docs/apps/productivity/](./README.md)
+- **Licensed Apps Guide**: [docs/licensed-apps.md](../../licensed-apps.md)
+- **Bootstrap Documentation**: [docs/REQUIREMENTS.md](../../REQUIREMENTS.md)
+- **Productivity Apps**: [docs/apps/productivity/README.md](./README.md)
 
 ## References
 
-- **macOS Mail.app**: Built-in macOS application (no separate installation required)
+- **macOS Mail.app**: Built-in macOS application
 - **Gmail IMAP Settings**: https://support.google.com/mail/answer/7126229
 - **Gmail App Passwords**: https://myaccount.google.com/apppasswords
 - **Gandi Email Documentation**: https://docs.gandi.net/en/gandimail/
-- **Configuration Profiles**: https://support.apple.com/guide/mdm/profiles-mdm6b03da9a/web
 
 ---
 
-**Story**: 02.10-001 (5 points)
+**Story**: 02.10-001 (5 points) - **CANCELLED**
 **Epic**: Epic-02 (Application Installation)
-**Implementation**: Bootstrap Phase 2 (email prompts) + darwin-rebuild (profile generation)
-**Manual Steps**: Profile installation + credential entry
-**Security**: Email addresses gitignored, passwords never stored in config
+**Implementation**: Manual setup required (automation abandoned)
+**Estimated Time**: 5 minutes for manual configuration
+**Rationale**: Manual setup provides better UX than configuration profile automation

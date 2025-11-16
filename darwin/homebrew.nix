@@ -101,6 +101,12 @@
       "onyx"     # Onyx - System maintenance and optimization utility (Story 02.4-005)
       "flux-app" # f.lux - Display color temperature adjustment (Story 02.4-005)
 
+      # System Monitoring (Story 02.4-006)
+      # Auto-update disable: iStat Menus (Preferences → General → Updates → Uncheck "Automatically check for updates")
+      # License: iStat Menus requires activation (14-day free trial, $11.99 USD for license)
+      # Permission notes: iStat Menus may request Accessibility permissions for system monitoring
+      "istat-menus" # iStat Menus - Professional menubar system monitoring (licensed app)
+
       # Media & Creative Tools (Story 02.6-001)
       # Auto-update disable: VLC (Preferences → General → Uncheck auto-update)
       # GIMP: No auto-update to disable (open source, Homebrew-controlled)

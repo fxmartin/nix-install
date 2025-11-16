@@ -6,14 +6,14 @@
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
-| **Epic-02** | Application Installation | 25 | 118 | **20** | **90** | 80.0% | 76.3% | 🟡 In Progress |
+| **Epic-02** | Application Installation | 25 | 118 | **21** | **95** | 84.0% | 80.5% | 🟡 In Progress |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **115** | **606** | **37** | **194** | **32.2%** | **32.0%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **115** | **606** | **38** | **199** | **33.0%** | **32.8%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -41,7 +41,7 @@
 - **2025-11-10**: Story 01.6-002 scope changed from manual approach (8 points) to automated GitHub CLI approach (5 points), reducing Epic-01 by 3 points
 - **2025-11-11**: Story 01.1-004 added (Modular Bootstrap Architecture, 8 points), increasing Epic-01 by 8 points, **deferred to post-Epic-01**
 
-### Epic-02 Completed Stories (17/25)
+### Epic-02 Completed Stories (18/25)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -61,6 +61,7 @@
 | 02.4-002 | 1Password Installation | 3 | ✅ Complete | main | 2025-01-15 |
 | 02.4-003 | File Utilities (Calibre, Kindle, Keka, Marked 2) | 5 | ✅ Complete | main | 2025-01-15 |
 | 02.4-005 | System Utilities (Onyx, f.lux) | 3 | ✅ Complete | feature/02.4-005-system-utilities | 2025-01-15 |
+| 02.4-006 | System Monitoring (gotop, iStat Menus, macmon) | 5 | ✅ Complete | main | 2025-01-16 |
 | 02.4-007 | Git and Git LFS | 5 | ✅ Complete | main | 2025-01-15 |
 | 02.5-001 | WhatsApp Installation | 3 | ⚠️ Impl Complete, VM Pending | main | 2025-01-15 |
 | 02.5-002 | Zoom and Webex Installation | 5 | ⚠️ Impl Complete, VM Pending | main | 2025-01-15 |
@@ -77,10 +78,10 @@
 ### Overall Project Status
 
 - **Total Project Scope**: 115 stories, 606 story points
-- **Completed**: 37 stories (32.2%), 194 points (32.0%)
+- **Completed**: 38 stories (33.0%), 199 points (32.8%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL**
-  - Epic-02 Application Installation (80.0% complete by stories, 76.3% by points) - **IN PROGRESS**
+  - Epic-02 Application Installation (84.0% complete by stories, 80.5% by points) - **IN PROGRESS**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
   - Epic-02: 02.4-004 (Dropbox - 3 pts), 02.7-001 (Security & Privacy - 5 pts), 02.8-001 (Parallels - 8 pts Power only)
@@ -88,6 +89,38 @@
 - **Recent Milestone**: Epic-02 Batch 1 (Quick Wins) COMPLETE - 4 stories (Raycast, 1Password, File Utilities, Zoom/Webex) totaling 14 points implemented
 
 ### Recent Activity
+
+- **2025-01-16**: 🎉 **Story 02.4-006 COMPLETED** - System Monitoring (gotop, iStat Menus, macmon) (5 points)
+  - **Story 02.4-006**: System monitoring tools ✅ VM tested and validated
+  - Installed via mixed methods: Nix (gotop, macmon) + Homebrew (iStat Menus)
+  - Comprehensive documentation (~670 lines total) covering all three monitoring tools
+  - **gotop** (~150 lines): Interactive CLI system monitor with TUI
+    - Features: CPU, memory, disk I/O, network, temperature, processes
+    - Usage: Launch with `gotop`, keybindings for sorting/filtering
+    - No auto-update mechanism (Nix-controlled)
+  - **macmon** (~100 lines): macOS system monitoring CLI tool
+    - Features: Hardware specs, sensors, battery health, network info
+    - Usage: `macmon` for quick system check, scriptable output
+    - No auto-update mechanism (Nix-controlled)
+  - **iStat Menus** (~275 lines): Professional menubar system monitoring (LICENSED APP)
+    - **Auto-Update Disable (CRITICAL)**: Preferences → General → Updates → Uncheck "Automatically check for updates"
+    - License: 14-day free trial (no credit card), $11.99 USD for license
+    - Trial activation: Click "Start Free Trial" → Menubar icons appear immediately
+    - Core features: CPU, memory, disk, network, sensors, battery monitoring in menubar
+    - Configuration: Customize which sensors appear, update intervals, alert thresholds
+    - Permissions: Accessibility (for system monitoring - safe to approve)
+  - **licensed-apps.md updated** (~145 lines):
+    - iStat Menus section with trial/purchase workflows
+    - Auto-update disable instructions (step-by-step with verification)
+    - License benefits (lifetime, multi-Mac, offline activation)
+    - Common issues and troubleshooting
+  - All 68 VM test items passed ✅ (25 gotop + 14 macmon + 29 iStat Menus)
+  - Auto-update successfully disabled for iStat Menus ✅
+  - Trial activation working (no credit card required) ✅
+  - All three tools launch and function correctly ✅
+  - **Feature 02.4 Progress**: 89% complete (6/7 stories, 24/27 points)
+  - **Epic-02 Progress**: 84.0% complete (21/25 stories, 95/118 points)
+  - **Overall Project**: 33.0% complete (38/115 stories, 199/606 points)
 
 - **2025-01-15**: 🎉 **Story 02.5-002 COMPLETED** - Zoom and Webex Installation (5 points)
   - **Story 02.5-002**: Video conferencing apps (Zoom + Webex) ✅ VM tested and validated

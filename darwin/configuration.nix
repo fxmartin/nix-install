@@ -69,6 +69,10 @@
     # Version Control (Story 02.4-007)
     git                 # Git version control system
     git-lfs             # Git Large File Storage
+
+    # System Monitoring (Story 02.4-006)
+    gotop               # Interactive CLI system monitor (TUI for CPU, RAM, disk, network)
+    macmon              # macOS system monitoring CLI tool (hardware specs, sensors)
   ];
 
   # Application Management & System Configuration

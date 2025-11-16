@@ -71,6 +71,9 @@ Apps for productivity, file management, and system utilities.
 ### File & Document Utilities
 - [File Utilities](productivity/file-utilities.md) - Calibre (ebook manager), Kindle (ebook reader), Keka (archiver), Marked 2 (markdown previewer)
 
+### File Sync & Cloud Storage
+- [Dropbox](productivity/dropbox.md) - Cloud storage and file synchronization (Homebrew cask, account required)
+
 ### System Utilities
 - [System Utilities](productivity/system-utilities.md) - Onyx (system maintenance), f.lux (screen temperature)
 
@@ -95,6 +98,14 @@ Apps for media playback and image editing.
 
 ---
 
+## 🔒 Security & VPN
+
+VPN and security applications for privacy and secure connections.
+
+- [NordVPN](security/nordvpn.md) - VPN privacy and security service (Homebrew cask, subscription required)
+
+---
+
 ## 📊 File Organization
 
 ```
@@ -116,15 +127,20 @@ docs/apps/
 ├── productivity/
 │   ├── raycast.md                      # Raycast launcher
 │   ├── 1password.md                    # Password manager
+│   ├── dropbox.md                      # Dropbox cloud storage
 │   ├── file-utilities.md               # Calibre, Kindle, Keka, Marked 2
 │   └── system-utilities.md             # Onyx, f.lux
 ├── communication/
 │   ├── whatsapp.md                     # WhatsApp messaging
 │   ├── zoom.md                         # Zoom video conferencing
 │   └── cisco-webex.md                  # Cisco Webex collaboration
-└── media/
-    ├── vlc.md                          # VLC media player
-    └── gimp.md                         # GIMP image editor
+├── media/
+│   ├── vlc.md                          # VLC media player
+│   └── gimp.md                         # GIMP image editor
+├── security/
+│   └── nordvpn.md                      # NordVPN VPN service
+└── system/
+    └── system-monitoring.md            # iStat Menus, gotop, macmon
 ```
 
 ---
@@ -150,10 +166,11 @@ docs/apps/
 
 ## 📝 Notes for FX
 
-**File Split from**: `docs/app-post-install-configuration.md` (5,471 lines) was split into 18 focused files for maintainability:
+**File Split from**: `docs/app-post-install-configuration.md` (5,471 lines) was split into focused files for maintainability:
 
-- **20 total files**: 1 index, 1 prerequisites, 18 app documentation files
-- **Max file size**: ~650 lines (file-utilities.md)
+- **22 total files**: 1 index, 1 prerequisites, 20 app documentation files
+- **Latest additions**: dropbox.md (Story 02.4-004, ~320 lines), nordvpn.md (Story 02.7-001, ~900 lines)
+- **Max file size**: ~900 lines (nordvpn.md comprehensive VPN guide)
 - **Benefits**: Easier navigation, parallel development, git-friendly diffs, story-aligned
 - **Original file**: Archived as `app-post-install-configuration.md.backup`
 

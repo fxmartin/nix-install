@@ -6,14 +6,14 @@
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
-| **Epic-02** | Application Installation | 25 | 118 | **24** | **116** | 96.0% | 98.3% | 🟢 Near Complete |
+| **Epic-02** | Application Installation | 25 | 118 | **22** | **103** | 88.0% | 87.3% | 🟡 In Progress |
 | **Epic-03** | System Configuration | 14 | 76 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **117** | **614** | **41** | **220** | **35.0%** | **35.8%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **115** | **606** | **39** | **207** | **33.9%** | **34.2%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -41,7 +41,7 @@
 - **2025-11-10**: Story 01.6-002 scope changed from manual approach (8 points) to automated GitHub CLI approach (5 points), reducing Epic-01 by 3 points
 - **2025-11-11**: Story 01.1-004 added (Modular Bootstrap Architecture, 8 points), increasing Epic-01 by 8 points, **deferred to post-Epic-01**
 
-### Epic-02 Completed Stories (24/25)
+### Epic-02 Completed Stories (22/25)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -60,15 +60,12 @@
 | 02.4-001 | Raycast Installation | 3 | ✅ Complete | feature/02.4-001-raycast | 2025-01-15 |
 | 02.4-002 | 1Password Installation | 3 | ✅ Complete | main | 2025-01-15 |
 | 02.4-003 | File Utilities (Calibre, Kindle, Keka, Marked 2) | 5 | ✅ Complete | main | 2025-01-15 |
-| 02.4-004 | Dropbox Installation | 3 | ✅ Complete | main | 2025-11-16 |
 | 02.4-005 | System Utilities (Onyx, f.lux) | 3 | ✅ Complete | feature/02.4-005-system-utilities | 2025-01-15 |
 | 02.4-006 | System Monitoring (gotop, iStat Menus, macmon) | 5 | ✅ Complete | main | 2025-01-16 |
 | 02.4-007 | Git and Git LFS | 5 | ✅ Complete | main | 2025-01-15 |
 | 02.5-001 | WhatsApp Installation | 3 | ✅ Complete | main | 2025-01-15 |
 | 02.5-002 | Zoom and Webex Installation | 5 | ✅ Complete | main | 2025-01-15 |
 | 02.6-001 | VLC and GIMP Installation | 3 | ✅ Complete | main | 2025-01-15 |
-| 02.7-001 | NordVPN Installation | 5 | ✅ Complete | main | 2025-01-16 |
-| 02.9-001 | Office 365 Installation | 5 | ✅ Complete | main | 2025-01-16 |
 | 02.8-001 | Parallels Desktop (Power Profile Only) | 8 | ✅ Complete | main | 2025-01-16 |
 
 **Notes**:
@@ -78,17 +75,20 @@
 - **2025-11-12**: Story 02.2-003 (Ghostty Terminal) completed - VM tested by FX, REQ-NFR-008 compliant config (5 points)
 - **2025-11-12**: Story 02.2-004 (Python & Dev Tools) completed - Python 3.12 + uv + dev tools (ruff, black, isort, mypy, pylint) via Nix (5 points) ✅ VM tested
 - **2025-11-12**: Epic-02 increased from 23 to 25 stories after story reconciliation (total points unchanged at 118)
+- **2025-11-16**: Story 02.10-001 (Email Account Configuration) **CANCELLED** - Manual setup documented instead (automation proved confusing)
+- **2025-11-16**: Stories 02.4-004 (Dropbox), 02.7-001 (NordVPN), 02.9-001 (Office 365) VM tested, pending documentation updates
 
 ### Overall Project Status
 
-- **Total Project Scope**: 117 stories, 614 story points
-- **Completed**: 41 stories (35.0%), 220 points (35.8%)
+- **Total Project Scope**: 115 stories, 606 story points
+- **Completed**: 39 stories (33.9%), 207 points (34.2%)
 - **In Progress**:
-  - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL**
-  - Epic-02 Application Installation (96.0% complete by stories, 98.3% by points) - **NEAR COMPLETE**
+  - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL** 🟢
+  - Epic-02 Application Installation (88.0% complete by stories, 87.3% by points) - **IN PROGRESS** 🟡
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - Epic-02: 02.10-001 (Email Account Configuration - 5 pts) - **FINAL EPIC-02 STORY**
+  - Epic-02: 02.4-004 (Dropbox, 3 pts), 02.7-001 (NordVPN, 5 pts), 02.9-001 (Office 365, 5 pts) - All VM tested ✅
+  - Epic-02: 02.10-001 (Email Config) - **CANCELLED** (manual setup documented)
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
   - Epic-03: System Configuration (0% started - next epic)
 - **Recent Milestone**: Stories 02.4-004, 02.7-001, 02.9-001 COMPLETED - 13 points, all VM tested ✅

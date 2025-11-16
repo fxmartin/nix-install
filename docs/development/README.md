@@ -9,11 +9,11 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **32.2% complete** (37/115 stories, 194/606 points)
+  - Current project status: **33.0% complete** (38/115 stories, 199/606 points)
   - Epic-01: **89.5% complete** (17/19 stories, 104/113 points) 🟢 Bootstrap functional
-  - Epic-02: **80.0% complete** (20/25 stories, 90/118 points) 🟡 In Progress
-  - Next stories: 02.4-006 (System Monitoring, 5 pts), 02.7-001 (NordVPN, 5 pts), 02.9-001 (Office 365, 5 pts)
-  - Recent: Epic-02 Batch 1 (Quick Wins) COMPLETE - 4 stories (System Utilities, WhatsApp, VLC/GIMP, Zoom/Webex) VM tested ✅
+  - Epic-02: **84.0% complete** (21/25 stories, 95/118 points) 🟡 In Progress
+  - Next stories: 02.4-004 (Dropbox, 3 pts), 02.7-001 (NordVPN, 5 pts), 02.9-001 (Office 365, 5 pts)
+  - Recent: Story 02.4-006 (System Monitoring: gotop, iStat Menus, macmon) VM tested ✅
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns
@@ -34,12 +34,12 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ## 🎯 Current Status (Quick Reference)
 
-**Overall Project**: 32.2% complete (37/115 stories, 194/606 points)
+**Overall Project**: 33.0% complete (38/115 stories, 199/606 points)
 
 **Epic-01: Bootstrap & Installation System** - 89.5% complete (92.0% by points) 🟢
-**Epic-02: Application Installation** - 80.0% complete (76.3% by points) 🟡
+**Epic-02: Application Installation** - 84.0% complete (80.5% by points) 🟡
 
-### ✅ Completed Stories (37)
+### ✅ Completed Stories (38)
 
 #### Epic-01 Stories (17)
 1. **01.1-001** - Pre-flight Environment Checks (5 pts) - 2025-11-08
@@ -60,7 +60,7 @@ Welcome to the nix-install development documentation. This directory contains al
 16. **01.7-002** - Final Darwin Rebuild (8 pts) - 2025-11-11
 17. **01.8-001** - Installation Summary & Next Steps (3 pts) - 2025-11-11
 
-#### Epic-02 Stories (20)
+#### Epic-02 Stories (21)
 18. **02.1-001** - Claude Desktop and AI Chat Apps (3 pts) - 2025-11-12 (VM tested)
 19. **02.1-002** - Ollama Desktop App Installation (3 pts) - 2025-11-12 (VM tested)
 20. **02.1-003** - Standard Profile Ollama Model (2 pts) - 2025-11-12 (VM tested)
@@ -76,8 +76,8 @@ Welcome to the nix-install development documentation. This directory contains al
 30. **02.4-001** - Raycast Installation (3 pts) - 2025-01-15 (VM tested)
 31. **02.4-002** - 1Password Installation (3 pts) - 2025-01-15 (VM tested)
 32. **02.4-003** - File Utilities (Calibre, Kindle, Keka, Marked 2) (5 pts) - 2025-01-15 (VM tested)
-33. **02.4-004** - Dropbox Installation (3 pts) - 2025-01-15 (VM tested)
-34. **02.4-005** - System Utilities (Onyx, f.lux) (3 pts) - 2025-01-15 (VM tested)
+33. **02.4-005** - System Utilities (Onyx, f.lux) (3 pts) - 2025-01-15 (VM tested)
+34. **02.4-006** - System Monitoring (gotop, iStat Menus, macmon) (5 pts) - 2025-01-16 (VM tested)
 35. **02.4-007** - Git and Git LFS (5 pts) - 2025-01-15 (VM tested)
 36. **02.5-001** - WhatsApp Installation (3 pts) - 2025-01-15 (VM tested)
 37. **02.5-002** - Zoom and Webex Installation (5 pts) - 2025-01-15 (VM tested)
@@ -85,8 +85,8 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### 🚧 Next Stories
 
-**Epic-02 Batch 2** (Licensed Apps & Monitoring - 3 stories, 15 pts):
-- **02.4-006** - System Monitoring (gotop, macmon, iStat Menus) (5 pts)
+**Epic-02 Batch 2** (Licensed Apps - 3 stories, 13 pts):
+- **02.4-004** - Dropbox Installation (3 pts)
 - **02.7-001** - NordVPN Installation (5 pts)
 - **02.9-001** - Office 365 Installation (5 pts)
 

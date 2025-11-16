@@ -111,7 +111,7 @@
     # Mac App Store apps
     # Epic-02 will populate with:
     # - Kindle (302584613)
-    # - WhatsApp (310633997)
+    # - WhatsApp (1147396723)
     masApps = {
       # AI & LLM Tools (Story 02.1-001)
       # Perplexity AI desktop app (released October 24, 2024)
@@ -122,6 +122,10 @@
       # Kindle and Marked 2 distributed via Mac App Store only
       "Kindle" = 302584613;     # Kindle ebook reader app
       "Marked 2" = 890031187;   # Markdown preview and export app
+
+      # Communication Tools (Story 02.5-001)
+      # WhatsApp Desktop - Messaging app requiring phone QR code linking
+      "WhatsApp" = 1147396723;  # WhatsApp Desktop app
     };
   };
 

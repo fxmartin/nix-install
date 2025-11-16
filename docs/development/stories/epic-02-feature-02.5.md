@@ -66,6 +66,69 @@
 **Risk Level**: Low
 **Risk Mitigation**: N/A
 
+### Implementation Details
+
+**Implementation Date**: 2025-01-15
+
+**Changes Made**:
+1. **darwin/homebrew.nix**:
+   - Added WhatsApp to `masApps` section with App ID 1147396723
+   - Added comment: "Communication Tools (Story 02.5-001)"
+   - Added comment: "WhatsApp Desktop - Messaging app requiring phone QR code linking"
+
+2. **docs/app-post-install-configuration.md**:
+   - Added comprehensive WhatsApp documentation section (285 lines)
+   - Documented QR code linking process with detailed phone setup instructions
+   - Covered permissions (notifications, microphone, camera, contacts)
+   - Documented core features (messaging, media, calls, groups, sync, privacy)
+   - Added usage examples (sending messages, files, calls, groups, search)
+   - Included troubleshooting guide (QR code issues, sync problems, call failures)
+   - Added 14-item testing checklist
+
+3. **docs/development/stories/epic-02-feature-02.5.md**:
+   - Added implementation details section with date and summary
+   - Created VM testing checklist (20 items)
+
+4. **docs/development/progress.md**:
+   - Added Story 02.5-001 to "Recently Completed Stories" section
+   - Marked as implementation complete, awaiting VM test
+
+**Key Decisions**:
+- Confirmed Mac App Store distribution (App ID 1147396723 verified)
+- Followed Kindle pattern for Mac App Store app documentation
+- Documented QR code linking requirement prominently (phone required)
+- Emphasized that WhatsApp Desktop mirrors phone (no standalone account)
+- Documented all required and optional permissions with recommendations
+- Included comprehensive troubleshooting for common issues
+
+**VM Testing Checklist** (Story 02.5-001):
+- [ ] darwin-rebuild switch completes successfully
+- [ ] WhatsApp installed to /Applications/WhatsApp.app
+- [ ] App launches from Spotlight (`Cmd+Space`, type "WhatsApp")
+- [ ] App launches from Raycast (if installed)
+- [ ] QR code screen appears on first launch
+- [ ] QR code linking instructions visible and clear
+- [ ] Can link to iPhone via QR code scan (Settings → Linked Devices)
+- [ ] Conversations sync from phone after linking (recent messages appear)
+- [ ] Can send text message from desktop
+- [ ] Can receive messages on desktop (send from phone → appears on Mac)
+- [ ] Notifications permission prompt appears (System Settings integration)
+- [ ] Microphone permission prompt appears when attempting voice call
+- [ ] Camera permission prompt appears when attempting video call
+- [ ] Can send photo/file via paperclip icon or drag-and-drop
+- [ ] Can create new group chat (menu → New Group)
+- [ ] Can search messages (search icon → type query → results)
+- [ ] Can pin/unpin chats (right-click chat → Pin/Unpin)
+- [ ] Can archive chats (right-click chat → Archive)
+- [ ] App stays synced when phone is locked (messages deliver to desktop)
+- [ ] Documentation in app-post-install-configuration.md is accurate and complete
+
+**Post-VM Testing Actions**:
+- [ ] Mark story as "Done" in epic file
+- [ ] Update progress.md with completion date
+- [ ] Update Epic-02 Feature 02.5 status to reflect completion
+- [ ] Commit changes with conventional commit message
+
 ---
 
 ##### Story 02.5-002: Zoom and Webex Installation

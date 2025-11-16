@@ -74,6 +74,9 @@ Apps for productivity, file management, and system utilities.
 ### File Sync & Cloud Storage
 - [Dropbox](productivity/dropbox.md) - Cloud storage and file synchronization (Homebrew cask, account required)
 
+### Office & Productivity Suites
+- [Microsoft Office 365](productivity/office-365.md) - Complete productivity suite with Word, Excel, PowerPoint, Outlook, OneNote, Teams (Homebrew cask, subscription required)
+
 ### System Utilities
 - [System Utilities](productivity/system-utilities.md) - Onyx (system maintenance), f.lux (screen temperature)
 
@@ -128,6 +131,7 @@ docs/apps/
 │   ├── raycast.md                      # Raycast launcher
 │   ├── 1password.md                    # Password manager
 │   ├── dropbox.md                      # Dropbox cloud storage
+│   ├── office-365.md                   # Microsoft Office 365 suite
 │   ├── file-utilities.md               # Calibre, Kindle, Keka, Marked 2
 │   └── system-utilities.md             # Onyx, f.lux
 ├── communication/
@@ -168,8 +172,8 @@ docs/apps/
 
 **File Split from**: `docs/app-post-install-configuration.md` (5,471 lines) was split into focused files for maintainability:
 
-- **22 total files**: 1 index, 1 prerequisites, 20 app documentation files
-- **Latest additions**: dropbox.md (Story 02.4-004, ~320 lines), nordvpn.md (Story 02.7-001, ~900 lines)
+- **23 total files**: 1 index, 1 prerequisites, 21 app documentation files
+- **Latest additions**: nordvpn.md (Story 02.7-001, ~900 lines), office-365.md (Story 02.9-001, ~700 lines)
 - **Max file size**: ~900 lines (nordvpn.md comprehensive VPN guide)
 - **Benefits**: Easier navigation, parallel development, git-friendly diffs, story-aligned
 - **Original file**: Archived as `app-post-install-configuration.md.backup`

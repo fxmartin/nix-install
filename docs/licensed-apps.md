@@ -16,7 +16,7 @@ The following apps require manual setup after installation:
 **Productivity & Security**:
 - **1Password**: Requires account sign-in (subscription or license)
 - **Dropbox**: Requires Dropbox account (free or paid subscription)
-- **Microsoft Office 365**: Requires subscription and activation (manual install)
+- **Microsoft Office 365**: Requires active subscription (Personal, Family, or Company)
 
 **Video Conferencing**:
 - **Zoom**: Can use free account, but paid license may be needed for full features
@@ -511,9 +511,59 @@ iStat Menus has automatic updates **enabled by default**. You **MUST** disable a
 
 ---
 
+## Office & Productivity Suites
+
 ### Microsoft Office 365
 
-**Installation**: **Manual installation required** (not via Homebrew/nix-darwin due to licensing complexity)
+**Installation Method**: Homebrew Cask (`microsoft-office-businesspro`)
+**Story**: 02.9-001
+**License Requirement**: Active Microsoft 365 subscription (NO perpetual license)
+**License Type**: Subscription-based ($69.99-$99.99/year or $6.99-$9.99/month)
+
+**Apps Included** (6 apps):
+- Microsoft Word (documents)
+- Microsoft Excel (spreadsheets)
+- Microsoft PowerPoint (presentations)
+- Microsoft Outlook (email/calendar)
+- Microsoft OneNote (notes)
+- Microsoft Teams (meetings/chat)
+
+**Subscription Plans**:
+- **Personal**: $69.99/year or $6.99/month (1 user, 1 TB OneDrive)
+- **Family**: $99.99/year or $9.99/month (6 users, 1 TB OneDrive each)
+- **Company/Education**: Varies by organization (provided by employer/school)
+
+**Sign-In Process** (One-Time for All Apps):
+1. Launch any Office app (e.g., Microsoft Word)
+2. Click "Sign In" when prompted
+3. Enter Microsoft account email (personal, work, or school)
+4. Enter password
+5. Complete multi-factor authentication (2FA) if enabled
+6. Accept license terms
+7. Choose theme preference (Colorful, Dark, Classic)
+8. **Result**: All 6 Office apps activate automatically (no need to sign in to each app)
+
+**Auto-Update Disable** (REQUIRED for EACH App):
+**⚠️ Each app has separate auto-update setting - must disable 6 times**
+1. Open app → Menu bar → [App Name] → Preferences
+2. Click **Update** or **AutoUpdate** tab
+3. **Uncheck** "Automatically download and install updates"
+4. **Repeat for ALL apps**: Word, Excel, PowerPoint, Outlook, OneNote
+5. **Teams**: Preferences → General → Uncheck "Auto-start application" (optional)
+
+**Verification**:
+- All 6 apps in `/Applications/Microsoft [App].app`
+- About [App] shows "Subscription Product" with expiration date
+- Launch any app - should NOT prompt for sign-in after initial activation
+- Auto-update disabled in all apps (check Preferences → Update)
+
+**Documentation**: See `docs/apps/productivity/office-365.md` for comprehensive configuration guide
+
+---
+
+### Office 365 (Legacy Documentation - Now Automated via Homebrew)
+
+**Installation**: **Automated via Homebrew** (previously required manual installation)
 
 **License Requirement**: Office 365 requires an **active subscription** (Microsoft 365 plan).
 

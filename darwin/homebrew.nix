@@ -123,6 +123,12 @@
       # Permissions: Both apps request camera and microphone on first use
       "zoom"  # Zoom - Video conferencing and meetings (Story 02.5-002)
       "webex" # Cisco Webex - Enterprise video conferencing (Story 02.5-002)
+
+      # Security & VPN (Story 02.7-001)
+      # Auto-update: Check Preferences → Settings → Advanced during VM testing (may not be user-configurable)
+      # License: Requires active NordVPN subscription (NO free tier)
+      # Permissions: Network Extension permission required on first VPN connection
+      "nordvpn" # NordVPN - VPN privacy and security service (subscription required)
     ];
 
     # Global Homebrew options

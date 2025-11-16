@@ -9,11 +9,11 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **33.0% complete** (38/115 stories, 199/606 points)
+  - Current project status: **33.9% complete** (39/115 stories, 207/606 points)
   - Epic-01: **89.5% complete** (17/19 stories, 104/113 points) 🟢 Bootstrap functional
-  - Epic-02: **84.0% complete** (21/25 stories, 95/118 points) 🟡 In Progress
+  - Epic-02: **88.0% complete** (22/25 stories, 103/118 points) 🟡 In Progress
   - Next stories: 02.4-004 (Dropbox, 3 pts), 02.7-001 (NordVPN, 5 pts), 02.9-001 (Office 365, 5 pts)
-  - Recent: Story 02.4-006 (System Monitoring: gotop, iStat Menus, macmon) VM tested ✅
+  - Recent: Story 02.8-001 (Parallels Desktop - Power Profile Only) VM tested ✅
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns
@@ -34,12 +34,12 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ## 🎯 Current Status (Quick Reference)
 
-**Overall Project**: 33.0% complete (38/115 stories, 199/606 points)
+**Overall Project**: 33.9% complete (39/115 stories, 207/606 points)
 
 **Epic-01: Bootstrap & Installation System** - 89.5% complete (92.0% by points) 🟢
-**Epic-02: Application Installation** - 84.0% complete (80.5% by points) 🟡
+**Epic-02: Application Installation** - 88.0% complete (87.3% by points) 🟡
 
-### ✅ Completed Stories (38)
+### ✅ Completed Stories (39)
 
 #### Epic-01 Stories (17)
 1. **01.1-001** - Pre-flight Environment Checks (5 pts) - 2025-11-08
@@ -60,7 +60,7 @@ Welcome to the nix-install development documentation. This directory contains al
 16. **01.7-002** - Final Darwin Rebuild (8 pts) - 2025-11-11
 17. **01.8-001** - Installation Summary & Next Steps (3 pts) - 2025-11-11
 
-#### Epic-02 Stories (21)
+#### Epic-02 Stories (22)
 18. **02.1-001** - Claude Desktop and AI Chat Apps (3 pts) - 2025-11-12 (VM tested)
 19. **02.1-002** - Ollama Desktop App Installation (3 pts) - 2025-11-12 (VM tested)
 20. **02.1-003** - Standard Profile Ollama Model (2 pts) - 2025-11-12 (VM tested)
@@ -82,16 +82,14 @@ Welcome to the nix-install development documentation. This directory contains al
 36. **02.5-001** - WhatsApp Installation (3 pts) - 2025-01-15 (VM tested)
 37. **02.5-002** - Zoom and Webex Installation (5 pts) - 2025-01-15 (VM tested)
 38. **02.6-001** - VLC and GIMP Installation (3 pts) - 2025-01-15 (VM tested)
+39. **02.8-001** - Parallels Desktop (Power Profile Only) (8 pts) - 2025-01-16 (VM tested)
 
 ### 🚧 Next Stories
 
-**Epic-02 Batch 2** (Licensed Apps - 3 stories, 13 pts):
+**Epic-02 Remaining** (Licensed Apps & Config - 4 stories, 18 pts):
 - **02.4-004** - Dropbox Installation (3 pts)
 - **02.7-001** - NordVPN Installation (5 pts)
 - **02.9-001** - Office 365 Installation (5 pts)
-
-**Epic-02 Batch 3** (Complex Configuration - 2 stories, 13 pts):
-- **02.8-001** - Parallels Desktop (Power Profile Only) (8 pts)
 - **02.10-001** - Email Account Configuration (5 pts)
 
 **Epic-01 Cleanup** (Optional enhancements):

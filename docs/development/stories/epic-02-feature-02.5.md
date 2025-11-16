@@ -44,7 +44,7 @@
 - If available on mas:
   ```nix
   homebrew.masApps = {
-    "WhatsApp" = 1147396723;  # App Store ID (verify)
+    "WhatsApp" = 310633997;  # App Store ID (verify)
   };
   ```
 - If not on mas, use Homebrew cask:
@@ -72,7 +72,7 @@
 
 **Changes Made**:
 1. **darwin/homebrew.nix**:
-   - Added WhatsApp to `masApps` section with App ID 1147396723
+   - Added WhatsApp to `masApps` section with App ID 310633997
    - Added comment: "Communication Tools (Story 02.5-001)"
    - Added comment: "WhatsApp Desktop - Messaging app requiring phone QR code linking"
 
@@ -94,7 +94,7 @@
    - Marked as implementation complete, awaiting VM test
 
 **Key Decisions**:
-- Confirmed Mac App Store distribution (App ID 1147396723 verified)
+- Confirmed Mac App Store distribution (App ID 310633997 verified)
 - Followed Kindle pattern for Mac App Store app documentation
 - Documented QR code linking requirement prominently (phone required)
 - Emphasized that WhatsApp Desktop mirrors phone (no standalone account)

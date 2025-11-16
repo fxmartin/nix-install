@@ -155,7 +155,7 @@
   - **Overall Project**: 31.3% complete (36/115 stories, 189/606 points)
 - **2025-01-15**: 🎉 **Story 02.5-001 COMPLETED** - WhatsApp Installation (3 points)
   - **Story 02.5-001**: WhatsApp Desktop messaging app ✅ VM tested and validated
-  - Installed via Mac App Store (mas) - App ID 1147396723
+  - Installed via Mac App Store (mas) - App ID 310633997
   - Comprehensive documentation (~285 lines) covering QR code linking and full features
   - **QR Code Linking Process** (REQUIRED):
     - WhatsApp Desktop requires linking to WhatsApp on phone

@@ -1,6 +1,6 @@
 # ABOUTME: Homebrew package management configuration (STUB for Epic-02)
 # ABOUTME: Manages GUI applications (casks), CLI tools (brews), and Mac App Store apps
-{userConfig, ...}: {
+{userConfig, isPowerProfile, lib, ...}: {
   nix-homebrew = {
     enable = true;
     user = userConfig.username;
@@ -135,6 +135,19 @@
       # Auto-update disable: EACH app → Preferences → Update → Uncheck (6 apps total: Word, Excel, PowerPoint, Outlook, OneNote, Teams)
       # License: Active Microsoft 365 subscription required (Personal $69.99/year, Family $99.99/year, or company-provided)
       "microsoft-office-businesspro" # Office 365 - Word, Excel, PowerPoint, Outlook, OneNote, Teams
+    ]
+    # Profile-Specific Apps: POWER PROFILE ONLY (MacBook Pro M3 Max)
+    # These apps are conditionally installed based on isPowerProfile parameter
+    ++ lib.optionals isPowerProfile [
+      # Virtualization & Development Tools (Story 02.8-001)
+      # POWER PROFILE ONLY: Parallels requires significant system resources (CPU, RAM)
+      # MacBook Pro M3 Max: 64GB RAM, 14-16 cores - suitable for running VMs
+      # MacBook Air: 8-16GB RAM, 8 cores - insufficient for virtualization workloads
+      # Auto-update disable: Preferences → Advanced → Uncheck "Check for updates automatically"
+      # License: Paid software (Trial 14 days OR Subscription $99.99-$119.99/year OR Perpetual $129.99)
+      # Permissions: Network Extension permission required for VM networking
+      # Large app: ~500MB download
+      "parallels" # Parallels Desktop - Professional VM software for macOS (Windows, Linux, macOS VMs)
     ];
 
     # Global Homebrew options

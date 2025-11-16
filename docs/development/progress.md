@@ -6,14 +6,14 @@
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
-| **Epic-02** | Application Installation | 25 | 118 | **16** | **76** | 64.0% | 64.4% | 🟡 In Progress |
+| **Epic-02** | Application Installation | 25 | 118 | **17** | **79** | 68.0% | 66.9% | 🟡 In Progress |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **115** | **606** | **33** | **180** | **28.7%** | **29.7%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **115** | **606** | **34** | **183** | **29.6%** | **30.2%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -41,7 +41,7 @@
 - **2025-11-10**: Story 01.6-002 scope changed from manual approach (8 points) to automated GitHub CLI approach (5 points), reducing Epic-01 by 3 points
 - **2025-11-11**: Story 01.1-004 added (Modular Bootstrap Architecture, 8 points), increasing Epic-01 by 8 points, **deferred to post-Epic-01**
 
-### Epic-02 Completed Stories (16/25)
+### Epic-02 Completed Stories (17/25)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -60,6 +60,7 @@
 | 02.4-001 | Raycast Installation | 3 | ✅ Complete | feature/02.4-001-raycast | 2025-01-15 |
 | 02.4-002 | 1Password Installation | 3 | ✅ Complete | main | 2025-01-15 |
 | 02.4-003 | File Utilities (Calibre, Kindle, Keka, Marked 2) | 5 | ✅ Complete | main | 2025-01-15 |
+| 02.4-005 | System Utilities (Onyx, f.lux) | 3 | ✅ Complete | feature/02.4-005-system-utilities | 2025-01-15 |
 | 02.4-007 | Git and Git LFS | 5 | ✅ Complete | main | 2025-01-15 |
 
 **Notes**:
@@ -73,18 +74,45 @@
 ### Overall Project Status
 
 - **Total Project Scope**: 115 stories, 606 story points
-- **Completed**: 33 stories (28.7%), 180 points (29.7%)
+- **Completed**: 34 stories (29.6%), 183 points (30.2%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL**
-  - Epic-02 Application Installation (64.0% complete by stories, 64.4% by points) - **IN PROGRESS**
+  - Epic-02 Application Installation (68.0% complete by stories, 66.9% by points) - **IN PROGRESS**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - Epic-02: 02.4-004 (Dropbox - 3 pts), 02.4-005 (System Utilities - 3 pts), 02.5-001 (Communication Tools - 3 pts)
+  - Epic-02: 02.4-004 (Dropbox - 3 pts), 02.5-001 (Communication Tools - 3 pts), 02.6-001 (Media Apps - 3 pts)
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: Feature 02.4 in progress - Productivity apps (4/7 stories complete: Raycast, 1Password, File Utilities, Git)
+- **Recent Milestone**: Feature 02.4 progress - Productivity apps (5/7 stories complete: Raycast, 1Password, File Utilities, System Utilities, Git)
 
 ### Recent Activity
 
+- **2025-01-15**: ✅ **Story 02.4-005 IMPLEMENTED** - System Utilities (Onyx, f.lux) (3 points)
+  - **Story 02.4-005**: System maintenance and display color temperature utilities ⚠️ VM testing pending
+  - Installed via Homebrew Casks: `onyx`, `flux-app`
+  - Comprehensive documentation (430+ lines total) covering both applications
+  - **Onyx** (204 lines): Free system maintenance and optimization utility
+    - EULA and automatic disk verification on first launch (1-2 minutes)
+    - 6 tabs: Verification, Maintenance, Cleaning, Utilities, Automation, Info
+    - Common use cases: Routine maintenance, cache clearing, fixing "Open With" menu, hidden Finder features, SMART disk health
+    - Permission notes: Admin password required for system tasks (expected and safe)
+    - Safety assured: Trusted utility since Mac OS X 10.2, developed by Titanium Software
+    - No auto-update mechanism (Homebrew-controlled)
+  - **f.lux** (223 lines): Free display color temperature adjustment utility
+    - Location setup on first launch (auto-detect via Location Services or manual entry)
+    - Automatic sunrise/sunset tracking with gradual color transitions (~60 minutes)
+    - Color temperature: Daytime 6500K (cool), Nighttime 2700K-4200K (warm, adjustable)
+    - Manual override modes: Disable for 1 hour, movie mode (2.5 hours), darkroom mode (extreme red)
+    - Custom schedule support for non-standard sleep patterns
+    - Permission notes: Location Services (optional but recommended), Accessibility (may be required)
+    - Research-based recommendations for better sleep (blue light reduction)
+    - No auto-update mechanism (Homebrew-controlled)
+  - Testing checklists provided: 13 items for Onyx, 13 items for f.lux, plus permission and functional testing
+  - Documentation includes safety notes, configuration tips, and usage examples
+  - **Feature 02.4 Progress**: 5/7 stories complete (19/27 points, 70.4%)
+  - **Epic-02 Progress**: 68.0% complete (17/25 stories, 79/118 points)
+  - **Overall Project**: 29.6% complete (34/115 stories, 183/606 points)
+  - Branch: feature/02.4-005-system-utilities
+  - Commits: e8598d7, 6015f04
 - **2025-01-15**: 🎉 **Story 02.4-003 COMPLETED** - File Utilities (Calibre, Kindle, Keka, Marked 2) (5 points)
   - **Story 02.4-003**: File utilities for ebooks, archives, and Markdown ✅ VM tested and validated
   - Installed via mixed methods: Homebrew (Calibre, Keka) + Mac App Store (Kindle, Marked 2)

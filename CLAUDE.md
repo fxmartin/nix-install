@@ -92,6 +92,26 @@ FX's role: ALL testing, execution, and validation.
 ### Key Files
 
 **Currently Implemented**:
+
+**Core Infrastructure**:
+- `flake.nix`: System definition with Standard/Power profiles (10KB, both profiles working)
+- `user-config.nix`: User personal info (created during bootstrap, template at user-config.template.nix)
+- `bootstrap.sh`: Bootstrap script with 9 phases (170KB, functionally complete)
+- `darwin/`: System-level nix-darwin configs
+  - `configuration.nix`: System packages, activation scripts, PATH setup
+  - `homebrew.nix`: Homebrew casks, brews, Mac App Store apps
+  - `macos-defaults.nix`: macOS system preferences automation
+- `home-manager/`: User-level configs (dotfiles)
+  - `home.nix`: Main Home Manager entry point
+  - `modules/shell.nix`: Zsh + Oh My Zsh + Starship prompt + FZF
+  - `modules/git.nix`: Git config with LFS, user identity, aliases
+  - `modules/github.nix`: GitHub CLI configuration
+  - `modules/ghostty.nix`: Ghostty terminal with Catppuccin theme
+  - `modules/zed.nix`: Zed editor with bidirectional sync
+  - `modules/vscode.nix`: VSCode with auto dark mode
+  - `modules/claude-code.nix`: Claude Code CLI with MCP servers
+
+**Documentation**:
 - `docs/REQUIREMENTS.md`: Comprehensive PRD (1600+ lines) - **THE SOURCE OF TRUTH** for requirements
 - `docs/development/README.md`: Development documentation master index - **CHECK THIS FIRST** for:
   - Navigation to progress tracking, story details, workflows
@@ -114,20 +134,32 @@ FX's role: ALL testing, execution, and validation.
 - `docs/development/multi-agent-workflow.md`: Agent selection strategy and usage patterns
 - `docs/development/tools-and-testing.md`: Development environment setup and testing
 - `docs/development/hotfixes.md`: Production hotfix documentation
+- `docs/apps/`: Application post-install configuration guides (organized by category)
+  - `docs/apps/README.md`: Master index of all app documentation
+  - `docs/apps/ai/`: AI & LLM tools (ai-llm-tools.md)
+  - `docs/apps/browsers/`: Web browsers (arc.md, brave.md)
+  - `docs/apps/communication/`: Communication apps (whatsapp.md, zoom.md, cisco-webex.md)
+  - `docs/apps/dev/`: Development tools (zed-editor.md, vscode.md, ghostty-terminal.md, podman.md, python-tools.md, claude-code-cli.md)
+  - `docs/apps/media/`: Media apps (vlc.md, gimp.md)
+  - `docs/apps/productivity/`: Productivity apps (raycast.md, 1password.md, dropbox.md, office-365.md, file-utilities.md, system-utilities.md)
+  - `docs/apps/security/`: Security & VPN (nordvpn.md)
+  - `docs/apps/system/`: System monitoring (system-monitoring.md)
+  - `docs/apps/virtualization/`: Virtualization tools (parallels-desktop.md)
+- `docs/licensed-apps.md`: License activation guide for apps requiring sign-in or purchase
+- `docs/testing-*.md`: VM testing guides for various phases
+
+**Configuration**:
 - `README.md`: Quick start guide
-- `config/config.ghostty`: Ghostty terminal configuration (Catppuccin theme)
-- `setup.sh`: Legacy setup script (will be replaced by new bootstrap)
+- `config/ghostty/config`: Ghostty terminal configuration (Catppuccin theme, JetBrains Mono font)
+- `setup.sh`: Legacy setup script (deprecated, use bootstrap.sh)
 - `mlgruby-repo-for-reference/`: Reference implementation to learn from
 
-**To Be Implemented** (per docs/REQUIREMENTS.md):
-- `flake.nix`: System definition with Standard/Power profiles
-- `user-config.nix`: User personal info (created during bootstrap)
-- `darwin/`: System-level configs (nix-darwin)
-  - `configuration.nix`, `homebrew.nix`, `macos-defaults.nix`, `system-monitoring.nix`, `nix-settings.nix`
-- `home-manager/`: User-level configs (dotfiles)
-  - `modules/zsh.nix`, `modules/git.nix`, `modules/starship.nix`, `modules/aliases.nix`, etc.
-- `bootstrap.sh`: Bootstrap script in main directory (10-phase installation)
-- `docs/`: User documentation (quick-start, troubleshooting, customization)
+**To Be Implemented** (Epic-03 onwards):
+- System Configuration (Epic-03): Finder, Security, Trackpad, Display, Keyboard, Dock preferences
+- Development Environment (Epic-04): Advanced shell config, editor integrations
+- Theming (Epic-05): Stylix system-wide theming
+- Maintenance (Epic-06): Garbage collection, store optimization, health checks
+- Documentation (Epic-07): Quick-start guides, troubleshooting, customization guides
 
 ### Implementation Phases (8-Week Plan)
 

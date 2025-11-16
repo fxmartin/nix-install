@@ -290,7 +290,14 @@ Consistency: 100% (declarative config)
 - Two profiles: "Standard" (Air), "Power" (Pro M3 Max)
 - Clear description of differences shown to user
 - Profile determines: Parallels installation, Ollama models pulled
+- **Power profile prerequisite**: Terminal must have Full Disk Access (FDA)
+  - FDA check runs after profile selection (Phase 2)
+  - Required for Parallels Desktop installation via Homebrew
+  - Bootstrap terminates if FDA not granted (prevents installation failures)
+  - Provides step-by-step instructions to grant FDA and relaunch terminal
+  - Standard profile skips FDA check (Parallels not installed)
 - Acceptance: Correct apps installed based on profile choice
+- Acceptance: Power profile bootstrap fails gracefully if terminal lacks FDA
 
 **REQ-BOOT-004**: SSH key management
 - Generate ed25519 SSH key for GitHub
@@ -1240,7 +1247,7 @@ Consistency: 100% (declarative config)
 | **Security** | | |
 | NordVPN | Homebrew Cask (nordvpn) | GUI app |
 | **Virtualization** | | |
-| Parallels Desktop | Homebrew Cask (parallels) | GUI app, Power profile only |
+| Parallels Desktop | Homebrew Cask (parallels) | GUI app, Power profile only, **Requires terminal FDA** |
 | **Shell & CLI Tools** | | |
 | Zsh | Built-in (macOS) | Already included |
 | Oh My Zsh | Home Manager | Managed declaratively |
@@ -1305,9 +1312,32 @@ Consistency: 100% (declarative config)
 │  └──────────────────────────────────────────────────────┘  │
 │  - Validate inputs (email format, no special chars)         │
 │  - Store in variables for later                             │
+│  - Generate user-config.nix from inputs                     │
 └────────────────────┬────────────────────────────────────────┘
                      │
                      ▼
+         ┌───────────────────────┐
+         │ Profile == "power" ?  │
+         └───────┬───────────────┘
+                 │
+         ┌───────┴───────┐
+         │               │
+        YES              NO (Standard)
+         │               │
+         ▼               │
+┌─────────────────────┐  │
+│ Check Terminal FDA  │  │
+│ - Test ~/Library/   │  │
+│   protected dirs    │  │
+│ - Fail if missing   │  │
+│ - Instructions to   │  │
+│   grant FDA + quit  │  │
+│   and relaunch      │  │
+└──────────┬──────────┘  │
+           │             │
+           └─────┬───────┘
+                 │
+                 ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  Phase 4: Fetch Flake from GitHub                           │
 │  - URL: https://raw.githubusercontent.com/fxmartin/         │

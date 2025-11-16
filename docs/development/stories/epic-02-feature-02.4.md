@@ -8,16 +8,16 @@
 **Feature ID**: Feature 02.4
 **Feature Name**: Productivity & Utilities
 **Epic**: Epic-02
-**Status**: 🔄 In Progress (6/7 stories complete, 24/27 points complete)
+**Status**: ✅ Complete (7/7 stories complete, 27/27 points complete)
 
 ### Feature 02.4: Productivity & Utilities
 **Feature Description**: Install productivity apps, system utilities, and monitoring tools
 **User Value**: Complete suite of tools for file management, archiving, system maintenance, and monitoring
-**Story Count**: 7 (6 complete, 1 pending)
-**Story Points**: 27 (24 complete, 3 pending)
+**Story Count**: 7 (all complete)
+**Story Points**: 27 (all complete)
 **Priority**: High
 **Complexity**: Low-Medium
-**Progress**: 89% complete (24/27 points)
+**Progress**: 100% complete (27/27 points)
 
 #### Stories in This Feature
 
@@ -684,18 +684,88 @@
 - Document in licensed-apps.md (requires account)
 
 **Definition of Done**:
-- [ ] Dropbox installed via homebrew.nix
-- [ ] Launches and shows sign-in
-- [ ] Auto-update disable documented
-- [ ] Sign-in process documented
-- [ ] Tested in VM
-- [ ] Marked as requiring account in docs
+- [x] Dropbox installed via homebrew.nix
+- [x] Launches and shows sign-in
+- [x] Auto-update disable documented
+- [x] Sign-in process documented
+- [x] Tested in VM
+- [x] Marked as requiring account in docs
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (Homebrew managed)
 
 **Risk Level**: Low
 **Risk Mitigation**: N/A
+
+#### Implementation Details (Story 02.4-004)
+
+**Implementation Date**: 2025-11-16
+**VM Testing Date**: 2025-11-16
+**Implementation Status**: ✅ VM Tested - Complete
+
+**Changes Made**:
+
+1. **Homebrew Cask** (darwin/homebrew.nix:91):
+   ```nix
+   "dropbox" # Dropbox - Cloud storage and file sync (Story 02.4-004)
+   ```
+
+2. **Documentation** (docs/apps/productivity/dropbox.md):
+   - Created comprehensive Dropbox configuration guide (320+ lines)
+   - Account sign-in process documented:
+     - Sign in with existing account or create new account
+     - Two-factor authentication support
+     - Setup wizard with folder location and sync preferences
+   - Auto-update disable steps (REQUIRED):
+     - Dropbox menubar → Profile icon → Preferences → Account tab
+     - Uncheck "Automatically download and install updates"
+   - Core features documented:
+     - File sync (automatic, real-time when online)
+     - Selective Sync (choose folders to save disk space)
+     - File sharing via links (public access without Dropbox account)
+     - Shared folders (collaborate with other Dropbox users)
+     - Menubar icon sync status indicators
+   - Account plans comparison (Free 2GB, Plus 2TB, Family 2TB, Professional 3TB)
+   - Sync folder configuration (default `~/Dropbox`)
+   - Finder integration (sidebar, badges, context menu)
+   - Testing checklist for VM validation
+   - Troubleshooting guide (sync errors, conflicted copies, menubar icon missing)
+
+3. **Licensed Apps Guide** (docs/licensed-apps.md):
+   - Added Dropbox section after 1Password
+   - Marked as requiring Dropbox account (free or paid)
+   - Documented account plans and pricing
+   - Activation steps with auto-update disable instructions
+   - Testing checklist for account setup
+   - Troubleshooting common sign-in and sync issues
+   - Updated Overview section to list Dropbox
+
+4. **Testing Guide** (docs/testing-dropbox-installation.md):
+   - Comprehensive VM testing scenarios (7 test scenarios)
+   - Installation verification
+   - Account sign-in flow validation
+   - File sync testing (upload and download)
+   - Auto-update disable verification
+   - Selective Sync functionality testing
+   - File sharing link generation testing
+   - Menubar icon sync status testing
+
+**VM Testing Results**:
+- [x] Dropbox installed successfully via Homebrew
+- [x] First launch shows sign-in prompt
+- [x] Account authentication functional (email + password + 2FA)
+- [x] Sync folder created (`~/Dropbox`) in home directory
+- [x] Dropbox appears in Finder sidebar with icon
+- [x] Menubar icon appears after sign-in
+- [x] File sync working (local → cloud and cloud → local)
+- [x] Auto-update disabled successfully (Account → Updates unchecked)
+- [x] Auto-update setting persists after restarting Dropbox
+- [x] Selective Sync accessible and functional
+- [x] File sharing via link generation working
+- [x] Menubar icon shows correct sync status (arrows → checkmark)
+- [x] No issues found during VM testing
+
+**Story Status**: ✅ VM Tested - Complete
 
 ---
 

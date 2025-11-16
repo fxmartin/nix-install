@@ -15,11 +15,18 @@ The following apps require manual setup after installation:
 
 **Productivity & Security**:
 - **1Password**: Requires account sign-in (subscription or license)
+- **Dropbox**: Requires Dropbox account (free or paid subscription)
 - **Microsoft Office 365**: Requires subscription and activation (manual install)
 
 **Video Conferencing**:
 - **Zoom**: Can use free account, but paid license may be needed for full features
 - **Webex**: Requires company account or free Webex account
+
+**VPN & Security**:
+- **NordVPN**: Requires active subscription (NO free tier, $3.99-$12.99/month)
+
+**System Monitoring**:
+- **iStat Menus**: Commercial software ($11.99 USD) with 14-day free trial
 
 **Development Tools**:
 - None currently (all dev tools are free/open source)
@@ -270,7 +277,89 @@ The following apps require manual setup after installation:
 - **Subscription expired**: Update payment method at https://1password.com (sign in on web)
 - **Company account locked**: Contact IT admin (may be security policy or account suspension)
 
-**Documentation**: For full 1Password usage, see `docs/app-post-install-configuration.md` → 1Password section.
+**Documentation**: For full 1Password usage, see `docs/apps/productivity/1password.md`.
+
+---
+
+### Dropbox
+
+**Installation**: Installed via Homebrew cask `dropbox` (Story 02.4-004)
+
+**Account Requirement**: Dropbox requires a Dropbox account (free or paid subscription) for file synchronization.
+
+**Account Plans**:
+
+1. **Free Account** (2GB storage):
+   - **Sign up**: https://www.dropbox.com/register
+   - **Storage**: 2GB
+   - **Cost**: Free forever
+   - **Features**: File sync, mobile access, basic file sharing, 30-day file recovery
+   - **Limitations**: Limited storage, no advanced sharing features
+
+2. **Plus Plan** (2TB storage):
+   - **Storage**: 2TB (2,000GB)
+   - **Cost**: $11.99/month or $119.88/year
+   - **Features**: All free features + advanced sharing, 180-day file recovery, priority support
+
+3. **Family Plan** (2TB shared):
+   - **Storage**: 2TB shared among up to 6 users
+   - **Cost**: $19.99/month or $199.99/year
+   - **Features**: Plus features + family room for shared content
+
+4. **Professional Plan** (3TB storage):
+   - **Storage**: 3TB
+   - **Cost**: $19.99/month or $199.99/year
+   - **Features**: Advanced admin controls, eSignature requests, full-text search, Dropbox Transfer (up to 100GB)
+
+**Activation Steps**:
+
+1. **Launch Dropbox**:
+   - Open from Spotlight (`Cmd+Space`, type "Dropbox")
+   - Or launch from `/Applications/Dropbox.app`
+
+2. **Sign In or Create Account**:
+   - **Existing account**: Click "Sign In" → Enter email and password
+   - **New account**: Click "Sign Up" (opens browser) → Create account at dropbox.com
+   - Complete two-factor authentication if enabled (recommended)
+
+3. **Setup Wizard**:
+   - Choose plan (Free or paid)
+   - Select Dropbox folder location (default: `~/Dropbox`, recommended)
+   - Choose initial sync preferences (all folders or selective)
+   - Click "Get Started"
+
+4. **Verify Installation**:
+   - Menubar icon appears (Dropbox logo)
+   - `~/Dropbox` folder created in home directory
+   - Dropbox appears in Finder sidebar
+   - Initial sync begins automatically
+
+5. **Disable Auto-Update** (REQUIRED):
+   - Click Dropbox menubar icon → Profile icon → Preferences
+   - Navigate to **Account** tab
+   - **Uncheck** "Automatically download and install updates"
+   - Close Preferences
+
+**Activation Time**: ~2 minutes (account sign-in + setup wizard)
+
+**Testing**:
+- [ ] Dropbox launches successfully
+- [ ] Account sign-in completes
+- [ ] `~/Dropbox` folder exists in Finder
+- [ ] Menubar icon visible and shows sync status
+- [ ] Auto-update disabled (Account → Updates unchecked)
+- [ ] Test file sync: Create file in `~/Dropbox`, verify appears in web interface
+
+**Troubleshooting**:
+- **Sign-in fails**: Verify email/password correct, check internet connection
+- **No menubar icon**: Quit Dropbox (Activity Monitor) and relaunch
+- **Sync not working**: Check account storage not full (Preferences → Account → Storage usage)
+- **"Can't sync" error**: Click menubar icon for error details, common causes:
+  - Invalid filename characters (rename file)
+  - File path too long (shorten folder names)
+  - Permission issues (check folder permissions)
+
+**Documentation**: For full Dropbox usage and configuration, see `docs/apps/productivity/dropbox.md`.
 
 ---
 
@@ -521,6 +610,89 @@ iStat Menus has automatic updates **enabled by default**. You **MUST** disable a
 
 ---
 
+## VPN & Security Apps
+
+### NordVPN
+
+**Installation Method**: Homebrew Cask (`nordvpn`)
+**Story**: 02.7-001
+**License Requirement**: Active NordVPN subscription (paid service, NO free tier)
+**License Type**: Subscription-based ($3.99-$12.99/month depending on plan)
+
+**Subscription Plans** (as of 2024):
+- **1-month**: $12.99/month (month-to-month billing, cancel anytime)
+- **1-year**: $4.99/month ($59.88 billed annually, save 62%)
+- **2-year**: $3.99/month ($95.76 billed every 2 years, save 69%, best value)
+
+**Purchase Subscription**:
+- Visit: https://nordvpn.com/pricing/
+- Choose plan → Complete payment
+- Create NordVPN account during checkout
+- Login credentials sent via email
+
+**Account Includes**:
+- 6 simultaneous device connections
+- Unlimited bandwidth
+- All server locations (59+ countries, 5,000+ servers)
+- All features (CyberSec/Threat Protection, Kill Switch, Double VPN, Split Tunneling)
+- 24/7 customer support
+- 30-day money-back guarantee
+
+**Sign-In Process**:
+1. Launch NordVPN from Applications or Spotlight
+2. Click **"Log In"** button
+3. Enter NordVPN account **email** and **password**
+4. Complete **2FA** if enabled (6-digit code from authenticator app)
+5. Grant **Network Extension permission** when prompted (REQUIRED):
+   - macOS prompt: "NordVPN would like to add VPN configurations"
+   - Click **"Allow"**
+   - This permission enables VPN tunnel functionality
+   - Without this, VPN connection will fail
+6. Grant **Notifications permission** (optional but recommended)
+7. Menubar icon appears (gray shield when disconnected)
+
+**Network Extension Permission** (CRITICAL):
+- **Required**: macOS prompts on first VPN connection attempt
+- **System Prompt**: "NordVPN would like to add VPN configurations"
+- **Action**: Click **"Allow"** (required for VPN to function)
+- **Purpose**: Allows NordVPN to create VPN tunnel and route traffic
+- **If denied by mistake**:
+  1. System Settings → Privacy & Security → General
+  2. Find NordVPN under "VPN & Device Management"
+  3. Click **"Allow"**
+  4. Return to NordVPN → Try connecting again
+
+**Auto-Update Disable** (RESEARCH REQUIRED):
+- **Research Note**: Check during VM testing if NordVPN has user-facing auto-update toggle
+- **Possible Location**: Preferences → Settings → Advanced (verify during testing)
+- **If no toggle exists**: Updates controlled by Homebrew only (`darwin-rebuild switch`)
+- **FX Action**: During VM testing, check all Settings tabs and document findings
+
+**Verification**:
+- **Installation**: `/Applications/NordVPN.app` exists
+- **Launch**: NordVPN shows sign-in screen on first launch
+- **Sign-in**: Account credentials work → Menubar icon appears (gray shield)
+- **Network Permission**: System prompt appears → Click "Allow"
+- **Connection Test**:
+  1. Click menubar icon → **Quick Connect**
+  2. Wait 5-10 seconds → Icon turns **green shield** (connected)
+  3. Visit https://whatismyip.com → Verify IP changed to VPN IP
+  4. Disconnect → Icon returns to gray shield
+- **Subscription Status**: Settings → Account → Shows active subscription + expiration date
+- **Auto-Update**: Check Settings → Advanced or General → Document if toggle exists
+
+**Core Features to Test**:
+- **Quick Connect**: One-click VPN (menubar → Quick Connect)
+- **Server Selection**: Browse and connect to specific countries/servers
+- **Kill Switch**: Settings → General → Kill Switch toggle (blocks internet if VPN drops)
+- **Auto-Connect**: Settings → General → Auto-connect on Wi-Fi/Always/Never
+- **CyberSec/Threat Protection**: Settings → Toggle for ad/malware blocking
+- **Split Tunneling**: Settings → Add apps to bypass VPN (e.g., local network apps)
+
+**Documentation**: See `docs/apps/security/nordvpn.md` for full configuration guide
+
+---
+
 ## Summary Table
 
 | App | Installation | Account Type | Cost | Activation Required |
@@ -529,6 +701,7 @@ iStat Menus has automatic updates **enabled by default**. You **MUST** disable a
 | **Webex** | Homebrew cask | Company or Free | Free or $14.50+/month | Yes (required) |
 | **1Password** | Homebrew cask | Subscription or License | $2.99+/month or legacy | Yes (required) |
 | **iStat Menus** | Homebrew cask | One-time purchase | $11.99 USD (14-day trial) | Yes (trial or license) |
+| **NordVPN** | Homebrew cask | Subscription | $3.99-$12.99/month | Yes (required) |
 | **Office 365** | Manual install | Subscription | $69.99+/year or company | Yes (required) |
 
 ---

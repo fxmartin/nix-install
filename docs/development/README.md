@@ -9,11 +9,11 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **33.9% complete** (39/115 stories, 207/606 points)
+  - Current project status: **35.7% complete** (41/115 stories, 220/606 points)
   - Epic-01: **89.5% complete** (17/19 stories, 104/113 points) 🟢 Bootstrap functional
-  - Epic-02: **88.0% complete** (22/25 stories, 103/118 points) 🟡 In Progress
-  - Next stories: 02.4-004 (Dropbox, 3 pts), 02.7-001 (NordVPN, 5 pts), 02.9-001 (Office 365, 5 pts)
-  - Recent: Story 02.8-001 (Parallels Desktop - Power Profile Only) VM tested ✅
+  - Epic-02: **96.0% complete** (24/25 stories, 116/118 points) 🟢 Near Complete
+  - Next story: 02.10-001 (Email Account Configuration, 5 pts) - **FINAL EPIC-02 STORY**
+  - Recent: Stories 02.4-004, 02.7-001, 02.9-001 (Dropbox, NordVPN, Office 365) VM tested ✅
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns
@@ -34,12 +34,12 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ## 🎯 Current Status (Quick Reference)
 
-**Overall Project**: 33.9% complete (39/115 stories, 207/606 points)
+**Overall Project**: 35.7% complete (41/115 stories, 220/606 points)
 
 **Epic-01: Bootstrap & Installation System** - 89.5% complete (92.0% by points) 🟢
-**Epic-02: Application Installation** - 88.0% complete (87.3% by points) 🟡
+**Epic-02: Application Installation** - 96.0% complete (98.3% by points) 🟢
 
-### ✅ Completed Stories (39)
+### ✅ Completed Stories (41)
 
 #### Epic-01 Stories (17)
 1. **01.1-001** - Pre-flight Environment Checks (5 pts) - 2025-11-08
@@ -60,7 +60,7 @@ Welcome to the nix-install development documentation. This directory contains al
 16. **01.7-002** - Final Darwin Rebuild (8 pts) - 2025-11-11
 17. **01.8-001** - Installation Summary & Next Steps (3 pts) - 2025-11-11
 
-#### Epic-02 Stories (22)
+#### Epic-02 Stories (24)
 18. **02.1-001** - Claude Desktop and AI Chat Apps (3 pts) - 2025-11-12 (VM tested)
 19. **02.1-002** - Ollama Desktop App Installation (3 pts) - 2025-11-12 (VM tested)
 20. **02.1-003** - Standard Profile Ollama Model (2 pts) - 2025-11-12 (VM tested)
@@ -76,29 +76,32 @@ Welcome to the nix-install development documentation. This directory contains al
 30. **02.4-001** - Raycast Installation (3 pts) - 2025-01-15 (VM tested)
 31. **02.4-002** - 1Password Installation (3 pts) - 2025-01-15 (VM tested)
 32. **02.4-003** - File Utilities (Calibre, Kindle, Keka, Marked 2) (5 pts) - 2025-01-15 (VM tested)
-33. **02.4-005** - System Utilities (Onyx, f.lux) (3 pts) - 2025-01-15 (VM tested)
-34. **02.4-006** - System Monitoring (gotop, iStat Menus, macmon) (5 pts) - 2025-01-16 (VM tested)
-35. **02.4-007** - Git and Git LFS (5 pts) - 2025-01-15 (VM tested)
-36. **02.5-001** - WhatsApp Installation (3 pts) - 2025-01-15 (VM tested)
-37. **02.5-002** - Zoom and Webex Installation (5 pts) - 2025-01-15 (VM tested)
-38. **02.6-001** - VLC and GIMP Installation (3 pts) - 2025-01-15 (VM tested)
-39. **02.8-001** - Parallels Desktop (Power Profile Only) (8 pts) - 2025-01-16 (VM tested)
+33. **02.4-004** - Dropbox Installation (3 pts) - 2025-11-16 (VM tested)
+34. **02.4-005** - System Utilities (Onyx, f.lux) (3 pts) - 2025-01-15 (VM tested)
+35. **02.4-006** - System Monitoring (gotop, iStat Menus, macmon) (5 pts) - 2025-01-16 (VM tested)
+36. **02.4-007** - Git and Git LFS (5 pts) - 2025-01-15 (VM tested)
+37. **02.5-001** - WhatsApp Installation (3 pts) - 2025-01-15 (VM tested)
+38. **02.5-002** - Zoom and Webex Installation (5 pts) - 2025-01-15 (VM tested)
+39. **02.6-001** - VLC and GIMP Installation (3 pts) - 2025-01-15 (VM tested)
+40. **02.7-001** - NordVPN Installation (5 pts) - 2025-01-16 (VM tested)
+41. **02.8-001** - Parallels Desktop (Power Profile Only) (8 pts) - 2025-01-16 (VM tested)
+42. **02.9-001** - Office 365 Installation (5 pts) - 2025-01-16 (VM tested)
 
 ### 🚧 Next Stories
 
-**Epic-02 Remaining** (Licensed Apps & Config - 4 stories, 18 pts):
-- **02.4-004** - Dropbox Installation (3 pts)
-- **02.7-001** - NordVPN Installation (5 pts)
-- **02.9-001** - Office 365 Installation (5 pts)
-- **02.10-001** - Email Account Configuration (5 pts)
+**Epic-02 Remaining** (1 story, 5 pts):
+- **02.10-001** - Email Account Configuration (5 pts) - **FINAL EPIC-02 STORY**
 
 **Epic-01 Cleanup** (Optional enhancements):
 - **01.1-003** - Progress Indicators (3 pts) - P1 optional enhancement
 - **01.1-004** - Modular Bootstrap Architecture (8 pts) - P1, deferred to post-Epic-01
 
+**Epic-03** (Next Epic):
+- System Configuration (0% started, 12 stories, 68 points)
+
 ### ⏳ Remaining Stories
 - **Epic-01**: 2 stories remaining (01.1-003, 01.1-004) - both P1 optional/deferred
-- **Epic-02**: 5 stories remaining (20 completed, 5 to go)
+- **Epic-02**: 1 story remaining (24 completed, 1 to go) - **96.0% COMPLETE**
 
 ## 🛠️ What to Read First?
 

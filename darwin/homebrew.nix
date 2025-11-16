@@ -84,10 +84,11 @@
       "brave-browser" # Brave Browser - Privacy-focused browser with built-in ad/tracker blocking
       "arc"           # Arc Browser - Modern workspace-focused browser with unique UI
 
-      # Productivity & Utilities (Story 02.4-001, 02.4-002, 02.4-003)
-      # Auto-update disable: Preferences → Advanced → Disable auto-update (manual step)
+      # Productivity & Utilities (Story 02.4-001, 02.4-002, 02.4-004)
+      # Auto-update disable: Raycast/1Password (Preferences → Advanced), Dropbox (Preferences → Account → Disable automatic updates)
       "raycast" # Raycast - Application launcher and productivity tool (Story 02.4-001)
       "1password" # 1Password - Password manager and secure vault (Story 02.4-002)
+      "dropbox" # Dropbox - Cloud storage and file sync (Story 02.4-004)
 
       # File Utilities (Story 02.4-003)
       # Auto-update disable: Calibre (Preferences → Misc), Marked 2 (Preferences → General)

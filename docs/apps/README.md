@@ -109,6 +109,16 @@ VPN and security applications for privacy and secure connections.
 
 ---
 
+## 🖥️ Virtualization & Development Tools
+
+Virtualization software for running Windows, Linux, and macOS VMs on Apple Silicon.
+
+- [Parallels Desktop](virtualization/parallels-desktop.md) - Professional VM software for macOS (Homebrew cask, **Power profile only**, subscription required)
+
+**Note**: Parallels Desktop is installed **ONLY on Power profile** (MacBook Pro M3 Max) due to high resource requirements (CPU, RAM, disk). Standard profile (MacBook Air) uses cloud VMs when needed.
+
+---
+
 ## 📊 File Organization
 
 ```
@@ -143,6 +153,8 @@ docs/apps/
 │   └── gimp.md                         # GIMP image editor
 ├── security/
 │   └── nordvpn.md                      # NordVPN VPN service
+├── virtualization/
+│   └── parallels-desktop.md            # Parallels Desktop (Power profile only)
 └── system/
     └── system-monitoring.md            # iStat Menus, gotop, macmon
 ```
@@ -172,9 +184,9 @@ docs/apps/
 
 **File Split from**: `docs/app-post-install-configuration.md` (5,471 lines) was split into focused files for maintainability:
 
-- **23 total files**: 1 index, 1 prerequisites, 21 app documentation files
-- **Latest additions**: nordvpn.md (Story 02.7-001, ~900 lines), office-365.md (Story 02.9-001, ~700 lines)
-- **Max file size**: ~900 lines (nordvpn.md comprehensive VPN guide)
+- **24 total files**: 1 index, 1 prerequisites, 22 app documentation files
+- **Latest additions**: parallels-desktop.md (Story 02.8-001, ~1,300 lines), nordvpn.md (Story 02.7-001, ~900 lines), office-365.md (Story 02.9-001, ~700 lines)
+- **Max file size**: ~1,300 lines (parallels-desktop.md comprehensive virtualization guide)
 - **Benefits**: Easier navigation, parallel development, git-friendly diffs, story-aligned
 - **Original file**: Archived as `app-post-install-configuration.md.backup`
 

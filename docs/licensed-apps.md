@@ -743,6 +743,126 @@ iStat Menus has automatic updates **enabled by default**. You **MUST** disable a
 
 ---
 
+## Virtualization & Development Tools
+
+### Parallels Desktop
+
+**Installation Method**: Homebrew Cask (`parallels`)
+**Story**: 02.8-001
+**Profile**: **POWER ONLY** (MacBook Pro M3 Max) - NOT installed on Standard profile
+**License Requirement**: Paid software (trial, subscription, or perpetual license)
+**License Type**: Subscription ($99.99-$119.99/year) or Perpetual ($129.99 one-time, older versions)
+
+**Why Power Profile Only?**
+Virtualization requires significant system resources (CPU cores, RAM, disk space):
+- **MacBook Pro M3 Max** (Power): 64GB RAM, 14-16 cores, 1TB+ SSD → Can run VMs comfortably
+- **MacBook Air** (Standard): 8-16GB RAM, 8 cores, 256-512GB SSD → Insufficient for VMs
+- **Alternative for Standard**: Use cloud VMs (AWS EC2, Azure VMs) when virtualization needed
+
+**License Options**:
+
+1. **Free Trial** (14 Days):
+   - Full features unlocked for 14 days
+   - No credit card required
+   - No account sign-up needed (just email verification)
+   - Expires after 14 days → Becomes read-only (can view VMs but cannot start/modify)
+
+2. **Standard Edition** (Subscription):
+   - **Price**: $99.99/year (annual billing)
+   - **Features**: Core virtualization (Windows, Linux, macOS VMs), up to 8 vCPUs per VM, up to 32 GB vRAM per VM
+   - **Best For**: Personal use, home users, students
+
+3. **Pro Edition** (Subscription):
+   - **Price**: $119.99/year (annual billing)
+   - **Features**: All Standard features PLUS developer tools (Vagrant, Docker, Kubernetes), Visual Studio plugin, up to 32 vCPUs and 128 GB vRAM per VM
+   - **Best For**: Developers, IT professionals, advanced users
+
+4. **Business Edition** (Subscription):
+   - **Price**: $119.99/year per user (volume licensing available)
+   - **Features**: All Pro features PLUS centralized license management, mass deployment, SSO integration
+   - **Best For**: Companies, IT departments, enterprise deployments
+
+5. **Perpetual License** (Legacy, Less Common):
+   - **Price**: $129.99 one-time (older versions only)
+   - **Features**: Lifetime license for purchased version (no recurring fees)
+   - **Limitations**: No automatic updates (must purchase upgrades), no cloud features, older versions may not support latest macOS/ARM VMs
+   - **Note**: Parallels shifted to subscription model (perpetual licenses rare now)
+
+**Activation Process**:
+
+**Option 1: Trial** (14 Days Free)
+1. Launch Parallels Desktop (Spotlight: `Cmd+Space`, type "Parallels")
+2. Welcome screen → Click **"Try Free for 14 Days"**
+3. Create Parallels account (email + password)
+4. Check email for verification link → Click to verify
+5. Sign in to Parallels
+6. Trial activates immediately (no credit card)
+
+**Option 2: License Key** (Purchased License)
+1. Launch Parallels Desktop
+2. Welcome screen → Click **"Activate"** or **"I have a license key"**
+3. Enter license key: `XXXXX-XXXXX-XXXXX-XXXXX-XXXXX` (from purchase email)
+4. Sign in with Parallels account (or create account)
+5. License activates
+
+**Option 3: Subscription Account**
+1. Launch Parallels Desktop
+2. Welcome screen → Click **"Sign In"**
+3. Enter Parallels account email and password
+4. Subscription auto-activates (no license key needed)
+
+**Auto-Update Disable**:
+1. Parallels Desktop → Preferences (or `Cmd+,`)
+2. Click **Advanced** tab (or **General** tab, location varies by version)
+3. Find **"Check for updates automatically"** checkbox
+4. **Uncheck** "Check for updates automatically"
+5. **Uncheck** "Download updates automatically" (if separate)
+6. Close Preferences
+7. Verify: Quit Parallels → Relaunch → Preferences → Verify checkboxes remain unchecked
+
+**Note**: Some Parallels versions may NOT have user-facing auto-update toggle (updates controlled by Homebrew only).
+
+**Verification**:
+- **License Status**: Preferences → Account shows:
+  - Trial: "Trial - X days remaining"
+  - Subscription: "Standard Edition" or "Pro Edition" with renewal date
+  - Perpetual: "Parallels Desktop [Version]" with license key
+- **VM Creation**: Can create and run Windows/Linux/macOS virtual machines
+- **Parallels Tools**: Install in VMs for better performance (graphics, clipboard, shared folders)
+
+**Profile Verification**:
+```bash
+# Power profile: Verify Parallels installed
+ls -la /Applications/Parallels\ Desktop.app
+# Expected: App directory exists ✅
+
+# Standard profile: Verify Parallels NOT installed
+darwin-rebuild switch --flake ~/nix-install#standard
+ls -la /Applications/Parallels\ Desktop.app
+# Expected: No such file or directory ❌
+```
+
+**Key Features**:
+- **VM Creation**: Windows 11, Linux (Ubuntu, Debian, Fedora, etc.), macOS VMs
+- **Coherence Mode**: Run Windows apps alongside Mac apps (seamless integration)
+- **Shared Folders**: Access Mac files from VM (Desktop, Documents, Downloads shared by default)
+- **Snapshots**: Save VM state before risky changes, restore if needed
+- **USB Pass-Through**: Connect USB devices (printers, drives, phones) to VM
+- **Clipboard Sharing**: Copy/paste between Mac and VM
+- **Drag-and-Drop**: Transfer files by dragging between Mac and VM windows
+- **Performance**: Optimized for Apple Silicon (M1/M2/M3) with ARM64 VMs
+
+**Common Use Cases**:
+- Run Windows apps (Office, legacy software, Windows-only tools)
+- Test apps on different OS versions (macOS, Windows, Linux)
+- Development: Test apps on multiple platforms
+- Security testing: Run untrusted software in isolated VM
+- Learning: Experiment with different OSes without dual-booting
+
+**Documentation**: For full Parallels Desktop usage, VM creation, and troubleshooting, see `docs/apps/virtualization/parallels-desktop.md`.
+
+---
+
 ## Summary Table
 
 | App | Installation | Account Type | Cost | Activation Required |
@@ -753,6 +873,7 @@ iStat Menus has automatic updates **enabled by default**. You **MUST** disable a
 | **iStat Menus** | Homebrew cask | One-time purchase | $11.99 USD (14-day trial) | Yes (trial or license) |
 | **NordVPN** | Homebrew cask | Subscription | $3.99-$12.99/month | Yes (required) |
 | **Office 365** | Manual install | Subscription | $69.99+/year or company | Yes (required) |
+| **Parallels Desktop** | Homebrew cask (Power only) | Trial or Subscription | Free trial 14 days or $99.99-$119.99/year | Yes (trial or license) |
 
 ---
 

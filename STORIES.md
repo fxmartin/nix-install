@@ -31,7 +31,7 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 |---------|-----------|----------------|-------------|--------------|----------|
 | Epic-01 | Bootstrap & Installation System | Automated one-command installation | 19 | 113 | Must Have |
 | Epic-02 | Application Installation & Configuration | Declarative app management across profiles | 23 | 118 | Must Have |
-| Epic-03 | System Configuration & macOS Preferences | Automated macOS system preferences | 12 | 68 | Must Have |
+| Epic-03 | System Configuration & macOS Preferences | Automated macOS system preferences | 14 | 76 | Must Have |
 | Epic-04 | Development Environment & Shell | Complete dev tooling setup | 18 | 97 | Must Have |
 | Epic-05 | Theming & Visual Consistency | System-wide consistent theming | 8 | 42 | Should Have |
 | Epic-06 | Maintenance & Monitoring | Self-maintaining system with monitoring | 10 | 55 | Must Have |
@@ -57,8 +57,8 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 **Time Constraints**: 6-8 week delivery timeline with VM testing before physical hardware
 
 ### MVP Scope
-**Total MVP Stories**: 113
-**Total MVP Points**: 606
+**Total MVP Stories**: 115
+**Total MVP Points**: 614
 **Estimated Duration**: 6-8 weeks (implementation) + 2 weeks (migrations)
 
 ### MVP Epic Breakdown
@@ -66,7 +66,7 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 |------|-------------|------------|-------------------|------------------|------------|
 | Epic-01 | 19/19 | 113/113 | 16 | 101 | 89.4% |
 | Epic-02 | 23/23 | 118/118 | 0 | 0 | 0% |
-| Epic-03 | 12/12 | 68/68 | 0 | 0 | 0% |
+| Epic-03 | 14/14 | 76/76 | 0 | 0 | 0% |
 | Epic-04 | 18/18 | 97/97 | 0 | 0 | 0% |
 | Epic-05 | 8/8 | 42/42 | 0 | 0 | 0% |
 | Epic-06 | 10/10 | 55/55 | 0 | 0 | 0% |
@@ -78,14 +78,15 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 - **2025-11-11**: Epic-01 increased to 113 points after adding Story 01.1-004 (Modular Bootstrap Architecture, 8 points, deferred to post-Epic-01)
 - **2025-11-12**: Epic-02 increased to 118 points after adding Story 02.10-001 (Email Account Configuration, 5 points)
 - **2025-11-12**: Additional updates - Story 02.3-001 (Firefox→Brave), 02.4-003 (+Marked 2), 05.1-001 (+wallpaper), 04.2-001 (Starship config)
+- **2025-11-16**: Epic-03 increased from 12 stories/68 points to 14 stories/76 points after adding Feature 03.7 (Time Machine Backup Configuration, 2 stories, 8 points)
 
 ## Project Metrics
-- **Total Stories**: 113
-- **Total Story Points**: 606
-- **Average Story Size**: 5.4 points
-- **Completed Stories**: 16 (14.2%)
-- **Completed Points**: 101 (16.7%)
-- **MVP Completion**: 14.2% by stories, 16.7% by points
+- **Total Stories**: 115
+- **Total Story Points**: 614
+- **Average Story Size**: 5.3 points
+- **Completed Stories**: 16 (13.9%)
+- **Completed Points**: 101 (16.4%)
+- **MVP Completion**: 13.9% by stories, 16.4% by points
 
 ## Story Dependencies
 

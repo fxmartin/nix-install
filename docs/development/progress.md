@@ -7,13 +7,13 @@
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
 | **Epic-02** | Application Installation | 25 | 118 | **24** | **116** | 96.0% | 98.3% | 🟢 Near Complete |
-| **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-03** | System Configuration | 14 | 76 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **115** | **606** | **41** | **220** | **35.7%** | **36.3%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **117** | **614** | **41** | **220** | **35.0%** | **35.8%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -81,8 +81,8 @@
 
 ### Overall Project Status
 
-- **Total Project Scope**: 115 stories, 606 story points
-- **Completed**: 41 stories (35.7%), 220 points (36.3%)
+- **Total Project Scope**: 117 stories, 614 story points
+- **Completed**: 41 stories (35.0%), 220 points (35.8%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL**
   - Epic-02 Application Installation (96.0% complete by stories, 98.3% by points) - **NEAR COMPLETE**
@@ -95,6 +95,13 @@
 
 ### Recent Activity
 
+- **2025-11-16**: 📝 **Feature 03.7 CREATED** - Time Machine Backup Configuration (2 stories, 8 points)
+  - Story 03.7-001: Time Machine Preferences & Exclusions (5 points)
+  - Story 03.7-002: Time Machine Destination Setup Prompt (3 points)
+  - Epic-03 increased from 12 stories/68 points to 14 stories/76 points
+  - Total project scope: 117 stories, 614 story points
+  - Smart exclusions: /nix, caches, trash, downloads, temp directories
+  - Bootstrap prompt for optional backup destination configuration
 - **2025-01-16**: 🎉 **Stories 02.4-004, 02.7-001, 02.9-001 VM TESTED COMPLETE** - Dropbox, NordVPN, Office 365 (13 points)
   - **Story 02.4-004**: Dropbox cloud storage ✅ VM tested and validated
     - Account sign-in working (Dropbox account required - free or paid)

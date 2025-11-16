@@ -9,11 +9,11 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **35.7% complete** (41/115 stories, 220/606 points)
+  - Current project status: **35.0% complete** (41/117 stories, 220/614 points)
   - Epic-01: **89.5% complete** (17/19 stories, 104/113 points) 🟢 Bootstrap functional
   - Epic-02: **96.0% complete** (24/25 stories, 116/118 points) 🟢 Near Complete
   - Next story: 02.10-001 (Email Account Configuration, 5 pts) - **FINAL EPIC-02 STORY**
-  - Recent: Stories 02.4-004, 02.7-001, 02.9-001 (Dropbox, NordVPN, Office 365) VM tested ✅
+  - Recent: Feature 03.7 created (Time Machine, 2 stories, 8 pts); Dropbox, NordVPN, Office 365 VM tested ✅
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns
@@ -24,7 +24,7 @@ Welcome to the nix-install development documentation. This directory contains al
 - **Story Implementations** (split by feature for maintainability - 44 feature files total):
   - **Epic-01** (8 files): Bootstrap system - Pre-flight, User Config, Xcode, Nix, Nix-Darwin, SSH/GitHub, Clone/Rebuild, Post-Install
   - **Epic-02** (10 files): Applications - AI Tools, Dev Apps, Browsers, Productivity, Communication, Media, Security, Profile-Specific, Office 365, Email
-  - **Epic-03** (6 files): System Config - Finder, Security, Trackpad, Display, Keyboard, Dock
+  - **Epic-03** (7 files): System Config - Finder, Security, Trackpad, Display, Keyboard, Dock, Time Machine
   - **Epic-04** (9 files): Dev Environment - Zsh, Starship, FZF, Ghostty, Aliases, Git, Python, Podman, Editors
   - **Epic-05** (4 files): Theming - Stylix, Fonts, App Theming, Theme Verification
   - **Epic-06** (4 files): Maintenance - Garbage Collection, Store Optimization, Monitoring Tools, Health Check
@@ -34,7 +34,7 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ## 🎯 Current Status (Quick Reference)
 
-**Overall Project**: 35.7% complete (41/115 stories, 220/606 points)
+**Overall Project**: 35.0% complete (41/117 stories, 220/614 points)
 
 **Epic-01: Bootstrap & Installation System** - 89.5% complete (92.0% by points) 🟢
 **Epic-02: Application Installation** - 96.0% complete (98.3% by points) 🟢
@@ -97,7 +97,8 @@ Welcome to the nix-install development documentation. This directory contains al
 - **01.1-004** - Modular Bootstrap Architecture (8 pts) - P1, deferred to post-Epic-01
 
 **Epic-03** (Next Epic):
-- System Configuration (0% started, 12 stories, 68 points)
+- System Configuration (0% started, 14 stories, 76 points)
+  - Includes new Feature 03.7: Time Machine Backup Configuration (2 stories, 8 points)
 
 ### ⏳ Remaining Stories
 - **Epic-01**: 2 stories remaining (01.1-003, 01.1-004) - both P1 optional/deferred

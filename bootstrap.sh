@@ -341,10 +341,30 @@ check_existing_user_config() {
 
     # Parse values from existing config using grep + sed
     local parsed_fullname parsed_email parsed_github_username
+    local parsed_gmail="" parsed_gandi1="" parsed_gandi2="" parsed_gandi3="" parsed_gandi4=""
 
     parsed_fullname=$(grep -E '^\s*fullName\s*=' "${existing_config}" 2>/dev/null | sed 's/.*"\([^"]*\)".*/\1/')
     parsed_email=$(grep -E '^\s*email\s*=' "${existing_config}" 2>/dev/null | sed 's/.*"\([^"]*\)".*/\1/')
     parsed_github_username=$(grep -E '^\s*githubUsername\s*=' "${existing_config}" 2>/dev/null | sed 's/.*"\([^"]*\)".*/\1/')
+
+    # Story 02.10-001: Parse email addresses from existing config
+    # Note: email-config.nix is separate, but we need to check if it exists too
+    # First try to parse from email-config.nix (preferred location)
+    local email_config_path=""
+    if [[ -f "$HOME/Documents/nix-install/email-config.nix" ]]; then
+        email_config_path="$HOME/Documents/nix-install/email-config.nix"
+    elif [[ -f "/tmp/nix-bootstrap/email-config.nix" ]]; then
+        email_config_path="/tmp/nix-bootstrap/email-config.nix"
+    fi
+
+    # Parse email addresses from email-config.nix if it exists
+    if [[ -n "${email_config_path}" ]]; then
+        parsed_gmail=$(grep -E '^\s*gmail\s*=' "${email_config_path}" 2>/dev/null | sed 's/.*"\([^"]*\)".*/\1/')
+        parsed_gandi1=$(grep -E '^\s*gandi1\s*=' "${email_config_path}" 2>/dev/null | sed 's/.*"\([^"]*\)".*/\1/')
+        parsed_gandi2=$(grep -E '^\s*gandi2\s*=' "${email_config_path}" 2>/dev/null | sed 's/.*"\([^"]*\)".*/\1/')
+        parsed_gandi3=$(grep -E '^\s*gandi3\s*=' "${email_config_path}" 2>/dev/null | sed 's/.*"\([^"]*\)".*/\1/')
+        parsed_gandi4=$(grep -E '^\s*gandi4\s*=' "${email_config_path}" 2>/dev/null | sed 's/.*"\([^"]*\)".*/\1/')
+    fi
 
     # Validate parsed values (must not be empty or still contain placeholders like @FULL_NAME@)
     if [[ -z "${parsed_fullname}" ]] || [[ "${parsed_fullname}" == *"@"* ]]; then
@@ -362,11 +382,34 @@ check_existing_user_config() {
         return 1
     fi
 
+    # Story 02.10-001: Validate email addresses (non-critical - can be empty if not yet configured)
+    # If email-config.nix doesn't exist, we'll prompt for emails later
+    local emails_available=true
+    if [[ -z "${parsed_gmail}" ]] || [[ "${parsed_gmail}" != *"@gmail.com" ]]; then
+        log_warn "Email config not found or Gmail address invalid - will prompt for email addresses"
+        emails_available=false
+    fi
+    if [[ -z "${parsed_gandi1}" ]] || [[ -z "${parsed_gandi2}" ]] || [[ -z "${parsed_gandi3}" ]] || [[ -z "${parsed_gandi4}" ]]; then
+        log_warn "Email config incomplete - will prompt for missing email addresses"
+        emails_available=false
+    fi
+
     # Display parsed values for user review
     log_info "Existing configuration:"
     echo "  Name:          ${parsed_fullname}"
     echo "  Email:         ${parsed_email}"
     echo "  GitHub:        ${parsed_github_username}"
+
+    # Display email addresses if available
+    if [[ "${emails_available}" == "true" ]]; then
+        echo ""
+        echo "  Email Accounts:"
+        echo "    Gmail:       ${parsed_gmail}"
+        echo "    Gandi 1:     ${parsed_gandi1}"
+        echo "    Gandi 2:     ${parsed_gandi2}"
+        echo "    Gandi 3:     ${parsed_gandi3}"
+        echo "    Gandi 4:     ${parsed_gandi4}"
+    fi
     echo ""
 
     # Prompt user to reuse or re-enter
@@ -380,7 +423,18 @@ check_existing_user_config() {
         USER_EMAIL="${parsed_email}"
         GITHUB_USERNAME="${parsed_github_username}"
 
-        log_success "Reusing existing configuration"
+        # Story 02.10-001: Set email global variables if available
+        # If emails not available, they'll be prompted for later
+        if [[ "${emails_available}" == "true" ]]; then
+            EMAIL_GMAIL="${parsed_gmail}"
+            EMAIL_GANDI1="${parsed_gandi1}"
+            EMAIL_GANDI2="${parsed_gandi2}"
+            EMAIL_GANDI3="${parsed_gandi3}"
+            EMAIL_GANDI4="${parsed_gandi4}"
+            log_success "Reusing existing configuration (including email addresses)"
+        else
+            log_success "Reusing existing configuration (email addresses will be prompted)"
+        fi
         echo ""
         return 0
     else
@@ -462,6 +516,119 @@ prompt_user_info() {
     done
 
     log_info "✓ User information collected successfully"
+    echo ""
+}
+
+# Prompt user for email account addresses (Story 02.10-001)
+# Collects 5 email addresses: 1 Gmail, 4 Gandi.net accounts
+# Sets global variables: EMAIL_GMAIL, EMAIL_GANDI1-4
+prompt_email_accounts() {
+    echo ""
+    log_info "==================================="
+    log_info "Email Account Configuration"
+    log_info "==================================="
+    echo ""
+    log_info "Configure 5 email accounts for macOS Mail.app:"
+    log_info "  - 1 Gmail account (OAuth2 authentication)"
+    log_info "  - 4 Gandi.net accounts (password authentication)"
+    echo ""
+    log_warn "Note: Email addresses are stored in config only."
+    log_warn "Passwords/OAuth credentials entered manually after Mail.app first launch."
+    echo ""
+
+    local confirmed="n"
+
+    # Loop until user confirms all email addresses
+    while [[ "$confirmed" != "y" ]]; do
+        # Gmail account
+        while true; do
+            read -r -p "Gmail Address: " EMAIL_GMAIL
+            if validate_email "$EMAIL_GMAIL"; then
+                # Verify it's actually a Gmail address
+                if [[ "$EMAIL_GMAIL" =~ @gmail\.com$ ]]; then
+                    log_info "✓ Gmail address validated"
+                    break
+                else
+                    log_error "Please enter a valid Gmail address (must end with @gmail.com)"
+                fi
+            else
+                log_error "Invalid email format. Please include @ and domain (e.g., user@gmail.com)"
+            fi
+        done
+
+        echo ""
+
+        # Gandi.net account 1
+        while true; do
+            read -r -p "Gandi.net Account 1 Email: " EMAIL_GANDI1
+            if validate_email "$EMAIL_GANDI1"; then
+                log_info "✓ Gandi account 1 validated"
+                break
+            else
+                log_error "Invalid email format. Please include @ and domain (e.g., user@example.com)"
+            fi
+        done
+
+        echo ""
+
+        # Gandi.net account 2
+        while true; do
+            read -r -p "Gandi.net Account 2 Email: " EMAIL_GANDI2
+            if validate_email "$EMAIL_GANDI2"; then
+                log_info "✓ Gandi account 2 validated"
+                break
+            else
+                log_error "Invalid email format. Please include @ and domain (e.g., user@example.com)"
+            fi
+        done
+
+        echo ""
+
+        # Gandi.net account 3
+        while true; do
+            read -r -p "Gandi.net Account 3 Email: " EMAIL_GANDI3
+            if validate_email "$EMAIL_GANDI3"; then
+                log_info "✓ Gandi account 3 validated"
+                break
+            else
+                log_error "Invalid email format. Please include @ and domain (e.g., user@example.com)"
+            fi
+        done
+
+        echo ""
+
+        # Gandi.net account 4
+        while true; do
+            read -r -p "Gandi.net Account 4 Email: " EMAIL_GANDI4
+            if validate_email "$EMAIL_GANDI4"; then
+                log_info "✓ Gandi account 4 validated"
+                break
+            else
+                log_error "Invalid email format. Please include @ and domain (e.g., user@example.com)"
+            fi
+        done
+
+        echo ""
+
+        # Display confirmation summary
+        log_info "Please confirm your email addresses:"
+        echo "  Gmail:         $EMAIL_GMAIL"
+        echo "  Gandi 1:       $EMAIL_GANDI1"
+        echo "  Gandi 2:       $EMAIL_GANDI2"
+        echo "  Gandi 3:       $EMAIL_GANDI3"
+        echo "  Gandi 4:       $EMAIL_GANDI4"
+        echo ""
+
+        read -r -p "Is this correct? (y/n): " confirmed
+        echo ""
+
+        if [[ "$confirmed" != "y" ]]; then
+            log_warn "Let's try again. Please re-enter your email addresses."
+            echo ""
+        fi
+    done
+
+    log_info "✓ Email addresses collected successfully"
     echo ""
 }
 
@@ -659,6 +826,11 @@ generate_user_config() {
         -e "s/@HOSTNAME@/${hostname}/g" \
         -e "s/@INSTALL_PROFILE@/${INSTALL_PROFILE}/g" \
         -e "s|@DOTFILES_PATH@|${dotfiles_path}|g" \
+        -e "s/@EMAIL_GMAIL@/${EMAIL_GMAIL}/g" \
+        -e "s/@EMAIL_GANDI1@/${EMAIL_GANDI1}/g" \
+        -e "s/@EMAIL_GANDI2@/${EMAIL_GANDI2}/g" \
+        -e "s/@EMAIL_GANDI3@/${EMAIL_GANDI3}/g" \
+        -e "s/@EMAIL_GANDI4@/${EMAIL_GANDI4}/g" \
         "${template_file}" > "${USER_CONFIG_PATH}"; then
         log_error "Failed to generate user config file"
         return 1
@@ -680,6 +852,51 @@ generate_user_config() {
 
     log_info "✓ User configuration generated successfully"
     echo ""
+
+    return 0
+}
+
+# Generate email-config.nix from template (Story 02.10-001)
+# Creates private email configuration file (gitignored)
+# Replaces email placeholder with actual email addresses
+# Returns: 0 on success, 1 on error
+generate_email_config() {
+    local email_config_path="/tmp/nix-bootstrap/email-config.nix"
+    local template_file="email-config.template.nix"
+
+    log_info "Generating email configuration file..."
+
+    # Check template exists
+    if [[ ! -f "${template_file}" ]]; then
+        log_error "Email config template not found: ${template_file}"
+        return 1
+    fi
+
+    # Verify email variables are set
+    if [[ -z "${EMAIL_GMAIL:-}" ]]; then
+        log_error "EMAIL_GMAIL is not set. Cannot generate email config."
+        return 1
+    fi
+
+    # Replace placeholders and generate config file
+    if ! sed -e "s/@EMAIL_GMAIL@/${EMAIL_GMAIL}/g" \
+        -e "s/@EMAIL_GANDI1@/${EMAIL_GANDI1}/g" \
+        -e "s/@EMAIL_GANDI2@/${EMAIL_GANDI2}/g" \
+        -e "s/@EMAIL_GANDI3@/${EMAIL_GANDI3}/g" \
+        -e "s/@EMAIL_GANDI4@/${EMAIL_GANDI4}/g" \
+        "${template_file}" > "${email_config_path}"; then
+        log_error "Failed to generate email config file"
+        return 1
+    fi
+
+    log_info "✓ Email config generated: ${email_config_path}"
+
+    # Validate generated file
+    if ! validate_nix_syntax "${email_config_path}"; then
+        log_error "Generated email config has invalid syntax"
+        return 1
+    fi
+    log_info "✓ Email config syntax validated"
 
     return 0
 }
@@ -1674,12 +1891,24 @@ fetch_flake_from_github() {
         return 1
     }
 
+    # Story 02.10-001: Fetch email configuration template (tracked in git)
+    log_info "Fetching email-config.template.nix..."
+    if ! curl -fsSL -o email-config.template.nix "${base_url}/email-config.template.nix"; then
+        log_error "Failed to fetch email-config.template.nix from GitHub"
+        return 1
+    fi
+    [[ -s email-config.template.nix ]] || {
+        log_error "Downloaded email-config.template.nix is empty"
+        return 1
+    }
+
     # Fetch darwin configuration files
     log_info "Fetching darwin configuration files..."
     local darwin_files=(
         "configuration.nix"
         "homebrew.nix"
         "macos-defaults.nix"
+        "email-accounts.nix"
     )
 
     for file in "${darwin_files[@]}"; do
@@ -3762,6 +3991,48 @@ copy_user_config_to_repo() {
     return 0
 }
 
+# Function: copy_email_config_to_repo (Story 02.10-001)
+# Purpose: Copy generated email-config.nix from /tmp to repository
+# Protection: Do NOT overwrite if email-config.nix already exists in repo
+# Note: email-config.nix is gitignored (contains private email addresses)
+# Returns: 0 on success, 1 on failure
+copy_email_config_to_repo() {
+    local source_config="${BOOTSTRAP_TEMP_DIR}/email-config.nix"
+    local dest_config="${REPO_CLONE_DIR}/email-config.nix"
+
+    # Validate source file exists
+    if [[ ! -f "${source_config}" ]]; then
+        log_error "Source email-config.nix not found: ${source_config}"
+        log_error "This should have been created in Phase 2"
+        return 1
+    fi
+
+    # Check if destination already exists (preserve existing file)
+    if [[ -f "${dest_config}" ]]; then
+        log_warn "email-config.nix already exists in repository (preserving existing file)"
+        log_info "Skipping copy to preserve your email addresses"
+        return 0
+    fi
+
+    # Copy email-config.nix to repository
+    log_info "Copying email-config.nix to repository..."
+    if ! cp "${source_config}" "${dest_config}"; then
+        log_error "Failed to copy email-config.nix"
+        log_error "Check filesystem permissions"
+        return 1
+    fi
+
+    # Validate copy was successful
+    if [[ ! -f "${dest_config}" ]]; then
+        log_error "email-config.nix copy verification failed"
+        return 1
+    fi
+
+    log_success "✓ Email configuration copied to repository (gitignored)"
+    log_info "Note: email-config.nix contains private email addresses and is not tracked in git"
+    return 0
+}
+
 # Function: verify_repository_clone
 # Purpose: Validate repository clone integrity (CRITICAL)
 # Checks: .git directory exists, flake.nix exists, user-config.nix exists, git status works
@@ -3883,6 +4154,14 @@ clone_repository_phase() {
             fi
             echo ""
 
+            # Story 02.10-001: Copy email-config.nix to repository (gitignored)
+            log_info "📧 Copying email-config.nix to existing repository..."
+            if ! copy_email_config_to_repo; then
+                log_error "Failed to copy email-config.nix"
+                return 1
+            fi
+            echo ""
+
             # Verify existing repository
             log_info "🔍 Verifying existing repository..."
             if ! verify_repository_clone; then
@@ -3918,6 +4197,14 @@ clone_repository_phase() {
     log_info "📄 Step 4: Copying user-config.nix..."
     if ! copy_user_config_to_repo; then
         log_error "Failed to copy user configuration"
+        return 1
+    fi
+    echo ""
+
+    # Story 02.10-001: Copy email-config.nix to repository (gitignored)
+    log_info "📧 Step 4b: Copying email-config.nix..."
+    if ! copy_email_config_to_repo; then
+        log_error "Failed to copy email configuration"
         return 1
     fi
     echo ""
@@ -4501,6 +4788,18 @@ main() {
     if ! check_existing_user_config; then
         # Story 01.2-001: Collect user information (name, email, GitHub username)
         prompt_user_info
+
+        # Story 02.10-001: Collect email account addresses (5 accounts for Mail.app)
+        prompt_email_accounts
+    else
+        # Config was reused, but check if emails are available (Hotfix for Issue #37)
+        # Email config may not exist if upgrading from pre-Story-02.10-001 version
+        if [[ -z "${EMAIL_GMAIL:-}" ]]; then
+            log_info "Email addresses not found in existing configuration"
+            log_info "Will prompt for email account addresses now..."
+            echo ""
+            prompt_email_accounts
+        fi
     fi
 
     # Story 01.2-002: Select installation profile (Standard vs Power)
@@ -4510,6 +4809,14 @@ main() {
     # shellcheck disable=SC2310  # Intentional: Using ! to handle validation failure
     if ! generate_user_config; then
         log_error "Failed to generate user configuration file"
+        log_error "Bootstrap process terminated."
+        exit 1
+    fi
+
+    # Story 02.10-001: Generate email-config.nix (separate, gitignored file)
+    # shellcheck disable=SC2310  # Intentional: Using ! to handle validation failure
+    if ! generate_email_config; then
+        log_error "Failed to generate email configuration file"
         log_error "Bootstrap process terminated."
         exit 1
     fi

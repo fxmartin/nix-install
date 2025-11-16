@@ -135,6 +135,9 @@
       # System Preferences
       ./darwin/macos-defaults.nix
 
+      # Email Account Configuration (Story 02.10-001)
+      ./darwin/email-accounts.nix
+
       # Theming with Stylix
       stylix.darwinModules.stylix
     ];

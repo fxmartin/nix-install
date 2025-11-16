@@ -129,6 +129,12 @@
       # License: Requires active NordVPN subscription (NO free tier)
       # Permissions: Network Extension permission required on first VPN connection
       "nordvpn" # NordVPN - VPN privacy and security service (subscription required)
+
+      # Office 365 (Story 02.9-001)
+      # Sign-in required: Microsoft account (personal, work, or school) - ONE-TIME activates ALL apps
+      # Auto-update disable: EACH app → Preferences → Update → Uncheck (6 apps total: Word, Excel, PowerPoint, Outlook, OneNote, Teams)
+      # License: Active Microsoft 365 subscription required (Personal $69.99/year, Family $99.99/year, or company-provided)
+      "microsoft-office-businesspro" # Office 365 - Word, Excel, PowerPoint, Outlook, OneNote, Teams
     ];
 
     # Global Homebrew options

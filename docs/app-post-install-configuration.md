@@ -3408,7 +3408,7 @@ Marked 2 is a **paid application** purchased via Mac App Store.
 
 ### WhatsApp
 
-**Status**: Installed via Mac App Store (mas) `1147396723` (Story 02.5-001)
+**Status**: Installed via Mac App Store (mas) `310633997` (Story 02.5-001)
 
 **Purpose**: Official WhatsApp desktop messaging application. Send and receive WhatsApp messages from your Mac, sync conversations with phone, make voice/video calls, share files, and stay connected without constant phone access.
 

@@ -53,7 +53,7 @@
   - After one manual install, `mas` CLI works normally for subsequent installs
   - Error without manual install: `PKInstallErrorDomain Code=201` - installation service cannot start
   - Workaround: Open App Store → Search "Perplexity" → Click cloud icon → Install → Then run bootstrap
-- Auto-update: May require manual disable in app settings (document in post-install)
+- Auto-update: May require manual disable in app settings (documented in docs/apps/ai/ai-llm-tools.md)
 - Test: Verify apps launch and show sign-in screens
 - **Hotfix #14 (Issue #24)**: Perplexity changed from Homebrew cask to Mac App Store installation
 - **Hotfix #15 (Issue #25)**: Added `mas` to brews list (required for masApps installations)
@@ -63,7 +63,7 @@
 - [x] `mas` CLI tool added to brews (Hotfix #15, Issue #25)
 - [x] All three apps install successfully (VM testing by FX - 2025-11-12)
 - [x] Apps launch without errors (VM testing by FX - 2025-11-12)
-- [x] Auto-update preferences documented (docs/app-post-install-configuration.md)
+- [x] Auto-update preferences documented (docs/apps/ai/ai-llm-tools.md)
 - [x] Tested in VM with both profiles (VM testing by FX - 2025-11-12)
 - [x] Documentation notes first-run sign-in required
 - [x] Fresh machine manual install requirement documented (Issue #26)
@@ -73,7 +73,7 @@
 **Branch**: feature/02.1-001-ai-chat-apps
 **Files Changed**:
 - darwin/homebrew.nix: Added `claude`, `chatgpt` casks + `Perplexity` masApp
-- docs/app-post-install-configuration.md: Created post-install configuration guide
+- docs/apps/ai/ai-llm-tools.md: Created post-install configuration guide
 
 **Hotfixes**:
 - **Hotfix #14 (Issue #24, 2025-11-11)**: Perplexity moved to Mac App Store
@@ -132,7 +132,7 @@
 - [x] Can pull and run a test model (VM testing by FX - 2025-11-12)
 - [x] Daemon runs automatically (VM testing by FX - 2025-11-12)
 - [x] GUI shows model management interface (VM testing by FX - 2025-11-12)
-- [x] Auto-update disable steps documented (docs/app-post-install-configuration.md)
+- [x] Auto-update disable steps documented (docs/apps/ai/ai-llm-tools.md)
 - [x] Tested in VM (VM testing by FX - 2025-11-12)
 - [x] Documentation notes model storage location
 
@@ -141,14 +141,14 @@
 **Branch**: feature/02.1-001-ai-chat-apps (combined with 02.1-001)
 **Files Changed**:
 - darwin/homebrew.nix: Added `ollama-app` cask (renamed from `ollama`)
-- docs/app-post-install-configuration.md: Added Ollama Desktop section
+- docs/apps/ai/ai-llm-tools.md: Added Ollama Desktop section
 - stories/epic-02-application-installation.md: Updated story from CLI to Desktop App
 
 **Implementation Notes - Issue #25** (Fresh Mac Requirement):
 - **Fresh Mac Limitation**: On brand new Macs, Ollama requires manual first launch before daemon/CLI works
 - **Root Cause**: macOS Gatekeeper approval required for first GUI app launch
 - **Workaround**: Launch Ollama Desktop → Approve Gatekeeper → Re-run darwin-rebuild
-- **Documented**: docs/app-post-install-configuration.md (comprehensive fresh Mac section)
+- **Documented**: docs/apps/ai/ai-llm-tools.md (comprehensive fresh Mac section)
 - **Similar Issue**: Issue #26 (Perplexity Mac App Store requirement)
 
 **Future Enhancement** (Post-MVP):
@@ -228,7 +228,7 @@
 **Risk Mitigation**:
 - Check Ollama daemon is running before pulling
 - Handle network failures gracefully
-- Fresh Mac: Documented manual first-launch requirement (see docs/app-post-install-configuration.md)
+- Fresh Mac: Documented manual first-launch requirement (see docs/apps/ai/ai-llm-tools.md)
 
 ---
 
@@ -304,7 +304,7 @@
 **Risk Mitigation**:
 - Handle network interruptions, allow retry
 - Document storage requirements (~90GB for Power profile)
-- Fresh Mac: Documented manual first-launch requirement (see docs/app-post-install-configuration.md)
+- Fresh Mac: Documented manual first-launch requirement (see docs/apps/ai/ai-llm-tools.md)
 
 ---
 

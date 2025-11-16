@@ -39,8 +39,8 @@ Successfully implemented VSCode installation and configuration for the nix-darwi
 2. **home-manager/home.nix**
    - Added `./modules/vscode.nix` to imports list
 
-3. **docs/app-post-install-configuration.md**
-   - Added VSCode section to Table of Contents
+3. **docs/apps/dev/vscode.md** (originally in docs/app-post-install-configuration.md)
+   - Added VSCode section to Application Configuration Index
    - Added comprehensive VSCode configuration documentation (180+ lines)
    - Documented bidirectional sync workflow
    - Documented required extensions (Catppuccin, Claude Code)
@@ -211,7 +211,8 @@ VSCode requires write access to its settings.json file. Home Manager's `programs
 
 ### Documentation:
 - docs/REQUIREMENTS.md (REQ-NFR-008: Configuration File Symlink Management)
-- docs/app-post-install-configuration.md (VSCode section)
+- docs/apps/dev/vscode.md (VSCode configuration guide)
+- docs/apps/README.md (Application Configuration Index)
 - STORIES.md (Story 02.2-002 details)
 
 ### Code:
@@ -251,7 +252,7 @@ Home Manager Integration:
 - Changes in VSCode appear in repo, changes in repo apply to VSCode
 
 Documentation:
-- Add VSCode section to docs/app-post-install-configuration.md
+- Add VSCode section to docs/apps/dev/vscode.md (Application Configuration Index)
 - Document Catppuccin and Claude Code extension installation
 - Document bidirectional sync workflow
 - Add comprehensive testing checklist

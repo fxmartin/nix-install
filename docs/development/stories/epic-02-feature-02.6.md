@@ -76,7 +76,7 @@
    - VLC: Auto-update disable required (Preferences → General)
    - GIMP: No auto-update to disable (open source, Homebrew-controlled)
 
-2. **docs/app-post-install-configuration.md**:
+2. **docs/apps/media/** (VLC, GIMP):
    - Added "Media & Creative Tools" section to Table of Contents
    - **VLC Media Player** documentation (~275 lines):
      - **Auto-Update Disable** (CRITICAL - documented prominently with verification)

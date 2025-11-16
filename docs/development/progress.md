@@ -6,14 +6,14 @@
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
-| **Epic-02** | Application Installation | 25 | 118 | **18** | **82** | 72.0% | 69.5% | 🟡 In Progress |
+| **Epic-02** | Application Installation | 25 | 118 | **19** | **85** | 76.0% | 72.0% | 🟡 In Progress |
 | **Epic-03** | System Configuration | 12 | 68 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **115** | **606** | **35** | **186** | **30.4%** | **30.7%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **115** | **606** | **36** | **189** | **31.3%** | **31.2%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -63,6 +63,7 @@
 | 02.4-005 | System Utilities (Onyx, f.lux) | 3 | ✅ Complete | feature/02.4-005-system-utilities | 2025-01-15 |
 | 02.4-007 | Git and Git LFS | 5 | ✅ Complete | main | 2025-01-15 |
 | 02.5-001 | WhatsApp Installation | 3 | ⚠️ Impl Complete, VM Pending | main | 2025-01-15 |
+| 02.6-001 | VLC and GIMP Installation | 3 | ⚠️ Impl Complete, VM Pending | main | 2025-01-15 |
 
 **Notes**:
 - **2025-11-12**: Feature 02.1 (AI & LLM Tools) completed - all 4 stories VM tested by FX (16 points)
@@ -75,18 +76,52 @@
 ### Overall Project Status
 
 - **Total Project Scope**: 115 stories, 606 story points
-- **Completed**: 35 stories (30.4%), 186 points (30.7%)
+- **Completed**: 36 stories (31.3%), 189 points (31.2%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL**
-  - Epic-02 Application Installation (72.0% complete by stories, 69.5% by points) - **IN PROGRESS**
+  - Epic-02 Application Installation (76.0% complete by stories, 72.0% by points) - **IN PROGRESS**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - Epic-02: 02.5-002 (Zoom and Webex - 5 pts), 02.4-004 (Dropbox - 3 pts), 02.6-001 (Media Apps - 3 pts)
+  - Epic-02: 02.5-002 (Zoom and Webex - 5 pts), 02.4-004 (Dropbox - 3 pts), 02.7-001 (Security & Privacy - 5 pts)
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: Feature 02.5 progress - WhatsApp (Story 02.5-001) implemented, awaiting VM test
+- **Recent Milestone**: Feature 02.6 progress - VLC and GIMP (Story 02.6-001) implemented, awaiting VM test
 
 ### Recent Activity
 
+- **2025-01-15**: ⚠️ **Story 02.6-001 IMPLEMENTED** - VLC and GIMP Installation (3 points)
+  - **Story 02.6-001**: VLC media player and GIMP image editor ⚠️ VM testing pending
+  - Installed via Homebrew Casks: `vlc`, `gimp`
+  - Comprehensive documentation (~590 lines total) covering both applications
+  - **VLC Media Player** (~275 lines): Universal media player supporting 100+ formats
+    - **Auto-Update Disable (CRITICAL)**: Preferences → General → Uncheck "Automatically check for updates"
+    - Detailed verification steps to ensure updates controlled via Homebrew only
+    - Core features: Universal format support (video, audio, subtitles, DVD/Blu-ray, streaming, playlists)
+    - Playback controls: Speed control, frame-by-frame, A-B loop, bookmarks, resume
+    - Audio/video adjustments: Volume boost, equalizer, sync, adjustments, deinterlacing
+    - Subtitle management: Auto-detection, delay sync, font customization
+    - Advanced features: Video conversion, screen recording, audio visualization, screenshots
+    - Common use cases: Playing videos/DVDs, loading subtitles, audio/video sync, streaming, default player setup
+    - 15 essential keyboard shortcuts documented
+    - Configuration tips: Interface, resume playback, file association, performance, subtitle font
+    - Troubleshooting guide: Codec issues, subtitles, sync, performance, DVD encryption, streams
+    - 14-item testing checklist
+  - **GIMP** (~315 lines): Free image editor (Photoshop alternative)
+    - **No Auto-Update to Disable**: Open source, Homebrew-controlled (no in-app mechanism)
+    - First launch: Interface layout (Toolbox, Canvas, Docks), single-window mode recommended
+    - Interface components: Toolbox panel (left), Canvas area (center), Docks panel (right)
+    - Core features: Layer management (blend modes, opacity, masks, groups), selection tools (8 tools), painting/drawing (8 tools), filters/effects (40+ filters), color correction (7 tools), text tools
+    - File format support: Native XCF, import (PNG, JPG, GIF, BMP, TIFF, PSD, PDF, SVG, WebP), export (PNG, JPEG, GIF, TIFF, PDF, PSD)
+    - Common use cases: Photo editing, cropping, resizing, background removal, text addition, color adjustment, new image creation, batch processing
+    - Interface customization: Single-window mode, dark theme, toolbox customization, keyboard shortcuts
+    - 13 essential keyboard shortcuts documented
+    - Learning resources: Built-in help, official tutorials, third-party resources (YouTube, GIMPTalk, books)
+    - Troubleshooting guide: Performance, text quality, export issues, layers, color picker, brush problems
+    - 15-item testing checklist
+  - Testing checklists: 14 items for VLC, 15 items for GIMP
+  - 25-item VM testing checklist in epic file (comprehensive validation)
+  - **Feature 02.6 Progress**: 1/1 stories complete (3/3 points, 100%)
+  - **Epic-02 Progress**: 76.0% complete (19/25 stories, 85/118 points)
+  - **Overall Project**: 31.3% complete (36/115 stories, 189/606 points)
 - **2025-01-15**: ⚠️ **Story 02.5-001 IMPLEMENTED** - WhatsApp Installation (3 points)
   - **Story 02.5-001**: WhatsApp Desktop messaging app ⚠️ VM testing pending
   - Installed via Mac App Store (mas) - App ID 1147396723

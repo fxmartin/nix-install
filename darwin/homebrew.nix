@@ -99,6 +99,12 @@
       # Permission notes: Onyx requires admin password for system tasks, f.lux may request accessibility
       "onyx"     # Onyx - System maintenance and optimization utility (Story 02.4-005)
       "flux-app" # f.lux - Display color temperature adjustment (Story 02.4-005)
+
+      # Media & Creative Tools (Story 02.6-001)
+      # Auto-update disable: VLC (Preferences → General → Uncheck auto-update)
+      # GIMP: No auto-update to disable (open source, Homebrew-controlled)
+      "vlc"  # VLC - Universal media player supporting 100+ formats (Story 02.6-001)
+      "gimp" # GIMP - Free image editor (Photoshop alternative) (Story 02.6-001)
     ];
 
     # Global Homebrew options

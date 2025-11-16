@@ -350,7 +350,7 @@ After completing all test scenarios, verify:
 - [ ] No sync errors or file conflicts
 
 **Documentation**:
-- [ ] All post-install steps documented in app-post-install-configuration.md
+- [ ] All post-install steps documented in docs/apps/README.md (Application Configuration Index)
 - [ ] Troubleshooting guide covers common issues
 
 ---

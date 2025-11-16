@@ -79,7 +79,7 @@
 - home-manager/home.nix: Imported zed module
 - config/zed/settings.json: Created template settings with Catppuccin theme
 - config/README.md: Documented Zed settings sync approach
-- docs/app-post-install-configuration.md: Added Zed configuration section
+- docs/apps/dev/zed-editor.md: Added Zed configuration section
 
 **Implementation Notes**:
 - **REQ-NFR-008 Compliance**: ✅ Fully implements repository symlink pattern
@@ -165,7 +165,7 @@
 - config/vscode/settings.json: Created comprehensive settings (3.5 KB) with auto-update disabled and Catppuccin theme
 - home-manager/modules/vscode.nix: Created Home Manager module (4.8 KB) with REQ-NFR-008 compliant activation script
 - home-manager/home.nix: Imported vscode module
-- docs/app-post-install-configuration.md: Added VSCode section (180+ lines) with extension installation guide
+- docs/apps/dev/vscode.md: VSCode section (created with app-post-install-configuration.md split) (180+ lines) with extension installation guide
 
 **Implementation Details**:
 - REQ-NFR-008 compliant: Bidirectional symlink to repository (NOT /nix/store)
@@ -253,7 +253,7 @@
 **Files Changed**:
 - home-manager/modules/ghostty.nix: Created Home Manager module (117 lines) with REQ-NFR-008 compliant activation script
 - home-manager/home.nix: Added ghostty module import
-- docs/app-post-install-configuration.md: Added comprehensive Ghostty section (180+ lines)
+- docs/apps/dev/ghostty-terminal.md: Ghostty section (created with app-post-install-configuration.md split) (180+ lines)
 
 **Implementation Details**:
 - REQ-NFR-008 compliant: Bidirectional symlink to repository (NOT /nix/store)
@@ -351,7 +351,7 @@
 **Branch**: feature/02.2-004-python-dev-tools (merged to main)
 **Files Changed**:
 - darwin/configuration.nix: Added Python 3.12 and development tools to systemPackages
-- docs/app-post-install-configuration.md: Added comprehensive Python section (150+ lines)
+- docs/apps/dev/python-tools.md: Python section (created with app-post-install-configuration.md split) (150+ lines)
 
 **Implementation Details**:
 - Python 3.12 via Nix (python312 package)
@@ -447,7 +447,7 @@
 **Branch**: feature/02.2-005-podman
 **Files Changed**:
 - darwin/homebrew.nix: Added podman, podman-compose brews + podman-desktop cask
-- docs/app-post-install-configuration.md: Added comprehensive Podman section (240+ lines)
+- docs/apps/dev/podman.md: Podman section (created with app-post-install-configuration.md split) (240+ lines)
 
 **Implementation Details**:
 - Podman CLI via Homebrew brew (podman)
@@ -747,7 +747,7 @@
   - **Sequential Thinking MCP**: No authentication required
 
 - **Post-Install Configuration**:
-  - Add to docs/app-post-install-configuration.md
+  - Add to docs/apps/dev/zed-editor.md
   - Document GitHub token creation and configuration
   - Provide example queries for each MCP server
 
@@ -786,7 +786,7 @@
 - home-manager/modules/claude-code.nix: Created Home Manager module (210 lines)
 - home-manager/home.nix: Imported claude-code module
 - bootstrap.sh: Phase 4 updated to download claude-code.nix module
-- docs/app-post-install-configuration.md: Added comprehensive documentation (370+ lines)
+- docs/apps/dev/zed-editor.md: Added comprehensive documentation (370+ lines)
 - docs/testing-claude-code-cli.md: Created VM testing guide (900+ lines, 7 scenarios)
 
 **Implementation Details**:

@@ -64,7 +64,7 @@
 **Branch**: feature/02.3-001-brave-browser (merged to main)
 **Files Changed**:
 - darwin/homebrew.nix: Added `brave-browser` cask in Browsers section
-- docs/app-post-install-configuration.md: Added comprehensive Brave Browser section (230+ lines)
+- docs/apps/browsers/brave.md: Brave Browser section (created with app-post-install-configuration.md split) (230+ lines)
 
 **Implementation Details**:
 - Installation: Homebrew cask `brave-browser` added to darwin/homebrew.nix
@@ -142,7 +142,7 @@
 **Branch**: feature/02.3-002-arc-browser
 **Files Changed**:
 - darwin/homebrew.nix: Added `arc` cask in Browsers section
-- docs/app-post-install-configuration.md: Added comprehensive Arc Browser section (365 lines)
+- docs/apps/browsers/arc.md: Arc Browser section (created with app-post-install-configuration.md split) (365 lines)
 
 **Implementation Details**:
 - Installation: Homebrew cask `arc` added to darwin/homebrew.nix

@@ -376,7 +376,7 @@
     - Error: PKInstallErrorDomain Code=201 - installation service cannot start
     - Root cause: Fresh macOS requires first Mac App Store install to be manual (GUI)
     - Solution: Manual install from App Store (click cloud icon), then mas CLI works
-    - Updated docs/app-post-install-configuration.md with "Requirement 2: Fresh Machine First-Install"
+    - Updated docs/apps/ai/ai-llm-tools.md with "Requirement 2: Fresh Machine First-Install"
     - Tested by FX on fresh MacBook Pro M3 Max - workaround successful
     - Commit: cdf75ad
   - **Project Totals Updated**: 113 stories (was 112), 606 points (was 601)
@@ -387,7 +387,7 @@
   - **Story 02.1-002**: Added Ollama Desktop App (changed from CLI to Desktop) - 5 points ✅
   - **Story 02.1-003**: Added Standard profile Ollama model auto-pull (gpt-oss:20b) - 5 points ✅
   - **Story 02.1-004**: Added Power profile Ollama models auto-pull (4 models, ~90GB) - 8 points ✅
-  - Created docs/app-post-install-configuration.md for post-install steps
+  - Created docs/app-post-install-configuration.md (NOTE: This file was later split into organized docs/apps/ structure) for post-install steps
   - **Status**: FEATURE 02.1 COMPLETE (21 points) - Ready for VM testing by FX
   - Epic-02 now **0% complete** (0/22 stories, 0/113 points) but Feature 02.1 done (4 stories, 21 points)
 - **2025-11-11**: 🔧 **HOTFIXES #10-#13**: Custom clone location & darwin-rebuild issues - **ALL VM TESTED & VERIFIED** ✅

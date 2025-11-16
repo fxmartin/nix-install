@@ -76,7 +76,7 @@
    - Added comment: "Communication Tools (Story 02.5-001)"
    - Added comment: "WhatsApp Desktop - Messaging app requiring phone QR code linking"
 
-2. **docs/app-post-install-configuration.md**:
+2. **docs/apps/communication/** (WhatsApp, Zoom, Webex):
    - Added comprehensive WhatsApp documentation section (285 lines)
    - Documented QR code linking process with detailed phone setup instructions
    - Covered permissions (notifications, microphone, camera, contacts)
@@ -191,7 +191,7 @@
      - Account sign-in requirements (Zoom: free or licensed, Webex: company or free account)
      - Permissions: Both apps request camera and microphone on first use
 
-2. **docs/app-post-install-configuration.md**:
+2. **docs/apps/communication/** (WhatsApp, Zoom, Webex):
    - Added comprehensive Zoom documentation section (302 lines total):
      - Auto-update disable steps (MANDATORY) with verification commands
      - Account requirement details (free, licensed, guest mode options)

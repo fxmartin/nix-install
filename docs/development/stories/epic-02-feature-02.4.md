@@ -74,7 +74,7 @@
    "raycast" # Raycast - Application launcher and productivity tool (Story 02.4-001)
    ```
 
-2. **Documentation** (docs/app-post-install-configuration.md):
+2. **Documentation** (docs/apps/README.md - Application Configuration Index):
    - Added comprehensive Raycast section (~150 lines)
    - Hotkey setup instructions:
      - Recommended: `Option+Space` (preserves Spotlight)
@@ -95,7 +95,7 @@
    - No license required (free for personal use, optional Pro)
    - Testing checklist for VM validation
 
-3. **Story Tracking** (docs/app-post-install-configuration.md):
+3. **Story Tracking** (docs/apps/README.md - Application Configuration Index):
    - Added Story 02.4-001 to story tracking section
    - Marked as "Installation and documentation implemented"
    - VM testing pending
@@ -156,7 +156,7 @@
 
 **Files Modified**:
 - darwin/homebrew.nix (added raycast cask)
-- docs/app-post-install-configuration.md (added Raycast section + table of contents + story tracking)
+- docs/apps/productivity/raycast.md: Raycast section created (split from app-post-install-configuration.md + table of contents + story tracking)
 - docs/development/stories/epic-02-feature-02.4.md (this file - implementation details)
 
 **Testing Notes**:
@@ -232,7 +232,7 @@
    "1password" # 1Password - Password manager and secure vault (Story 02.4-002)
    ```
 
-2. **Documentation** (docs/app-post-install-configuration.md):
+2. **Documentation** (docs/apps/README.md - Application Configuration Index):
    - Added comprehensive 1Password section (~300 lines)
    - Account sign-in process:
      - Existing account: Email + Master Password + Secret Key
@@ -270,7 +270,7 @@
    - Testing checklist (11 items)
    - Troubleshooting guide (4 common issues with solutions)
 
-3. **Story Tracking** (docs/app-post-install-configuration.md):
+3. **Story Tracking** (docs/apps/README.md - Application Configuration Index):
    - Added Story 02.4-002 to story tracking section
    - Marked as "Installation and documentation implemented"
    - VM testing pending
@@ -357,7 +357,7 @@
 
 **Files Modified**:
 - darwin/homebrew.nix (added 1password cask)
-- docs/app-post-install-configuration.md (added 1Password section + table of contents + story tracking)
+- docs/apps/productivity/1password.md: 1Password section created (split from app-post-install-configuration.md + table of contents + story tracking)
 - docs/development/stories/epic-02-feature-02.4.md (this file - implementation details)
 
 **Testing Notes**:
@@ -464,7 +464,7 @@
    "Marked 2" = 890031187;   # Markdown preview and export app
    ```
 
-3. **Documentation** (docs/app-post-install-configuration.md):
+3. **Documentation** (docs/apps/README.md - Application Configuration Index):
    - Added comprehensive File Utilities section (~640 lines total for all 4 apps)
    - **Calibre** (~150 lines):
      - Installation method: Homebrew cask `calibre`
@@ -508,7 +508,7 @@
    - Table of contents updated with all four apps
    - Story tracking entry added to Story Tracking section
 
-4. **Story Tracking** (docs/app-post-install-configuration.md):
+4. **Story Tracking** (docs/apps/README.md - Application Configuration Index):
    - Added Story 02.4-003 to story tracking section
    - Marked as "Installation and documentation implemented"
    - VM testing pending
@@ -629,7 +629,7 @@
 
 **Files Modified**:
 - darwin/homebrew.nix (added calibre, keka casks + Kindle, Marked 2 masApps)
-- docs/app-post-install-configuration.md (added File Utilities section with all 4 apps + table of contents + story tracking)
+- docs/apps/README.md: File Utilities section with all 4 apps created (split from app-post-install-configuration.md + table of contents + story tracking)
 - docs/development/stories/epic-02-feature-02.4.md (this file - implementation details)
 
 **Testing Notes**:
@@ -1008,7 +1008,7 @@ Verify configuration:
 - Added section comment documenting permission requirements and auto-update status
 - Note: Correct cask name is `flux-app`, not `flux` (verified via `brew search`)
 
-**docs/app-post-install-configuration.md**:
+**docs/apps/README.md** (Application Configuration Index):
 - Added comprehensive System Utilities section (430+ lines total)
 - **Onyx documentation (204 lines)**:
   - Purpose: Free system maintenance and optimization utility for macOS

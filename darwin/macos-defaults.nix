@@ -1,4 +1,4 @@
-# ABOUTME: macOS system preferences and defaults configuration (STUB for Epic-03)
+# ABOUTME: macOS system preferences and defaults configuration
 # ABOUTME: Manages Finder, Dock, trackpad, security, and other system settings
 {
   config,
@@ -7,46 +7,96 @@
   ...
 }: {
   # macOS System Preferences
-  # Epic-03 will expand with comprehensive system defaults:
+  # Comprehensive system defaults for consistent macOS configuration
 
-  # 1. Finder Settings:
-  #    - Show hidden files
-  #    - Show file extensions
-  #    - Show path bar and status bar
-  #    - Disable warning on file extension changes
-  #    - Default to column view
-  #    - Search current folder by default
+  system.defaults = {
+    # ============================================================================
+    # FINDER SETTINGS (Epic-03, Feature 03.1)
+    # ============================================================================
 
-  # 2. Dock Settings:
-  #    - Auto-hide dock
-  #    - Icon size and magnification
-  #    - Minimize effect
-  #    - Show recent applications
-  #    - Persistent apps configuration
+    finder = {
+      # Story 03.1-001: Finder View and Display Settings
 
-  # 3. Trackpad Settings:
-  #    - Tap to click
-  #    - Tracking speed
-  #    - Natural scrolling
-  #    - Secondary click
+      # Default view style: List view (Nlsv)
+      # Options: "icnv" (icon), "Nlsv" (list), "clmv" (column), "glyv" (gallery)
+      FXPreferredViewStyle = "Nlsv";
 
-  # 4. Security Settings:
-  #    - Firewall enabled
-  #    - Require password immediately after sleep
-  #    - Disable guest login
-  #    - FileVault encryption
+      # Show path bar at bottom of Finder window
+      # Displays current folder path for easy navigation
+      ShowPathbar = true;
 
-  # 5. Keyboard Settings:
-  #    - Key repeat rate
-  #    - Delay until repeat
-  #    - Disable press-and-hold for accents
+      # Show status bar at bottom of Finder window
+      # Displays item count, folder size, and available space
+      ShowStatusBar = true;
 
-  # 6. Global Settings:
-  #    - Dark mode
-  #    - 24-hour time format
-  #    - Disable auto-correct
-  #    - Disable smart quotes/dashes
+      # Show hidden files (dotfiles starting with .)
+      # Essential for development work and system administration
+      AppleShowAllFiles = true;
 
-  # Minimal defaults already set in configuration.nix
-  # Epic-03 will move all system.defaults here for better organization
+      # Show all file extensions
+      # Prevents confusion about file types
+      AppleShowAllExtensions = true;
+    };
+
+    # Global macOS settings
+    NSGlobalDomain = {
+      # Always show file extensions in all applications
+      # Duplicates finder setting for system-wide consistency
+      AppleShowAllExtensions = true;
+
+      # Existing global settings (moved from configuration.nix)
+      AppleICUForce24HourTime = true; # 24-hour time format
+      AppleInterfaceStyle = "Dark"; # Dark mode
+      KeyRepeat = 2; # Fast key repeat rate
+    };
+
+    # Login window settings
+    loginwindow = {
+      # Disable guest account for security
+      GuestEnabled = false;
+    };
+  };
+
+  # ============================================================================
+  # FUTURE EPIC-03 SETTINGS (To Be Implemented)
+  # ============================================================================
+
+  # Story 03.1-002: Finder Behavior Settings
+  # - WarnOnEmptyTrash
+  # - _FXSortFoldersFirst
+  # - FXDefaultSearchScope
+  # - FXEnableExtensionChangeWarning
+
+  # Story 03.1-003: Finder Sidebar and Desktop
+  # - NewWindowTarget
+  # - ShowExternalHardDrivesOnDesktop
+  # - ShowRemovableMediaOnDesktop
+  # - ShowMountedServersOnDesktop
+
+  # Feature 03.2: Security and Privacy Settings
+  # - Firewall configuration
+  # - Password requirements
+  # - FileVault encryption
+
+  # Feature 03.3: Trackpad Configuration
+  # - Tap to click
+  # - Tracking speed
+  # - Natural scrolling
+  # - Secondary click
+
+  # Feature 03.4: Display and Energy Settings
+  # - Screen resolution
+  # - Night Shift
+  # - Sleep/display settings
+
+  # Feature 03.5: Keyboard and Input Settings
+  # - Key repeat rates
+  # - Modifier keys
+  # - Input sources
+
+  # Feature 03.6: Dock Configuration
+  # - Auto-hide
+  # - Icon size
+  # - Position
+  # - Persistent applications
 }

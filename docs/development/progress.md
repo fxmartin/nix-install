@@ -7,13 +7,13 @@
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
 | **Epic-02** | Application Installation | 25 | 118 | **25** | **118** | 100% | 100% | ✅ Complete |
-| **Epic-03** | System Configuration | 14 | 76 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-03** | System Configuration | 14 | 76 | **1** | **5** | 7.1% | 6.6% | 🟡 In Progress |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **115** | **606** | **42** | **220** | **36.5%** | **36.3%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **115** | **606** | **43** | **225** | **37.4%** | **37.1%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -81,24 +81,41 @@
 - **2025-11-16**: Story 02.10-001 (Email Account Configuration) **CANCELLED** - Manual setup documented instead (automation proved confusing)
 - **2025-11-16**: Stories 02.4-004 (Dropbox), 02.7-001 (NordVPN), 02.9-001 (Office 365) VM tested, pending documentation updates
 
+### Epic-03 Completed Stories (1/14) 🚀 EPIC STARTED!
+
+| Story ID | Story Name | Points | Status | Branch | Date Completed |
+|----------|------------|--------|--------|--------|----------------|
+| 03.1-001 | Finder View and Display Settings | 5 | ✅ Code Complete | feature/03.1-001-finder-view-settings | 2025-11-17 |
+
+**Notes**:
+- **2025-11-17**: Story 03.1-001 completed - Finder configured with list view, path bar, status bar, hidden files visible, and file extensions shown (5 points) - Ready for VM testing
+- **Implementation Details**: Migrated all system defaults from `configuration.nix` to `macos-defaults.nix` for better organization
+- **Key Changes**: FXPreferredViewStyle changed from "clmv" (column) to "Nlsv" (list view) per user requirements
+
 ### Overall Project Status
 
 - **Total Project Scope**: 115 stories, 606 story points
-- **Completed**: 42 stories (36.5%), 220 points (36.3%)
+- **Completed**: 43 stories (37.4%), 225 points (37.1%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL** 🟢
   - **Epic-02 Application Installation (100% complete)** - ✅ **COMPLETE**
+  - **Epic-03 System Configuration (7.1% complete by stories, 6.6% by points)** - 🚀 **STARTED!**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - **Epic-03: System Configuration (0% started - NEXT EPIC)** 🚀
-    - Story 03.1-001: Finder Preferences Configuration (5 pts)
-    - Story 03.1-002: Finder Toolbar Customization (3 pts)
-    - Story 03.1-003: Finder Sidebar Configuration (3 pts)
+  - **Epic-03: System Configuration (7.1% started)** 🚀
+    - Story 03.1-001: Finder View and Display Settings (5 pts) - ✅ **Code Complete - VM Testing**
+    - Story 03.1-002: Finder Behavior Settings (5 pts) - **NEXT**
+    - Story 03.1-003: Finder Sidebar and Desktop (8 pts)
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: 🎉 **EPIC-02 COMPLETE!** All 25 application stories delivered (118 points)
+- **Recent Milestone**: 🚀 **EPIC-03 STARTED!** First system configuration story (03.1-001) delivered (5 points)
 
 ### Recent Activity
 
+- **2025-11-17**: 🚀 **EPIC-03 STARTED!** Story 03.1-001 (Finder View and Display Settings) code complete - Ready for VM testing (5 points)
+  - Migrated all system defaults from `configuration.nix` to `macos-defaults.nix` for better organization
+  - Implemented 5 Finder view settings: list view, path bar, status bar, hidden files, file extensions
+  - Created comprehensive VM testing guide with 9 test scenarios
+  - Branch: `feature/03.1-001-finder-view-settings` (commit: fc2beaa)
 - **2025-11-17**: 🎉 **EPIC-02 APPLICATION INSTALLATION - 100% COMPLETE!** (25/25 stories, 118/118 points)
   - Final 3 stories marked complete: 02.4-004 (Dropbox), 02.7-001 (NordVPN), 02.9-001 (Office 365)
   - All applications VM tested and documented ✅

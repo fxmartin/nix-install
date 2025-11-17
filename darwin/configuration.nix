@@ -111,16 +111,9 @@
       '';
     };
 
-    # macOS System Preferences (minimal - expanded in Epic-03)
-    defaults = {
-      finder.FXPreferredViewStyle = "clmv"; # Column view
-      loginwindow.GuestEnabled = false; # Disable guest account
-      NSGlobalDomain = {
-        AppleICUForce24HourTime = true; # 24-hour time
-        AppleInterfaceStyle = "Dark"; # Dark mode
-        KeyRepeat = 2; # Fast key repeat
-      };
-    };
+    # macOS System Preferences
+    # NOTE: All system defaults have been moved to darwin/macos-defaults.nix (Epic-03)
+    # This ensures better organization and single source of truth for system preferences
 
     # System state version
     stateVersion = lib.mkForce 4;

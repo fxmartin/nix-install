@@ -85,10 +85,15 @@
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
-| 03.1-001 | Finder View and Display Settings | 5 | ✅ Code Complete | feature/03.1-001-finder-view-settings | 2025-11-17 |
+| 03.1-001 | Finder View and Display Settings | 5 | ✅ Complete | feature/03.1-001-finder-view-settings (merged) | 2025-11-19 |
 
 **Notes**:
-- **2025-11-17**: Story 03.1-001 completed - Finder configured with list view, path bar, status bar, hidden files visible, and file extensions shown (5 points) - Ready for VM testing
+- **2025-11-19**: Story 03.1-001 **VM TESTED & COMPLETE** - All 8 test cases passed successfully ✅
+  - Finder configured with list view, path bar, status bar, hidden files visible, and file extensions shown (5 points)
+  - All acceptance criteria met: list view default, path bar, status bar, hidden files, file extensions
+  - Settings persisted across Finder restart and system reboot
+  - Ready for physical hardware deployment
+- **2025-11-17**: Story 03.1-001 code complete - Ready for VM testing
 - **Implementation Details**: Migrated all system defaults from `configuration.nix` to `macos-defaults.nix` for better organization
 - **Key Changes**: FXPreferredViewStyle changed from "clmv" (column) to "Nlsv" (list view) per user requirements
 
@@ -102,15 +107,30 @@
   - **Epic-03 System Configuration (7.1% complete by stories, 6.6% by points)** - 🚀 **STARTED!**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - **Epic-03: System Configuration (7.1% started)** 🚀
-    - Story 03.1-001: Finder View and Display Settings (5 pts) - ✅ **Code Complete - VM Testing**
-    - Story 03.1-002: Finder Behavior Settings (5 pts) - **NEXT**
+  - **Epic-03: System Configuration (7.1% complete)** 🚀
+    - Story 03.1-001: Finder View and Display Settings (5 pts) - ✅ **COMPLETE - VM TESTED**
+    - Story 03.1-002: Finder Behavior Settings (5 pts) - **NEXT** 🎯
     - Story 03.1-003: Finder Sidebar and Desktop (8 pts)
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: 🚀 **EPIC-03 STARTED!** First system configuration story (03.1-001) delivered (5 points)
+- **Recent Milestone**: ✅ **Story 03.1-001 COMPLETE!** First system configuration story VM tested and merged (5 points)
 
 ### Recent Activity
 
+- **2025-11-19**: ✅ **STORY 03.1-001 COMPLETE!** Finder View and Display Settings - **VM TESTED & MERGED** (5 points)
+  - **All 8 VM test cases PASSED** ✅
+    - Build and switch succeeded
+    - List view default confirmed
+    - Path bar visible at bottom of Finder
+    - Status bar showing item count and space info
+    - Hidden files (.dotfiles) visible in Home directory
+    - File extensions shown for all files
+    - Settings persisted after `killall Finder`
+    - Settings persisted after system reboot
+  - **Testing Environment**: macOS VM (Parallels), Standard profile
+  - **Testing Date**: 2025-11-19
+  - **Conclusion**: Ready for physical hardware deployment
+  - Branch `feature/03.1-001-finder-view-settings` merged to main and deleted
+  - **Next Story**: 03.1-002 (Finder Behavior Settings - 5 points) 🎯
 - **2025-11-17**: 🚀 **EPIC-03 STARTED!** Story 03.1-001 (Finder View and Display Settings) code complete - Ready for VM testing (5 points)
   - Migrated all system defaults from `configuration.nix` to `macos-defaults.nix` for better organization
   - Implemented 5 Finder view settings: list view, path bar, status bar, hidden files, file extensions

@@ -64,13 +64,13 @@
 
 **Definition of Done**:
 - [x] Settings implemented in macos-defaults.nix
-- [ ] Finder shows list view by default
-- [ ] Path bar visible
-- [ ] Status bar visible
-- [ ] Hidden files visible
-- [ ] File extensions shown
-- [ ] Settings persist after rebuild
-- [ ] Tested in VM
+- [x] Finder shows list view by default
+- [x] Path bar visible
+- [x] Status bar visible
+- [x] Hidden files visible
+- [x] File extensions shown
+- [x] Settings persist after rebuild
+- [x] Tested in VM
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (nix-darwin installed)
@@ -82,11 +82,12 @@
 
 ### Implementation Details
 
-**Status**: ✅ Code Complete - Ready for VM Testing
+**Status**: ✅ Complete - VM Tested & Merged to Main
 
 **Implementation Date**: 2025-11-17
 **Implemented By**: bash-zsh-macos-engineer (Claude Code)
-**Branch**: `feature/03.1-001-finder-view-settings`
+**VM Testing Date**: 2025-11-19
+**Branch**: `feature/03.1-001-finder-view-settings` (merged to main)
 
 #### Changes Made
 
@@ -237,12 +238,26 @@ defaults read com.apple.finder AppleShowAllExtensions  # Should be: 1
 defaults read NSGlobalDomain AppleShowAllExtensions    # Should be: 1
 ```
 
-**Testing Outcome**: (To be filled by FX after VM testing)
-- [ ] All acceptance criteria met
-- [ ] No regressions identified
-- [ ] Ready for deployment to physical hardware
+**Testing Outcome**: ✅ All Tests Passed
+- [x] All acceptance criteria met
+- [x] No regressions identified
+- [x] Ready for deployment to physical hardware
 
-**Notes from Testing**: (To be filled by FX)
+**Notes from Testing**:
+- **Date**: 2025-11-19
+- **Tested By**: FX
+- **Environment**: macOS VM (Parallels)
+- **Profile**: Standard
+- **Result**: All 8 test cases passed successfully
+  - ✅ Build and switch succeeded
+  - ✅ List view default confirmed
+  - ✅ Path bar visible
+  - ✅ Status bar visible
+  - ✅ Hidden files (.dotfiles) visible
+  - ✅ File extensions shown for all files
+  - ✅ Settings persisted after Finder restart
+  - ✅ Settings persisted after system reboot
+- **Conclusion**: Story 03.1-001 COMPLETE. Ready for physical hardware deployment.
 
 ---
 

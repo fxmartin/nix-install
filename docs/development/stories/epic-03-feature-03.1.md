@@ -312,6 +312,175 @@ defaults read NSGlobalDomain AppleShowAllExtensions    # Should be: 1
 
 ---
 
+### Implementation Details
+
+**Status**: ✅ Code Complete - Ready for VM Testing
+
+**Implementation Date**: 2025-11-19
+**Implemented By**: bash-zsh-macos-engineer (Claude Code)
+**Branch**: `feature/03.1-002-finder-behavior`
+
+#### Changes Made
+
+**File: darwin/macos-defaults.nix**
+- ✅ Added 4 required Finder behavior settings to existing finder block:
+  - `WarnOnEmptyTrash = true` - Show confirmation dialog before permanent deletion
+  - `_FXSortFoldersFirst = true` - Keep folders at top when sorting by name
+  - `FXDefaultSearchScope = "SCcf"` - Search current folder by default (not "This Mac")
+  - `FXEnableExtensionChangeWarning = true` - Warn before changing file extensions
+- ✅ Added comprehensive comments explaining each setting and options
+- ✅ Removed placeholder comment from "Future Epic-03 Settings" section
+- ✅ Settings build on Story 03.1-001 foundation (same finder block)
+
+#### Technical Implementation
+
+```nix
+finder = {
+  # Story 03.1-001 settings (existing)
+  FXPreferredViewStyle = "Nlsv";
+  ShowPathbar = true;
+  ShowStatusBar = true;
+  AppleShowAllFiles = true;
+  AppleShowAllExtensions = true;
+
+  # Story 03.1-002: Finder Behavior Settings (NEW)
+  WarnOnEmptyTrash = true;
+  _FXSortFoldersFirst = true;
+  FXDefaultSearchScope = "SCcf";  # Current folder
+  FXEnableExtensionChangeWarning = true;
+};
+```
+
+#### VM Testing Guide (For FX)
+
+**Prerequisites**:
+- macOS VM from Story 03.1-001 testing (or fresh VM)
+- Git repository cloned
+- Bootstrap completed successfully
+- Story 03.1-001 settings already applied (or will be applied together)
+
+**Testing Steps**:
+
+1. **Verify Nix Configuration Builds**:
+   ```bash
+   cd ~/dev/nix-install
+   darwin-rebuild build --flake .#standard
+   ```
+   Expected: Build succeeds with no errors
+
+2. **Apply Configuration**:
+   ```bash
+   darwin-rebuild switch --flake .#standard
+   ```
+   Expected: Switch succeeds, may see "restarting Finder" message
+
+3. **Test Empty Trash Warning**:
+   - Create a test file on Desktop or in Documents
+   - Drag file to Trash (Cmd+Delete)
+   - Right-click Trash icon in Dock → "Empty Trash"
+   - **Expected**: Warning dialog appears: "Are you sure you want to permanently erase the items in the Trash?"
+   - **Verify**: Must click "Empty Trash" button to confirm (Cancel button available)
+   - Test both: Cancel (trash not emptied) and Confirm (trash emptied)
+
+4. **Test Folders Sort Before Files**:
+   - Open Finder, navigate to a folder with both files and folders (e.g., Documents)
+   - If needed, create test structure:
+     ```bash
+     cd ~/Documents
+     mkdir test-folder-a test-folder-z
+     touch test-file-a.txt test-file-z.txt
+     ```
+   - In Finder, ensure View → Sort By → Name is selected
+   - **Expected**: All folders appear before all files
+     - test-folder-a
+     - test-folder-z
+     - test-file-a.txt
+     - test-file-z.txt
+   - **Verify**: Folders grouped at top regardless of alphabetical order
+
+5. **Test Search Scope Defaults to Current Folder**:
+   - Open Finder, navigate to Documents folder
+   - Click in search box (top right) or press Cmd+F
+   - **Expected**: Search scope below search box shows "Documents" (current folder name)
+   - **Verify**: Search does NOT default to "This Mac"
+   - Type a search term and confirm search is scoped to current folder only
+
+6. **Test Extension Change Warning**:
+   - Create a test file:
+     ```bash
+     cd ~/Documents
+     echo "test" > test-extension-warning.txt
+     ```
+   - In Finder, select the file
+   - Click on filename to edit → Change extension from `.txt` to `.md`
+   - Press Enter
+   - **Expected**: Warning dialog appears: "Are you sure you want to change the extension from '.txt' to '.md'?"
+   - **Verify**: Must choose "Use .md" or "Keep .txt"
+   - Test both options to ensure warning works correctly
+
+7. **Test Settings Persistence Across Finder Restarts**:
+   ```bash
+   killall Finder  # Force restart Finder
+   ```
+   - Finder will restart automatically
+   - **Expected**: All settings persist
+   - Repeat tests 3-6 to verify:
+     - Empty trash still warns
+     - Folders still sort first
+     - Search still defaults to current folder
+     - Extension changes still warn
+
+8. **Test Settings Persistence Across System Reboots**:
+   - Restart the macOS VM
+   - After reboot, verify all settings persist
+   - Repeat tests 3-6 one more time to confirm:
+     - Trash warning works
+     - Folders sort first
+     - Search scoped to current folder
+     - Extension change warnings appear
+
+**Expected Results Summary**:
+
+| Test | Expected Behavior | Pass/Fail |
+|------|------------------|-----------|
+| Build succeeds | `darwin-rebuild build` completes without errors | ☐ |
+| Switch succeeds | `darwin-rebuild switch` applies configuration | ☐ |
+| Empty trash warning | Confirmation dialog before permanent deletion | ☐ |
+| Folders sort first | Folders appear before files when sorted by name | ☐ |
+| Search current folder | Search defaults to current folder, not "This Mac" | ☐ |
+| Extension warning | Warning dialog when changing file extension | ☐ |
+| Finder restart | Settings persist after `killall Finder` | ☐ |
+| System reboot | Settings persist after macOS reboot | ☐ |
+
+**Troubleshooting**:
+
+| Issue | Possible Cause | Solution |
+|-------|---------------|----------|
+| Build fails | Syntax error in Nix files | Check error message, verify Nix syntax |
+| Settings not applied | Finder didn't restart | Run `killall Finder` manually |
+| No trash warning | Setting not applied | Check `defaults read com.apple.finder WarnOnEmptyTrash` should return "1" or "true" |
+| Folders not sorting first | Setting not applied | Check `defaults read com.apple.finder _FXSortFoldersFirst` should return "1" or "true" |
+| Search wrong scope | Setting not applied | Check `defaults read com.apple.finder FXDefaultSearchScope` should return "SCcf" |
+| No extension warning | Setting not applied | Check `defaults read com.apple.finder FXEnableExtensionChangeWarning` should return "1" or "true" |
+
+**Validation Commands** (optional debug):
+```bash
+# Verify Finder defaults were applied
+defaults read com.apple.finder WarnOnEmptyTrash                 # Should be: 1
+defaults read com.apple.finder _FXSortFoldersFirst              # Should be: 1
+defaults read com.apple.finder FXDefaultSearchScope             # Should be: SCcf
+defaults read com.apple.finder FXEnableExtensionChangeWarning   # Should be: 1
+```
+
+**Testing Outcome**: (To be filled by FX after VM testing)
+- [ ] All acceptance criteria met
+- [ ] No regressions identified
+- [ ] Ready for deployment to physical hardware
+
+**Notes from Testing**: (To be filled by FX)
+
+---
+
 ##### Story 03.1-003: Finder Sidebar and Desktop
 **User Story**: As FX, I want Finder sidebar and desktop configured with useful defaults so that I have quick access to important locations
 

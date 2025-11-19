@@ -36,6 +36,25 @@
       # Show all file extensions
       # Prevents confusion about file types
       AppleShowAllExtensions = true;
+
+      # Story 03.1-002: Finder Behavior Settings
+
+      # Warn before emptying trash
+      # Safety feature to prevent accidental permanent deletion
+      WarnOnEmptyTrash = true;
+
+      # Keep folders on top when sorting by name
+      # Maintains folders-first organization in list/column views
+      _FXSortFoldersFirst = true;
+
+      # Default search scope: current folder (SCcf)
+      # Options: "SCev" (This Mac), "SCcf" (Current Folder), "SCsp" (Previous Scope)
+      # Current folder is more useful for targeted searches
+      FXDefaultSearchScope = "SCcf";
+
+      # Warn before changing file extension
+      # Prevents accidental file corruption from extension changes
+      FXEnableExtensionChangeWarning = true;
     };
 
     # Global macOS settings
@@ -60,12 +79,6 @@
   # ============================================================================
   # FUTURE EPIC-03 SETTINGS (To Be Implemented)
   # ============================================================================
-
-  # Story 03.1-002: Finder Behavior Settings
-  # - WarnOnEmptyTrash
-  # - _FXSortFoldersFirst
-  # - FXDefaultSearchScope
-  # - FXEnableExtensionChangeWarning
 
   # Story 03.1-003: Finder Sidebar and Desktop
   # - NewWindowTarget

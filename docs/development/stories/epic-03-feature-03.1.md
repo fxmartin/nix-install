@@ -501,3 +501,261 @@ defaults read com.apple.finder FXEnableExtensionChangeWarning   # Should be: 1
 - Sidebar: Home, Documents, Downloads, Applications, external disks
 - Desktop: External disks, CDs/DVDs, connected servers
 - New windows: Open to Home (~/)
+
+**Technical Notes**:
+- Add to darwin/macos-defaults.nix:
+  ```nix
+  system.defaults.finder = {
+    NewWindowTarget = "PfHm";  # Home directory
+    ShowExternalHardDrivesOnDesktop = true;
+    ShowRemovableMediaOnDesktop = true;
+    ShowMountedServersOnDesktop = true;
+  };
+  ```
+- **IMPORTANT LIMITATION**: Sidebar items (Home, Documents, Downloads, Applications) are **NOT fully supported** by nix-darwin's system.defaults.finder
+- Sidebar customization requires manual configuration or complex scripting with user-specific plists
+- This story implements desktop/window defaults that ARE supported declaratively
+- Sidebar customization is documented for manual setup
+
+**Definition of Done**:
+- [ ] Settings implemented in macos-defaults.nix (desktop & new window target)
+- [ ] New Finder windows open to Home directory
+- [ ] External hard drives appear on desktop
+- [ ] Removable media (CDs/DVDs) appear on desktop
+- [ ] Mounted servers appear on desktop
+- [ ] Sidebar customization documented (manual process)
+- [ ] Settings persist after rebuild
+- [ ] Tested in VM
+
+**Dependencies**:
+- Epic-01, Story 01.5-001 (nix-darwin installed)
+
+**Risk Level**: Medium
+**Risk Mitigation**: Sidebar customization limitations documented, fallback to manual setup
+
+---
+
+### Implementation Details
+
+**Status**: ✅ Code Complete - Ready for VM Testing (with documentation of limitations)
+
+**Implementation Date**: 2025-11-19
+**Implemented By**: bash-zsh-macos-engineer (Claude Code)
+**Branch**: `feature/03.1-003-finder-sidebar-desktop`
+
+#### Changes Made
+
+**File: darwin/macos-defaults.nix**
+- ✅ Added 4 Finder desktop and window settings:
+  - `NewWindowTarget = "PfHm"` - New windows open to Home directory
+  - `ShowExternalHardDrivesOnDesktop = true` - External drives on desktop
+  - `ShowRemovableMediaOnDesktop = true` - CDs/DVDs/iPods on desktop
+  - `ShowMountedServersOnDesktop = true` - Network volumes on desktop
+- ✅ Comprehensive inline comments with format options
+- ✅ Removed completed story from future implementation list
+
+**IMPORTANT - Sidebar Customization Limitations**:
+- **What IS implemented**: Desktop icons, new window target (fully declarative)
+- **What is NOT implemented**: Specific sidebar items (Home, Documents, Downloads, Applications)
+- **Why**: nix-darwin's system.defaults.finder does NOT support sidebar customization
+- **Sidebar items** are stored in `~/Library/Preferences/com.apple.sidebarlists.plist`
+- **Manual configuration required**: User must configure sidebar items via Finder Preferences
+- **Workaround**: Documented manual setup process in implementation notes below
+
+#### Technical Implementation
+
+```nix
+finder = {
+  # Story 03.1-001 & 03.1-002 settings (existing)
+  FXPreferredViewStyle = "Nlsv";
+  ShowPathbar = true;
+  ShowStatusBar = true;
+  AppleShowAllFiles = true;
+  AppleShowAllExtensions = true;
+  WarnOnEmptyTrash = true;
+  _FXSortFoldersFirst = true;
+  FXDefaultSearchScope = "SCcf";
+  FXEnableExtensionChangeWarning = true;
+
+  # Story 03.1-003: Finder Sidebar and Desktop (NEW)
+  NewWindowTarget = "PfHm";  # Home directory
+  ShowExternalHardDrivesOnDesktop = true;
+  ShowRemovableMediaOnDesktop = true;
+  ShowMountedServersOnDesktop = true;
+};
+```
+
+**NewWindowTarget Options**:
+- `"PfHm"` - Home directory (~/)`  ← **IMPLEMENTED**
+- `"PfDe"` - Desktop
+- `"PfDo"` - Documents
+- `"PfAF"` - All Files
+- `"PfIDisk"` - iCloud Drive
+
+#### Manual Sidebar Configuration (Post-Install)
+
+Since sidebar items cannot be configured declaratively via nix-darwin, use this manual process:
+
+1. **Open Finder Preferences**:
+   - Finder → Settings (Cmd+,) → Sidebar tab
+
+2. **Enable Recommended Items**:
+   - ✅ **Favorites**:
+     - Home (your username folder)
+     - Documents
+     - Downloads
+     - Applications
+   - ✅ **Locations**:
+     - External disks (automatically shown when connected)
+     - Network locations (automatically shown when connected)
+
+3. **Customize Sidebar Order** (Optional):
+   - Drag items up/down in Finder sidebar to reorder
+   - Option-drag to create aliases
+
+4. **Smart Folders** (Advanced, Optional):
+   - File → New Smart Folder
+   - Set search criteria (e.g., "Modified: Within last 7 days")
+   - Save to sidebar for quick access
+
+**Why Manual Configuration**:
+- Sidebar preferences stored in `~/Library/Preferences/com.apple.sidebarlists.plist`
+- Format is binary plist with complex data structures
+- nix-darwin system.defaults.finder does not expose sidebar APIs
+- Manual setup is one-time configuration that persists across rebuilds
+
+#### VM Testing Guide (For FX)
+
+**Prerequisites**:
+- macOS VM from previous story testing (or fresh VM)
+- Git repository cloned
+- Bootstrap completed successfully
+- Stories 03.1-001 and 03.1-002 settings already applied
+
+**Testing Steps**:
+
+1. **Verify Nix Configuration Builds**:
+   ```bash
+   cd ~/dev/nix-install
+   darwin-rebuild build --flake .#standard
+   ```
+   Expected: Build succeeds with no errors
+
+2. **Apply Configuration**:
+   ```bash
+   darwin-rebuild switch --flake .#standard
+   ```
+   Expected: Switch succeeds, may see "restarting Finder" message
+
+3. **Test New Window Target (Home Directory)**:
+   - Close all Finder windows
+   - Open new Finder window (Cmd+N)
+   - **Expected**: Window opens to Home directory (shows your username folder)
+   - **Verify**: Window title shows your username (e.g., "fxmartin")
+   - **Verify**: Path bar shows: MacintoshHD > Users > [username]
+   - **Alternative test**: Cmd+N multiple times, all windows should open to Home
+
+4. **Test External Hard Drives on Desktop**:
+   - Plug in USB drive or external hard drive (if available)
+   - If no physical drive available, skip this test (acceptable for VM)
+   - **Expected**: Drive icon appears on desktop
+   - **Verify**: Icon has drive name and generic external drive icon
+   - **Note**: If no external drive available, validate with defaults command below
+
+5. **Test Removable Media on Desktop**:
+   - Insert CD/DVD (if optical drive available)
+   - If no optical drive available, skip this test (acceptable for VM/modern Macs)
+   - **Expected**: Media icon appears on desktop
+   - **Note**: If no optical drive, validate with defaults command below
+
+6. **Test Mounted Servers on Desktop**:
+   - Connect to network share (Finder → Go → Connect to Server, Cmd+K)
+   - Example: `smb://server.local` or `afp://server.local`
+   - If no network share available, skip this test (acceptable for VM testing)
+   - **Expected**: Server volume icon appears on desktop
+   - **Note**: If no network available, validate with defaults command below
+
+7. **Manual Sidebar Configuration Test**:
+   - Open Finder → Settings (Cmd+,) → Sidebar tab
+   - **Expected**: You can manually enable/disable sidebar items
+   - Enable these items if not already enabled:
+     - Home
+     - Documents
+     - Downloads
+     - Applications
+   - Close Preferences
+   - **Verify**: Selected items now appear in Finder sidebar
+   - **Note**: This is manual configuration (expected, not automated)
+
+8. **Test Settings Persistence Across Finder Restarts**:
+   ```bash
+   killall Finder  # Force restart Finder
+   ```
+   - Finder will restart automatically
+   - **Expected**: All settings persist:
+     - New window opens to Home (test with Cmd+N)
+     - Desktop icons still configured (if drives connected)
+     - Sidebar items remain (manual configuration persists)
+
+9. **Test Settings Persistence Across System Reboots**:
+   - Restart the macOS VM
+   - After reboot, verify:
+     - New Finder window (Cmd+N) opens to Home directory
+     - Desktop icon settings still active
+     - Sidebar manual configuration still present
+
+**Expected Results Summary**:
+
+| Test | Expected Behavior | Pass/Fail |
+|------|------------------|-----------|
+| Build succeeds | `darwin-rebuild build` completes without errors | ☐ |
+| Switch succeeds | `darwin-rebuild switch` applies configuration | ☐ |
+| New window → Home | Cmd+N opens to Home directory (username folder) | ☐ |
+| External drives desktop | USB/external drives appear on desktop (if connected) | ☐ |
+| Removable media desktop | CDs/DVDs appear on desktop (if available) | ☐ |
+| Servers desktop | Network volumes appear on desktop (if connected) | ☐ |
+| Sidebar manual config | Can manually enable Home, Documents, Downloads, Apps | ☐ |
+| Finder restart | Settings persist after `killall Finder` | ☐ |
+| System reboot | Settings persist after macOS reboot | ☐ |
+
+**Troubleshooting**:
+
+| Issue | Possible Cause | Solution |
+|-------|---------------|----------|
+| Build fails | Syntax error in Nix files | Check error message, verify Nix syntax |
+| Settings not applied | Finder didn't restart | Run `killall Finder` manually |
+| New window wrong location | Setting not applied | Check `defaults read com.apple.finder NewWindowTarget` should return "PfHm" |
+| No desktop icons | No devices connected | Acceptable - settings will work when devices connected |
+| Sidebar items missing | Manual config required | Use Finder → Settings → Sidebar (expected behavior) |
+
+**Validation Commands** (optional debug):
+```bash
+# Verify Finder defaults were applied
+defaults read com.apple.finder NewWindowTarget                      # Should be: PfHm
+defaults read com.apple.finder ShowExternalHardDrivesOnDesktop      # Should be: 1
+defaults read com.apple.finder ShowRemovableMediaOnDesktop          # Should be: 1
+defaults read com.apple.finder ShowMountedServersOnDesktop          # Should be: 1
+```
+
+**Acceptance Criteria Status**:
+- ✅ **Implemented Declaratively**:
+  - New Finder windows open to Home directory
+  - External hard drives appear on desktop
+  - Removable media appears on desktop
+  - Mounted servers appear on desktop
+  - Settings persist across Finder restarts
+  - Settings persist across system reboots
+
+- ⚠️ **Manual Configuration Required**:
+  - Sidebar items (Home, Documents, Downloads, Applications)
+  - Reason: Not supported by nix-darwin system.defaults.finder
+  - Solution: One-time manual setup via Finder Preferences
+  - Documentation: Provided above (Manual Sidebar Configuration section)
+
+**Testing Outcome**: (To be filled by FX after VM testing)
+- [ ] All declarative settings work correctly
+- [ ] Manual sidebar configuration documented and tested
+- [ ] No regressions identified
+- [ ] Ready for deployment to physical hardware
+
+**Notes from Testing**: (To be filled by FX)

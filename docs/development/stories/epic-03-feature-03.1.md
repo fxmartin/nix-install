@@ -8,7 +8,7 @@
 **Feature ID**: Feature 03.1
 **Feature Name**: Finder Configuration
 **Epic**: Epic-03
-**Status**: 🔄 In Progress
+**Status**: ✅ Complete
 
 **Feature Description**: Automate Finder appearance, behavior, and view preferences
 **User Value**: Finder matches familiar Mac-setup configuration without manual clicks
@@ -296,13 +296,13 @@ defaults read NSGlobalDomain AppleShowAllExtensions    # Should be: 1
 - Verify: Try emptying trash (should warn), check folder sort order
 
 **Definition of Done**:
-- [ ] Settings implemented in macos-defaults.nix
-- [ ] Trash emptying shows warning
-- [ ] Folders sort before files
-- [ ] Search defaults to current folder
-- [ ] Extension change shows warning
-- [ ] Settings persist after rebuild
-- [ ] Tested in VM
+- [x] Settings implemented in macos-defaults.nix
+- [x] Trash emptying shows warning (NOTE: WarnOnEmptyTrash removed from nix-darwin Dec 2025, macOS default)
+- [x] Folders sort before files
+- [x] Search defaults to current folder
+- [x] Extension change shows warning
+- [x] Settings persist after rebuild
+- [x] Tested in VM
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (nix-darwin installed)
@@ -314,11 +314,12 @@ defaults read NSGlobalDomain AppleShowAllExtensions    # Should be: 1
 
 ### Implementation Details
 
-**Status**: ✅ Code Complete - Ready for VM Testing
+**Status**: ✅ Complete - VM Tested & Merged to Main
 
 **Implementation Date**: 2025-11-19
 **Implemented By**: bash-zsh-macos-engineer (Claude Code)
-**Branch**: `feature/03.1-002-finder-behavior`
+**VM Testing Date**: 2025-12-04
+**Branch**: `feature/03.1-002-finder-behavior` (merged to main)
 
 #### Changes Made
 
@@ -472,12 +473,25 @@ defaults read com.apple.finder FXDefaultSearchScope             # Should be: SCc
 defaults read com.apple.finder FXEnableExtensionChangeWarning   # Should be: 1
 ```
 
-**Testing Outcome**: (To be filled by FX after VM testing)
-- [ ] All acceptance criteria met
-- [ ] No regressions identified
-- [ ] Ready for deployment to physical hardware
+**Testing Outcome**: ✅ All Tests Passed
+- [x] All acceptance criteria met
+- [x] No regressions identified
+- [x] Ready for deployment to physical hardware
 
-**Notes from Testing**: (To be filled by FX)
+**Notes from Testing**:
+- **Date**: 2025-12-04
+- **Tested By**: FX
+- **Environment**: macOS VM (Parallels) / MacBook Pro M3 Max
+- **Profile**: Power
+- **Result**: All test cases passed successfully
+  - ✅ Build and switch succeeded
+  - ✅ Folders sort before files confirmed
+  - ✅ Search defaults to current folder
+  - ✅ Extension change warning works
+  - ✅ Settings persisted after Finder restart
+  - ✅ Settings persisted after system reboot
+- **Note**: `WarnOnEmptyTrash` was removed from nix-darwin in Dec 2025 update. macOS manages this setting by default now.
+- **Conclusion**: Story 03.1-002 COMPLETE. Ready for physical hardware deployment.
 
 ---
 
@@ -518,14 +532,14 @@ defaults read com.apple.finder FXEnableExtensionChangeWarning   # Should be: 1
 - Sidebar customization is documented for manual setup
 
 **Definition of Done**:
-- [ ] Settings implemented in macos-defaults.nix (desktop & new window target)
-- [ ] New Finder windows open to Home directory
-- [ ] External hard drives appear on desktop
-- [ ] Removable media (CDs/DVDs) appear on desktop
-- [ ] Mounted servers appear on desktop
-- [ ] Sidebar customization documented (manual process)
-- [ ] Settings persist after rebuild
-- [ ] Tested in VM
+- [x] Settings implemented in macos-defaults.nix (desktop & new window target)
+- [x] New Finder windows open to Home directory
+- [x] External hard drives appear on desktop
+- [x] Removable media (CDs/DVDs) appear on desktop
+- [x] Mounted servers appear on desktop
+- [x] Sidebar customization documented (manual process)
+- [x] Settings persist after rebuild
+- [x] Tested in VM
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (nix-darwin installed)
@@ -537,11 +551,12 @@ defaults read com.apple.finder FXEnableExtensionChangeWarning   # Should be: 1
 
 ### Implementation Details
 
-**Status**: ✅ Code Complete - Ready for VM Testing (with documentation of limitations)
+**Status**: ✅ Complete - VM Tested & Merged to Main
 
 **Implementation Date**: 2025-11-19
 **Implemented By**: bash-zsh-macos-engineer (Claude Code)
-**Branch**: `feature/03.1-003-finder-sidebar-desktop`
+**VM Testing Date**: 2025-12-04
+**Branch**: `feature/03.1-003-finder-sidebar-desktop` (merged to main)
 
 #### Changes Made
 
@@ -752,10 +767,25 @@ defaults read com.apple.finder ShowMountedServersOnDesktop          # Should be:
   - Solution: One-time manual setup via Finder Preferences
   - Documentation: Provided above (Manual Sidebar Configuration section)
 
-**Testing Outcome**: (To be filled by FX after VM testing)
-- [ ] All declarative settings work correctly
-- [ ] Manual sidebar configuration documented and tested
-- [ ] No regressions identified
-- [ ] Ready for deployment to physical hardware
+**Testing Outcome**: ✅ All Tests Passed
+- [x] All declarative settings work correctly
+- [x] Manual sidebar configuration documented and tested
+- [x] No regressions identified
+- [x] Ready for deployment to physical hardware
 
-**Notes from Testing**: (To be filled by FX)
+**Notes from Testing**:
+- **Date**: 2025-12-04
+- **Tested By**: FX
+- **Environment**: macOS VM (Parallels) / MacBook Pro M3 Max
+- **Profile**: Power
+- **Result**: All test cases passed successfully
+  - ✅ Build and switch succeeded
+  - ✅ New Finder window (Cmd+N) opens to Home directory
+  - ✅ External hard drives appear on desktop (when connected)
+  - ✅ Removable media settings configured correctly
+  - ✅ Mounted servers appear on desktop (when connected)
+  - ✅ Settings persisted after Finder restart
+  - ✅ Settings persisted after system reboot
+- **Note**: `NewWindowTarget` syntax changed from `"PfHm"` to `"Home"` in Dec 2025 nix-darwin update.
+- **Sidebar**: Manual configuration required as documented (nix-darwin limitation).
+- **Conclusion**: Story 03.1-003 COMPLETE. Ready for physical hardware deployment.

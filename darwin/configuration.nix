@@ -125,6 +125,13 @@
   # Platform architecture (Apple Silicon and Intel support)
   nixpkgs.hostPlatform = "aarch64-darwin";
 
+  # User Configuration (required by home-manager as of Dec 2025 update)
+  users.users.${userConfig.username} = {
+    name = userConfig.username;
+    home = "/Users/${userConfig.username}";
+    uid = 501;  # Standard macOS first user UID
+  };
+
   # Security Configuration
   security.pam.services.sudo_local.touchIdAuth = true; # TouchID for sudo
 
@@ -146,6 +153,10 @@
   # Will be expanded in Epic-05
   stylix = {
     enable = true;
+
+    # Disable version mismatch warnings between Stylix and nix-darwin
+    # Safe to use as we track nixpkgs-unstable for both
+    enableReleaseChecks = false;
 
     # Catppuccin Mocha theme (dark mode)
     base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";

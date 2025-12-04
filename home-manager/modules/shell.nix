@@ -40,6 +40,10 @@
   #    - docker-compose → podman-compose (compose compatibility)
   #    - Custom git aliases
   #    - Directory navigation shortcuts
+  #    - Nix system management aliases:
+  #      - nix-update: Update flake.lock only
+  #      - nix-rebuild: Rebuild system without updating
+  #      - nix-full: Update flake.lock and rebuild system
 
   # 5. Environment Variables:
   #    - EDITOR, VISUAL
@@ -58,6 +62,20 @@
   programs.zsh = {
     enable = lib.mkDefault false; # Will be enabled in Epic-04
     # Full configuration will be added in Epic-04
+
+    # Shell aliases (available now, will be expanded in Epic-04)
+    shellAliases = {
+      # Nix system management (using scripts/update-system.sh)
+      nix-update = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/update-system.sh update";
+      nix-rebuild = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/update-system.sh rebuild";
+      nix-full = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/update-system.sh full";
+
+      # Quick rebuild (auto-detect profile)
+      rebuild = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/update-system.sh rebuild";
+
+      # Additional aliases will be added in Epic-04
+      # ls → eza, cat → bat, grep → rg, find → fd, docker → podman, etc.
+    };
   };
 
   programs.starship = {

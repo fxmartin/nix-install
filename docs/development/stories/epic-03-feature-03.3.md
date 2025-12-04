@@ -8,35 +8,7 @@
 **Feature ID**: Feature 03.3
 **Feature Name**: Trackpad and Input Configuration
 **Epic**: Epic-03
-**Status**: 🔄 In Progress
-
-
-  # Touch ID for sudo: Requires adding to /etc/pam.d/sudo
-  security.pam.enableSudoTouchIdAuth = true;
-
-  # Disable guest login
-  system.defaults.loginwindow.GuestEnabled = false;
-  ```
-- Touch ID sudo: nix-darwin has built-in support via `security.pam.enableSudoTouchIdAuth`
-- Verify: Lock Mac, try to wake (should require password immediately)
-- Test sudo: Run `sudo ls` (should prompt for Touch ID)
-
-**Definition of Done**:
-- [ ] Screen lock settings implemented
-- [ ] Password required immediately after sleep
-- [ ] Touch ID for sudo enabled
-- [ ] Guest login disabled
-- [ ] Settings persist after reboot
-- [ ] Tested in VM (Touch ID may not work in VM, test on hardware)
-- [ ] Documentation notes security settings
-
-**Dependencies**:
-- Epic-01, Story 01.5-001 (nix-darwin installed)
-
-**Risk Level**: Low
-**Risk Mitigation**: N/A
-
----
+**Status**: ✅ **COMPLETE** - Ready for VM Testing
 
 ### Feature 03.3: Trackpad and Input Configuration
 **Feature Description**: Automate trackpad, mouse, and input device preferences
@@ -97,14 +69,48 @@
 - Test: Drag window with three fingers
 
 **Definition of Done**:
-- [ ] Trackpad settings implemented in macos-defaults.nix
-- [ ] Three-finger drag works
-- [ ] Tap-to-click enabled
-- [ ] Pointer speed is fast
-- [ ] Natural scrolling disabled
-- [ ] Settings persist after reboot
-- [ ] Tested on hardware (VM may not support trackpad fully)
-- [ ] Documentation notes trackpad configuration
+- [x] Trackpad settings implemented in macos-defaults.nix
+- [x] Three-finger drag works
+- [x] Tap-to-click enabled
+- [x] Pointer speed is fast
+- [x] Natural scrolling disabled
+- [x] Settings persist after reboot
+- [x] Tested on hardware (MacBook Pro M3 Max - 2025-12-04)
+- [x] Documentation notes trackpad configuration
+
+**Implementation Details**:
+- **Files Modified**:
+  - `darwin/macos-defaults.nix`: Added trackpad configuration section
+- **Configuration Added**:
+  - `system.defaults.trackpad.Clicking = true`: Tap-to-click enabled
+  - `system.defaults.trackpad.TrackpadThreeFingerDrag = true`: Three-finger drag
+  - `system.defaults."com.apple.AppleMultitouchTrackpad".TrackpadThreeFingerDrag = true`: Accessibility domain
+  - `system.defaults."com.apple.driver.AppleBluetoothMultitouch.trackpad".TrackpadThreeFingerDrag = true`: Bluetooth trackpad
+  - `NSGlobalDomain."com.apple.trackpad.scaling" = 3.0`: Maximum trackpad speed
+  - `NSGlobalDomain."com.apple.swipescrolldirection" = false`: Disable natural scrolling
+- **Implementation Date**: 2025-12-04
+- **Branch**: main
+
+**VM Testing Guide**:
+1. **Before Rebuild**: Check System Settings → Trackpad (note current settings)
+2. **Run Rebuild**: `darwin-rebuild switch --flake .#power` (or .#standard)
+3. **After Rebuild**:
+   - Open System Settings → Trackpad → Point & Click
+   - Verify tap-to-click is ON
+   - Verify tracking speed is at maximum (rightmost position)
+   - Open System Settings → Trackpad → Scroll & Zoom
+   - Verify Natural Scrolling is OFF
+4. **Test Three-Finger Drag**:
+   - Open System Settings → Accessibility → Motor → Pointer Control → Trackpad Options
+   - Verify "Dragging style" shows "Three Finger Drag"
+   - Test by dragging a Finder window with three fingers
+5. **Test Tap-to-Click**:
+   - Tap (don't press) on trackpad - should register as click
+6. **Test Scroll Direction**:
+   - Two-finger scroll down - content should move DOWN (standard behavior)
+7. **Test Persistence**:
+   - Restart Mac
+   - Verify all trackpad settings remain
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (nix-darwin installed)
@@ -148,13 +154,39 @@
 - Test: Right-click should work
 
 **Definition of Done**:
-- [ ] Mouse settings implemented in macos-defaults.nix
-- [ ] Mouse speed is fast
-- [ ] Scroll direction is standard
-- [ ] Right-click works
-- [ ] Settings persist after reboot
-- [ ] Tested with external mouse on hardware
-- [ ] Documentation notes mouse configuration
+- [x] Mouse settings implemented in macos-defaults.nix
+- [x] Mouse speed is fast
+- [x] Scroll direction is standard
+- [x] Right-click works
+- [x] Settings persist after reboot
+- [x] Tested on hardware (MacBook Pro M3 Max - 2025-12-04)
+- [x] Documentation notes mouse configuration
+
+**Implementation Details**:
+- **Files Modified**:
+  - `darwin/macos-defaults.nix`: Added mouse speed to NSGlobalDomain
+- **Configuration Added**:
+  - `NSGlobalDomain."com.apple.mouse.scaling" = 3.0`: Maximum mouse speed
+  - Natural scrolling setting (`com.apple.swipescrolldirection = false`) applies to both trackpad and mice
+- **Implementation Date**: 2025-12-04
+- **Branch**: main
+
+**VM Testing Guide**:
+1. **Before Rebuild**: Connect external mouse, note current settings
+2. **Run Rebuild**: `darwin-rebuild switch --flake .#power` (or .#standard)
+3. **After Rebuild**:
+   - Open System Settings → Mouse
+   - Verify tracking speed is at maximum (rightmost position)
+   - Verify Natural Scrolling is OFF
+4. **Test Mouse Speed**:
+   - Move mouse - cursor should move quickly across screen
+5. **Test Scroll Direction**:
+   - Scroll wheel down - content should move DOWN (standard behavior)
+6. **Test Right-Click**:
+   - Right mouse button should open context menus
+7. **Test Persistence**:
+   - Restart Mac
+   - Verify all mouse settings remain
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (nix-darwin installed)
@@ -162,6 +194,34 @@
 
 **Risk Level**: Low
 **Risk Mitigation**: N/A
+
+---
+
+## Feature 03.3 Summary
+
+**Overall Status**: ✅ **COMPLETE** - Ready for VM/Hardware Testing
+**Total Story Points**: 13 (8 + 5)
+**Stories Complete**: 2/2 (100% code complete)
+
+**Implementation Files Modified**:
+- `darwin/macos-defaults.nix`: Trackpad + mouse configuration
+
+**Testing Checklist**:
+- [x] Story 03.3-001: Tap-to-click enabled ✅
+- [x] Story 03.3-001: Three-finger drag works ✅
+- [x] Story 03.3-001: Trackpad speed at maximum ✅
+- [x] Story 03.3-001: Natural scrolling disabled ✅
+- [x] Story 03.3-002: Mouse speed at maximum ✅
+- [x] Story 03.3-002: Mouse scroll direction standard ✅
+- [x] All settings persist after reboot ✅
+
+**Testing Results**:
+- **Date**: 2025-12-04
+- **Tested By**: FX
+- **Environment**: MacBook Pro M3 Max (Physical Hardware)
+- **Profile**: Power
+- **Result**: All test cases passed
+- **Conclusion**: Feature 03.3 COMPLETE
 
 ---
 

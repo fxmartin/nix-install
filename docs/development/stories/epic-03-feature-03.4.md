@@ -62,7 +62,7 @@
 - **Configuration Added**:
   - `NSGlobalDomain.AppleICUForce24HourTime = true`: 24-hour time format
   - `CustomUserPreferences.NSGlobalDomain.AppleInterfaceStyleSwitchesAutomatically = true`: Auto light/dark mode
-  - `CustomUserPreferences.NSGlobalDomain.AppleIconAppearanceTheme = "TintedLight"`: Icon & Widget style (macOS Tahoe 26+)
+  - `CustomUserPreferences.NSGlobalDomain.AppleIconAppearanceTheme = "Light"`: Icon & Widget style (macOS Tahoe 26+)
   - Removed fixed `AppleInterfaceStyle = "Dark"` to allow auto switching
 - **Implementation Date**: 2025-12-04
 - **Branch**: main
@@ -83,7 +83,7 @@
    ```bash
    defaults read NSGlobalDomain AppleInterfaceStyleSwitchesAutomatically  # Should be 1
    defaults read NSGlobalDomain AppleICUForce24HourTime  # Should be 1
-   defaults read NSGlobalDomain AppleIconAppearanceTheme  # Should be TintedLight
+   defaults read NSGlobalDomain AppleIconAppearanceTheme  # Should be Light
    ```
 3. **Test 24-hour Time**:
    - Look at menubar clock - should show 14:30 format, not 2:30 PM

@@ -187,13 +187,20 @@
   # DISPLAY AND APPEARANCE (Epic-03, Feature 03.4)
   # ============================================================================
 
-  # Story 03.4-001: Auto Light/Dark Mode
+  # Story 03.4-001: Auto Light/Dark Mode and Icon/Widget Style
   # CustomUserPreferences allows setting options not directly supported by nix-darwin
   system.defaults.CustomUserPreferences = {
     # Enable automatic appearance switching (Light/Dark mode)
     # macOS will switch based on sunrise/sunset times
     NSGlobalDomain = {
       AppleInterfaceStyleSwitchesAutomatically = true;
+
+      # Icon & Widget Style: Tinted (macOS Tahoe 26+)
+      # Options: "Default", "Dark", "Clear", "ClearLight", "ClearDark",
+      #          "Tinted", "TintedLight", "TintedDark"
+      # "TintedLight" = Tinted style that follows light/dark auto-switching
+      # This applies the tinted/colorized appearance to icons, widgets, and folders
+      AppleIconAppearanceTheme = "TintedLight";
     };
   };
 

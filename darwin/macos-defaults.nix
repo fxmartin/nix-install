@@ -242,7 +242,68 @@
   # Documented manual setup: System Settings → Displays → Night Shift → Schedule: Sunset to Sunrise
 
   # ============================================================================
-  # FUTURE EPIC-03 SETTINGS (To Be Implemented)
+  # DOCK CONFIGURATION (Epic-03, Feature 03.6)
+  # ============================================================================
+
+  # Story 03.6-001: Dock Behavior and Apps
+  system.defaults.dock = {
+    # Minimize windows into their application's icon (cleaner Dock)
+    # Instead of creating separate minimized window icons
+    minimize-to-application = true;
+
+    # Auto-hide the Dock (saves screen space)
+    # Dock appears when mouse moves to screen edge
+    autohide = true;
+
+    # Speed up auto-hide animation (default is ~0.5)
+    # Lower values = faster animation
+    autohide-time-modifier = 0.2;
+
+    # Remove delay before Dock shows when auto-hidden
+    # Default is 0.5 seconds, 0 = instant
+    autohide-delay = 0.0;
+
+    # Dock position (bottom, left, right)
+    orientation = "bottom";
+
+    # Don't show recent applications in Dock
+    # Keeps Dock clean and predictable
+    show-recents = false;
+
+    # Icon size in pixels (default is 48)
+    # 48 is a good balance of visibility and space
+    tilesize = 48;
+
+    # Enable magnification on hover (disabled for cleaner look)
+    magnification = false;
+
+    # Magnified icon size when hovering (only if magnification = true)
+    # largesize = 64;
+
+    # Use scale effect when minimizing (alternative: "genie")
+    # Scale is faster and less distracting
+    mineffect = "scale";
+
+    # Don't animate opening applications (faster feel)
+    launchanim = false;
+
+    # Show indicator lights for open applications
+    show-process-indicators = true;
+
+    # Don't automatically rearrange Spaces based on recent use
+    # Keeps workspace organization predictable
+    mru-spaces = false;
+
+    # Expose settings (hot corners and spaces)
+    # Expose all windows when mouse enters top-left corner (disabled)
+    # wvous-tl-corner = 1;  # Mission Control
+    # wvous-tr-corner = 1;  # Mission Control
+    # wvous-bl-corner = 1;  # Mission Control
+    # wvous-br-corner = 1;  # Mission Control
+  };
+
+  # ============================================================================
+  # EPIC-03 COMPLETION STATUS
   # ============================================================================
 
   # Feature 03.2: Security and Privacy Settings (Complete)
@@ -271,9 +332,15 @@
   # - [✅] Smart dashes disabled (Story 03.5-001)
   # - [✅] Auto-correct disabled (Story 03.5-001)
 
-  # Feature 03.6: Dock Configuration
-  # - Auto-hide
-  # - Icon size
-  # - Position
-  # - Persistent applications
+  # Feature 03.6: Dock Configuration (Complete)
+  # - [✅] Minimize to application icon (Story 03.6-001)
+  # - [✅] Auto-hide enabled (Story 03.6-001)
+  # - [✅] Fast auto-hide animation (Story 03.6-001)
+  # - [✅] Dock position at bottom (Story 03.6-001)
+  # - [✅] Recent apps hidden (Story 03.6-001)
+  # - [✅] Icon size 48px (Story 03.6-001)
+  # - [✅] Scale minimize effect (Story 03.6-001)
+  # - [✅] Launch animation disabled (Story 03.6-001)
+  # - [✅] Process indicators enabled (Story 03.6-001)
+  # - [✅] MRU spaces disabled (Story 03.6-001)
 }

@@ -81,9 +81,20 @@
       # Duplicates finder setting for system-wide consistency
       AppleShowAllExtensions = true;
 
-      # Existing global settings (moved from configuration.nix)
-      AppleICUForce24HourTime = true; # 24-hour time format
-      AppleInterfaceStyle = "Dark"; # Dark mode
+      # Story 03.4-001: Time Format
+      # 24-hour time format for clarity and international standard
+      # Menubar clock shows 14:30 instead of 2:30 PM
+      AppleICUForce24HourTime = true;
+
+      # Story 03.4-001: Auto Light/Dark Mode
+      # Enable automatic appearance switching based on time of day
+      # macOS will switch between Light and Dark mode at sunrise/sunset
+      # NOTE: We set AppleInterfaceStyleSwitchesAutomatically = true below
+      # and do NOT set AppleInterfaceStyle to allow auto switching
+      # If you prefer forced dark mode, uncomment the line below:
+      # AppleInterfaceStyle = "Dark";
+
+      # Keyboard Settings (existing, will be expanded in Feature 03.5)
       KeyRepeat = 2; # Fast key repeat rate
 
       # Story 03.3-001: Trackpad speed and scrolling
@@ -173,6 +184,26 @@
   };
 
   # ============================================================================
+  # DISPLAY AND APPEARANCE (Epic-03, Feature 03.4)
+  # ============================================================================
+
+  # Story 03.4-001: Auto Light/Dark Mode
+  # CustomUserPreferences allows setting options not directly supported by nix-darwin
+  system.defaults.CustomUserPreferences = {
+    # Enable automatic appearance switching (Light/Dark mode)
+    # macOS will switch based on sunrise/sunset times
+    NSGlobalDomain = {
+      AppleInterfaceStyleSwitchesAutomatically = true;
+    };
+  };
+
+  # Story 03.4-002: Night Shift Scheduling
+  # Night Shift reduces blue light from sunset to sunrise to reduce eye strain
+  # Note: Night Shift settings are complex and may require manual configuration
+  # The CoreBrightness domain requires specific user context to persist properly
+  # Documented manual setup: System Settings → Displays → Night Shift → Schedule: Sunset to Sunrise
+
+  # ============================================================================
   # FUTURE EPIC-03 SETTINGS (To Be Implemented)
   # ============================================================================
 
@@ -189,10 +220,10 @@
   # - [✅] Secondary click (Story 03.3-001 - default macOS behavior)
   # - [✅] Fast mouse speed (Story 03.3-002 - in .GlobalPreferences)
 
-  # Feature 03.4: Display and Energy Settings
-  # - Screen resolution
-  # - Night Shift
-  # - Sleep/display settings
+  # Feature 03.4: Display and Appearance (Complete)
+  # - [✅] 24-hour time format (Story 03.4-001 - in NSGlobalDomain)
+  # - [✅] Auto Light/Dark Mode (Story 03.4-001 - via CustomUserPreferences)
+  # - [⚠️] Night Shift scheduling (Story 03.4-002 - manual setup required, see docs)
 
   # Feature 03.5: Keyboard and Input Settings
   # - Key repeat rates

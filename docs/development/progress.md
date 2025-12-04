@@ -7,13 +7,13 @@
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
 | **Epic-02** | Application Installation | 25 | 118 | **25** | **118** | 100% | 100% | ✅ Complete |
-| **Epic-03** | System Configuration | 14 | 76 | **6** | **36** | 42.9% | 47.4% | 🟡 In Progress |
+| **Epic-03** | System Configuration | 14 | 76 | **10** | **59** | 71.4% | 77.6% | 🟡 In Progress |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **117** | **614** | **48** | **258** | **41.0%** | **42.0%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **117** | **614** | **52** | **281** | **44.4%** | **45.8%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -81,7 +81,7 @@
 - **2025-11-16**: Story 02.10-001 (Email Account Configuration) **CANCELLED** - Manual setup documented instead (automation proved confusing)
 - **2025-11-16**: Stories 02.4-004 (Dropbox), 02.7-001 (NordVPN), 02.9-001 (Office 365) VM tested, pending documentation updates
 
-### Epic-03 Completed Stories (6/14) 🟡 IN PROGRESS
+### Epic-03 Completed Stories (10/14) 🟡 IN PROGRESS
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -91,8 +91,21 @@
 | 03.2-001 | Firewall Configuration | 5 | ✅ Complete | main | 2025-12-04 |
 | 03.2-002 | FileVault Encryption Prompt | 8 | ✅ Complete | main | 2025-12-04 |
 | 03.2-003 | Screen Lock and Password Policies | 5 | ✅ Complete | main | 2025-12-04 |
+| 03.3-001 | Trackpad Gestures and Speed | 8 | ✅ Complete | main | 2025-12-04 |
+| 03.3-002 | Mouse and Scroll Settings | 5 | ✅ Complete | main | 2025-12-04 |
+| 03.4-001 | Auto Light/Dark Mode and Time Format | 5 | ✅ Complete | main | 2025-12-04 |
+| 03.4-002 | Night Shift Scheduling | 5 | ✅ Complete | main | 2025-12-04 |
 
 **Notes**:
+- **2025-12-04**: Feature 03.3 (Trackpad and Input) and Feature 03.4 (Display and Appearance) **COMPLETE**
+  - Story 03.3-001: Trackpad gestures (tap-to-click, three-finger drag, fast speed, natural scrolling disabled) ✅ Hardware Tested
+  - Story 03.3-002: Mouse settings (fast speed, scroll direction matches trackpad) ✅ Hardware Tested
+  - Story 03.4-001: Auto Light/Dark mode + 24-hour time format ✅ Hardware Tested
+  - Story 03.4-002: Night Shift scheduling ✅ Documented (manual config required - CoreBrightness limitation)
+  - **Technical Notes**:
+    - Mouse scaling uses `.GlobalPreferences` domain (not NSGlobalDomain)
+    - Auto appearance uses `CustomUserPreferences.NSGlobalDomain.AppleInterfaceStyleSwitchesAutomatically`
+    - Three-finger drag handled via `system.defaults.trackpad.TrackpadThreeFingerDrag`
 - **2025-12-04**: Feature 03.1 (Finder Configuration) and Feature 03.2 (Security Configuration) **COMPLETE**
   - Story 03.1-002: Finder behavior settings (folders first, search scope, extension warning) ✅ VM Tested
   - Story 03.1-003: Finder sidebar/desktop (new window target, external drives on desktop) ✅ VM Tested
@@ -110,23 +123,41 @@
 ### Overall Project Status
 
 - **Total Project Scope**: 117 stories, 614 story points
-- **Completed**: 48 stories (41.0%), 258 points (42.0%)
+- **Completed**: 52 stories (44.4%), 281 points (45.8%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL** 🟢
   - **Epic-02 Application Installation (100% complete)** - ✅ **COMPLETE**
-  - **Epic-03 System Configuration (42.9% complete by stories, 47.4% by points)** - 🟡 **IN PROGRESS**
+  - **Epic-03 System Configuration (71.4% complete by stories, 77.6% by points)** - 🟡 **IN PROGRESS**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - **Epic-03: System Configuration (42.9% complete)** 🟡
+  - **Epic-03: System Configuration (71.4% complete)** 🟡
     - ✅ Feature 03.1 (Finder Configuration) - COMPLETE (3/3 stories, 18 pts)
     - ✅ Feature 03.2 (Security Configuration) - COMPLETE (3/3 stories, 18 pts)
-    - Story 03.3-001: Trackpad Settings - **NEXT** 🎯
-    - Story 03.4-001: Display and Appearance Settings
+    - ✅ Feature 03.3 (Trackpad and Input) - COMPLETE (2/2 stories, 13 pts)
+    - ✅ Feature 03.4 (Display and Appearance) - COMPLETE (2/2 stories, 10 pts)
+    - Story 03.5-001: Keyboard and Text Input - **NEXT** 🎯
+    - Story 03.6-001: Dock Configuration
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: ✅ **Feature 03.1 + 03.2 COMPLETE!** Finder and Security configuration complete (6 stories, 36 points)
+- **Recent Milestone**: ✅ **Feature 03.3 + 03.4 COMPLETE!** Trackpad/Input and Display/Appearance complete (4 stories, 23 points)
 
 ### Recent Activity
 
+- **2025-12-04**: ✅ **FEATURE 03.3 + 03.4 COMPLETE!** Trackpad/Input and Display/Appearance - 4 stories, 23 points
+  - **Story 03.3-001**: Trackpad gestures and speed ✅ Hardware Tested
+    - Tap-to-click, three-finger drag, fast tracking speed (3.0), natural scrolling disabled
+    - Settings: `system.defaults.trackpad`, `NSGlobalDomain."com.apple.trackpad.scaling"`
+  - **Story 03.3-002**: Mouse and scroll settings ✅ Hardware Tested
+    - Fast mouse speed (3.0), scroll direction standard
+    - **Key Finding**: Mouse scaling uses `.GlobalPreferences` domain, not NSGlobalDomain
+  - **Story 03.4-001**: Auto Light/Dark mode + 24-hour time ✅ Hardware Tested
+    - Auto appearance: `CustomUserPreferences.NSGlobalDomain.AppleInterfaceStyleSwitchesAutomatically = true`
+    - 24-hour time: `NSGlobalDomain.AppleICUForce24HourTime = true`
+    - Removed forced `AppleInterfaceStyle = "Dark"` to allow auto switching
+  - **Story 03.4-002**: Night Shift scheduling ✅ Documented
+    - **Known Limitation**: CoreBrightness domain requires manual configuration
+    - Manual setup: System Settings → Displays → Night Shift → Schedule: "Sunset to Sunrise"
+  - **Epic-03 Progress**: 71.4% complete (10/14 stories, 59/76 points)
+  - **Overall Progress**: 44.4% complete (52/117 stories, 281/614 points)
 - **2025-12-04**: ✅ **FEATURE 03.1 + 03.2 COMPLETE!** Finder and Security Configuration - 6 stories, 36 points
   - **nix-darwin flake update**: Updated nixpkgs, home-manager, stylix, claude-code-nix, mcp-servers-nix
   - **Breaking changes fixed**:

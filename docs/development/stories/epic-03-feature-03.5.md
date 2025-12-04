@@ -8,42 +8,126 @@
 **Feature ID**: Feature 03.5
 **Feature Name**: Keyboard and Text Input
 **Epic**: Epic-03
-**Status**: 🔄 In Progress
+**Status**: ✅ **COMPLETE** - Hardware Tested
 
+**Complexity**: Low
 
-**Technical Notes**:
-- Add to darwin/macos-defaults.nix:
-  ```nix
-  system.defaults.NSGlobalDomain = {
-    KeyRepeat = 2;  # Fast repeat (1 is fastest, 2 is very fast)
-    InitialKeyRepeat = 15;  # Short delay (10 is shortest, 15 is short)
-    NSAutomaticCapitalizationEnabled = false;
-    NSAutomaticDashSubstitutionEnabled = false;
-    NSAutomaticPeriodSubstitutionEnabled = false;
-    NSAutomaticQuoteSubstitutionEnabled = false;
-    NSAutomaticSpellingCorrectionEnabled = false;
-  };
-  ```
-- Verify: System Settings → Keyboard, check all settings
-- Test: Hold 'a' key, should repeat quickly
-- Test: Type quotes in editor, should be straight not curly
+#### Stories in This Feature
+
+##### Story 03.5-001: Keyboard Repeat and Text Corrections
+**User Story**: As FX, I want fast key repeat, short delay, and disabled auto-corrections so that typing feels responsive and predictable for coding
+
+**Priority**: Must Have
+**Story Points**: 5
+**Sprint**: Sprint 4
+
+**Acceptance Criteria**:
+- **Given** darwin-rebuild completes successfully
+- **When** I hold down a key (e.g., 'a')
+- **Then** it repeats quickly after a short delay
+- **And** key repeat rate is near maximum
+- **And** delay until repeat is short
+- **And** automatic capitalization is disabled
+- **And** smart quotes are disabled (straight quotes only)
+- **And** smart dashes are disabled
+- **And** auto-correct/spelling correction is disabled
 
 **Definition of Done**:
-- [ ] Keyboard settings implemented in macos-defaults.nix
-- [ ] Key repeat is fast
-- [ ] Delay until repeat is short
-- [ ] Auto-capitalization disabled
-- [ ] Smart quotes/dashes disabled
-- [ ] Auto-correct disabled
-- [ ] Settings persist after reboot
-- [ ] Tested in VM
-- [ ] Documentation notes keyboard configuration
+- [x] Keyboard settings implemented in macos-defaults.nix
+- [x] Key repeat is fast (KeyRepeat = 2)
+- [x] Delay until repeat is short (InitialKeyRepeat = 15)
+- [x] Auto-capitalization disabled
+- [x] Smart quotes/dashes disabled
+- [x] Auto-correct disabled
+- [x] Settings persist after reboot
+- [x] Tested on hardware (MacBook Pro M3 Max - 2025-12-04)
+- [x] Documentation notes keyboard configuration
+
+**Implementation Details**:
+- **Files Modified**:
+  - `darwin/macos-defaults.nix`: Added keyboard settings section
+- **Configuration Added**:
+  ```nix
+  system.defaults.NSGlobalDomain = {
+    KeyRepeat = 2;  # Fast repeat (1 = fastest, 2 = very fast)
+    InitialKeyRepeat = 15;  # Short delay (10 = shortest, 15 = short, 25 = default)
+    NSAutomaticCapitalizationEnabled = false;  # Disable auto-caps
+    NSAutomaticDashSubstitutionEnabled = false;  # Disable smart dashes
+    NSAutomaticPeriodSubstitutionEnabled = false;  # Disable double-space period
+    NSAutomaticQuoteSubstitutionEnabled = false;  # Disable curly quotes
+    NSAutomaticSpellingCorrectionEnabled = false;  # Disable auto-correct
+  };
+  ```
+- **Implementation Date**: 2025-12-04
+- **Branch**: main
+
+**Technical Notes**:
+- **KeyRepeat**: Range 1-15, lower = faster. 2 is very fast (recommended for coding)
+- **InitialKeyRepeat**: Range 10-120, lower = shorter delay. 15 is short (recommended)
+- All NSAutomatic* settings: `false` disables the feature, essential for coding
+- Smart quotes would turn `"hello"` into `"hello"` which breaks code
+- Smart dashes would turn `--` into `—` which breaks command-line flags
+
+**VM/Hardware Testing Guide**:
+1. **After Rebuild**:
+   - Open a text editor (Notes, TextEdit, or any app)
+   - Hold down the 'a' key - should repeat quickly after short delay
+2. **Verify Settings**:
+   ```bash
+   defaults read NSGlobalDomain KeyRepeat  # Should be 2
+   defaults read NSGlobalDomain InitialKeyRepeat  # Should be 15
+   defaults read NSGlobalDomain NSAutomaticCapitalizationEnabled  # Should be 0
+   defaults read NSGlobalDomain NSAutomaticDashSubstitutionEnabled  # Should be 0
+   defaults read NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled  # Should be 0
+   defaults read NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled  # Should be 0
+   defaults read NSGlobalDomain NSAutomaticSpellingCorrectionEnabled  # Should be 0
+   ```
+3. **Test Smart Quotes Disabled**:
+   - Open TextEdit → Format → Make Plain Text
+   - Type: `"hello"` - should stay as straight quotes, not curly
+4. **Test Smart Dashes Disabled**:
+   - Type: `--flag` - should stay as two hyphens, not em dash
+5. **Test Auto-Correct Disabled**:
+   - Type a misspelled word - should NOT auto-correct
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (nix-darwin installed)
 
 **Risk Level**: Low
 **Risk Mitigation**: N/A
+
+---
+
+## Feature 03.5 Summary
+
+**Overall Status**: ✅ **COMPLETE** - Hardware Tested
+**Total Story Points**: 5
+**Stories Complete**: 1/1 (100%)
+
+**Implementation Files Modified**:
+- `darwin/macos-defaults.nix`: Keyboard settings in NSGlobalDomain
+
+**What Works Automatically (via nix-darwin)**:
+- ✅ Fast key repeat (KeyRepeat = 2)
+- ✅ Short initial delay (InitialKeyRepeat = 15)
+- ✅ Auto-capitalization disabled
+- ✅ Smart quotes disabled (straight quotes preserved)
+- ✅ Smart dashes disabled (-- stays as --)
+- ✅ Auto-correct/spelling disabled
+
+**Testing Checklist**:
+- [x] Story 03.5-001: Key repeat is fast
+- [x] Story 03.5-001: Initial delay is short
+- [x] Story 03.5-001: All auto-corrections disabled
+- [x] All settings persist after reboot
+
+**Testing Results**:
+- **Date**: 2025-12-04
+- **Tested By**: FX (via Claude Code)
+- **Environment**: MacBook Pro M3 Max (Physical Hardware)
+- **Profile**: Power
+- **Result**: All settings verified via `defaults read`
+- **Conclusion**: Feature 03.5 COMPLETE
 
 ---
 

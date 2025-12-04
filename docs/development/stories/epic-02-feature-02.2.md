@@ -850,3 +850,39 @@
 
 ---
 
+## Additional CLI Tools (Post-Feature Completion)
+
+### Mosh (Mobile Shell) - Added 2025-12-04
+
+**Package**: `mosh` (via Nix)
+**Location**: darwin/configuration.nix → environment.systemPackages
+
+**Description**: Mosh (mobile shell) is a remote terminal application that allows roaming, supports intermittent connectivity, and provides intelligent local echo and line editing of user keystrokes. It's a robust alternative to SSH for unreliable network connections.
+
+**Key Features**:
+- **Roaming**: Connection survives IP address changes (WiFi → Cellular)
+- **Intermittent Connectivity**: Handles laptop sleep, network drops gracefully
+- **Local Echo**: Instant keystroke feedback (no round-trip delay)
+- **Predictive Local Echo**: Displays predicted output while waiting for server
+
+**Usage**:
+```bash
+# Connect to a remote host (requires mosh-server on remote)
+mosh user@hostname
+
+# Use specific SSH port
+mosh --ssh="ssh -p 2222" user@hostname
+
+# Specify mosh server port range
+mosh -p 60000:60010 user@hostname
+```
+
+**Requirements**:
+- Remote server must have `mosh-server` installed
+- UDP ports 60000-61000 must be open on firewall
+
+**Why Added**:
+- Used by bootstrap-dev-server scripts for reliable connections to Hetzner VMs
+- Essential for remote development over unreliable networks
+- Complements SSH for mobile/laptop usage scenarios
+

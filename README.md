@@ -1,8 +1,8 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 🔄 Epic-02 Nearly Complete - 96% (24/25 stories)
+> **Status**: 🔄 Epic-03 In Progress - Feature 03.2 Complete
 > **Version**: 0.1.0 (Pre-Release)
-> **Last Updated**: 2025-01-16
+> **Last Updated**: 2025-12-04
 
 Automated, declarative MacBook configuration system using Nix + nix-darwin + Home Manager. Transform a fresh macOS installation into a fully configured development environment in <30 minutes with zero manual intervention (except license activations).
 
@@ -25,14 +25,14 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
-| **Epic-02** | Application Installation | 25 | 118 | **24** | **116** | 96.0% | 98.3% | 🟢 Functional |
-| **Epic-03** | System Configuration | 14 | 76 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-02** | Application Installation | 25 | 118 | **25** | **118** | 100% | 100% | ✅ Complete |
+| **Epic-03** | System Configuration | 14 | 76 | **6** | **36** | 42.9% | 47.4% | 🟡 In Progress |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **117** | **614** | **41** | **220** | **35.0%** | **35.8%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **117** | **614** | **48** | **258** | **41.0%** | **42.0%** | 🟡 In Progress |
 
 ### ✅ Completed
 - **Requirements Definition** ([REQUIREMENTS.md](./docs/REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
@@ -48,42 +48,23 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - 01.7-001, 01.7-002, 01.8-001 ✅
 - All VM tested and validated
 
-**Epic-02 Stories (24/25 complete - 96.0%)**:
-- **Story 02.1-001** - Claude Desktop and AI Chat Apps (✅ Complete - 2025-11-12, 3 pts, VM TESTED)
-- **Story 02.1-002** - Ollama Desktop App (✅ Complete - 2025-11-12, 3 pts, VM TESTED)
-- **Story 02.1-003** - Standard Profile Ollama Model (✅ Complete - 2025-11-12, 2 pts, VM TESTED)
-- **Story 02.1-004** - Power Profile Ollama Models (✅ Complete - 2025-11-12, 8 pts, VM TESTED)
-- **Story 02.2-001** - Zed Editor with Bidirectional Sync (✅ Complete - 2025-11-12, 12 pts, VM TESTED)
-- **Story 02.2-002** - VSCode with Auto Dark Mode (✅ Complete - 2025-11-12, 3 pts, VM TESTED)
-- **Story 02.2-003** - Ghostty Terminal (✅ Complete - 2025-11-12, 5 pts, VM TESTED)
-- **Story 02.2-004** - Python and Development Tools (✅ Complete - 2025-11-12, 5 pts, VM TESTED)
-- **Story 02.2-005** - Podman and Container Tools (✅ Complete - 2025-11-15, 6 pts, VM TESTED)
-- **Story 02.2-006** - Claude Code CLI & MCP Servers (✅ Complete - 2025-11-15, 8 pts, VM TESTED)
-- **Story 02.3-001** - Brave Browser (✅ Complete - 2025-11-15, 3 pts, VM TESTED)
-- **Story 02.3-002** - Arc Browser (✅ Complete - 2025-11-15, 2 pts, VM TESTED)
-- **Story 02.4-001** - Raycast Installation (✅ Complete - 2025-01-15, 3 pts, VM TESTED)
-- **Story 02.4-002** - 1Password Installation (✅ Complete - 2025-01-15, 3 pts, VM TESTED)
-- **Story 02.4-003** - File Utilities (Calibre, Kindle, Keka, Marked 2) (✅ Complete - 2025-01-15, 5 pts, VM TESTED)
-- **Story 02.4-004** - Dropbox Installation (✅ Complete - 2025-01-16, 3 pts, VM TESTED)
-- **Story 02.4-005** - System Utilities (Onyx, f.lux) (✅ Complete - 2025-01-15, 3 pts, VM TESTED)
-- **Story 02.4-006** - System Monitoring (gotop, iStat Menus, macmon) (✅ Complete - 2025-01-16, 5 pts, VM TESTED)
-- **Story 02.4-007** - Git and Git LFS (✅ Complete - 2025-01-15, 5 pts, VM TESTED)
-- **Story 02.5-001** - WhatsApp Installation (✅ Complete - 2025-01-15, 3 pts, VM TESTED)
-- **Story 02.5-002** - Zoom and Webex (✅ Complete - 2025-01-15, 5 pts, VM TESTED)
-- **Story 02.6-001** - VLC and GIMP (✅ Complete - 2025-01-15, 3 pts, VM TESTED)
-- **Story 02.7-001** - NordVPN Security (✅ Complete - 2025-01-16, 5 pts, VM TESTED)
-- **Story 02.8-001** - Parallels Desktop (Power Profile Only) (✅ Complete - 2025-01-16, 8 pts, VM TESTED)
-- **Story 02.9-001** - Office 365 Suite (✅ Complete - 2025-01-16, 5 pts, VM TESTED)
-- **Story 02.10-001** - Email Account Configuration (❌ CANCELLED - Manual setup documented, 2 pts remaining)
+**Epic-02 Stories (25/25 complete - 100%)**: ✅ **COMPLETE**
+
+**Epic-03 Stories (6/14 complete - 42.9%)**:
+- **Story 03.1-001** - Finder View and Display Settings (✅ Complete - 2025-11-19, 5 pts, VM TESTED)
+- **Story 03.1-002** - Finder Behavior Settings (✅ Complete - 2025-12-04, 5 pts, VM TESTED)
+- **Story 03.1-003** - Finder Sidebar and Desktop (✅ Complete - 2025-12-04, 8 pts, VM TESTED)
+- **Story 03.2-001** - Firewall Configuration (✅ Complete - 2025-12-04, 5 pts, VM TESTED)
+- **Story 03.2-002** - FileVault Encryption Prompt (✅ Complete - 2025-12-04, 8 pts, Implemented)
+- **Story 03.2-003** - Screen Lock and Password Policies (✅ Complete - 2025-12-04, 5 pts, VM TESTED with known limitation)
 
 ### 🔄 In Progress
 - **Epic-01: Bootstrap System** - 17/19 stories (89.5%), 104/113 points (92.0%) - **FUNCTIONAL** 🟢
-- **Epic-02: Application Installation** - 24/25 stories (96.0%), 116/118 points (98.3%) - **FUNCTIONAL** 🟢
-- **Next Epic**: Epic-03 (System Configuration) - 0% started
+- **Epic-02: Application Installation** - 25/25 stories (100%), 118/118 points (100%) - ✅ **COMPLETE**
+- **Epic-03: System Configuration** - 6/14 stories (42.9%), 36/76 points (47.4%) - 🟡 **IN PROGRESS**
 - **Remaining Epic-01 Stories**: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Epic-02 Note**: Story 02.10-001 (Email Config) CANCELLED - Manual setup documented at docs/apps/productivity/email-configuration.md
 - **Bootstrap Status**: ALL 9 phases working! Phases 1-8 VM tested and verified ✅
-- **Recent Milestone**: Epic-02 functionally COMPLETE! 🎉 Stories 02.4-004 (Dropbox), 02.7-001 (NordVPN), 02.9-001 (Office 365) VM tested ✅
+- **Recent Milestone**: Feature 03.1 (Finder) and Feature 03.2 (Security) COMPLETE! 🎉
 
 ### 📅 Upcoming
 - **Phase 1-2**: Core bootstrap implementation (Week 2)
@@ -141,8 +122,8 @@ This represents approximately 47 hours of focused, productive development work o
 
 3. **[/stories/](./stories/)** - Detailed epic files (single source of truth)
    - Epic-01: Bootstrap & Installation (19 stories, 113 points) - 89.5% complete
-   - Epic-02: Application Installation (25 stories, 118 points) - 96.0% complete
-   - Epic-03: System Configuration (14 stories, 76 points) - 0% complete
+   - Epic-02: Application Installation (25 stories, 118 points) - 100% complete ✅
+   - Epic-03: System Configuration (14 stories, 76 points) - 42.9% complete
    - Epic-04: Development Environment (18 stories, 97 points) - 0% complete
    - Epic-05: Theming & Visual Consistency (8 stories, 42 points) - 0% complete
    - Epic-06: Maintenance & Monitoring (10 stories, 55 points) - 0% complete

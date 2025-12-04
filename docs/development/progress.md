@@ -7,13 +7,13 @@
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
 | **Epic-02** | Application Installation | 25 | 118 | **25** | **118** | 100% | 100% | ✅ Complete |
-| **Epic-03** | System Configuration | 14 | 76 | **1** | **5** | 7.1% | 6.6% | 🟡 In Progress |
+| **Epic-03** | System Configuration | 14 | 76 | **6** | **36** | 42.9% | 47.4% | 🟡 In Progress |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **115** | **606** | **43** | **225** | **37.4%** | **37.1%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **117** | **614** | **48** | **258** | **41.0%** | **42.0%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -81,41 +81,66 @@
 - **2025-11-16**: Story 02.10-001 (Email Account Configuration) **CANCELLED** - Manual setup documented instead (automation proved confusing)
 - **2025-11-16**: Stories 02.4-004 (Dropbox), 02.7-001 (NordVPN), 02.9-001 (Office 365) VM tested, pending documentation updates
 
-### Epic-03 Completed Stories (1/14) 🚀 EPIC STARTED!
+### Epic-03 Completed Stories (6/14) 🟡 IN PROGRESS
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
 | 03.1-001 | Finder View and Display Settings | 5 | ✅ Complete | feature/03.1-001-finder-view-settings (merged) | 2025-11-19 |
+| 03.1-002 | Finder Behavior Settings | 5 | ✅ Complete | main | 2025-12-04 |
+| 03.1-003 | Finder Sidebar and Desktop | 8 | ✅ Complete | main | 2025-12-04 |
+| 03.2-001 | Firewall Configuration | 5 | ✅ Complete | main | 2025-12-04 |
+| 03.2-002 | FileVault Encryption Prompt | 8 | ✅ Complete | main | 2025-12-04 |
+| 03.2-003 | Screen Lock and Password Policies | 5 | ✅ Complete | main | 2025-12-04 |
 
 **Notes**:
+- **2025-12-04**: Feature 03.1 (Finder Configuration) and Feature 03.2 (Security Configuration) **COMPLETE**
+  - Story 03.1-002: Finder behavior settings (folders first, search scope, extension warning) ✅ VM Tested
+  - Story 03.1-003: Finder sidebar/desktop (new window target, external drives on desktop) ✅ VM Tested
+  - Story 03.2-001: Firewall with stealth mode (migrated to `networking.applicationFirewall`) ✅ VM Tested
+  - Story 03.2-002: FileVault encryption prompt in bootstrap Phase 9 ✅ Implemented
+  - Story 03.2-003: Screen lock policies (Touch ID sudo, guest login disabled) ✅ VM Tested
+  - **Known Limitation**: `askForPasswordDelay` deprecated by Apple since macOS 10.13 - manual config required
 - **2025-11-19**: Story 03.1-001 **VM TESTED & COMPLETE** - All 8 test cases passed successfully ✅
   - Finder configured with list view, path bar, status bar, hidden files visible, and file extensions shown (5 points)
   - All acceptance criteria met: list view default, path bar, status bar, hidden files, file extensions
   - Settings persisted across Finder restart and system reboot
   - Ready for physical hardware deployment
-- **2025-11-17**: Story 03.1-001 code complete - Ready for VM testing
 - **Implementation Details**: Migrated all system defaults from `configuration.nix` to `macos-defaults.nix` for better organization
-- **Key Changes**: FXPreferredViewStyle changed from "clmv" (column) to "Nlsv" (list view) per user requirements
 
 ### Overall Project Status
 
-- **Total Project Scope**: 115 stories, 606 story points
-- **Completed**: 43 stories (37.4%), 225 points (37.1%)
+- **Total Project Scope**: 117 stories, 614 story points
+- **Completed**: 48 stories (41.0%), 258 points (42.0%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL** 🟢
   - **Epic-02 Application Installation (100% complete)** - ✅ **COMPLETE**
-  - **Epic-03 System Configuration (7.1% complete by stories, 6.6% by points)** - 🚀 **STARTED!**
+  - **Epic-03 System Configuration (42.9% complete by stories, 47.4% by points)** - 🟡 **IN PROGRESS**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - **Epic-03: System Configuration (7.1% complete)** 🚀
-    - Story 03.1-001: Finder View and Display Settings (5 pts) - ✅ **COMPLETE - VM TESTED**
-    - Story 03.1-002: Finder Behavior Settings (5 pts) - **NEXT** 🎯
-    - Story 03.1-003: Finder Sidebar and Desktop (8 pts)
+  - **Epic-03: System Configuration (42.9% complete)** 🟡
+    - ✅ Feature 03.1 (Finder Configuration) - COMPLETE (3/3 stories, 18 pts)
+    - ✅ Feature 03.2 (Security Configuration) - COMPLETE (3/3 stories, 18 pts)
+    - Story 03.3-001: Trackpad Settings - **NEXT** 🎯
+    - Story 03.4-001: Display and Appearance Settings
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: ✅ **Story 03.1-001 COMPLETE!** First system configuration story VM tested and merged (5 points)
+- **Recent Milestone**: ✅ **Feature 03.1 + 03.2 COMPLETE!** Finder and Security configuration complete (6 stories, 36 points)
 
 ### Recent Activity
 
+- **2025-12-04**: ✅ **FEATURE 03.1 + 03.2 COMPLETE!** Finder and Security Configuration - 6 stories, 36 points
+  - **nix-darwin flake update**: Updated nixpkgs, home-manager, stylix, claude-code-nix, mcp-servers-nix
+  - **Breaking changes fixed**:
+    - `WarnOnEmptyTrash` removed from nix-darwin (Dec 2025)
+    - `NewWindowTarget` syntax changed from `"PfHm"` to `"Home"`
+    - `users.users.fxmartin.uid` now required by home-manager
+    - `system.defaults.alf.*` migrated to `networking.applicationFirewall.*`
+    - `stylix.enableReleaseChecks = false` added to suppress version mismatch warnings
+  - **Story 03.1-002**: Finder behavior (folders first, search scope) ✅ VM Tested
+  - **Story 03.1-003**: Finder sidebar/desktop (new window target, drives on desktop) ✅ VM Tested
+  - **Story 03.2-001**: Firewall with stealth mode ✅ VM Tested
+  - **Story 03.2-002**: FileVault encryption prompt in bootstrap ✅ Implemented
+  - **Story 03.2-003**: Screen lock (Touch ID sudo, guest disabled) ✅ VM Tested
+    - **Known Limitation**: `askForPasswordDelay` deprecated by Apple - manual config required
 - **2025-11-19**: ✅ **STORY 03.1-001 COMPLETE!** Finder View and Display Settings - **VM TESTED & MERGED** (5 points)
   - **All 8 VM test cases PASSED** ✅
     - Build and switch succeeded

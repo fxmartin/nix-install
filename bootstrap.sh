@@ -4339,6 +4339,66 @@ display_installed_components() {
     return 0
 }
 
+# Function: check_filevault_status
+# Purpose: Check if FileVault disk encryption is enabled
+# Story: 03.2-002 (FileVault Encryption Prompt)
+# Arguments: None
+# Returns: 0 if FileVault enabled, 1 if disabled
+# Output: Status message to stdout
+check_filevault_status() {
+    # Use fdesetup to check FileVault status
+    # fdesetup status returns "FileVault is On" or "FileVault is Off"
+    if fdesetup status | grep -q "FileVault is On"; then
+        return 0  # FileVault enabled
+    else
+        return 1  # FileVault disabled
+    fi
+}
+
+# Function: display_filevault_prompt
+# Purpose: Display FileVault encryption prompt if not already enabled
+# Story: 03.2-002 (FileVault Encryption Prompt)
+# Arguments: None
+# Returns: 0 always (non-critical display)
+# Output: FileVault prompt to stdout if encryption disabled
+display_filevault_prompt() {
+    # Check FileVault status (non-intrusive)
+    if check_filevault_status; then
+        log_info "✓ FileVault disk encryption is already enabled"
+        echo ""
+        return 0
+    fi
+
+    # FileVault is disabled - display prominent prompt
+    echo ""
+    echo "════════════════════════════════════════════════════════════════════"
+    log_warn "⚠️  SECURITY: FileVault Disk Encryption Not Enabled"
+    echo "════════════════════════════════════════════════════════════════════"
+    echo ""
+    log_warn "FileVault provides full-disk encryption to protect your data if your"
+    log_warn "MacBook is lost, stolen, or accessed by unauthorized users."
+    echo ""
+    log_info "To enable FileVault:"
+    echo ""
+    echo "  1. Open System Settings → Privacy & Security → FileVault"
+    echo "  2. Click 'Turn On FileVault'"
+    echo "  3. Choose recovery method:"
+    echo "     • iCloud account (easiest)"
+    echo "     • Recovery key (save in 1Password - recommended)"
+    echo "  4. Restart your Mac to begin encryption"
+    echo ""
+    log_warn "⚠️  IMPORTANT: Save your recovery key in 1Password!"
+    log_warn "Without the recovery key, you cannot access your data if you forget your password."
+    echo ""
+    echo "Encryption happens in the background and may take several hours."
+    echo "You can continue using your Mac during encryption."
+    echo ""
+    echo "════════════════════════════════════════════════════════════════════"
+    echo ""
+
+    return 0
+}
+
 # Function: display_next_steps
 # Purpose: Display numbered next steps for user post-installation
 # Arguments: None (reads from environment: INSTALL_PROFILE)
@@ -4445,6 +4505,9 @@ installation_summary_phase() {
 
     echo "════════════════════════════════════════════════════════════════════"
     display_next_steps
+
+    echo "════════════════════════════════════════════════════════════════════"
+    display_filevault_prompt
 
     echo "════════════════════════════════════════════════════════════════════"
     display_useful_commands

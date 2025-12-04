@@ -93,41 +93,57 @@
       GuestEnabled = false;
     };
 
-    # ============================================================================
-    # SECURITY SETTINGS (Epic-03, Feature 03.2)
-    # ============================================================================
-
-    # Application Level Firewall (alf)
-    alf = {
-      # Story 03.2-001: Firewall Configuration
-
-      # Enable firewall
-      # 0 = off, 1 = on (allow specific services), 2 = block all incoming connections
-      # Setting to 1 provides protection while allowing necessary services
-      globalstate = 1;
-
-      # Enable stealth mode
-      # 1 = enabled (Mac doesn't respond to ping/ICMP requests or port scans)
-      # 0 = disabled (Mac responds to network probes)
-      # Stealth mode makes the Mac invisible to network attackers
-      stealthenabled = 1;
-
-      # Automatically allow signed applications
-      # 1 = enabled (signed apps can receive incoming connections without prompts)
-      # 0 = disabled (prompt for all apps)
-      # Reduces security prompts for trusted, code-signed applications
-      allowsignedenabled = 1;
-    };
   };
+
+  # ============================================================================
+  # SECURITY SETTINGS (Epic-03, Feature 03.2)
+  # ============================================================================
+
+  # Story 03.2-001: Firewall Configuration
+  # NOTE: Migrated from system.defaults.alf to networking.applicationFirewall (Dec 2025 nix-darwin update)
+  networking.applicationFirewall = {
+    # Enable the application firewall
+    # Provides protection while allowing necessary services
+    enable = true;
+
+    # Enable stealth mode
+    # Mac doesn't respond to ping/ICMP requests or port scans
+    # Makes the Mac invisible to network attackers
+    enableStealthMode = true;
+
+    # Automatically allow signed applications
+    # Signed apps can receive incoming connections without prompts
+    # Reduces security prompts for trusted, code-signed applications
+    allowSigned = true;
+  };
+
+  # Story 03.2-003: Screen Lock and Password Policies
+  # Password required immediately after sleep/screensaver (0 second delay)
+  # Provides security when Mac is unattended or locked
+  system.defaults.screensaver = {
+    # Require password after sleep or screensaver starts
+    # Prevents unauthorized access when Mac is left unattended
+    askForPassword = true;
+
+    # Immediate password requirement (0 seconds delay)
+    # No grace period - password required instantly upon wake
+    askForPasswordDelay = 0;
+  };
+
+  # Touch ID for sudo is ALREADY configured in darwin/configuration.nix:
+  # security.pam.services.sudo_local.touchIdAuth = true;
+  #
+  # Guest login is ALREADY disabled above in loginwindow settings:
+  # system.defaults.loginwindow.GuestEnabled = false;
 
   # ============================================================================
   # FUTURE EPIC-03 SETTINGS (To Be Implemented)
   # ============================================================================
 
-  # Feature 03.2: Security and Privacy Settings (In Progress)
+  # Feature 03.2: Security and Privacy Settings (Complete)
   # - [✅] Firewall configuration (Story 03.2-001)
-  # - [ ] Password requirements (Story 03.2-003)
-  # - [ ] FileVault encryption prompt (Story 03.2-002)
+  # - [✅] Screen lock and password policies (Story 03.2-003)
+  # - [✅] FileVault encryption prompt (Story 03.2-002 - implemented in bootstrap.sh Phase 9)
 
   # Feature 03.3: Trackpad Configuration
   # - Tap to click

@@ -7,13 +7,13 @@
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
 | **Epic-02** | Application Installation | 25 | 118 | **25** | **118** | 100% | 100% | ✅ Complete |
-| **Epic-03** | System Configuration | 14 | 76 | **12** | **68** | 85.7% | 89.5% | 🟡 In Progress |
+| **Epic-03** | System Configuration | 14 | 76 | **13** | **73** | 92.9% | 96.1% | 🟡 In Progress |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **117** | **614** | **54** | **290** | **46.2%** | **47.2%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **117** | **614** | **55** | **295** | **47.0%** | **48.0%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -97,6 +97,7 @@
 | 03.4-002 | Night Shift Scheduling | 5 | ✅ Complete | main | 2025-12-04 |
 | 03.5-001 | Keyboard Repeat and Text Corrections | 5 | ✅ Complete | main | 2025-12-04 |
 | 03.6-001 | Dock Behavior and Apps | 4 | ✅ Complete | main | 2025-12-04 |
+| 03.7-001 | Time Machine Preferences & Exclusions | 5 | ✅ Complete | main | 2025-12-04 |
 
 **Notes**:
 - **2025-12-04**: Feature 03.3 (Trackpad and Input) and Feature 03.4 (Display and Appearance) **COMPLETE**
@@ -125,26 +126,36 @@
 ### Overall Project Status
 
 - **Total Project Scope**: 117 stories, 614 story points
-- **Completed**: 54 stories (46.2%), 290 points (47.2%)
+- **Completed**: 55 stories (47.0%), 295 points (48.0%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL** 🟢
   - **Epic-02 Application Installation (100% complete)** - ✅ **COMPLETE**
-  - **Epic-03 System Configuration (85.7% complete by stories, 89.5% by points)** - 🟡 **IN PROGRESS**
+  - **Epic-03 System Configuration (92.9% complete by stories, 96.1% by points)** - 🟡 **NEAR COMPLETE**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - **Epic-03: System Configuration (85.7% complete)** 🟡
+  - **Epic-03: System Configuration (92.9% complete)** 🟡
     - ✅ Feature 03.1 (Finder Configuration) - COMPLETE (3/3 stories, 18 pts)
     - ✅ Feature 03.2 (Security Configuration) - COMPLETE (3/3 stories, 18 pts)
     - ✅ Feature 03.3 (Trackpad and Input) - COMPLETE (2/2 stories, 13 pts)
     - ✅ Feature 03.4 (Display and Appearance) - COMPLETE (2/2 stories, 10 pts)
     - ✅ Feature 03.5 (Keyboard and Text Input) - COMPLETE (1/1 story, 5 pts)
     - ✅ Feature 03.6 (Dock Configuration) - COMPLETE (1/1 story, 4 pts)
-    - ⚠️ Feature 03.7 (Time Machine) - DEFERRED (2 stories, 8 pts - optional)
+    - 🟡 Feature 03.7 (Time Machine) - PARTIAL (1/2 stories, 5/8 pts - Story 03.7-002 deferred)
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: ✅ **Epic-03 FUNCTIONALLY COMPLETE!** 12/14 stories (68/76 pts) - Time Machine deferred
+- **Recent Milestone**: ✅ **Story 03.7-001 COMPLETE!** Time Machine exclusions (5 pts) - 03.7-002 deferred
 
 ### Recent Activity
 
+- **2025-12-04**: ✅ **STORY 03.7-001 COMPLETE!** Time Machine Preferences & Exclusions - 5 points
+  - **Story 03.7-001**: Time Machine configuration via activation script ✅ Hardware Tested
+    - DoNotOfferNewDisksForBackup preference set (no annoying prompts)
+    - /nix excluded from backups (~20-50GB saved)
+    - User caches excluded (~/Library/Caches, Homebrew, npm, yarn, pip, uv)
+    - Trash, Downloads, and system temp files excluded
+    - All exclusions persist across rebuilds via `tmutil addexclusion -p`
+  - **Story 03.7-002**: Bootstrap destination prompt **DEFERRED** (optional feature)
+  - **Epic-03 Progress**: 92.9% complete (13/14 stories, 73/76 points)
+  - **Overall Progress**: 47.0% complete (55/117 stories, 295/614 points)
 - **2025-12-04**: ✅ **FEATURE 03.6 COMPLETE!** Dock Configuration - 1 story, 4 points
   - **Story 03.6-001**: Dock behavior and apps ✅ Hardware Tested
     - Minimize windows into app icon (minimize-to-application = true)

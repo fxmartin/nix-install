@@ -85,12 +85,32 @@
       AppleICUForce24HourTime = true; # 24-hour time format
       AppleInterfaceStyle = "Dark"; # Dark mode
       KeyRepeat = 2; # Fast key repeat rate
+
+      # Story 03.3-001: Trackpad speed and scrolling
+      # Fast trackpad pointer speed (range: 0.0 - 3.0, default: ~0.6875)
+      # 3.0 provides maximum tracking speed for efficient cursor movement
+      "com.apple.trackpad.scaling" = 3.0;
+
+
+      # Story 03.3-001: Natural scrolling direction
+      # Disable natural scrolling (false = standard scroll direction)
+      # Content moves DOWN when scrolling DOWN (traditional desktop behavior)
+      # Applies to both trackpad and external mice
+      "com.apple.swipescrolldirection" = false;
     };
 
     # Login window settings
     loginwindow = {
       # Disable guest account for security
       GuestEnabled = false;
+    };
+
+    # Story 03.3-002: Mouse speed
+    # Mouse scaling is under .GlobalPreferences domain (not NSGlobalDomain)
+    ".GlobalPreferences" = {
+      # Fast mouse tracking speed (range: 0.0 - 3.0)
+      # Matches trackpad speed for consistent pointer behavior
+      "com.apple.mouse.scaling" = 3.0;
     };
 
   };
@@ -137,6 +157,22 @@
   # system.defaults.loginwindow.GuestEnabled = false;
 
   # ============================================================================
+  # TRACKPAD AND INPUT CONFIGURATION (Epic-03, Feature 03.3)
+  # ============================================================================
+
+  # Story 03.3-001: Trackpad Gestures and Speed
+  system.defaults.trackpad = {
+    # Enable tap-to-click
+    # Single tap performs a click instead of requiring physical press
+    Clicking = true;
+
+    # Enable three-finger drag (Accessibility feature)
+    # Allows dragging windows/items with three-finger swipe
+    # Note: nix-darwin sets this in the appropriate macOS domains automatically
+    TrackpadThreeFingerDrag = true;
+  };
+
+  # ============================================================================
   # FUTURE EPIC-03 SETTINGS (To Be Implemented)
   # ============================================================================
 
@@ -145,11 +181,13 @@
   # - [✅] Screen lock and password policies (Story 03.2-003)
   # - [✅] FileVault encryption prompt (Story 03.2-002 - implemented in bootstrap.sh Phase 9)
 
-  # Feature 03.3: Trackpad Configuration
-  # - Tap to click
-  # - Tracking speed
-  # - Natural scrolling
-  # - Secondary click
+  # Feature 03.3: Trackpad and Input Configuration (Complete)
+  # - [✅] Tap to click (Story 03.3-001)
+  # - [✅] Three-finger drag (Story 03.3-001)
+  # - [✅] Fast trackpad speed (Story 03.3-001 - in NSGlobalDomain)
+  # - [✅] Natural scrolling disabled (Story 03.3-001 - in NSGlobalDomain)
+  # - [✅] Secondary click (Story 03.3-001 - default macOS behavior)
+  # - [✅] Fast mouse speed (Story 03.3-002 - in .GlobalPreferences)
 
   # Feature 03.4: Display and Energy Settings
   # - Screen resolution

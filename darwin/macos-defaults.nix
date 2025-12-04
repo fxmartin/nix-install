@@ -55,6 +55,25 @@
       # Warn before changing file extension
       # Prevents accidental file corruption from extension changes
       FXEnableExtensionChangeWarning = true;
+
+      # Story 03.1-003: Finder Sidebar and Desktop
+
+      # New Finder windows open to Home directory
+      # Format: "PfHm" for Home, "PfDe" for Desktop, "PfDo" for Documents
+      # More intuitive than opening to "Recents" or other default locations
+      NewWindowTarget = "PfHm";
+
+      # Show external hard drives on desktop
+      # Provides quick access to mounted external storage
+      ShowExternalHardDrivesOnDesktop = true;
+
+      # Show removable media (CDs, DVDs, iPods) on desktop
+      # Useful for physical media access
+      ShowRemovableMediaOnDesktop = true;
+
+      # Show mounted servers on desktop
+      # Network volumes appear on desktop for easy access
+      ShowMountedServersOnDesktop = true;
     };
 
     # Global macOS settings
@@ -79,12 +98,6 @@
   # ============================================================================
   # FUTURE EPIC-03 SETTINGS (To Be Implemented)
   # ============================================================================
-
-  # Story 03.1-003: Finder Sidebar and Desktop
-  # - NewWindowTarget
-  # - ShowExternalHardDrivesOnDesktop
-  # - ShowRemovableMediaOnDesktop
-  # - ShowMountedServersOnDesktop
 
   # Feature 03.2: Security and Privacy Settings
   # - Firewall configuration

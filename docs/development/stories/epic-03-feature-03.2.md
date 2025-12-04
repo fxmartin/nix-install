@@ -60,6 +60,7 @@
 **Priority**: Must Have
 **Story Points**: 5
 **Sprint**: Sprint 4
+**Status**: ✅ **IMPLEMENTED** (Pending VM Testing)
 
 **Acceptance Criteria**:
 - **Given** darwin-rebuild completes successfully
@@ -87,13 +88,24 @@
 - Verify: System Settings → Network → Firewall shows "On" and stealth mode enabled
 - Test: External ping should fail (no response)
 
+**Implementation Details**:
+- **Files Modified**:
+  - `darwin/macos-defaults.nix`: Added `system.defaults.alf` configuration block
+- **Configuration Added**:
+  - `globalstate = 1`: Enables firewall (0=off, 1=on, 2=block all)
+  - `stealthenabled = 1`: Enables stealth mode (no ping/port scan responses)
+  - `allowsignedenabled = 1`: Auto-allows code-signed applications
+- **Comments**: Comprehensive explanations for each setting and their values
+- **Location**: After loginwindow settings, within system.defaults block
+- **Branch**: `feature/03.2-001-firewall-configuration`
+
 **Definition of Done**:
-- [ ] Firewall settings implemented in macos-defaults.nix
-- [ ] Firewall enabled after rebuild
-- [ ] Stealth mode active
-- [ ] Signed apps auto-allowed
-- [ ] Settings persist after reboot
-- [ ] Tested in VM
+- [x] Firewall settings implemented in macos-defaults.nix
+- [ ] Firewall enabled after rebuild (FX to test)
+- [ ] Stealth mode active (FX to test)
+- [ ] Signed apps auto-allowed (FX to test)
+- [ ] Settings persist after reboot (FX to test)
+- [ ] Tested in VM (FX to test)
 - [ ] Documentation notes firewall enabled
 
 **Dependencies**:
@@ -101,6 +113,25 @@
 
 **Risk Level**: Low
 **Risk Mitigation**: N/A
+
+**VM Testing Guide**:
+1. **Before Rebuild**: Check System Settings → Network → Firewall (should be off/default)
+2. **Run Rebuild**: `darwin-rebuild switch --flake .#power` (or .#standard)
+3. **After Rebuild**:
+   - Open System Settings → Network → Firewall
+   - Verify firewall shows "On"
+   - Verify stealth mode is enabled
+   - Verify "Automatically allow signed software to receive incoming connections" is checked
+4. **Test Stealth Mode**:
+   - Get Mac's IP address: `ipconfig getifaddr en0`
+   - From another machine on same network: `ping <mac-ip>` (should timeout/fail)
+   - From Mac itself: `ping localhost` (should work - stealth only blocks external)
+5. **Test Persistence**:
+   - Restart Mac
+   - Verify firewall settings remain after reboot
+6. **Test Signed App Behavior**:
+   - Install a signed app (e.g., from Homebrew)
+   - Verify no firewall prompt appears when app tries to accept connections
 
 ---
 

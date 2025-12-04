@@ -94,8 +94,40 @@
       # If you prefer forced dark mode, uncomment the line below:
       # AppleInterfaceStyle = "Dark";
 
-      # Keyboard Settings (existing, will be expanded in Feature 03.5)
-      KeyRepeat = 2; # Fast key repeat rate
+      # ============================================================================
+      # KEYBOARD AND TEXT INPUT (Epic-03, Feature 03.5)
+      # ============================================================================
+
+      # Story 03.5-001: Keyboard Repeat and Text Corrections
+
+      # Key repeat rate (lower = faster, range: 1-15, 2 is very fast)
+      # 1 = fastest, 2 = very fast (recommended for coding)
+      KeyRepeat = 2;
+
+      # Initial key repeat delay (lower = shorter delay, range: 10-120)
+      # 10 = shortest (immediate), 15 = short (recommended), 25 = default
+      InitialKeyRepeat = 15;
+
+      # Disable automatic capitalization (essential for coding)
+      # Prevents unwanted capitalization when typing code
+      NSAutomaticCapitalizationEnabled = false;
+
+      # Disable smart dash substitution (essential for coding)
+      # Prevents "--" from becoming "—" (em dash)
+      NSAutomaticDashSubstitutionEnabled = false;
+
+      # Disable automatic period substitution
+      # Prevents double-space from becoming ". " (period + space)
+      NSAutomaticPeriodSubstitutionEnabled = false;
+
+      # Disable smart quote substitution (essential for coding)
+      # Prevents straight quotes from becoming curly quotes
+      # Critical for programming - curly quotes break code
+      NSAutomaticQuoteSubstitutionEnabled = false;
+
+      # Disable automatic spelling correction (essential for coding)
+      # Prevents auto-correct from changing variable names, commands, etc.
+      NSAutomaticSpellingCorrectionEnabled = false;
 
       # Story 03.3-001: Trackpad speed and scrolling
       # Fast trackpad pointer speed (range: 0.0 - 3.0, default: ~0.6875)
@@ -231,10 +263,13 @@
   # - [✅] Auto Light/Dark Mode (Story 03.4-001 - via CustomUserPreferences)
   # - [⚠️] Night Shift scheduling (Story 03.4-002 - manual setup required, see docs)
 
-  # Feature 03.5: Keyboard and Input Settings
-  # - Key repeat rates
-  # - Modifier keys
-  # - Input sources
+  # Feature 03.5: Keyboard and Text Input (Complete)
+  # - [✅] Fast key repeat rate (Story 03.5-001 - KeyRepeat = 2)
+  # - [✅] Short initial delay (Story 03.5-001 - InitialKeyRepeat = 15)
+  # - [✅] Auto-capitalization disabled (Story 03.5-001)
+  # - [✅] Smart quotes disabled (Story 03.5-001)
+  # - [✅] Smart dashes disabled (Story 03.5-001)
+  # - [✅] Auto-correct disabled (Story 03.5-001)
 
   # Feature 03.6: Dock Configuration
   # - Auto-hide

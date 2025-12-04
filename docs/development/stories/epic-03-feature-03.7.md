@@ -8,7 +8,7 @@
 **Feature ID**: Feature 03.7
 **Feature Name**: Time Machine Backup Configuration
 **Epic**: Epic-03
-**Status**: 📝 Not Started
+**Status**: 🟡 Partial (Story 03.7-001 Complete, Story 03.7-002 Deferred)
 
 **Feature Description**: Automate Time Machine backup configuration with intelligent exclusions and user-prompted destination setup
 **User Value**: Automated backup system configuration saves time and ensures critical paths are excluded from backups
@@ -82,14 +82,51 @@
 - Note: Backup destination setup is handled in Story 03.7-002
 
 **Definition of Done**:
-- [ ] Exclusions implemented in macos-defaults.nix activation script
-- [ ] Standard exclusions applied (/nix, caches, trash, downloads, temp)
-- [ ] Time Machine menu bar icon visible
-- [ ] New disk prompt disabled
-- [ ] Exclusions verified with `tmutil isexcluded`
-- [ ] Settings persist after rebuild
-- [ ] User can add custom exclusions via config
-- [ ] Tested in VM
+- [x] Exclusions implemented in macos-defaults.nix activation script
+- [x] Standard exclusions applied (/nix, caches, trash, downloads, temp)
+- [ ] Time Machine menu bar icon visible (manual - System Settings → Control Center)
+- [x] New disk prompt disabled
+- [x] Exclusions verified with `tmutil isexcluded`
+- [x] Settings persist after rebuild
+- [ ] User can add custom exclusions via config (deferred - manual tmutil)
+- [x] Tested on hardware (MacBook Pro M3 Max - 2025-12-04)
+
+**Implementation Details**:
+- **Files Modified**:
+  - `darwin/macos-defaults.nix`: Added Time Machine activation script
+- **Configuration Added**:
+  ```nix
+  system.activationScripts.configureTimeMachine.text = ''
+    # Don't prompt for new backup disks
+    /usr/bin/defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
+
+    # Exclusions (runs as root during darwin-rebuild)
+    /usr/bin/tmutil addexclusion -p /nix 2>/dev/null || true
+    /usr/bin/tmutil addexclusion -p "$USER_HOME/.Trash" 2>/dev/null || true
+    /usr/bin/tmutil addexclusion -p "$USER_HOME/Library/Caches" 2>/dev/null || true
+    /usr/bin/tmutil addexclusion -p "$USER_HOME/Downloads" 2>/dev/null || true
+    /usr/bin/tmutil addexclusion -p /private/var/folders 2>/dev/null || true
+    # Plus: Homebrew, npm, yarn, pip, uv caches
+  '';
+  ```
+- **Implementation Date**: 2025-12-04
+- **Branch**: main
+
+**Testing Results**:
+- **Date**: 2025-12-04
+- **Tested By**: FX (via Claude Code)
+- **Environment**: MacBook Pro M3 Max (Physical Hardware)
+- **Verification Commands**:
+  ```bash
+  defaults read com.apple.TimeMachine DoNotOfferNewDisksForBackup  # Returns 1
+  tmutil isexcluded /nix                    # [Excluded]
+  tmutil isexcluded ~/.Trash                # [Excluded]
+  tmutil isexcluded ~/Library/Caches        # [Excluded]
+  tmutil isexcluded ~/Downloads             # [Excluded]
+  tmutil isexcluded /private/var/folders    # [Excluded]
+  ```
+- **Result**: All 5 primary exclusions verified, preference set correctly
+- **Conclusion**: Story 03.7-001 COMPLETE
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (nix-darwin installed)

@@ -303,6 +303,66 @@
   };
 
   # ============================================================================
+  # TIME MACHINE BACKUP CONFIGURATION (Epic-03, Feature 03.7)
+  # ============================================================================
+
+  # Story 03.7-001: Time Machine Preferences & Exclusions
+  # Configure Time Machine with intelligent exclusions to save backup space
+  # Excludes reproducible content (Nix store) and temporary files (caches, trash)
+
+  # Time Machine preferences and exclusions via activation script
+  # NOTE: nix-darwin doesn't have system.defaults.TimeMachine, so we use defaults write
+  # These paths are excluded from backups to save space and time:
+  # - /nix: Fully reproducible via flake.lock (20-50GB saved)
+  # - ~/.Trash: User's deleted files
+  # - ~/Library/Caches: Application caches (reproducible)
+  # - ~/Downloads: Usually temporary files
+  # - /private/var/folders: System temporary files
+  system.activationScripts.configureTimeMachine.text = ''
+    echo "Configuring Time Machine preferences and exclusions..."
+
+    # Don't prompt to use new hard drives as backup volume
+    # Prevents annoying popup when connecting external drives
+    /usr/bin/defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
+
+    # Get the actual user's home directory (activation runs as root)
+    USER_HOME="/Users/${userConfig.username}"
+
+    # Add standard exclusions (safe to run multiple times)
+    # Using -p flag for "sticky" exclusions that persist across volume changes
+    # The || true ensures the script continues even if path doesn't exist
+
+    # Nix store - fully reproducible, no need to backup (~20-50GB)
+    /usr/bin/tmutil addexclusion -p /nix 2>/dev/null || true
+
+    # User trash - no need to backup deleted files
+    /usr/bin/tmutil addexclusion -p "$USER_HOME/.Trash" 2>/dev/null || true
+
+    # Application caches - reproducible, often large
+    /usr/bin/tmutil addexclusion -p "$USER_HOME/Library/Caches" 2>/dev/null || true
+
+    # Downloads folder - usually temporary files
+    /usr/bin/tmutil addexclusion -p "$USER_HOME/Downloads" 2>/dev/null || true
+
+    # System temporary files
+    /usr/bin/tmutil addexclusion -p /private/var/folders 2>/dev/null || true
+
+    # Homebrew caches - reproducible
+    /usr/bin/tmutil addexclusion -p "$USER_HOME/Library/Caches/Homebrew" 2>/dev/null || true
+
+    # npm/yarn caches - reproducible
+    /usr/bin/tmutil addexclusion -p "$USER_HOME/.npm" 2>/dev/null || true
+    /usr/bin/tmutil addexclusion -p "$USER_HOME/.yarn" 2>/dev/null || true
+
+    # Python caches - reproducible
+    /usr/bin/tmutil addexclusion -p "$USER_HOME/.cache/pip" 2>/dev/null || true
+    /usr/bin/tmutil addexclusion -p "$USER_HOME/.cache/uv" 2>/dev/null || true
+
+    echo "✅ Time Machine exclusions configured"
+    echo "   Verify with: tmutil isexcluded /nix"
+  '';
+
+  # ============================================================================
   # EPIC-03 COMPLETION STATUS
   # ============================================================================
 
@@ -343,4 +403,14 @@
   # - [✅] Launch animation disabled (Story 03.6-001)
   # - [✅] Process indicators enabled (Story 03.6-001)
   # - [✅] MRU spaces disabled (Story 03.6-001)
+
+  # Feature 03.7: Time Machine Backup Configuration (Complete)
+  # - [✅] Don't prompt for new disks (Story 03.7-001)
+  # - [✅] Nix store excluded from backups (Story 03.7-001)
+  # - [✅] User caches excluded (Story 03.7-001)
+  # - [✅] Trash excluded (Story 03.7-001)
+  # - [✅] Downloads excluded (Story 03.7-001)
+  # - [✅] System temp files excluded (Story 03.7-001)
+  # - [✅] Package manager caches excluded (Story 03.7-001)
+  # - [⏸️] Destination setup prompt (Story 03.7-002 - deferred)
 }

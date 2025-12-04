@@ -138,6 +138,7 @@
 **Story Points**: 4
 **Priority**: Medium
 **Complexity**: Low
+**Status**: ✅ **COMPLETE** - Hardware Tested
 
 #### Stories in This Feature
 
@@ -157,42 +158,136 @@
 - **And** Dock position is at bottom (or configurable: left, bottom, right)
 - **And** settings persist across reboots
 
-**Additional Requirements**:
-- Minimize into app icon: Cleaner Dock
-- Auto-hide: Optional, saves screen space
-- Dock position: Bottom (default) or configurable
-- Custom apps: Advanced feature, may require dockutil (document)
+**Definition of Done**:
+- [x] Dock settings implemented in macos-defaults.nix
+- [x] Windows minimize into app icon
+- [x] Auto-hide works
+- [x] Dock position correct (bottom)
+- [x] Recent apps not shown
+- [x] Settings persist after reboot
+- [x] Tested on hardware (MacBook Pro M3 Max - 2025-12-04)
+- [x] Documentation notes Dock configuration
 
-**Technical Notes**:
-- Add to darwin/macos-defaults.nix:
+**Implementation Details**:
+- **Files Modified**:
+  - `darwin/macos-defaults.nix`: Added dock configuration section
+- **Configuration Added**:
   ```nix
   system.defaults.dock = {
     minimize-to-application = true;  # Minimize into app icon
-    autohide = true;  # Auto-hide Dock (optional, set to false if unwanted)
-    orientation = "bottom";  # Dock position (bottom, left, right)
+    autohide = true;  # Auto-hide Dock
+    autohide-time-modifier = 0.2;  # Fast hide animation
+    autohide-delay = 0.0;  # No delay before showing
+    orientation = "bottom";  # Dock position
     show-recents = false;  # Don't show recent apps
-    tilesize = 48;  # Icon size (configurable)
+    tilesize = 48;  # Icon size
+    magnification = false;  # No magnification on hover
+    mineffect = "scale";  # Scale effect (faster than genie)
+    launchanim = false;  # No bounce animation on launch
+    show-process-indicators = true;  # Show dots for running apps
+    mru-spaces = false;  # Don't rearrange Spaces automatically
   };
   ```
-- Custom Dock apps: Requires dockutil or manual (document in customization guide)
-- Verify: Minimize window (goes into app icon), hide Dock appears on hover
-- Test: Check Dock position and size
+- **Implementation Date**: 2025-12-04
+- **Branch**: main
 
-**Definition of Done**:
-- [ ] Dock settings implemented in macos-defaults.nix
-- [ ] Windows minimize into app icon
-- [ ] Auto-hide works (if enabled)
-- [ ] Dock position correct
-- [ ] Recent apps not shown
-- [ ] Settings persist after reboot
-- [ ] Tested in VM
-- [ ] Documentation notes Dock configuration
+**Technical Notes**:
+- **minimize-to-application**: Windows minimize into their app icon instead of creating separate Dock icons
+- **autohide**: Dock hides automatically, appears when mouse moves to screen edge
+- **autohide-time-modifier**: Animation speed (0.2 = fast, default ~0.5)
+- **autohide-delay**: Time before Dock appears (0 = instant)
+- **mineffect**: "scale" is faster/cleaner than "genie"
+- **launchanim**: Disabling removes the bouncing icon effect
+- **mru-spaces**: Prevents automatic workspace reordering based on recent use
+
+**VM/Hardware Testing Guide**:
+1. **After Rebuild**:
+   - Dock should auto-hide (move mouse to bottom of screen to show)
+   - Minimize a window (Cmd+M) - should go into app icon, not separate icon
+2. **Verify Settings**:
+   ```bash
+   defaults read com.apple.dock minimize-to-application  # Should be 1
+   defaults read com.apple.dock autohide  # Should be 1
+   defaults read com.apple.dock autohide-time-modifier  # Should be 0.2
+   defaults read com.apple.dock autohide-delay  # Should be 0
+   defaults read com.apple.dock orientation  # Should be bottom
+   defaults read com.apple.dock show-recents  # Should be 0
+   defaults read com.apple.dock tilesize  # Should be 48
+   defaults read com.apple.dock mineffect  # Should be scale
+   defaults read com.apple.dock launchanim  # Should be 0
+   defaults read com.apple.dock mru-spaces  # Should be 0
+   ```
+3. **Test Minimize Behavior**:
+   - Open Finder, minimize window (Cmd+M)
+   - Window should minimize INTO the Finder icon, not create separate icon
+4. **Test Auto-Hide**:
+   - Move mouse away from bottom - Dock should hide quickly
+   - Move mouse to bottom - Dock should appear instantly (no delay)
+
+**Note on Custom Dock Apps**:
+Customizing which apps appear in the Dock requires `dockutil` or manual configuration.
+This is documented separately as it involves personal preferences.
+Use: `brew install dockutil` then `dockutil --add /Applications/YourApp.app`
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (nix-darwin installed)
 
 **Risk Level**: Low
 **Risk Mitigation**: N/A
+
+---
+
+## Feature 03.6 Summary
+
+**Overall Status**: ✅ **COMPLETE** - Hardware Tested
+**Total Story Points**: 4
+**Stories Complete**: 1/1 (100%)
+
+**Implementation Files Modified**:
+- `darwin/macos-defaults.nix`: Dock settings in system.defaults.dock
+
+**What Works Automatically (via nix-darwin)**:
+- ✅ Minimize windows into app icon (cleaner Dock)
+- ✅ Auto-hide enabled with instant show (no delay)
+- ✅ Fast hide animation (0.2s)
+- ✅ Dock at bottom position
+- ✅ Recent apps hidden
+- ✅ 48px icon size
+- ✅ Scale minimize effect (faster than genie)
+- ✅ Launch animation disabled (no bouncing)
+- ✅ Process indicators shown (dots for running apps)
+- ✅ MRU Spaces disabled (predictable workspace order)
+
+**Testing Checklist**:
+- [x] Story 03.6-001: Minimize into app icon works
+- [x] Story 03.6-001: Auto-hide works with instant show
+- [x] Story 03.6-001: Dock position at bottom
+- [x] Story 03.6-001: Recent apps not shown
+- [x] All settings persist after reboot
+
+**Testing Results**:
+- **Date**: 2025-12-04
+- **Tested By**: FX (via Claude Code)
+- **Environment**: MacBook Pro M3 Max (Physical Hardware)
+- **Profile**: Power
+- **Result**: All 12 settings verified via `defaults read com.apple.dock`
+- **Conclusion**: Feature 03.6 COMPLETE
+
+---
+
+## Epic-03 Complete Summary
+
+**Epic-03 Status**: ✅ **COMPLETE** (All 12 Stories)
+**Total Story Points**: 76
+**All Features Complete**:
+- ✅ Feature 03.1: Finder Configuration (3 stories, 18 pts)
+- ✅ Feature 03.2: Security Configuration (3 stories, 18 pts)
+- ✅ Feature 03.3: Trackpad and Input (2 stories, 13 pts)
+- ✅ Feature 03.4: Display and Appearance (2 stories, 10 pts)
+- ✅ Feature 03.5: Keyboard and Text Input (1 story, 5 pts)
+- ✅ Feature 03.6: Dock Configuration (1 story, 4 pts)
+
+**Note**: Epic-03 originally had 14 stories (76 pts). Stories 03.7-001 and 03.7-002 (Time Machine - 8 pts) are deferred/optional.
 
 ---
 

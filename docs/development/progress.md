@@ -7,13 +7,13 @@
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
 | **Epic-02** | Application Installation | 25 | 118 | **25** | **118** | 100% | 100% | ✅ Complete |
-| **Epic-03** | System Configuration | 14 | 76 | **11** | **64** | 78.6% | 84.2% | 🟡 In Progress |
+| **Epic-03** | System Configuration | 14 | 76 | **12** | **68** | 85.7% | 89.5% | 🟡 In Progress |
 | **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **117** | **614** | **53** | **286** | **45.3%** | **46.6%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **117** | **614** | **54** | **290** | **46.2%** | **47.2%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -81,7 +81,7 @@
 - **2025-11-16**: Story 02.10-001 (Email Account Configuration) **CANCELLED** - Manual setup documented instead (automation proved confusing)
 - **2025-11-16**: Stories 02.4-004 (Dropbox), 02.7-001 (NordVPN), 02.9-001 (Office 365) VM tested, pending documentation updates
 
-### Epic-03 Completed Stories (10/14) 🟡 IN PROGRESS
+### Epic-03 Completed Stories (12/14) 🟡 IN PROGRESS
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -96,6 +96,7 @@
 | 03.4-001 | Auto Light/Dark Mode and Time Format | 5 | ✅ Complete | main | 2025-12-04 |
 | 03.4-002 | Night Shift Scheduling | 5 | ✅ Complete | main | 2025-12-04 |
 | 03.5-001 | Keyboard Repeat and Text Corrections | 5 | ✅ Complete | main | 2025-12-04 |
+| 03.6-001 | Dock Behavior and Apps | 4 | ✅ Complete | main | 2025-12-04 |
 
 **Notes**:
 - **2025-12-04**: Feature 03.3 (Trackpad and Input) and Feature 03.4 (Display and Appearance) **COMPLETE**
@@ -124,25 +125,39 @@
 ### Overall Project Status
 
 - **Total Project Scope**: 117 stories, 614 story points
-- **Completed**: 53 stories (45.3%), 286 points (46.6%)
+- **Completed**: 54 stories (46.2%), 290 points (47.2%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL** 🟢
   - **Epic-02 Application Installation (100% complete)** - ✅ **COMPLETE**
-  - **Epic-03 System Configuration (78.6% complete by stories, 84.2% by points)** - 🟡 **IN PROGRESS**
+  - **Epic-03 System Configuration (85.7% complete by stories, 89.5% by points)** - 🟡 **IN PROGRESS**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - **Epic-03: System Configuration (78.6% complete)** 🟡
+  - **Epic-03: System Configuration (85.7% complete)** 🟡
     - ✅ Feature 03.1 (Finder Configuration) - COMPLETE (3/3 stories, 18 pts)
     - ✅ Feature 03.2 (Security Configuration) - COMPLETE (3/3 stories, 18 pts)
     - ✅ Feature 03.3 (Trackpad and Input) - COMPLETE (2/2 stories, 13 pts)
     - ✅ Feature 03.4 (Display and Appearance) - COMPLETE (2/2 stories, 10 pts)
     - ✅ Feature 03.5 (Keyboard and Text Input) - COMPLETE (1/1 story, 5 pts)
-    - Story 03.6-001: Dock Configuration - **NEXT** 🎯
+    - ✅ Feature 03.6 (Dock Configuration) - COMPLETE (1/1 story, 4 pts)
+    - ⚠️ Feature 03.7 (Time Machine) - DEFERRED (2 stories, 8 pts - optional)
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: ✅ **Feature 03.5 COMPLETE!** Keyboard and Text Input complete (1 story, 5 points)
+- **Recent Milestone**: ✅ **Epic-03 FUNCTIONALLY COMPLETE!** 12/14 stories (68/76 pts) - Time Machine deferred
 
 ### Recent Activity
 
+- **2025-12-04**: ✅ **FEATURE 03.6 COMPLETE!** Dock Configuration - 1 story, 4 points
+  - **Story 03.6-001**: Dock behavior and apps ✅ Hardware Tested
+    - Minimize windows into app icon (minimize-to-application = true)
+    - Auto-hide enabled with instant show (autohide = true, delay = 0)
+    - Fast hide animation (autohide-time-modifier = 0.2)
+    - Dock at bottom, 48px icons, no magnification
+    - Scale minimize effect (faster than genie)
+    - Launch animation disabled, process indicators shown
+    - Recent apps hidden, MRU Spaces disabled
+  - **All 12 Dock settings verified** via `defaults read com.apple.dock`
+  - **Epic-03 Progress**: 85.7% complete (12/14 stories, 68/76 points)
+  - **Epic-03 FUNCTIONALLY COMPLETE** - Only Time Machine stories remain (deferred/optional)
+  - **Overall Progress**: 46.2% complete (54/117 stories, 290/614 points)
 - **2025-12-04**: ✅ **FEATURE 03.5 COMPLETE!** Keyboard and Text Input - 1 story, 5 points
   - **Story 03.5-001**: Keyboard repeat and text corrections ✅ Hardware Tested
     - Fast key repeat (KeyRepeat = 2) and short initial delay (InitialKeyRepeat = 15)

@@ -93,16 +93,42 @@
       # Disable guest account for security
       GuestEnabled = false;
     };
+
+    # ============================================================================
+    # SECURITY SETTINGS (Epic-03, Feature 03.2)
+    # ============================================================================
+
+    # Application Level Firewall (alf)
+    alf = {
+      # Story 03.2-001: Firewall Configuration
+
+      # Enable firewall
+      # 0 = off, 1 = on (allow specific services), 2 = block all incoming connections
+      # Setting to 1 provides protection while allowing necessary services
+      globalstate = 1;
+
+      # Enable stealth mode
+      # 1 = enabled (Mac doesn't respond to ping/ICMP requests or port scans)
+      # 0 = disabled (Mac responds to network probes)
+      # Stealth mode makes the Mac invisible to network attackers
+      stealthenabled = 1;
+
+      # Automatically allow signed applications
+      # 1 = enabled (signed apps can receive incoming connections without prompts)
+      # 0 = disabled (prompt for all apps)
+      # Reduces security prompts for trusted, code-signed applications
+      allowsignedenabled = 1;
+    };
   };
 
   # ============================================================================
   # FUTURE EPIC-03 SETTINGS (To Be Implemented)
   # ============================================================================
 
-  # Feature 03.2: Security and Privacy Settings
-  # - Firewall configuration
-  # - Password requirements
-  # - FileVault encryption
+  # Feature 03.2: Security and Privacy Settings (In Progress)
+  # - [✅] Firewall configuration (Story 03.2-001)
+  # - [ ] Password requirements (Story 03.2-003)
+  # - [ ] FileVault encryption prompt (Story 03.2-002)
 
   # Feature 03.3: Trackpad Configuration
   # - Tap to click

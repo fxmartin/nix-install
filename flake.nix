@@ -250,12 +250,13 @@
                 done
               fi
 
-              # Define models to pull (4 models, ~90GB total)
+              # Define models to pull (5 models, ~99GB total)
               MODELS=(
                 "gpt-oss:20b"          # ~12GB - General purpose LLM
                 "qwen2.5-coder:32b"    # ~20GB - Code-specialized LLM
                 "llama3.1:70b"         # ~40GB - Large general LLM
                 "deepseek-r1:32b"      # ~18GB - Reasoning-focused LLM
+                "ministral-3:14b"      # ~9GB - Edge-optimized, vision & multilingual (Apache 2.0) - Requires Ollama 0.13.1+
               )
 
               # Pull each model sequentially with progress tracking

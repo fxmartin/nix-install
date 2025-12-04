@@ -39,9 +39,8 @@
 
       # Story 03.1-002: Finder Behavior Settings
 
-      # Warn before emptying trash
-      # Safety feature to prevent accidental permanent deletion
-      WarnOnEmptyTrash = true;
+      # NOTE: WarnOnEmptyTrash was removed in nix-darwin update (Dec 2025)
+      # macOS now manages this setting directly - no longer configurable via nix-darwin
 
       # Keep folders on top when sorting by name
       # Maintains folders-first organization in list/column views
@@ -59,9 +58,9 @@
       # Story 03.1-003: Finder Sidebar and Desktop
 
       # New Finder windows open to Home directory
-      # Format: "PfHm" for Home, "PfDe" for Desktop, "PfDo" for Documents
+      # Options: "Computer", "OS volume", "Home", "Desktop", "Documents", "Recents", "iCloud Drive", "Other"
       # More intuitive than opening to "Recents" or other default locations
-      NewWindowTarget = "PfHm";
+      NewWindowTarget = "Home";
 
       # Show external hard drives on desktop
       # Provides quick access to mounted external storage

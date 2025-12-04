@@ -195,12 +195,11 @@
     NSGlobalDomain = {
       AppleInterfaceStyleSwitchesAutomatically = true;
 
-      # Icon & Widget Style: Tinted (macOS Tahoe 26+)
-      # Options: "Default", "Dark", "Clear", "ClearLight", "ClearDark",
+      # Icon & Widget Style (macOS Tahoe 26+)
+      # Options: "Default", "Light", "Dark", "Clear", "ClearLight", "ClearDark",
       #          "Tinted", "TintedLight", "TintedDark"
-      # "TintedLight" = Tinted style that follows light/dark auto-switching
-      # This applies the tinted/colorized appearance to icons, widgets, and folders
-      AppleIconAppearanceTheme = "TintedLight";
+      # "Light" = Clean light appearance for icons and widgets
+      AppleIconAppearanceTheme = "Light";
     };
   };
 

@@ -48,9 +48,9 @@ style = "bold white"
 format = "[$symbol]($style) "
 
 [os.symbols]
-Macos = ""
-Linux = ""
-Windows = ""
+Macos = ""
+Linux = ""
+Windows = ""
 
 [directory]
 style = "bold cyan"

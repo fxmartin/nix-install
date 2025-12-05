@@ -257,9 +257,9 @@
         style = "bold white";
         format = "[$symbol]($style) ";
         symbols = {
-          Macos = "";
-          Linux = "";
-          Windows = "";
+          Macos = "";
+          Linux = "";
+          Windows = "";
         };
       };
 

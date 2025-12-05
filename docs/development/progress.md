@@ -8,12 +8,12 @@
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
 | **Epic-02** | Application Installation | 25 | 118 | **25** | **118** | 100% | 100% | ✅ Complete |
 | **Epic-03** | System Configuration | 14 | 76 | **14** | **76** | 100% | 100% | ✅ Complete |
-| **Epic-04** | Development Environment | 18 | 97 | **4** | **23** | 22.2% | 23.7% | 🟡 In Progress |
+| **Epic-04** | Development Environment | 18 | 97 | **5** | **28** | 27.8% | 28.9% | 🟡 In Progress |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **117** | **614** | **60** | **321** | **51.3%** | **52.3%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **117** | **614** | **61** | **326** | **52.1%** | **53.1%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -124,7 +124,7 @@
   - Ready for physical hardware deployment
 - **Implementation Details**: Migrated all system defaults from `configuration.nix` to `macos-defaults.nix` for better organization
 
-### Epic-04 Completed Stories (4/18)
+### Epic-04 Completed Stories (5/18)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -132,33 +132,36 @@
 | 04.1-002 | Oh My Zsh Installation and Plugin Configuration | 8 | ✅ Complete | main | 2025-12-05 |
 | 04.1-003 | Zsh Environment and Options | 5 | ✅ Complete | main | 2025-12-05 |
 | 04.3-001 | FZF Installation and Keybindings | 5 | ✅ Complete | main | 2025-12-05 |
+| 04.2-001 | Starship Prompt Installation and Configuration | 5 | ✅ Complete | main | 2025-12-05 |
 
 **Notes**:
-- **2025-12-05**: Feature 04.1 (Zsh and Oh My Zsh) and Feature 04.3 (FZF) **HARDWARE TESTED** ✅
+- **2025-12-05**: Features 04.1, 04.2, and 04.3 **HARDWARE TESTED** ✅
   - Story 04.1-001: Zsh shell with history, completion, session variables ✅ Hardware Tested
   - Story 04.1-002: Oh My Zsh with git plugin, autosuggestions, syntax highlighting ✅ Hardware Tested
   - Story 04.1-003: Shell options (AUTO_PUSHD, EXTENDED_GLOB, etc.) and PATH setup ✅ Hardware Tested
+  - Story 04.2-001: Starship prompt with Nerd Font icons, git status, 2-line format ✅ Hardware Tested
   - Story 04.3-001: FZF via Home Manager programs.fzf (not Oh My Zsh plugin) ✅ Hardware Tested
   - **Hotfix #19**: Fixed .zshrc conflict and FZF plugin path error (documented in hotfixes.md)
   - **Technical Notes**:
     - Home Manager's programs.fzf preferred over Oh My Zsh fzf plugin (handles Nix paths correctly)
+    - Starship os.symbols must be nested inside os block (not separate key)
     - Bootstrap Phase 8 now backs up and removes existing .zshrc before rebuild
-    - fzf and fd installed via Nix packages in darwin/configuration.nix
+    - fzf, fd, and starship installed via Nix/Home Manager
 
 ### Overall Project Status
 
 - **Total Project Scope**: 117 stories, 614 story points
-- **Completed**: 60 stories (51.3%), 321 points (52.3%)
+- **Completed**: 61 stories (52.1%), 326 points (53.1%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL** 🟢
   - **Epic-02 Application Installation (100% complete)** - ✅ **COMPLETE**
   - **Epic-03 System Configuration (100% complete)** - ✅ **COMPLETE**
-  - **Epic-04 Development Environment (22.2% complete)** - 🟡 **IN PROGRESS**
+  - **Epic-04 Development Environment (27.8% complete)** - 🟡 **IN PROGRESS**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - **Epic-04: Development Environment (22.2% complete)** 🟡 - Current epic
+  - **Epic-04: Development Environment (27.8% complete)** 🟡 - Current epic
     - ✅ Feature 04.1: Shell Configuration (Zsh + Oh My Zsh) - **COMPLETE**
-    - 🔄 Feature 04.2: Starship Prompt - **NEXT**
+    - ✅ Feature 04.2: Starship Prompt - **COMPLETE**
     - ✅ Feature 04.3: FZF Integration - **COMPLETE**
     - ⚪ Feature 04.4: Ghostty Terminal Configuration
     - ⚪ Feature 04.5: Shell Aliases and Functions
@@ -167,16 +170,17 @@
     - ⚪ Feature 04.8: Container Development Environment
     - ⚪ Feature 04.9: Editor Configuration
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: 🎉 **OVER 50% COMPLETE!** 60/117 stories, 321/614 points (52.3%)
+- **Recent Milestone**: 🎉 **OVER 53% COMPLETE!** 61/117 stories, 326/614 points (53.1%)
 
 ### Recent Activity
 
-- **2025-12-05**: 🎉 **EPIC-04 STARTED + OVER 50% PROJECT COMPLETE!** (60/117 stories, 321/614 points - 52.3%)
-  - **Features 04.1 and 04.3 HARDWARE TESTED** ✅
+- **2025-12-05**: 🎉 **EPIC-04 PROGRESS - 53% PROJECT COMPLETE!** (61/117 stories, 326/614 points - 53.1%)
+  - **Features 04.1, 04.2, and 04.3 HARDWARE TESTED** ✅
     - ✅ Feature 04.1: Zsh and Oh My Zsh Configuration (3 stories, 18 pts)
+    - ✅ Feature 04.2: Starship Prompt Configuration (1 story, 5 pts)
     - ✅ Feature 04.3: FZF Fuzzy Finder Integration (1 story, 5 pts)
   - **Hotfix #19**: Fixed Home Manager .zshrc conflict and FZF plugin path error
-  - **Next**: Feature 04.2 (Starship Prompt)
+  - **Next**: Feature 04.4 (Ghostty Terminal) or Feature 04.5 (Shell Aliases)
 - **2025-12-05**: 🎉 **EPIC-03 SYSTEM CONFIGURATION - 100% COMPLETE!** (14/14 stories, 76/76 points)
   - **All Features VM Tested by FX** ✅
     - ✅ Feature 03.1: Finder Configuration (3 stories, 18 pts)

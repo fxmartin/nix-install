@@ -251,7 +251,8 @@
     };
 
     # Shell initialization code (runs after .zshrc setup)
-    initExtra = ''
+    # Note: Renamed from deprecated 'initExtra' to 'initContent' (Home Manager 24.11+)
+    initContent = ''
       # =============================================================================
       # ZSH OPTIONS (Story 04.1-003)
       # =============================================================================

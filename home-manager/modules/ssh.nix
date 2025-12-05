@@ -28,9 +28,9 @@
   programs.ssh = {
     enable = true;
 
-    # Disable Home Manager's default config to have full control
-    # This removes the duplicate settings in Host *
-    addKeysToAgent = "yes";
+    # Disable Home Manager's default config - we define everything explicitly
+    # This prevents deprecated default values warnings
+    enableDefaultConfig = false;
 
     # macOS-specific SSH agent settings via extraConfig
     # UseKeychain: Store passphrases in macOS Keychain (macOS-specific, not a Home Manager option)
@@ -53,6 +53,8 @@
 
       # Generic SSH settings for all hosts
       "*" = {
+        # Add keys to SSH agent automatically (moved from deprecated top-level option)
+        addKeysToAgent = "yes";
         # Forward SSH agent (disabled for security)
         forwardAgent = false;
         # Server alive settings (keep connection alive)

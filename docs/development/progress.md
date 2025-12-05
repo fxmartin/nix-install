@@ -8,12 +8,12 @@
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
 | **Epic-02** | Application Installation | 25 | 118 | **25** | **118** | 100% | 100% | ✅ Complete |
 | **Epic-03** | System Configuration | 14 | 76 | **14** | **76** | 100% | 100% | ✅ Complete |
-| **Epic-04** | Development Environment | 18 | 97 | **14** | **82** | 77.8% | 84.5% | 🟡 In Progress |
+| **Epic-04** | Development Environment | 18 | 97 | **16** | **95** | 88.9% | 97.9% | 🟡 In Progress |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **117** | **614** | **70** | **380** | **59.8%** | **61.9%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **117** | **614** | **72** | **393** | **61.5%** | **64.0%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -124,7 +124,7 @@
   - Ready for physical hardware deployment
 - **Implementation Details**: Migrated all system defaults from `configuration.nix` to `macos-defaults.nix` for better organization
 
-### Epic-04 Completed Stories (14/18)
+### Epic-04 Completed Stories (16/18)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -142,6 +142,8 @@
 | 04.6-003 | Git SSH Configuration | 8 | ✅ Complete | main | 2025-12-05 |
 | 04.7-001 | Python and uv Configuration | 8 | ✅ Complete | main | 2025-12-05 |
 | 04.7-002 | Python Dev Tools Configuration | 5 | ✅ Complete | main | 2025-12-05 |
+| 04.8-001 | Podman Machine Initialization | 8 | ✅ Complete | main | 2025-12-05 |
+| 04.8-002 | Podman Aliases and Docker Compatibility | 5 | ✅ Complete | main | 2025-12-05 |
 
 **Notes**:
 - **2025-12-05**: Features 04.1, 04.2, 04.3, 04.4, and 04.5 **HARDWARE TESTED** ✅
@@ -159,6 +161,8 @@
   - Story 04.6-003: SSH config with macOS Keychain integration ✅ Code Complete
   - Story 04.7-001: Python and uv configuration with environment variables ✅ Code Complete
   - Story 04.7-002: Python dev tools with shell aliases ✅ Code Complete
+  - Story 04.8-001: Podman machine initialization with guidance ✅ Code Complete
+  - Story 04.8-002: Docker → Podman aliases and container workflow shortcuts ✅ Code Complete
   - **Hotfix #19**: Fixed .zshrc conflict and FZF plugin path error (documented in hotfixes.md)
   - **Technical Notes**:
     - Home Manager's programs.fzf preferred over Oh My Zsh fzf plugin (handles Nix paths correctly)
@@ -171,15 +175,15 @@
 ### Overall Project Status
 
 - **Total Project Scope**: 117 stories, 614 story points
-- **Completed**: 70 stories (59.8%), 380 points (61.9%)
+- **Completed**: 72 stories (61.5%), 393 points (64.0%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL** 🟢
   - **Epic-02 Application Installation (100% complete)** - ✅ **COMPLETE**
   - **Epic-03 System Configuration (100% complete)** - ✅ **COMPLETE**
-  - **Epic-04 Development Environment (77.8% complete)** - 🟡 **IN PROGRESS**
+  - **Epic-04 Development Environment (88.9% complete)** - 🟡 **NEARLY COMPLETE**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - **Epic-04: Development Environment (77.8% complete)** 🟡 - Current epic
+  - **Epic-04: Development Environment (88.9% complete)** 🟡 - Current epic
     - ✅ Feature 04.1: Shell Configuration (Zsh + Oh My Zsh) - **COMPLETE**
     - ✅ Feature 04.2: Starship Prompt - **COMPLETE**
     - ✅ Feature 04.3: FZF Integration - **COMPLETE**
@@ -187,13 +191,26 @@
     - ✅ Feature 04.5: Shell Aliases and Functions - **COMPLETE**
     - ✅ Feature 04.6: Git Configuration - **COMPLETE**
     - ✅ Feature 04.7: Python Development Environment - **COMPLETE**
-    - ⚪ Feature 04.8: Container Development Environment
+    - ✅ Feature 04.8: Container Development Environment - **COMPLETE**
     - ⚪ Feature 04.9: Editor Configuration
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: 🎉 **PAST 60%!** 70/117 stories, 380/614 points (61.9%)
+- **Recent Milestone**: 🎉 **PAST 64%!** 72/117 stories, 393/614 points (64.0%)
 
 ### Recent Activity
 
+- **2025-12-05**: 🎉 **EPIC-04 PROGRESS - 64.0% PROJECT COMPLETE!** (72/117 stories, 393/614 points)
+  - **Feature 04.8 (Container Development Environment) COMPLETE** ✅
+    - ✅ Story 04.8-001: Podman Machine Initialization (8 pts)
+      - Created podman.nix Home Manager module
+      - Post-install guidance for machine initialization (idempotent)
+      - Machine status detection and startup instructions
+    - ✅ Story 04.8-002: Podman Aliases and Docker Compatibility (5 pts)
+      - Docker compatibility: docker → podman, docker-compose → podman-compose
+      - Container workflow aliases: dps, dpsa, dim, dex, dlogs, dstop, drm, drmi, dprune
+      - Podman machine management: pmstart, pmstop, pmstatus
+      - Quick execution: drun, dalpine
+  - **Epic-04 Progress**: 88.9% complete (16/18 stories, 95/97 pts)
+  - **Next**: Feature 04.9 (Editor Configuration) - 2 stories, 2 pts
 - **2025-12-05**: 🎉 **EPIC-04 PROGRESS - 61.9% PROJECT COMPLETE!** (70/117 stories, 380/614 points)
   - **Feature 04.7 (Python Development Environment) COMPLETE** ✅
     - ✅ Story 04.7-001: Python and uv Configuration (8 pts)

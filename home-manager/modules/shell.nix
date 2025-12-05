@@ -223,11 +223,227 @@
   # =============================================================================
   # STARSHIP PROMPT (Story 04.2-001)
   # =============================================================================
-  # Minimal Starship configuration (Starship replaces Oh My Zsh themes)
-  # Full configuration will be added in Story 04.2-001
+  # Starship prompt replaces Oh My Zsh themes with a fast, customizable prompt
+  # Configuration based on Powerlevel10k lean style (adapted from config/p10k.zsh)
+  # Features: 2-line prompt, git status, Python version, cloud contexts, Nerd Font icons
 
   programs.starship = {
-    enable = lib.mkDefault false; # Will be enabled in Story 04.2-001
-    # Full configuration will be added in Story 04.2-001
+    enable = true;
+
+    # Enable Zsh integration (adds eval "$(starship init zsh)" to .zshrc)
+    enableZshIntegration = true;
+
+    # Inline settings for key prompt configuration
+    # Full configuration is in config/starship.toml but we define key settings here
+    # for better integration with Home Manager and Nix store paths
+    settings = {
+      # Don't add blank lines between prompts
+      add_newline = false;
+
+      # 2-line prompt format: os, directory, git on line 1; prompt char on line 2
+      format = ''
+        $os$directory$git_branch$git_status
+        $character
+      '';
+
+      # Right prompt with context info
+      right_format = ''
+        $status$cmd_duration$jobs$direnv$python$nodejs$ruby$golang$rust$kubernetes$terraform$aws$gcloud$azure$nix_shell$username$hostname
+      '';
+
+      # OS icon
+      os = {
+        disabled = false;
+        style = "bold white";
+        format = "[$symbol]($style) ";
+      };
+
+      "os.symbols" = {
+        Macos = "";
+        Linux = "";
+        Windows = "";
+      };
+
+      # Directory (truncated, repo-aware)
+      directory = {
+        style = "bold cyan";
+        format = "[$path]($style)[$read_only]($read_only_style) ";
+        truncation_length = 3;
+        truncate_to_repo = true;
+        read_only = " ";
+        read_only_style = "red";
+      };
+
+      # Git branch
+      git_branch = {
+        symbol = " ";
+        style = "bold green";
+        format = "[$symbol$branch]($style) ";
+      };
+
+      # Git status (compact format)
+      git_status = {
+        format = "([$all_status$ahead_behind]($style) )";
+        style = "bold yellow";
+        conflicted = "=";
+        ahead = "⇡\${count}";
+        behind = "⇣\${count}";
+        diverged = "⇕⇡\${ahead_count}⇣\${behind_count}";
+        untracked = "?\${count}";
+        stashed = "$";
+        modified = "!\${count}";
+        staged = "+\${count}";
+        renamed = "»\${count}";
+        deleted = "✘\${count}";
+      };
+
+      # Prompt character
+      character = {
+        success_symbol = "[❯](bold green)";
+        error_symbol = "[❯](bold red)";
+        vimcmd_symbol = "[❮](bold green)";
+      };
+
+      # Status (show on error)
+      status = {
+        disabled = false;
+        style = "bold red";
+        format = "[$symbol$status]($style) ";
+        symbol = "✘";
+      };
+
+      # Command duration
+      cmd_duration = {
+        min_time = 2000;
+        style = "bold yellow";
+        format = "[$duration]($style) ";
+      };
+
+      # Background jobs
+      jobs = {
+        symbol = "✦";
+        style = "bold blue";
+        number_threshold = 1;
+        format = "[$symbol$number]($style) ";
+      };
+
+      # Python (show version and venv)
+      python = {
+        symbol = " ";
+        style = "bold yellow";
+        format = "[\${symbol}\${pyenv_prefix}(\${version} )(\\(\${virtualenv}\\) )]($style)";
+        pyenv_version_name = true;
+        detect_extensions = ["py"];
+        detect_files = [".python-version" "Pipfile" "pyproject.toml" "requirements.txt" "setup.py"];
+      };
+
+      # Node.js
+      nodejs = {
+        symbol = " ";
+        style = "bold green";
+        format = "[$symbol($version )]($style)";
+        detect_files = ["package.json" ".node-version" ".nvmrc"];
+      };
+
+      # Ruby
+      ruby = {
+        symbol = " ";
+        style = "bold red";
+        format = "[$symbol($version )]($style)";
+        detect_files = ["Gemfile" ".ruby-version"];
+      };
+
+      # Go
+      golang = {
+        symbol = " ";
+        style = "bold cyan";
+        format = "[$symbol($version )]($style)";
+        detect_extensions = ["go"];
+      };
+
+      # Rust
+      rust = {
+        symbol = " ";
+        style = "bold red";
+        format = "[$symbol($version )]($style)";
+        detect_extensions = ["rs"];
+      };
+
+      # AWS
+      aws = {
+        symbol = " ";
+        style = "bold yellow";
+        format = "[$symbol($profile )(\\(\${region}\\) )]($style)";
+        disabled = false;
+      };
+
+      # Google Cloud
+      gcloud = {
+        symbol = "☁️ ";
+        style = "bold blue";
+        format = "[$symbol$account(@$domain)(\\($region\\))]($style) ";
+        disabled = false;
+      };
+
+      # Azure
+      azure = {
+        symbol = "󰠅 ";
+        style = "bold blue";
+        format = "[$symbol($subscription)]($style) ";
+        disabled = false;
+      };
+
+      # Kubernetes
+      kubernetes = {
+        symbol = "☸ ";
+        style = "bold blue";
+        format = "[$symbol$context( \\($namespace\\))]($style) ";
+        disabled = false;
+      };
+
+      # Terraform
+      terraform = {
+        symbol = "💠 ";
+        style = "bold purple";
+        format = "[$symbol$workspace]($style) ";
+        disabled = false;
+      };
+
+      # Direnv
+      direnv = {
+        symbol = "▶ ";
+        style = "bold orange";
+        format = "[$symbol$loaded/$allowed]($style) ";
+        disabled = false;
+      };
+
+      # Nix shell
+      nix_shell = {
+        symbol = " ";
+        style = "bold blue";
+        format = "[$symbol$state( \\($name\\))]($style) ";
+        disabled = false;
+        impure_msg = "[impure](bold red)";
+        pure_msg = "[pure](bold green)";
+      };
+
+      # Username (show only in SSH or as root)
+      username = {
+        show_always = false;
+        style_user = "bold yellow";
+        style_root = "bold red";
+        format = "[$user]($style)";
+        disabled = false;
+      };
+
+      # Hostname (show only in SSH)
+      hostname = {
+        ssh_only = true;
+        style = "bold green";
+        format = "[@$hostname]($style) ";
+        disabled = false;
+        trim_at = ".";
+      };
+    };
   };
 }

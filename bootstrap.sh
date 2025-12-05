@@ -1748,6 +1748,16 @@ fetch_flake_from_github() {
         return 1
     }
 
+    log_info "  - home-manager/modules/ssh.nix"
+    if ! curl -fsSL -o "home-manager/modules/ssh.nix" "${base_url}/home-manager/modules/ssh.nix"; then
+        log_error "Failed to fetch home-manager/modules/ssh.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/ssh.nix" ]] || {
+        log_error "Downloaded home-manager/modules/ssh.nix is empty"
+        return 1
+    }
+
     log_info "  - home-manager/modules/zed.nix"
     if ! curl -fsSL -o "home-manager/modules/zed.nix" "${base_url}/home-manager/modules/zed.nix"; then
         log_error "Failed to fetch home-manager/modules/zed.nix"
@@ -1800,6 +1810,7 @@ fetch_flake_from_github() {
     log_info "  • home-manager/modules/shell.nix"
     log_info "  • home-manager/modules/github.nix"
     log_info "  • home-manager/modules/git.nix"
+    log_info "  • home-manager/modules/ssh.nix"
     log_info "  • home-manager/modules/zed.nix"
     log_info "  • home-manager/modules/vscode.nix"
     log_info "  • home-manager/modules/ghostty.nix"

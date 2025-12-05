@@ -15,6 +15,8 @@
     ./modules/github.nix
     # Git configuration (Story 02.4-007)
     ./modules/git.nix
+    # SSH configuration (Story 04.6-003)
+    ./modules/ssh.nix
     # Zed editor configuration (Story 02.2-001)
     ./modules/zed.nix
     # VSCode configuration (Story 02.2-002) - DISABLED: Electron crash issues

@@ -70,6 +70,10 @@
     git                 # Git version control system
     git-lfs             # Git Large File Storage
 
+    # Shell Enhancement Tools (Epic-04)
+    fzf                 # Fuzzy finder for shell (Ctrl+R history, Ctrl+T files)
+    fd                  # Fast find alternative (used by fzf)
+
     # System Monitoring (Story 02.4-006)
     gotop               # Interactive CLI system monitor (TUI for CPU, RAM, disk, network)
     macmon              # macOS system monitoring CLI tool (hardware specs, sensors)

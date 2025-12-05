@@ -4198,6 +4198,22 @@ final_darwin_rebuild_phase() {
     fi
     echo ""
 
+    # Step 1.5: Prepare for Home Manager shell management (NON-CRITICAL)
+    # Home Manager needs to manage ~/.zshrc for Oh My Zsh, FZF, autosuggestions, etc.
+    # Remove any existing .zshrc so Home Manager can create its managed version
+    log_info "🐚 Step 1.5: Preparing shell configuration for Home Manager..."
+    if [[ -f "${HOME}/.zshrc" && ! -L "${HOME}/.zshrc" ]]; then
+        log_info "Found existing ~/.zshrc (not managed by Home Manager)"
+        log_info "Backing up to ~/.zshrc.pre-nix-install"
+        mv "${HOME}/.zshrc" "${HOME}/.zshrc.pre-nix-install"
+        log_success "✓ Backed up existing .zshrc - Home Manager will create new one"
+    elif [[ -L "${HOME}/.zshrc" ]]; then
+        log_info "~/.zshrc is already a symlink (likely Home Manager managed)"
+    else
+        log_info "No existing ~/.zshrc found - Home Manager will create one"
+    fi
+    echo ""
+
     # Step 2: Run darwin-rebuild switch (CRITICAL)
     log_info "🔧 Step 2: Running darwin-rebuild switch..."
     log_info "This will apply your complete system configuration from:"

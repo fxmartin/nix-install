@@ -82,12 +82,11 @@
 
       # Plugins for enhanced shell experience
       # git: Provides git aliases (gst, gco, gcm, gp, gl, etc.)
-      # fzf: Fuzzy finder integration (Ctrl+R history, Ctrl+T files)
+      # NOTE: fzf integration is handled by Home Manager's programs.fzf (not Oh My Zsh plugin)
       # NOTE: z plugin NOT included - zoxide (Story 04.5-003) provides superior frecency-based directory jumping
       # NOTE: zsh-autosuggestions installed separately via Nix (not bundled in Oh My Zsh)
       plugins = [
         "git"   # Git aliases and completions (gst=git status, gco=git checkout, etc.)
-        "fzf"   # FZF integration (configured in Story 04.3-001)
       ];
     };
 
@@ -131,6 +130,7 @@
       # Locale settings (UTF-8 for proper character handling)
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
+
     };
 
     # Shell initialization code (runs after .zshrc setup)
@@ -176,6 +176,48 @@
     '';
 
     # Note: Starship prompt will be configured in Story 04.2-001
+  };
+
+  # =============================================================================
+  # FZF FUZZY FINDER (Story 04.3-001)
+  # =============================================================================
+  # FZF integration via Home Manager (preferred over Oh My Zsh plugin)
+  # Provides: Ctrl+R (history), Ctrl+T (files), Alt+C (directories)
+
+  programs.fzf = {
+    enable = true;
+
+    # Enable shell integrations
+    enableZshIntegration = true;
+
+    # Default command for file finding (uses fd for speed)
+    defaultCommand = "fd --type f --hidden --follow --exclude .git";
+
+    # Default options for fzf appearance
+    defaultOptions = [
+      "--height 40%"
+      "--layout=reverse"
+      "--border"
+      "--inline-info"
+    ];
+
+    # Ctrl+T: File finder options
+    fileWidgetCommand = "fd --type f --hidden --follow --exclude .git";
+    fileWidgetOptions = [
+      "--preview 'head -100 {}'"
+    ];
+
+    # Alt+C: Directory finder options
+    changeDirWidgetCommand = "fd --type d --hidden --follow --exclude .git";
+    changeDirWidgetOptions = [
+      "--preview 'ls -la {}'"
+    ];
+
+    # Ctrl+R: History search options
+    historyWidgetOptions = [
+      "--sort"
+      "--exact"
+    ];
   };
 
   # =============================================================================

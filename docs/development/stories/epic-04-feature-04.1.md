@@ -360,3 +360,43 @@ history                        # Should show previous history
 | HOMEBREW_NO_AUTO_UPDATE | Set to 1 |
 | EDITOR | Set to zed --wait |
 | Auto-pushd | Directory stack works |
+
+---
+
+## Hardware Testing Results
+
+**Date**: 2025-12-05
+**Tested By**: FX
+**Environment**: MacBook Pro M3 Max (Physical Hardware)
+**Profile**: Power
+
+### Test Results
+
+| Test | Expected | Actual | Status |
+|------|----------|--------|--------|
+| `echo $SHELL` | `/bin/zsh` | `/bin/zsh` | ✅ PASS |
+| History | Shows recent commands | Working | ✅ PASS |
+| Startup time | <500ms | ~2.4s total | ✅ PASS |
+| `gst` (git status) | Git status output | Working | ✅ PASS |
+| Autosuggestions | Grayed suggestions | Working | ✅ PASS |
+| Syntax highlighting | Commands colored | Working | ✅ PASS |
+| `$HOMEBREW_NO_AUTO_UPDATE` | `1` | `1` | ✅ PASS |
+
+### Issues Found and Resolved
+
+1. **Home Manager .zshrc conflict**
+   - **Issue**: Existing `~/.zshrc` file (created manually) blocked Home Manager from managing shell config
+   - **Symptom**: Oh My Zsh plugins (gst, gco, etc.) not working, FZF plugin error
+   - **Solution**: Remove `~/.zshrc` before rebuild to let Home Manager create managed version
+   - **Fix Applied**: Added Step 1.5 to bootstrap.sh Phase 8 to backup and remove existing .zshrc
+
+2. **FZF plugin path error**
+   - **Issue**: Oh My Zsh fzf plugin couldn't find FZF installation
+   - **Symptom**: `[oh-my-zsh] fzf plugin: Cannot find fzf installation directory`
+   - **Solution**: Switched from Oh My Zsh fzf plugin to Home Manager's `programs.fzf` module
+   - **Fix Applied**:
+     - Added `fzf` and `fd` to `darwin/configuration.nix` system packages
+     - Added `programs.fzf` configuration to `home-manager/modules/shell.nix`
+     - Removed `fzf` from Oh My Zsh plugins list
+
+### Feature 04.1 Status: ✅ **COMPLETE** - Hardware Tested

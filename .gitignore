@@ -6,3 +6,6 @@ mlgruby-repo-for-reference/
 tests/test_helper/bats-support/
 tests/test_helper/bats-assert/
 .DS_Store
+
+# User-specific configuration (contains personal data)
+user-config.nix

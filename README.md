@@ -1,8 +1,8 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 🔄 Epic-03 In Progress - Feature 03.2 Complete
+> **Status**: 🔄 Epic-04 In Progress - Feature 04.5 Complete
 > **Version**: 0.1.0 (Pre-Release)
-> **Last Updated**: 2025-12-04
+> **Last Updated**: 2025-12-05
 
 Automated, declarative MacBook configuration system using Nix + nix-darwin + Home Manager. Transform a fresh macOS installation into a fully configured development environment in <30 minutes with zero manual intervention (except license activations).
 
@@ -26,13 +26,13 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
 | **Epic-02** | Application Installation | 25 | 118 | **25** | **118** | 100% | 100% | ✅ Complete |
-| **Epic-03** | System Configuration | 14 | 76 | **6** | **36** | 42.9% | 47.4% | 🟡 In Progress |
-| **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-03** | System Configuration | 14 | 76 | **14** | **76** | 100% | 100% | ✅ Complete |
+| **Epic-04** | Development Environment | 18 | 97 | **9** | **51** | 50.0% | 52.6% | 🟡 In Progress |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **117** | **614** | **48** | **258** | **41.0%** | **42.0%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **117** | **614** | **65** | **349** | **55.6%** | **56.8%** | 🟡 In Progress |
 
 ### ✅ Completed
 - **Requirements Definition** ([REQUIREMENTS.md](./docs/REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
@@ -50,21 +50,27 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 
 **Epic-02 Stories (25/25 complete - 100%)**: ✅ **COMPLETE**
 
-**Epic-03 Stories (6/14 complete - 42.9%)**:
-- **Story 03.1-001** - Finder View and Display Settings (✅ Complete - 2025-11-19, 5 pts, VM TESTED)
-- **Story 03.1-002** - Finder Behavior Settings (✅ Complete - 2025-12-04, 5 pts, VM TESTED)
-- **Story 03.1-003** - Finder Sidebar and Desktop (✅ Complete - 2025-12-04, 8 pts, VM TESTED)
-- **Story 03.2-001** - Firewall Configuration (✅ Complete - 2025-12-04, 5 pts, VM TESTED)
-- **Story 03.2-002** - FileVault Encryption Prompt (✅ Complete - 2025-12-04, 8 pts, Implemented)
-- **Story 03.2-003** - Screen Lock and Password Policies (✅ Complete - 2025-12-04, 5 pts, VM TESTED with known limitation)
+**Epic-03 Stories (14/14 complete - 100%)**: ✅ **COMPLETE**
+
+**Epic-04 Stories (9/18 complete - 50%)**:
+- **Story 04.1-001** - Zsh Shell Configuration (✅ Complete - 2025-12-05, 5 pts, Hardware Tested)
+- **Story 04.1-002** - Oh My Zsh Installation (✅ Complete - 2025-12-05, 8 pts, Hardware Tested)
+- **Story 04.1-003** - Zsh Environment and Options (✅ Complete - 2025-12-05, 5 pts, Hardware Tested)
+- **Story 04.2-001** - Starship Prompt Configuration (✅ Complete - 2025-12-05, 5 pts, Hardware Tested)
+- **Story 04.3-001** - FZF Installation and Keybindings (✅ Complete - 2025-12-05, 5 pts, Hardware Tested)
+- **Story 04.4-001** - Ghostty Configuration Integration (✅ Complete - 2025-12-05, 5 pts, Hardware Tested)
+- **Story 04.5-001** - Core Nix Aliases (✅ Complete - 2025-12-05, 5 pts, Code Complete)
+- **Story 04.5-002** - General Shell Aliases (✅ Complete - 2025-12-05, 5 pts, Code Complete)
+- **Story 04.5-003** - Modern CLI Tool Replacements (✅ Complete - 2025-12-05, 8 pts, Code Complete)
 
 ### 🔄 In Progress
 - **Epic-01: Bootstrap System** - 17/19 stories (89.5%), 104/113 points (92.0%) - **FUNCTIONAL** 🟢
 - **Epic-02: Application Installation** - 25/25 stories (100%), 118/118 points (100%) - ✅ **COMPLETE**
-- **Epic-03: System Configuration** - 6/14 stories (42.9%), 36/76 points (47.4%) - 🟡 **IN PROGRESS**
+- **Epic-03: System Configuration** - 14/14 stories (100%), 76/76 points (100%) - ✅ **COMPLETE**
+- **Epic-04: Development Environment** - 9/18 stories (50%), 51/97 points (52.6%) - 🟡 **IN PROGRESS**
 - **Remaining Epic-01 Stories**: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
 - **Bootstrap Status**: ALL 9 phases working! Phases 1-8 VM tested and verified ✅
-- **Recent Milestone**: Feature 03.1 (Finder) and Feature 03.2 (Security) COMPLETE! 🎉
+- **Recent Milestone**: Feature 04.5 (Modern CLI Tools) COMPLETE! 🎉
 
 ### 📅 Upcoming
 - **Phase 1-2**: Core bootstrap implementation (Week 2)

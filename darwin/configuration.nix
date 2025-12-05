@@ -88,6 +88,32 @@
 
     # Remote Access Tools
     mosh                # Mobile shell - persistent SSH alternative with roaming support
+
+    # Nix Development Tools
+    nil                 # Nix language server (simpler, lightweight)
+    nixd                # Nix language server (feature-rich, used by Zed extension)
+
+    # Language Servers for Editor Integration (Zed, VSCode)
+    # Python
+    pyright             # Python type checker and language server (fastest, recommended)
+
+    # Shell/Bash
+    bash-language-server  # Bash/Shell script language server
+    shellcheck          # Shell script static analysis (used by bash-language-server)
+
+    # Web Development (React.js / TypeScript / JavaScript)
+    nodePackages.typescript-language-server  # TypeScript/JavaScript language server
+    nodePackages.vscode-langservers-extracted  # HTML, CSS, JSON, ESLint language servers
+    nodePackages.prettier                    # Code formatter for JS/TS/HTML/CSS/JSON
+
+    # YAML (for docker-compose, podman-compose, CI configs)
+    yaml-language-server  # YAML language server with schema support
+
+    # TOML (for pyproject.toml, Cargo.toml)
+    taplo               # TOML language server and formatter
+
+    # Markdown
+    marksman            # Markdown language server with wiki-links support
   ];
 
   # Application Management & System Configuration

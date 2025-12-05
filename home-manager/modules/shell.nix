@@ -182,6 +182,12 @@
       # Virtual environment shortcuts (when not using uv)
       venv = "python -m venv .venv";               # Create virtual environment
       activate = "source .venv/bin/activate";      # Activate virtual environment
+
+      # =============================================================================
+      # OLLAMA ALIASES
+      # =============================================================================
+      # Clear Ollama chat history (stops app, deletes db, restarts)
+      ollama-clear = ''pkill -x Ollama 2>/dev/null; pkill -x ollama 2>/dev/null; sleep 1 && rm -f "$HOME/Library/Application Support/Ollama/db.sqlite"* && open -a Ollama && echo "✓ Ollama chat history cleared"'';
     };
 
     # =============================================================================

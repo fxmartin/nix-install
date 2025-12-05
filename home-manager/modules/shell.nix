@@ -256,12 +256,11 @@
         disabled = false;
         style = "bold white";
         format = "[$symbol]($style) ";
-      };
-
-      "os.symbols" = {
-        Macos = "";
-        Linux = "";
-        Windows = "";
+        symbols = {
+          Macos = "";
+          Linux = "";
+          Windows = "";
+        };
       };
 
       # Directory (truncated, repo-aware)

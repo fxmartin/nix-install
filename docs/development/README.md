@@ -9,12 +9,12 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **56.8% complete** (65/117 stories, 349/614 points)
+  - Current project status: **64.3% complete** (74/117 stories, 395/614 points)
   - Epic-01: **89.5% complete** (17/19 stories, 104/113 points) 🟢 Bootstrap functional
   - **Epic-02: 100% COMPLETE** (25/25 stories, 118/118 points) ✅ All apps delivered!
   - **Epic-03: 100% COMPLETE** (14/14 stories, 76/76 points) ✅ System config complete!
-  - **Epic-04: 50% IN PROGRESS** (9/18 stories, 51/97 points) 🟡 Development environment
-  - Recent: 🎉 Feature 04.5 COMPLETE! Modern CLI tools (ripgrep, bat, eza, zoxide)
+  - **Epic-04: 100% COMPLETE** (18/18 stories, 97/97 points) ✅ Development environment complete!
+  - Recent: 🎉 Epic-04 COMPLETE! 4 epics now complete, moving to Epic-05 Theming
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns
@@ -35,14 +35,14 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ## 🎯 Current Status (Quick Reference)
 
-**Overall Project**: 56.8% complete (65/117 stories, 349/614 points)
+**Overall Project**: 64.3% complete (74/117 stories, 395/614 points)
 
 **Epic-01: Bootstrap & Installation System** - 89.5% complete (92.0% by points) 🟢
 **Epic-02: Application Installation** - 100% COMPLETE (25/25 stories, 118/118 points) ✅
 **Epic-03: System Configuration** - 100% COMPLETE (14/14 stories, 76/76 points) ✅
-**Epic-04: Development Environment** - 50.0% complete (52.6% by points) 🟡
+**Epic-04: Development Environment** - 100% COMPLETE (18/18 stories, 97/97 points) ✅
 
-### ✅ Completed Stories (65)
+### ✅ Completed Stories (74)
 
 #### Epic-01 Stories (17)
 1. **01.1-001** - Pre-flight Environment Checks (5 pts) - 2025-11-08
@@ -108,25 +108,33 @@ Welcome to the nix-install development documentation. This directory contains al
 55. **03.7-001** - Time Machine Preferences & Exclusions (5 pts) - 2025-12-04 (Hardware tested)
 56. **03.7-002** - Time Machine Destination Setup Prompt (3 pts) - 2025-12-05 (Complete)
 
-#### Epic-04 Stories (9/18 complete - 50%)
+#### Epic-04 Stories (18/18 complete - 100%) ✅ EPIC COMPLETE!
 57. **04.1-001** - Zsh Shell Configuration (5 pts) - 2025-12-05 (Hardware tested)
 58. **04.1-002** - Oh My Zsh Installation and Plugin Configuration (8 pts) - 2025-12-05 (Hardware tested)
 59. **04.1-003** - Zsh Environment and Options (5 pts) - 2025-12-05 (Hardware tested)
 60. **04.2-001** - Starship Prompt Installation and Configuration (5 pts) - 2025-12-05 (Hardware tested)
 61. **04.3-001** - FZF Installation and Keybindings (5 pts) - 2025-12-05 (Hardware tested)
 62. **04.4-001** - Ghostty Configuration Integration (5 pts) - 2025-12-05 (Hardware tested)
-63. **04.5-001** - Core Nix Aliases (5 pts) - 2025-12-05 (Code complete)
-64. **04.5-002** - General Shell Aliases (5 pts) - 2025-12-05 (Code complete)
-65. **04.5-003** - Modern CLI Tool Replacements (8 pts) - 2025-12-05 (Code complete)
+63. **04.5-001** - Core Nix Aliases (5 pts) - 2025-12-05 (Hardware tested)
+64. **04.5-002** - General Shell Aliases (5 pts) - 2025-12-05 (Hardware tested)
+65. **04.5-003** - Modern CLI Tool Replacements (8 pts) - 2025-12-05 (Hardware tested)
+66. **04.6-001** - Git Configuration (5 pts) - 2025-12-05 (Hardware tested)
+67. **04.6-002** - Git Aliases (5 pts) - 2025-12-05 (Hardware tested)
+68. **04.6-003** - SSH Configuration (7 pts) - 2025-12-05 (Hardware tested)
+69. **04.7-001** - Python Environment Variables (3 pts) - 2025-12-05 (Hardware tested)
+70. **04.7-002** - Python Dev Tools Configuration (5 pts) - 2025-12-05 (Hardware tested)
+71. **04.8-001** - Podman Machine Initialization (8 pts) - 2025-12-05 (Hardware tested)
+72. **04.8-002** - Docker Compatibility Aliases (5 pts) - 2025-12-05 (Hardware tested)
+73. **04.9-001** - Zed Editor Theming (1 pt) - 2025-11-12 (Already in Epic-02)
+74. **04.9-002** - VSCode Configuration (1 pt) - 2025-11-12 (Already in Epic-02)
 
 ### 🚧 Next Stories
 
-**Epic-04: Development Environment** (Current Epic - 50% complete, 9/18 stories):
-- **04.6-001** - Git Configuration (5 pts) - User identity and preferences
-- **04.6-002** - Git Aliases (5 pts) - Common shortcuts
-- **04.6-003** - Git Hooks (5 pts) - Pre-commit setup
-- **04.7-001** - Python Development Environment (8 pts) - pyenv, virtualenv
-- **04.8-001** - Container Development Environment (8 pts) - Podman setup
+**Epic-05: Theming & Visual Consistency** (Next Epic - 0% complete, 8 stories):
+- **05.1-001** - Stylix Theme Configuration
+- **05.1-002** - Catppuccin Theme Integration
+- **05.2-001** - Nerd Font Configuration
+- **05.3-001** - App Theme Verification
 
 **Epic-01 Cleanup** (Optional enhancements):
 - **01.1-003** - Progress Indicators (3 pts) - P1 optional enhancement
@@ -136,7 +144,7 @@ Welcome to the nix-install development documentation. This directory contains al
 - **Epic-01**: 2 stories remaining (01.1-003, 01.1-004) - both P1 optional/deferred
 - **Epic-02**: ✅ **COMPLETE** (25/25 stories, 100%)
 - **Epic-03**: ✅ **COMPLETE** (14/14 stories, 100%)
-- **Epic-04**: 9 stories remaining (9/18 complete) - current epic 🟡
+- **Epic-04**: ✅ **COMPLETE** (18/18 stories, 100%)
 
 ## 🛠️ What to Read First?
 

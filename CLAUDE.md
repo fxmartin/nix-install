@@ -115,11 +115,12 @@ FX's role: ALL testing, execution, and validation.
 - `docs/REQUIREMENTS.md`: Comprehensive PRD (1600+ lines) - **THE SOURCE OF TRUTH** for requirements
 - `docs/development/README.md`: Development documentation master index - **CHECK THIS FIRST** for:
   - Navigation to progress tracking, story details, workflows
-  - Current status: 42.0% complete overall (48/117 stories, 258/614 points)
+  - Current status: 56.8% complete overall (65/117 stories, 349/614 points)
   - Epic-01: 89.5% complete (17/19 stories, 104/113 points) - Bootstrap system functional
   - Epic-02: 100% complete (25/25 stories, 118/118 points) - ✅ COMPLETE
-  - Epic-03: 42.9% complete (6/14 stories, 36/76 points) - 🟡 IN PROGRESS
-  - Recent: Feature 03.1 (Finder) and Feature 03.2 (Security) COMPLETE! 🎉
+  - Epic-03: 100% complete (14/14 stories, 76/76 points) - ✅ COMPLETE
+  - Epic-04: 50.0% complete (9/18 stories, 51/97 points) - 🟡 IN PROGRESS
+  - Recent: Feature 04.5 (Modern CLI Tools) COMPLETE! 🎉
   - Quick reference for completed stories and testing metrics
 - `docs/development/progress.md`: Epic overview table, completed stories, recent activity
 - `docs/development/stories/epic-XX-feature-XX.X.md`: Detailed story implementations (split by feature for maintainability)
@@ -154,12 +155,16 @@ FX's role: ALL testing, execution, and validation.
 - `setup.sh`: Legacy setup script (deprecated, use bootstrap.sh)
 - `mlgruby-repo-for-reference/`: Reference implementation to learn from
 
-**To Be Implemented** (Epic-03 onwards):
-- System Configuration (Epic-03): Finder, Security, Trackpad, Display, Keyboard, Dock preferences
-- Development Environment (Epic-04): Advanced shell config, editor integrations
+**To Be Implemented** (Epic-05 onwards):
 - Theming (Epic-05): Stylix system-wide theming
 - Maintenance (Epic-06): Garbage collection, store optimization, health checks
 - Documentation (Epic-07): Quick-start guides, troubleshooting, customization guides
+
+**Remaining in Epic-04**:
+- Feature 04.6: Git Configuration (4 stories, 17 pts)
+- Feature 04.7: Python Development Environment (2 stories, 8 pts)
+- Feature 04.8: Container Development Environment (2 stories, 8 pts)
+- Feature 04.9: Editor Configuration (2 stories, 8 pts)
 
 ### Implementation Phases (8-Week Plan)
 

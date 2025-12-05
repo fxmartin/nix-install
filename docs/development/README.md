@@ -9,12 +9,12 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **36.5% complete** (42/115 stories, 220/606 points)
+  - Current project status: **56.8% complete** (65/117 stories, 349/614 points)
   - Epic-01: **89.5% complete** (17/19 stories, 104/113 points) 🟢 Bootstrap functional
   - **Epic-02: 100% COMPLETE** (25/25 stories, 118/118 points) ✅ All apps delivered!
-  - Story 02.10-001 (Email Config) **CANCELLED** - manual setup documented
-  - **Next Epic**: Epic-03 System Configuration (0% started, 14 stories, 76 points) 🚀
-  - Recent: 🎉 Epic-02 COMPLETE! Final 3 stories: Dropbox, NordVPN, Office 365
+  - **Epic-03: 100% COMPLETE** (14/14 stories, 76/76 points) ✅ System config complete!
+  - **Epic-04: 50% IN PROGRESS** (9/18 stories, 51/97 points) 🟡 Development environment
+  - Recent: 🎉 Feature 04.5 COMPLETE! Modern CLI tools (ripgrep, bat, eza, zoxide)
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns
@@ -35,12 +35,14 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ## 🎯 Current Status (Quick Reference)
 
-**Overall Project**: 36.5% complete (42/115 stories, 220/606 points)
+**Overall Project**: 56.8% complete (65/117 stories, 349/614 points)
 
 **Epic-01: Bootstrap & Installation System** - 89.5% complete (92.0% by points) 🟢
 **Epic-02: Application Installation** - 100% COMPLETE (25/25 stories, 118/118 points) ✅
+**Epic-03: System Configuration** - 100% COMPLETE (14/14 stories, 76/76 points) ✅
+**Epic-04: Development Environment** - 50.0% complete (52.6% by points) 🟡
 
-### ✅ Completed Stories (42)
+### ✅ Completed Stories (65)
 
 #### Epic-01 Stories (17)
 1. **01.1-001** - Pre-flight Environment Checks (5 pts) - 2025-11-08
@@ -90,25 +92,51 @@ Welcome to the nix-install development documentation. This directory contains al
 
 **Note**: Story 02.10-001 (Email Account Configuration, 5 pts) was **CANCELLED**. Manual setup documented instead.
 
+#### Epic-03 Stories (14) ✅ EPIC COMPLETE!
+43. **03.1-001** - Finder View and Display Settings (5 pts) - 2025-11-19 (VM tested)
+44. **03.1-002** - Finder Behavior Settings (5 pts) - 2025-12-04 (VM tested)
+45. **03.1-003** - Finder Sidebar and Desktop (8 pts) - 2025-12-04 (VM tested)
+46. **03.2-001** - Firewall Configuration (5 pts) - 2025-12-04 (VM tested)
+47. **03.2-002** - FileVault Encryption Prompt (8 pts) - 2025-12-04 (Implemented)
+48. **03.2-003** - Screen Lock and Password Policies (5 pts) - 2025-12-04 (VM tested)
+49. **03.3-001** - Trackpad Gestures and Speed (8 pts) - 2025-12-04 (Hardware tested)
+50. **03.3-002** - Mouse and Scroll Settings (5 pts) - 2025-12-04 (Hardware tested)
+51. **03.4-001** - Auto Light/Dark Mode and Time Format (5 pts) - 2025-12-04 (Hardware tested)
+52. **03.4-002** - Night Shift Scheduling (5 pts) - 2025-12-04 (Documented)
+53. **03.5-001** - Keyboard Repeat and Text Corrections (5 pts) - 2025-12-04 (Hardware tested)
+54. **03.6-001** - Dock Behavior and Apps (4 pts) - 2025-12-04 (Hardware tested)
+55. **03.7-001** - Time Machine Preferences & Exclusions (5 pts) - 2025-12-04 (Hardware tested)
+56. **03.7-002** - Time Machine Destination Setup Prompt (3 pts) - 2025-12-05 (Complete)
+
+#### Epic-04 Stories (9/18 complete - 50%)
+57. **04.1-001** - Zsh Shell Configuration (5 pts) - 2025-12-05 (Hardware tested)
+58. **04.1-002** - Oh My Zsh Installation and Plugin Configuration (8 pts) - 2025-12-05 (Hardware tested)
+59. **04.1-003** - Zsh Environment and Options (5 pts) - 2025-12-05 (Hardware tested)
+60. **04.2-001** - Starship Prompt Installation and Configuration (5 pts) - 2025-12-05 (Hardware tested)
+61. **04.3-001** - FZF Installation and Keybindings (5 pts) - 2025-12-05 (Hardware tested)
+62. **04.4-001** - Ghostty Configuration Integration (5 pts) - 2025-12-05 (Hardware tested)
+63. **04.5-001** - Core Nix Aliases (5 pts) - 2025-12-05 (Code complete)
+64. **04.5-002** - General Shell Aliases (5 pts) - 2025-12-05 (Code complete)
+65. **04.5-003** - Modern CLI Tool Replacements (8 pts) - 2025-12-05 (Code complete)
+
 ### 🚧 Next Stories
 
-**Epic-03: System Configuration** (Next Epic - 0% started, 14 stories, 76 points):
-- **03.1-001** - Finder Preferences Configuration (5 pts) - Finder behavior settings
-- **03.1-002** - Finder Toolbar Customization (3 pts) - Toolbar items and layout
-- **03.1-003** - Finder Sidebar Configuration (3 pts) - Sidebar items and favorites
+**Epic-04: Development Environment** (Current Epic - 50% complete, 9/18 stories):
+- **04.6-001** - Git Configuration (5 pts) - User identity and preferences
+- **04.6-002** - Git Aliases (5 pts) - Common shortcuts
+- **04.6-003** - Git Hooks (5 pts) - Pre-commit setup
+- **04.7-001** - Python Development Environment (8 pts) - pyenv, virtualenv
+- **04.8-001** - Container Development Environment (8 pts) - Podman setup
 
 **Epic-01 Cleanup** (Optional enhancements):
 - **01.1-003** - Progress Indicators (3 pts) - P1 optional enhancement
 - **01.1-004** - Modular Bootstrap Architecture (8 pts) - P1, deferred to post-Epic-01
 
-**Epic-03** (Next Epic):
-- System Configuration (0% started, 14 stories, 76 points)
-  - Includes new Feature 03.7: Time Machine Backup Configuration (2 stories, 8 points)
-
 ### ⏳ Remaining Stories
 - **Epic-01**: 2 stories remaining (01.1-003, 01.1-004) - both P1 optional/deferred
 - **Epic-02**: ✅ **COMPLETE** (25/25 stories, 100%)
-- **Epic-03**: 14 stories remaining (0 completed, next epic to start) 🚀
+- **Epic-03**: ✅ **COMPLETE** (14/14 stories, 100%)
+- **Epic-04**: 9 stories remaining (9/18 complete) - current epic 🟡
 
 ## 🛠️ What to Read First?
 

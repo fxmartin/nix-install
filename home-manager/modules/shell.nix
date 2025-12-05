@@ -120,6 +120,40 @@
       # No alias needed - zoxide init adds the 'z' command
 
       # NOTE: Docker/Podman aliases are in Story 04.8-002 (not implemented yet)
+
+      # =============================================================================
+      # PYTHON DEVELOPMENT ALIASES (Story 04.7-001, 04.7-002)
+      # =============================================================================
+      # uv-first workflow for Python project management
+
+      # Project creation and management
+      uvnew = "uv init";                           # Create new Python project
+      uvrun = "uv run";                            # Run command in project environment
+      uvsync = "uv sync";                          # Sync dependencies from pyproject.toml
+      uvadd = "uv add";                            # Add dependency to project
+      uvremove = "uv remove";                      # Remove dependency from project
+      uvlock = "uv lock";                          # Update lock file
+      uvtree = "uv tree";                          # Show dependency tree
+
+      # Quick Python execution with uv
+      py = "uv run python";                        # Run Python in project context
+      ipy = "uv run python -i";                    # Interactive Python in project context
+
+      # Linting and formatting (all via uv run for project context)
+      lint = "ruff check .";                       # Fast linting with ruff
+      lintfix = "ruff check . --fix";              # Auto-fix linting issues
+      fmt = "ruff format .";                       # Format with ruff (faster than black)
+      fmtcheck = "ruff format . --check";          # Check formatting without changes
+      typecheck = "mypy .";                        # Static type checking
+      sortimports = "isort .";                     # Sort imports
+
+      # Combined quality checks
+      qa = "ruff check . && ruff format . --check && mypy .";  # Full QA check
+      fix = "ruff check . --fix && ruff format . && isort .";  # Auto-fix all
+
+      # Virtual environment shortcuts (when not using uv)
+      venv = "python -m venv .venv";               # Create virtual environment
+      activate = "source .venv/bin/activate";      # Activate virtual environment
     };
 
     # =============================================================================

@@ -8,12 +8,12 @@
 | **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
 | **Epic-02** | Application Installation | 25 | 118 | **25** | **118** | 100% | 100% | ✅ Complete |
 | **Epic-03** | System Configuration | 14 | 76 | **14** | **76** | 100% | 100% | ✅ Complete |
-| **Epic-04** | Development Environment | 18 | 97 | **12** | **69** | 66.7% | 71.1% | 🟡 In Progress |
+| **Epic-04** | Development Environment | 18 | 97 | **14** | **82** | 77.8% | 84.5% | 🟡 In Progress |
 | **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **117** | **614** | **68** | **367** | **58.1%** | **59.8%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **117** | **614** | **70** | **380** | **59.8%** | **61.9%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -124,7 +124,7 @@
   - Ready for physical hardware deployment
 - **Implementation Details**: Migrated all system defaults from `configuration.nix` to `macos-defaults.nix` for better organization
 
-### Epic-04 Completed Stories (12/18)
+### Epic-04 Completed Stories (14/18)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
@@ -140,6 +140,8 @@
 | 04.6-001 | Git User Configuration | 5 | ✅ Complete | main | 2025-12-05 |
 | 04.6-002 | Git LFS Configuration | 5 | ✅ Complete | main | 2025-12-05 |
 | 04.6-003 | Git SSH Configuration | 8 | ✅ Complete | main | 2025-12-05 |
+| 04.7-001 | Python and uv Configuration | 8 | ✅ Complete | main | 2025-12-05 |
+| 04.7-002 | Python Dev Tools Configuration | 5 | ✅ Complete | main | 2025-12-05 |
 
 **Notes**:
 - **2025-12-05**: Features 04.1, 04.2, 04.3, 04.4, and 04.5 **HARDWARE TESTED** ✅
@@ -155,6 +157,8 @@
   - Story 04.6-001: Git user config (name, email from user-config.nix) ✅ Code Complete
   - Story 04.6-002: Git LFS enabled via Home Manager ✅ Code Complete
   - Story 04.6-003: SSH config with macOS Keychain integration ✅ Code Complete
+  - Story 04.7-001: Python and uv configuration with environment variables ✅ Code Complete
+  - Story 04.7-002: Python dev tools with shell aliases ✅ Code Complete
   - **Hotfix #19**: Fixed .zshrc conflict and FZF plugin path error (documented in hotfixes.md)
   - **Technical Notes**:
     - Home Manager's programs.fzf preferred over Oh My Zsh fzf plugin (handles Nix paths correctly)
@@ -167,29 +171,43 @@
 ### Overall Project Status
 
 - **Total Project Scope**: 117 stories, 614 story points
-- **Completed**: 68 stories (58.1%), 367 points (59.8%)
+- **Completed**: 70 stories (59.8%), 380 points (61.9%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL** 🟢
   - **Epic-02 Application Installation (100% complete)** - ✅ **COMPLETE**
   - **Epic-03 System Configuration (100% complete)** - ✅ **COMPLETE**
-  - **Epic-04 Development Environment (66.7% complete)** - 🟡 **IN PROGRESS**
+  - **Epic-04 Development Environment (77.8% complete)** - 🟡 **IN PROGRESS**
 - **Current Phase**: Phase 3-5 (Applications, System Config, Dev Environment, Week 3-4)
 - **Next Stories**:
-  - **Epic-04: Development Environment (66.7% complete)** 🟡 - Current epic
+  - **Epic-04: Development Environment (77.8% complete)** 🟡 - Current epic
     - ✅ Feature 04.1: Shell Configuration (Zsh + Oh My Zsh) - **COMPLETE**
     - ✅ Feature 04.2: Starship Prompt - **COMPLETE**
     - ✅ Feature 04.3: FZF Integration - **COMPLETE**
     - ✅ Feature 04.4: Ghostty Terminal Configuration - **COMPLETE**
     - ✅ Feature 04.5: Shell Aliases and Functions - **COMPLETE**
     - ✅ Feature 04.6: Git Configuration - **COMPLETE**
-    - ⚪ Feature 04.7: Python Development Environment
+    - ✅ Feature 04.7: Python Development Environment - **COMPLETE**
     - ⚪ Feature 04.8: Container Development Environment
     - ⚪ Feature 04.9: Editor Configuration
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: 🎉 **APPROACHING 60%!** 68/117 stories, 367/614 points (59.8%)
+- **Recent Milestone**: 🎉 **PAST 60%!** 70/117 stories, 380/614 points (61.9%)
 
 ### Recent Activity
 
+- **2025-12-05**: 🎉 **EPIC-04 PROGRESS - 61.9% PROJECT COMPLETE!** (70/117 stories, 380/614 points)
+  - **Feature 04.7 (Python Development Environment) COMPLETE** ✅
+    - ✅ Story 04.7-001: Python and uv Configuration (8 pts)
+      - Created python.nix Home Manager module
+      - Environment variables: PYTHONDONTWRITEBYTECODE, PYTHONUNBUFFERED, UV_SYSTEM_PYTHON, UV_NATIVE_TLS
+      - Enabled direnv with nix-direnv for per-project environments
+    - ✅ Story 04.7-002: Python Dev Tools Configuration (5 pts)
+      - Added uv workflow aliases: uvnew, uvrun, uvsync, uvadd, uvremove, uvlock, uvtree
+      - Quick Python execution: py (uv run python), ipy (interactive)
+      - Linting/formatting aliases: lint, lintfix, fmt, fmtcheck, typecheck, sortimports
+      - Combined QA commands: qa (full check), fix (auto-fix all)
+      - Virtual environment shortcuts: venv, activate
+  - **Epic-04 Progress**: 77.8% complete (14/18 stories, 82/97 pts)
+  - **Next**: Feature 04.8 (Container Development Environment) - 2 stories, 11 pts
 - **2025-12-05**: 🎉 **EPIC-04 PROGRESS - 59.8% PROJECT COMPLETE!** (68/117 stories, 367/614 points)
   - **Feature 04.6 (Git Configuration) COMPLETE** ✅
     - ✅ Story 04.6-001: Git User Configuration (5 pts) - user identity from user-config.nix

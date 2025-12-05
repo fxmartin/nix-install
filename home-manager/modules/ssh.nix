@@ -28,13 +28,14 @@
   programs.ssh = {
     enable = true;
 
-    # macOS-specific SSH agent settings
-    # AddKeysToAgent: Automatically add keys to ssh-agent on first use
-    # UseKeychain: Store passphrases in macOS Keychain (macOS-specific)
+    # Disable Home Manager's default config to have full control
+    # This removes the duplicate settings in Host *
+    addKeysToAgent = "yes";
+
+    # macOS-specific SSH agent settings via extraConfig
+    # UseKeychain: Store passphrases in macOS Keychain (macOS-specific, not a Home Manager option)
     extraConfig = ''
-      AddKeysToAgent yes
       UseKeychain yes
-      IdentityFile ~/.ssh/id_ed25519
     '';
 
     # Host-specific SSH configurations
@@ -52,14 +53,15 @@
 
       # Generic SSH settings for all hosts
       "*" = {
-        # Forward SSH agent (useful for GitHub operations through jump hosts)
-        forwardAgent = false;  # Disabled by default for security
+        # Forward SSH agent (disabled for security)
+        forwardAgent = false;
         # Server alive settings (keep connection alive)
         serverAliveInterval = 60;
         serverAliveCountMax = 3;
-        # Security settings
-        # Use only modern SSH key algorithms
+        # Security settings - use only specified identity files
         identitiesOnly = true;
+        # Default identity file
+        identityFile = "~/.ssh/id_ed25519";
       };
     };
   };

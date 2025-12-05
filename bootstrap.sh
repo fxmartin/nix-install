@@ -1808,6 +1808,16 @@ fetch_flake_from_github() {
         return 1
     }
 
+    log_info "  - home-manager/modules/podman.nix"
+    if ! curl -fsSL -o "home-manager/modules/podman.nix" "${base_url}/home-manager/modules/podman.nix"; then
+        log_error "Failed to fetch home-manager/modules/podman.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/podman.nix" ]] || {
+        log_error "Downloaded home-manager/modules/podman.nix is empty"
+        return 1
+    }
+
     echo ""
     log_success "All configuration files fetched successfully"
     log_info "Files downloaded:"
@@ -1826,6 +1836,7 @@ fetch_flake_from_github() {
     log_info "  • home-manager/modules/ghostty.nix"
     log_info "  • home-manager/modules/claude-code.nix"
     log_info "  • home-manager/modules/python.nix"
+    log_info "  • home-manager/modules/podman.nix"
     echo ""
 
     return 0

@@ -74,6 +74,14 @@
     fzf                 # Fuzzy finder for shell (Ctrl+R history, Ctrl+T files)
     fd                  # Fast find alternative (used by fzf)
 
+    # Modern CLI Tools (Story 04.5-003)
+    ripgrep             # Fast grep alternative (rg) - respects .gitignore, blazing fast
+    bat                 # Cat clone with syntax highlighting and git integration
+    eza                 # Modern ls replacement with tree view, icons, git support
+    zoxide              # Smarter cd - tracks frecency (frequency + recency) for directory jumping
+    httpie              # Modern curl alternative with JSON support and colored output
+    tldr                # Simplified, community-driven man pages (tealdeer implementation)
+
     # System Monitoring (Story 02.4-006)
     gotop               # Interactive CLI system monitor (TUI for CPU, RAM, disk, network)
     macmon              # macOS system monitoring CLI tool (hardware specs, sensors)

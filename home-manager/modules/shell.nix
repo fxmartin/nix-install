@@ -50,9 +50,12 @@
 
     # Shell aliases
     # Nix system management aliases using scripts/update-system.sh
-    # Additional aliases will be added in Story 04.5-001
+    # Modern CLI tool aliases added in Story 04.5-001, 04.5-002, 04.5-003
     shellAliases = {
-      # Nix system management (using scripts/update-system.sh)
+      # =============================================================================
+      # NIX SYSTEM MANAGEMENT (Story 04.5-001)
+      # =============================================================================
+      # Using scripts/update-system.sh wrapper for profile auto-detection
       nix-update = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/update-system.sh update";
       nix-rebuild = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/update-system.sh rebuild";
       nix-full = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/update-system.sh full";
@@ -60,11 +63,63 @@
       # Quick rebuild (auto-detect profile)
       rebuild = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/update-system.sh rebuild";
 
+      # Update flake.lock and rebuild (convenience alias)
+      update = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/update-system.sh update";
+
+      # Nix garbage collection aliases
+      gc = "nix-collect-garbage -d";  # Delete old generations
+      cleanup = "nix-collect-garbage -d && nix-store --optimize";  # GC + optimize store
+
+      # Health check (placeholder - will be implemented in Epic-06)
+      health-check = "echo 'Health check script not yet implemented (Epic-06)'";
+
+      # =============================================================================
+      # GENERAL SHELL ALIASES (Story 04.5-002)
+      # =============================================================================
+      # Classic Unix convenience aliases
+      ll = "ls -lah";    # Long listing with hidden files, human-readable sizes
+      la = "ls -A";      # List all files except . and ..
+      l = "ls -CF";      # Classify files (/, *, @) and columnar output
+
+      # Directory navigation
+      ".." = "cd ..";
+      "..." = "cd ../..";
+
       # History search alias for convenience
       hist = "history 1";
 
-      # Additional aliases will be added in Story 04.5-001:
-      # ls → eza, cat → bat, grep → rg, find → fd, docker → podman, etc.
+      # =============================================================================
+      # MODERN CLI TOOL ALIASES (Story 04.5-003)
+      # =============================================================================
+      # Replace legacy tools with modern alternatives while keeping originals accessible
+
+      # grep → ripgrep (rg) - respects .gitignore, blazing fast, smart defaults
+      grep = "rg";
+      oldgrep = "command grep --color=auto";  # Original grep with color
+
+      # cat → bat - syntax highlighting, git integration, line numbers
+      cat = "bat";
+      oldcat = "command cat";  # Original cat
+
+      # find → fd - simpler syntax, respects .gitignore, parallel execution
+      find = "fd";
+      oldfind = "command find";  # Original find
+
+      # ls → eza - icons, git status, tree view, better colors
+      ls = "eza --icons --group-directories-first";
+      oldls = "command ls --color=auto";  # Original ls (BSD ls on macOS)
+
+      # Additional eza convenience aliases
+      tree = "eza --tree --icons";  # Tree view with icons
+      lt = "eza --tree --level=2 --icons";  # Tree view (2 levels)
+      llt = "eza --tree --long --icons";  # Tree view with details
+
+      # cd → zoxide (z) - frecency-based directory jumping
+      # Note: Zoxide adds 'z' command automatically, these are just convenience aliases
+      # Example: z docs → cd to most frequent/recent "docs" directory
+      # No alias needed - zoxide init adds the 'z' command
+
+      # NOTE: Docker/Podman aliases are in Story 04.8-002 (not implemented yet)
     };
 
     # =============================================================================
@@ -173,16 +228,39 @@
 
       # Go binaries if installed
       [[ -d "$HOME/go/bin" ]] && export PATH="$HOME/go/bin:$PATH"
+
+      # =============================================================================
+      # MODERN CLI TOOLS CONFIGURATION (Story 04.5-003)
+      # =============================================================================
+
+      # Zoxide initialization - smarter cd with frecency tracking
+      # Adds 'z' command for jumping to frequently/recently used directories
+      # Example: z docs → cd to most frequent/recent "docs" directory
+      eval "$(zoxide init zsh)"
+
+      # Bat (cat replacement) theme - use Catppuccin Mocha for dark mode
+      # Matches our Stylix theme (Epic-05)
+      export BAT_THEME="Catppuccin Mocha"
+
+      # Bat pager settings - less with better defaults
+      export BAT_PAGER="less -RF"
+
+      # Eza (ls replacement) color configuration
+      # Use vivid for LS_COLORS if available, otherwise fall back to default
+      if command -v vivid &> /dev/null; then
+        export LS_COLORS="$(vivid generate catppuccin-mocha)"
+      fi
     '';
 
     # Note: Starship prompt will be configured in Story 04.2-001
   };
 
   # =============================================================================
-  # FZF FUZZY FINDER (Story 04.3-001)
+  # FZF FUZZY FINDER (Story 04.3-001, enhanced in Story 04.5-003)
   # =============================================================================
   # FZF integration via Home Manager (preferred over Oh My Zsh plugin)
   # Provides: Ctrl+R (history), Ctrl+T (files), Alt+C (directories)
+  # Enhanced with bat preview and fd search (Story 04.5-003)
 
   programs.fzf = {
     enable = true;
@@ -201,16 +279,16 @@
       "--inline-info"
     ];
 
-    # Ctrl+T: File finder options
+    # Ctrl+T: File finder options (Story 04.5-003: use bat for preview)
     fileWidgetCommand = "fd --type f --hidden --follow --exclude .git";
     fileWidgetOptions = [
-      "--preview 'head -100 {}'"
+      "--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
     ];
 
-    # Alt+C: Directory finder options
+    # Alt+C: Directory finder options (Story 04.5-003: use eza for preview)
     changeDirWidgetCommand = "fd --type d --hidden --follow --exclude .git";
     changeDirWidgetOptions = [
-      "--preview 'ls -la {}'"
+      "--preview 'eza --tree --level=2 --icons --color=always {}'"
     ];
 
     # Ctrl+R: History search options

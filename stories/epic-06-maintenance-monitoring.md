@@ -3,8 +3,8 @@
 ## Epic Overview
 **Epic ID**: Epic-06
 **Epic Description**: Automated system maintenance including daily garbage collection, Nix store optimization, system monitoring tools installation and configuration, health check commands to validate system state, and email notifications for issues and weekly digests. Ensures the Nix-based system stays healthy, clean, and performant over time with minimal manual intervention.
-**Business Value**: Prevents disk bloat from old Nix generations, maintains optimal system performance, provides visibility into system health, proactive notification of issues
-**User Impact**: FX gets automated cleanup, easy monitoring, and email alerts without manual maintenance tasks
+**Business Value**: Prevents disk bloat from old Nix generations, maintains optimal system performance, provides visibility into system health, proactive notification of issues, keeps FX informed of upstream tool updates
+**User Impact**: FX gets automated cleanup, easy monitoring, email alerts, and weekly release intelligence without manual maintenance tasks
 **Success Metrics**:
 - Automated GC runs daily and removes old generations
 - Disk space recovered via store optimization
@@ -12,11 +12,13 @@
 - Monitoring tools (btop, iStat Menus, macmon) functional
 - Email notifications sent when maintenance fails or issues detected
 - Weekly digest email summarizes maintenance activity
+- Weekly release monitor checks Homebrew, Nix, and Ollama updates
+- GitHub issues created for actionable updates (security, breaking changes, new features)
 
 ## Epic Scope
-**Total Stories**: 13
-**Total Story Points**: 71
-**MVP Stories**: 10 (77% of epic - Features 06.1-06.4)
+**Total Stories**: 18
+**Total Story Points**: 97
+**MVP Stories**: 10 (56% of epic - Features 06.1-06.4)
 **Priority Level**: Must Have
 **Target Release**: Phase 7 (Week 5)
 
@@ -50,6 +52,12 @@
 **Story Count**: 3 | **Story Points**: 16 | **Priority**: Should Have (P1) | **Complexity**: Medium
 👉 **[View detailed implementation](../docs/development/stories/epic-06-feature-06.5.md)**
 
+### Feature 06.6: Release Monitoring & Improvement Suggestions ✅ COMPLETE
+**Feature Description**: Automated weekly monitoring of Homebrew, Nix/nix-darwin, and Ollama releases using Claude CLI for analysis, with GitHub issue creation for actionable items and email summary reports
+**Story Count**: 5 | **Story Points**: 26 | **Priority**: Should Have (P1) | **Complexity**: Medium
+**Status**: ✅ Complete (2025-12-06) - All scripts tested, deduplication bug fixed, email working
+👉 **[View detailed implementation](../docs/development/stories/epic-06-feature-06.6.md)**
+
 ## Epic Dependencies
 
 ### Dependencies on Other Epics
@@ -73,11 +81,13 @@
 |--------|---------|--------------|-------------|
 | Sprint 8 | 06.1-001 to 06.4-002 | 55 | Automated maintenance, monitoring tools, health checks |
 | Sprint 9 | 06.5-001 to 06.5-003 | 16 | Email notification system |
+| Sprint 10 | 06.6-001 to 06.6-005 | 26 | Release monitoring & Claude CLI analysis |
 
 ### Delivery Milestones
 - **Milestone 1**: End Sprint 8 - Automated GC and optimization running, monitoring tools configured
 - **Milestone 2**: End Sprint 9 - Email notifications functional, weekly digest operational
-- **Epic Complete**: Week 6 - All features verified, email notifications tested
+- **Milestone 3**: End Sprint 10 - Release monitoring operational, GitHub issues auto-created
+- **Epic Complete**: Week 7 - All features verified, release monitoring tested
 
 ### Risk Assessment
 **Low Risk Items**:
@@ -86,15 +96,17 @@
 ## Epic Progress Tracking
 
 ### Completion Status
-- **Stories Completed**: 0 of 13 (0%)
-- **Story Points Completed**: 0 of 71 (0%)
+- **Stories Completed**: 5 of 18 (28%)
+- **Story Points Completed**: 26 of 97 (27%)
 - **MVP Stories Completed**: 0 of 10 (0%)
+- **P1 Stories Completed**: 5 of 8 (63%) - Feature 06.6 complete
 
 ### Sprint Progress
 | Sprint | Planned Points | Completed Points | Stories Done | Status |
 |--------|----------------|------------------|--------------|--------|
 | Sprint 8 | 55 | 0 | 0/10 | Not Started |
 | Sprint 9 | 16 | 0 | 0/3 | Not Started |
+| Sprint 10 | 26 | 26 | 5/5 | ✅ Complete |
 
 ## Epic Acceptance Criteria
 - [ ] All MVP stories (10/10) completed and accepted
@@ -115,6 +127,16 @@
 - [ ] Weekly digest email sent Sunday 8 AM
 - [ ] Manual `weekly-digest` alias works
 - [ ] No passwords stored in config files (verified)
+
+### P1 Acceptance Criteria (Feature 06.6) - ✅ COMPLETE (2025-12-06)
+- [x] Release note fetcher retrieves Homebrew, Nix, nix-darwin, Ollama updates
+- [x] Claude CLI analyzes releases and suggests improvements
+- [x] GitHub issues created for security updates, breaking changes, new features
+- [x] Issue deduplication prevents duplicate issues (bug fixed during testing)
+- [ ] Weekly LaunchAgent runs Monday 7 AM (deferred to rebuild)
+- [x] Email summary sent after each run
+- [x] Manual `release-monitor` script works (alias deferred to rebuild)
+- [ ] `/check-releases` slash command available for on-demand analysis (deferred)
 
 ## Story Validation Checklist
 

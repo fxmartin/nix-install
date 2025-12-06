@@ -66,10 +66,10 @@ Apps requiring auto-update disable: Homebrew, Zed, VSCode, Arc, Firefox, Dropbox
 
 ### Testing Strategy (CRITICAL)
 
-**⚠️ CLAUDE DOES NOT PERFORM TESTING ⚠️**
+**⚠️ CLAUDE DOES NOT PERFORM TESTING WITHOUT APPROVAL FROM FX ⚠️**
 
 Claude's role: Write code, configuration, and documentation ONLY.
-FX's role: ALL testing, execution, and validation.
+FX's role: ALL testing, execution, and validation except if he willingly authorise CLaude to test.
 
 **Testing sequence (performed by FX manually)**:
 
@@ -83,7 +83,7 @@ FX's role: ALL testing, execution, and validation.
    - First: MacBook Pro M3 Max (Power profile)
    - Then: MacBook Air #1 and #2 (Standard profile)
 
-**Claude must NEVER**:
+**Claude must NEVER, except if specifically ordered to**:
 - Run bootstrap.sh, setup.sh, or any installation scripts
 - Execute nix-darwin, darwin-rebuild, or Nix commands that modify the system
 - Test configurations on any machine (VM or physical)

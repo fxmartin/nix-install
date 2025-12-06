@@ -46,11 +46,11 @@ echo "Started at: $(date '+%Y-%m-%d %H:%M:%S')" >> "${LOG_FILE}"
 echo "Command: ${COMMAND}" >> "${LOG_FILE}"
 echo "" >> "${LOG_FILE}"
 
-# Execute the command
-EXIT_CODE=0
-if ! eval "${COMMAND}" >> "${LOG_FILE}" 2>> "${ERR_FILE}"; then
-    EXIT_CODE=$?
-fi
+# Execute the command (disable errexit temporarily to capture exit code)
+set +e
+eval "${COMMAND}" >> "${LOG_FILE}" 2>> "${ERR_FILE}"
+EXIT_CODE=$?
+set -e
 
 # Log completion
 echo "" >> "${LOG_FILE}"

@@ -82,6 +82,11 @@
       # Manual trigger for weekly digest email (normally runs Sunday 8 AM automatically)
       weekly-digest = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/weekly-maintenance-digest.sh";
 
+      # Release monitor (Feature 06.6 - Epic-06)
+      # Manual trigger for release monitoring (normally runs Monday 7 AM automatically)
+      # Checks Homebrew, nixpkgs, nix-darwin, Ollama for updates and creates GitHub issues
+      release-monitor = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/release-monitor.sh";
+
       # =============================================================================
       # GENERAL SHELL ALIASES (Story 04.5-002)
       # =============================================================================

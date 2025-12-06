@@ -133,17 +133,18 @@ fi
 # Check 6: System generations
 # ---------------------------------------------------------------------------
 echo "Checking system generations..."
-if command -v darwin-rebuild &> /dev/null; then
-    GENERATIONS=$(darwin-rebuild --list-generations 2>/dev/null | wc -l | tr -d ' ')
+# Use fast method: count profile symlinks directly instead of slow darwin-rebuild --list-generations
+if [[ -d /nix/var/nix/profiles ]]; then
+    GENERATIONS=$(ls -1 /nix/var/nix/profiles/system-*-link 2>/dev/null | wc -l | tr -d ' ')
 
     if [[ ${GENERATIONS} -gt ${GENERATION_WARNING_THRESHOLD} ]]; then
-        print_status "warn" "System generations: ${GENERATIONS} (many generations)"
+        print_status "warn" "System generations: ${GENERATIONS} (many generations!)"
         echo "    → Run: gc  # to clean up old generations"
     else
-        print_status "check" "System generations: ${GENERATIONS}"
+        print_status "ok" "System generations: ${GENERATIONS}"
     fi
 else
-    print_status "warn" "darwin-rebuild not found (cannot list generations)"
+    print_status "warn" "Nix profiles directory not found"
 fi
 
 # ---------------------------------------------------------------------------

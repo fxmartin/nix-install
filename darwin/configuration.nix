@@ -82,7 +82,8 @@
     httpie              # Modern curl alternative with JSON support and colored output
     tldr                # Simplified, community-driven man pages (tealdeer implementation)
 
-    # System Monitoring (Story 02.4-006)
+    # System Monitoring (Story 02.4-006, Feature 06.3)
+    btop                # Modern resource monitor (TUI) - prettier than gotop with themes
     gotop               # Interactive CLI system monitor (TUI for CPU, RAM, disk, network)
     macmon              # macOS system monitoring CLI tool (hardware specs, sensors)
 

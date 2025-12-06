@@ -13,7 +13,6 @@ import logging
 from datetime import datetime, timedelta
 from typing import List, Tuple, Dict, Optional
 from pathlib import Path
-import os
 
 # Constants
 DEFAULT_THRESHOLD_MINUTES = 120
@@ -177,7 +176,7 @@ def get_github_issues() -> List[dict]:
             logging.info(f"Fetched {len(issues)} GitHub issues")
             return issues
 
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError:
             if attempt == 0:
                 logging.warning(
                     "GitHub CLI not available or not authenticated - continuing without GitHub data"
@@ -344,7 +343,7 @@ def output_text_format(data: Dict, args) -> str:
     output.append("=" * 70)
 
     # Data sources
-    output.append(f"\nData sources:")
+    output.append("\nData sources:")
     output.append(f"  Git commits:     {metrics.get('total_commits', 0)}")
     output.append(
         f"  GitHub issues:   {metrics.get('total_issues', 0)} ({metrics.get('closed_issues', 0)} closed)"
@@ -358,7 +357,7 @@ def output_text_format(data: Dict, args) -> str:
         output.append(f"Active days: {metrics.get('active_days', 0)}")
 
         # Velocity metrics
-        output.append(f"\nVelocity metrics:")
+        output.append("\nVelocity metrics:")
         output.append(
             f"  Commits per day:     {metrics.get('avg_commits_per_day', 0):.1f}"
         )
@@ -373,7 +372,7 @@ def output_text_format(data: Dict, args) -> str:
         )
 
         # Time estimates
-        output.append(f"\nEstimated active development hours:")
+        output.append("\nEstimated active development hours:")
         for estimate in estimates:
             threshold = estimate["threshold_minutes"]
             hours = estimate["hours"]

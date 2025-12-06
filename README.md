@@ -2,13 +2,11 @@
 
 > **Status**: 80% Complete (94/119 stories) | **Version**: 0.1.0 (Pre-Release)
 
-A **proactive, AI-assisted macOS configuration system** using Nix + nix-darwin + Home Manager.
+One command. 30 minutes. A fully-configured MacBook — identical to your last one.
 
-**What it does**:
-- Transforms a fresh macOS install into a fully configured dev environment in <30 minutes
-- Ensures 100% consistency across multiple MacBooks with atomic, rollback-capable updates
-- **Proactively monitors** 50+ tools for updates, security patches, breaking changes, and new Ollama models
-- Creates prioritized GitHub issues with implementation plans via Claude Code integration
+No more "works on my machine." No more forgetting what you installed. No more update roulette.
+
+Built on **Nix + nix-darwin + Home Manager**, this system treats your macOS configuration as code: version-controlled, atomic, and rollback-ready. Plus, it's smarter than you — an AI-powered release monitor watches 50+ tools for security patches and breaking changes, then opens GitHub issues with implementation plans before you've had your morning coffee.
 
 ---
 

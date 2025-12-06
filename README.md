@@ -2,11 +2,13 @@
 
 > **Status**: 80% Complete (94/119 stories) | **Version**: 0.1.0 (Pre-Release)
 
-One command. 30 minutes. A fully-configured MacBook — identical to your last one.
+**Three MacBooks. One config. Zero drift.**
 
-No more "works on my machine." No more forgetting what you installed. No more update roulette.
+I got tired of my machines slowly becoming strangers — different tools here, tweaked settings there, no idea what I changed six months ago. So I built this.
 
-Built on **Nix + nix-darwin + Home Manager**, this system treats your macOS configuration as code: version-controlled, atomic, and rollback-ready. Plus, it's smarter than you — an AI-powered release monitor watches 50+ tools for security patches and breaking changes, then opens GitHub issues with implementation plans before you've had your morning coffee.
+One git repo defines everything. Push a change, rebuild, and all machines stay perfectly in sync. Fresh MacBook? 30 minutes to identical setup.
+
+The stack: **Nix + nix-darwin + Home Manager** for declarative, atomic, rollback-capable configuration — plus an AI-powered release monitor that opens GitHub issues before I even know updates exist.
 
 ---
 

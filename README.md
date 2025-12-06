@@ -6,13 +6,18 @@
 
 Automated, declarative MacBook configuration system using Nix + nix-darwin + Home Manager. Transform a fresh macOS installation into a fully configured development environment in <30 minutes with zero manual intervention (except license activations).
 
+**What makes this different**: Beyond declarative configuration, this system includes an **AI-powered release monitor** that proactively tracks updates, security patches, breaking changes, and new Ollama models—then creates prioritized GitHub issues with implementation plans. Claude Code slash commands (`/plan-release-update`, `/release-updates`) provide seamless workflow integration for reviewing and applying suggested improvements.
+
 ---
 
 ## 🎯 Project Vision
 
-**Problem**: Managing 3 MacBooks with periodic reinstalls is time-consuming (4-6 hours per install) and error-prone. Configuration drift occurs between machines, and there's no rollback mechanism when changes break the system.
+**Problem**: Managing 3 MacBooks with periodic reinstalls is time-consuming (4-6 hours per install) and error-prone. Configuration drift occurs between machines, there's no rollback mechanism when changes break the system, and keeping track of updates across 50+ tools is a constant chore.
 
-**Solution**: Declarative configuration-as-code that reduces setup time by 90%, ensures 100% consistency across machines, and provides atomic updates with instant rollback capability.
+**Solution**: A **proactive, AI-assisted configuration system** that combines:
+1. **Declarative configuration-as-code** - reduces setup time by 90%, ensures 100% consistency across machines, provides atomic updates with instant rollback
+2. **AI-powered release monitoring** - automatically tracks updates, security patches, breaking changes, and new Ollama models across Homebrew and Nix ecosystems
+3. **Smart improvement suggestions** - Claude Code analyzes changes, categorizes by priority (security > breaking > features), creates GitHub issues, and provides implementation plans via slash commands
 
 **Target**: FX manages 3 MacBooks (1x MacBook Pro M3 Max, 2x MacBook Air) with periodic reinstalls. Split usage between Office 365 work and weekend Python development.
 
@@ -73,7 +78,8 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - Feature 06.3: System Monitoring Tools (2 stories, 14 pts)
 - Feature 06.4: Health Check Command (3 stories, 16 pts)
 - Feature 06.5: Email Notification System (3 stories, 16 pts)
-- LaunchAgents: nix-gc (3 AM), nix-optimize (3:30 AM), weekly-digest (Sunday 8 AM)
+- Feature 06.6: AI-Powered Release Monitor (integrated with Claude Code)
+- LaunchAgents: nix-gc (3 AM), nix-optimize (3:30 AM), weekly-digest (Sunday 8 AM), release-monitor (Sunday 7 AM)
 - Email notifications via msmtp + Gandi + macOS Keychain
 
 ### 🔄 In Progress
@@ -323,6 +329,84 @@ NIX_INSTALL_DIR="${HOME}/.config/nix-install" \
 - **Stylix Theming**: System-wide Catppuccin theme (Latte/Mocha) with auto light/dark switching
 - **No Auto-Updates**: All app updates controlled via `rebuild` command only
 - **Modular Design**: One concern per Nix file for maintainability
+- **AI-Powered Release Monitor**: Claude Code-integrated update suggestions (see below)
+
+---
+
+## 🤖 AI-Powered Release Monitor
+
+One of the unique features of this configuration is an **AI-powered release monitoring system** that integrates directly with Claude Code to provide smart update suggestions.
+
+### How It Works
+
+The release monitor runs weekly (Sunday 7 AM) as a LaunchAgent and performs a 4-step pipeline:
+
+1. **Fetch**: Collects release notes from Homebrew, Nix, and tracked tools
+2. **Analyze**: Uses Claude CLI to intelligently categorize and prioritize updates
+3. **Issue Creation**: Creates GitHub issues with smart deduplication
+4. **Email Summary**: Sends a digest grouped by priority and category
+
+### Smart Update Categories
+
+Claude analyzes each update and categorizes it:
+
+| Category | Label | Priority | Example |
+|----------|-------|----------|---------|
+| **Security Update** | `security` | HIGH | CA certificate bundle updates, CVE fixes |
+| **Breaking Change** | `breaking-change` | HIGH | Major version bumps with API changes |
+| **New Feature** | `enhancement` | MEDIUM | New tool capabilities worth exploring |
+| **Ollama Model** | `profile/power` | LOW | New AI models to try |
+| **Notable Update** | `enhancement` | LOW | Regular version bumps |
+
+### Claude Code Integration
+
+The system includes custom slash commands for seamless workflow:
+
+```bash
+# Plan how to handle a release monitor issue
+/plan-release-update 64
+
+# View pending release updates
+/release-updates
+```
+
+**Example workflow** (just completed):
+```bash
+$ /plan-release-update 64
+# Claude reads the issue, identifies it as a security update (ca-certificates),
+# and proposes an implementation plan with impact analysis and testing strategy
+
+$ # User approves: "Apply it"
+
+$ brew upgrade ca-certificates
+# ✅ Updated ca-certificates to 2025-12-02
+
+$ gh issue close 64 --comment "✅ Updated"
+```
+
+### Smart Deduplication
+
+The issue creation system prevents duplicates using intelligent matching:
+- Matches on **tool name + category**, not exact wording
+- Allows same tool with different versions (e.g., Python 3.12.5 vs 3.12.6)
+- Handles Claude generating slightly different descriptions each run
+- Category-specific matching (security issues match security label, etc.)
+
+### Manual Trigger
+
+Run the release monitor manually anytime:
+```bash
+release-monitor
+# or
+~/Documents/nix-install/scripts/release-monitor.sh
+```
+
+### Configuration
+
+The release monitor uses:
+- **Email**: Same msmtp + Gandi setup as weekly-digest
+- **GitHub**: Uses `gh` CLI for issue creation
+- **Logs**: `~/.local/log/release-monitor.log`
 
 ---
 
@@ -488,6 +572,7 @@ nix-install/
 | `cleanup` | gc + store optimization |
 | `health-check` | System health report |
 | `weekly-digest` | Manual trigger for maintenance digest email |
+| `release-monitor` | Run AI-powered release monitor (fetches updates, creates GitHub issues) |
 
 **Full system update workflow:**
 ```bash

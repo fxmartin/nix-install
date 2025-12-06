@@ -69,10 +69,10 @@ if [[ -f "${OPT_LOG}" ]]; then
     OPT_RUNS=$(grep -c "=== nix-optimize ===" "${OPT_LOG}" 2>/dev/null || echo "0")
 fi
 
-# Get current system state
+# Get current system state - use fast method (profile symlinks)
 GENERATIONS="unknown"
-if command -v darwin-rebuild &> /dev/null; then
-    GENERATIONS=$(darwin-rebuild --list-generations 2>/dev/null | wc -l | tr -d ' ')
+if [[ -d /nix/var/nix/profiles ]]; then
+    GENERATIONS=$(ls -1 /nix/var/nix/profiles/system-*-link 2>/dev/null | wc -l | tr -d ' ')
 fi
 
 # Nix store size

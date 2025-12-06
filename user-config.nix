@@ -5,6 +5,7 @@
   username = "fxmartin";  # macOS login username
   fullName = "François-Xavier Martin";
   email = "mail@fxmartin.me";
+  notificationEmail = "notifications@fxmartin.me";  # Email for maintenance notifications
   githubUsername = "fxmartin";
   hostname = "fxmartins-MacBook-Pro";  # Only letters, numbers, and hyphens
   signingKey = "";  # GPG key ID (leave empty initially)

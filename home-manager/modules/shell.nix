@@ -71,6 +71,10 @@
       gc-system = "sudo nix-collect-garbage -d";  # Delete old system generations (requires sudo)
       cleanup = "nix-collect-garbage -d && nix-store --optimize";  # GC + optimize store
 
+      # Homebrew upgrade alias (manual trigger for cask updates)
+      # Use --greedy to include apps that auto-update themselves
+      brew-upgrade = "brew update && brew upgrade --greedy";
+
       # Health check (Feature 06.4 - Epic-06)
       health-check = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/health-check.sh";
 

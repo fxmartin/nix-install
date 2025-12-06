@@ -67,7 +67,8 @@
       update = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/update-system.sh update";
 
       # Nix garbage collection aliases
-      gc = "nix-collect-garbage -d";  # Delete old generations
+      gc = "nix-collect-garbage -d";  # Delete old user generations
+      gc-system = "sudo nix-collect-garbage -d";  # Delete old system generations (requires sudo)
       cleanup = "nix-collect-garbage -d && nix-store --optimize";  # GC + optimize store
 
       # Health check (Feature 06.4 - Epic-06)

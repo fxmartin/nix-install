@@ -183,6 +183,7 @@ issue_exists() {
 }
 
 # Create a GitHub issue
+# Outputs JSON: {"url": "...", "category": "...", "tool": "..."}
 create_issue() {
     local title="$1"
     local body="$2"
@@ -194,6 +195,10 @@ create_issue() {
         echo ""
         return 0
     fi
+
+    # Extract tool name for the output
+    local tool_name
+    tool_name=$(echo "${title}" | sed -E 's/\[Release Monitor\] ([^:]+):.*/\1/')
 
     # Create the issue
     local url
@@ -208,7 +213,8 @@ create_issue() {
         }
 
     log "Created issue: ${url}"
-    echo "${url}"
+    # Output JSON object with url, category, and tool
+    echo "{\"url\":\"${url}\",\"category\":\"${category}\",\"tool\":\"${tool_name}\"}"
 }
 
 # Process security updates
@@ -418,35 +424,35 @@ main() {
         exit 0
     fi
 
-    # Collect all created issue URLs
+    # Collect all created issue JSON objects
     local created_issues=()
 
-    # Process each category
-    while IFS= read -r url; do
-        [[ -n "${url}" ]] && created_issues+=("${url}")
+    # Process each category - each returns JSON objects
+    while IFS= read -r json_obj; do
+        [[ -n "${json_obj}" ]] && created_issues+=("${json_obj}")
     done < <(process_security_updates)
 
-    while IFS= read -r url; do
-        [[ -n "${url}" ]] && created_issues+=("${url}")
+    while IFS= read -r json_obj; do
+        [[ -n "${json_obj}" ]] && created_issues+=("${json_obj}")
     done < <(process_breaking_changes)
 
-    while IFS= read -r url; do
-        [[ -n "${url}" ]] && created_issues+=("${url}")
+    while IFS= read -r json_obj; do
+        [[ -n "${json_obj}" ]] && created_issues+=("${json_obj}")
     done < <(process_new_features)
 
-    while IFS= read -r url; do
-        [[ -n "${url}" ]] && created_issues+=("${url}")
+    while IFS= read -r json_obj; do
+        [[ -n "${json_obj}" ]] && created_issues+=("${json_obj}")
     done < <(process_ollama_models)
 
-    while IFS= read -r url; do
-        [[ -n "${url}" ]] && created_issues+=("${url}")
+    while IFS= read -r json_obj; do
+        [[ -n "${json_obj}" ]] && created_issues+=("${json_obj}")
     done < <(process_notable_updates)
 
-    # Write output (handle empty array case)
+    # Write output as JSON array of objects (handle empty array case)
     if [[ ${#created_issues[@]} -eq 0 ]]; then
         echo '[]' > "${OUTPUT_FILE}"
     else
-        printf '%s\n' "${created_issues[@]}" | jq -R . | jq -s '.' > "${OUTPUT_FILE}"
+        printf '%s\n' "${created_issues[@]}" | jq -s '.' > "${OUTPUT_FILE}"
     fi
 
     local count="${#created_issues[@]}"

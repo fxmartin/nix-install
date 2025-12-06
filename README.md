@@ -1,6 +1,6 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: ✅ Epic-05 Complete - Moving to Epic-06
+> **Status**: ✅ Epic-06 Complete - Moving to Epic-07
 > **Version**: 0.1.0 (Pre-Release)
 > **Last Updated**: 2025-12-06
 
@@ -29,10 +29,10 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 | **Epic-03** | System Configuration | 14 | 76 | **14** | **76** | 100% | 100% | ✅ Complete |
 | **Epic-04** | Development Environment | 18 | 97 | **18** | **97** | 100% | 100% | ✅ Complete |
 | **Epic-05** | Theming & Visual Consistency | 7 | 36 | **7** | **36** | 100% | 100% | ✅ Complete |
-| **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-06** | Maintenance & Monitoring | 13 | 71 | **13** | **71** | 100% | 100% | ✅ Complete |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **116** | **608** | **81** | **431** | **69.8%** | **70.9%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **119** | **624** | **94** | **502** | **79.0%** | **80.4%** | 🟡 In Progress |
 
 ### ✅ Completed
 - **Requirements Definition** ([REQUIREMENTS.md](./docs/REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
@@ -67,15 +67,25 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - Catppuccin Mocha/Latte with auto light/dark switching
 - JetBrains Mono Nerd Font with ligatures
 
+**Epic-06 Stories (13/13 complete - 100%)**: ✅ **COMPLETE**
+- Feature 06.1: Automated Garbage Collection (3 stories, 14 pts)
+- Feature 06.2: Store Optimization (2 stories, 11 pts)
+- Feature 06.3: System Monitoring Tools (2 stories, 14 pts)
+- Feature 06.4: Health Check Command (3 stories, 16 pts)
+- Feature 06.5: Email Notification System (3 stories, 16 pts)
+- LaunchAgents: nix-gc (3 AM), nix-optimize (3:30 AM), weekly-digest (Sunday 8 AM)
+- Email notifications via msmtp + Gandi + macOS Keychain
+
 ### 🔄 In Progress
 - **Epic-01: Bootstrap System** - 17/19 stories (89.5%), 104/113 points (92.0%) - **FUNCTIONAL** 🟢
 - **Epic-02: Application Installation** - 25/25 stories (100%), 118/118 points (100%) - ✅ **COMPLETE**
 - **Epic-03: System Configuration** - 14/14 stories (100%), 76/76 points (100%) - ✅ **COMPLETE**
 - **Epic-04: Development Environment** - 18/18 stories (100%), 97/97 points (100%) - ✅ **COMPLETE**
 - **Epic-05: Theming & Visual Consistency** - 7/7 stories (100%), 36/36 points (100%) - ✅ **COMPLETE**
+- **Epic-06: Maintenance & Monitoring** - 13/13 stories (100%), 71/71 points (100%) - ✅ **COMPLETE**
 - **Remaining Epic-01 Stories**: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
 - **Bootstrap Status**: ALL 9 phases working! Phases 1-8 VM tested and verified ✅
-- **Recent Milestone**: Epic-05 Theming & Visual Consistency COMPLETE! 🎉 (5 epics now complete)
+- **Recent Milestone**: Epic-06 Maintenance & Monitoring COMPLETE! 🎉 (6 epics now complete)
 
 ### 📅 Upcoming
 - **Phase 1-2**: Core bootstrap implementation (Week 2)
@@ -462,9 +472,27 @@ nix-install/
 - **Always**: Test in VM first, then physical hardware
 
 ### Update Philosophy
-- **All app updates** controlled via `rebuild` or `update` commands only
+- **All app updates** controlled via `rebuild`, `update`, or `brew-upgrade` commands only
 - **No auto-updates** for any application (Homebrew, Zed, VSCode, Arc, etc.)
 - **Reproducibility**: Same config version = same app versions guaranteed
+
+### Quick Commands Reference
+
+| Command | What it does |
+|---------|--------------|
+| `rebuild` | Apply Nix config (uses locked versions from flake.lock) |
+| `update` | Update flake.lock to latest + rebuild |
+| `brew-upgrade` | Update all Homebrew packages (`brew update && brew upgrade --greedy`) |
+| `gc` | Remove old user generations |
+| `gc-system` | Remove old system generations (requires sudo) |
+| `cleanup` | gc + store optimization |
+| `health-check` | System health report |
+| `weekly-digest` | Manual trigger for maintenance digest email |
+
+**Full system update workflow:**
+```bash
+update && brew-upgrade
+```
 
 ### Security
 - **No secrets in Git**: License keys and API tokens managed separately

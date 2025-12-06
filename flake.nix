@@ -163,14 +163,17 @@
       system = "aarch64-darwin"; # Apple Silicon (can also support x86_64-darwin)
       isPowerProfile = false;
       modules = [
-        {
+        ({lib, ...}: {
           # Standard profile specific settings (to be expanded in Epic-02)
           # - No Parallels Desktop (isPowerProfile = false)
           # - Minimal app set
           # - Single Ollama model (gpt-oss:20b)
 
           # Story 02.1-003: Automatically pull gpt-oss:20b Ollama model
-          system.activationScripts.pullOllamaModel.text = ''
+          # Use postActivation - one of the hardcoded script names that nix-darwin actually runs
+          # Custom script names like 'pullOllamaModel' are NOT executed
+          # See: https://github.com/nix-darwin/nix-darwin/issues/663
+          system.activationScripts.postActivation.text = lib.mkAfter ''
             # Check if Ollama CLI is available (installed by Homebrew)
             if [ -x /opt/homebrew/bin/ollama ]; then
               echo "Checking Ollama model: gpt-oss:20b..."
@@ -180,14 +183,12 @@
                 echo "Pulling Ollama model: gpt-oss:20b (~12GB, this may take several minutes)..."
 
                 # Check if Ollama daemon is running, start if needed
-                DAEMON_STARTED=0
                 if ! pgrep -q ollama; then
                   echo "Starting Ollama daemon..."
                   /opt/homebrew/bin/ollama serve > /dev/null 2>&1 &
-                  DAEMON_STARTED=1
 
                   # Wait for daemon to be ready (up to 10 seconds)
-                  for i in {1..10}; do
+                  for _ in {1..10}; do
                     if /opt/homebrew/bin/ollama list > /dev/null 2>&1; then
                       echo "✓ Ollama daemon ready"
                       break
@@ -212,7 +213,7 @@
               echo "   Model pull will be skipped. Install Ollama first."
             fi
           '';
-        }
+        })
       ];
     };
 
@@ -223,27 +224,28 @@
       system = "aarch64-darwin"; # Apple Silicon only
       isPowerProfile = true;
       modules = [
-        {
+        ({lib, ...}: {
           # Power profile specific settings (to be expanded in Epic-02)
           # - Parallels Desktop enabled (isPowerProfile = true)
           # - Full app set
           # - Multiple Ollama models (gpt-oss:20b, qwen2.5-coder:32b, llama3.1:70b, deepseek-r1:32b)
 
           # Story 02.1-004: Automatically pull 4 Ollama models for Power profile
-          system.activationScripts.pullOllamaModels.text = ''
+          # Use postActivation - one of the hardcoded script names that nix-darwin actually runs
+          # Custom script names like 'pullOllamaModels' are NOT executed
+          # See: https://github.com/nix-darwin/nix-darwin/issues/663
+          system.activationScripts.postActivation.text = lib.mkAfter ''
             # Check if Ollama CLI is available (installed by Homebrew)
             if [ -x /opt/homebrew/bin/ollama ]; then
               echo "Checking Ollama models for Power profile..."
 
               # Check if Ollama daemon is running, start if needed
-              DAEMON_STARTED=0
               if ! pgrep -q ollama; then
                 echo "Starting Ollama daemon..."
                 /opt/homebrew/bin/ollama serve > /dev/null 2>&1 &
-                DAEMON_STARTED=1
 
                 # Wait for daemon to be ready (up to 10 seconds)
-                for i in {1..10}; do
+                for _ in {1..10}; do
                   if /opt/homebrew/bin/ollama list > /dev/null 2>&1; then
                     echo "✓ Ollama daemon ready"
                     break
@@ -286,7 +288,7 @@
               echo "   Model pull will be skipped. Install Ollama first."
             fi
           '';
-        }
+        })
       ];
     };
 

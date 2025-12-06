@@ -8,7 +8,7 @@
 **Feature ID**: Feature 05.1
 **Feature Name**: Stylix System Configuration
 **Epic**: Epic-05
-**Status**: 🔄 In Progress (Story 05.1-001 complete, Story 05.1-002 complete)
+**Status**: ✅ Complete (VM Tested 2025-12-06)
 
 ### Feature 05.1: Stylix System Configuration
 **Feature Description**: Install and configure Stylix for system-wide theming
@@ -83,9 +83,9 @@
 - [x] Base16 scheme set to Catppuccin Mocha
 - [x] Wallpaper from wallpaper/ directory configured in Stylix
 - [x] Stylix applies theming to supported apps
-- [ ] Theme verified across applications (pending VM testing by FX)
-- [ ] Wallpaper visible on desktop (all spaces) (pending VM testing by FX)
-- [ ] Tested in VM (pending FX testing)
+- [x] Theme verified across applications ✅ VM Tested 2025-12-06
+- [x] Wallpaper visible on desktop (all spaces) ✅ VM Tested 2025-12-06
+- [x] Tested in VM ✅ VM Tested 2025-12-06
 
 **Dependencies**:
 - Epic-01, Story 01.5-001 (nix-darwin installed)
@@ -176,8 +176,8 @@ system.activationScripts.setWallpaper.text = ''
 - [x] Catppuccin Latte applied in light mode (via Ghostty/Zed native support)
 - [x] Catppuccin Mocha applied in dark mode (via Ghostty/Zed native support)
 - [x] Switching automatic (follows macOS)
-- [ ] Ghostty and Zed switch correctly (pending VM testing by FX)
-- [ ] Tested in VM with appearance changes (pending FX testing)
+- [x] Ghostty and Zed switch correctly ✅ VM Tested 2025-12-06
+- [x] Tested in VM with appearance changes ✅ VM Tested 2025-12-06
 
 **Dependencies**:
 - Story 05.1-001 (Stylix configured)
@@ -279,11 +279,11 @@ Both Ghostty and Zed have excellent built-in support for auto-switching:
 **Definition of Done**:
 - [x] JetBrains Mono Nerd Font installed via Nix
 - [x] Stylix configured with font
-- [ ] Font visible in fc-list (pending VM testing by FX)
-- [ ] Ghostty uses JetBrains Mono (pending VM testing by FX)
-- [ ] Zed uses JetBrains Mono (pending VM testing by FX)
+- [x] Font visible in fc-list ✅ VM Tested 2025-12-06
+- [x] Ghostty uses JetBrains Mono ✅ VM Tested 2025-12-06
+- [x] Zed uses JetBrains Mono ✅ VM Tested 2025-12-06
 - [x] Font sizes configured
-- [ ] Tested in VM (pending FX testing)
+- [x] Tested in VM ✅ VM Tested 2025-12-06
 
 **Dependencies**:
 - Story 05.1-001 (Stylix configured)
@@ -374,9 +374,9 @@ font-feature = +dlig
 **Definition of Done**:
 - [x] Ghostty ligatures enabled via font-feature settings
 - [x] Zed ligatures enabled via buffer_font_features
-- [ ] Ligatures render correctly (pending VM testing by FX)
-- [ ] Code navigation/selection works with ligatures (pending VM testing by FX)
-- [ ] Tested in VM (pending FX testing)
+- [x] Ligatures render correctly ✅ VM Tested 2025-12-06
+- [x] Code navigation/selection works with ligatures ✅ VM Tested 2025-12-06
+- [x] Tested in VM ✅ VM Tested 2025-12-06
 
 **Dependencies**:
 - Story 05.2-001 (JetBrains Mono installed)
@@ -410,10 +410,10 @@ Font ligatures were already configured during Epic-04 Development Environment se
 
 | Story | Status | Points | Completion |
 |-------|--------|--------|------------|
-| 05.1-001 Stylix + Base16 | ✅ Implemented | 8 | Config complete, pending VM test |
-| 05.1-002 Auto Light/Dark | ✅ Implemented | 5 | Via native app support |
-| 05.2-001 Font Installation | ✅ Implemented | 5 | Config complete, pending VM test |
-| 05.2-002 Font Ligatures | ✅ Implemented | 5 | Config complete, pending VM test |
+| 05.1-001 Stylix + Base16 | ✅ Complete | 8 | VM Tested 2025-12-06 |
+| 05.1-002 Auto Light/Dark | ✅ Complete | 5 | VM Tested 2025-12-06 |
+| 05.2-001 Font Installation | ✅ Complete | 5 | VM Tested 2025-12-06 |
+| 05.2-002 Font Ligatures | ✅ Complete | 5 | VM Tested 2025-12-06 |
 
-**Total Feature Points**: 23 (implemented) / 23 (planned) = 100% code complete
-**VM Testing Status**: Pending FX manual testing
+**Total Feature Points**: 23 (implemented) / 23 (planned) = 100% complete
+**VM Testing Status**: ✅ Complete - All stories VM tested by FX on 2025-12-06

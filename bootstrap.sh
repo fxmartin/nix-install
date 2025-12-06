@@ -1909,6 +1909,63 @@ fetch_flake_from_github() {
     }
     chmod +x "scripts/weekly-maintenance-digest.sh"
 
+    # Fetch release monitor scripts (Feature 06.6)
+    log_info "Fetching release monitor scripts..."
+    log_info "  - scripts/fetch-release-notes.sh"
+    if ! curl -fsSL -o "scripts/fetch-release-notes.sh" "${base_url}/scripts/fetch-release-notes.sh"; then
+        log_error "Failed to fetch scripts/fetch-release-notes.sh"
+        return 1
+    fi
+    [[ -s "scripts/fetch-release-notes.sh" ]] || {
+        log_error "Downloaded scripts/fetch-release-notes.sh is empty"
+        return 1
+    }
+    chmod +x "scripts/fetch-release-notes.sh"
+
+    log_info "  - scripts/analyze-releases.sh"
+    if ! curl -fsSL -o "scripts/analyze-releases.sh" "${base_url}/scripts/analyze-releases.sh"; then
+        log_error "Failed to fetch scripts/analyze-releases.sh"
+        return 1
+    fi
+    [[ -s "scripts/analyze-releases.sh" ]] || {
+        log_error "Downloaded scripts/analyze-releases.sh is empty"
+        return 1
+    }
+    chmod +x "scripts/analyze-releases.sh"
+
+    log_info "  - scripts/create-release-issues.sh"
+    if ! curl -fsSL -o "scripts/create-release-issues.sh" "${base_url}/scripts/create-release-issues.sh"; then
+        log_error "Failed to fetch scripts/create-release-issues.sh"
+        return 1
+    fi
+    [[ -s "scripts/create-release-issues.sh" ]] || {
+        log_error "Downloaded scripts/create-release-issues.sh is empty"
+        return 1
+    }
+    chmod +x "scripts/create-release-issues.sh"
+
+    log_info "  - scripts/release-monitor.sh"
+    if ! curl -fsSL -o "scripts/release-monitor.sh" "${base_url}/scripts/release-monitor.sh"; then
+        log_error "Failed to fetch scripts/release-monitor.sh"
+        return 1
+    fi
+    [[ -s "scripts/release-monitor.sh" ]] || {
+        log_error "Downloaded scripts/release-monitor.sh is empty"
+        return 1
+    }
+    chmod +x "scripts/release-monitor.sh"
+
+    log_info "  - scripts/send-release-summary.sh"
+    if ! curl -fsSL -o "scripts/send-release-summary.sh" "${base_url}/scripts/send-release-summary.sh"; then
+        log_error "Failed to fetch scripts/send-release-summary.sh"
+        return 1
+    fi
+    [[ -s "scripts/send-release-summary.sh" ]] || {
+        log_error "Downloaded scripts/send-release-summary.sh is empty"
+        return 1
+    }
+    chmod +x "scripts/send-release-summary.sh"
+
     # Fetch wallpaper for Stylix theming (Story 05.1-001)
     log_info "Fetching wallpaper for Stylix theming..."
     mkdir -p wallpaper
@@ -1949,6 +2006,11 @@ fetch_flake_from_github() {
     log_info "  • scripts/send-notification.sh"
     log_info "  • scripts/maintenance-wrapper.sh"
     log_info "  • scripts/weekly-maintenance-digest.sh"
+    log_info "  • scripts/fetch-release-notes.sh"
+    log_info "  • scripts/analyze-releases.sh"
+    log_info "  • scripts/create-release-issues.sh"
+    log_info "  • scripts/release-monitor.sh"
+    log_info "  • scripts/send-release-summary.sh"
     log_info "  • wallpaper/Ropey_Photo_by_Bob_Farrell.jpg"
     echo ""
 

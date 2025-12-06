@@ -9,11 +9,11 @@
 | **Epic-02** | Application Installation | 25 | 118 | **25** | **118** | 100% | 100% | ✅ Complete |
 | **Epic-03** | System Configuration | 14 | 76 | **14** | **76** | 100% | 100% | ✅ Complete |
 | **Epic-04** | Development Environment | 18 | 97 | **18** | **97** | 100% | 100% | ✅ Complete |
-| **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-05** | Theming & Visual Consistency | 8 | 42 | **4** | **23** | 50% | 55% | 🔄 In Progress |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **117** | **614** | **74** | **395** | **63.2%** | **64.3%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **117** | **614** | **78** | **418** | **66.7%** | **68.1%** | 🟡 In Progress |
 
 ### Epic-01 Completed Stories (17/19)
 
@@ -179,23 +179,53 @@
 ### Overall Project Status
 
 - **Total Project Scope**: 117 stories, 614 story points
-- **Completed**: 74 stories (63.2%), 395 points (64.3%)
+- **Completed**: 78 stories (66.7%), 418 points (68.1%)
 - **In Progress**:
   - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL** 🟢
   - **Epic-02 Application Installation (100% complete)** - ✅ **COMPLETE**
   - **Epic-03 System Configuration (100% complete)** - ✅ **COMPLETE**
   - **Epic-04 Development Environment (100% complete)** - ✅ **COMPLETE** 🎉
+  - **Epic-05 Theming & Visual Consistency (50% by stories, 55% by points)** - 🔄 **IN PROGRESS**
 - **Current Phase**: Phase 6-8 (Theming, Monitoring, Docs, Week 5-6)
 - **Next Stories**:
-  - **Epic-05: Theming & Visual Consistency (0% complete)** - Next epic
-    - ⚪ Feature 05.1: Stylix Theme Configuration
-    - ⚪ Feature 05.2: Nerd Font Configuration
-    - ⚪ Feature 05.3: App Theme Verification
+  - **Epic-05: Theming & Visual Consistency (50% complete)** - In progress
+    - ✅ Feature 05.1: Stylix Theme Configuration (2 stories, 13 pts) - **CODE COMPLETE**
+    - ✅ Feature 05.2: Nerd Font Configuration (2 stories, 10 pts) - **CODE COMPLETE**
+    - ⚪ Feature 05.3: App-Specific Theming (3 stories, 11 pts) - Next
+    - ⚪ Feature 05.4: Theme Verification (1 story, 3 pts)
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: 🎉 **EPIC-04 COMPLETE!** 74/117 stories, 395/614 points (64.3%)
+- **Recent Milestone**: 🔄 **EPIC-05 IN PROGRESS!** 78/117 stories, 418/614 points (68.1%)
 
 ### Recent Activity
 
+- **2025-12-06**: 🔄 **EPIC-05 THEMING & VISUAL CONSISTENCY - 50% COMPLETE!** (78/117 stories, 418/614 points)
+  - **Feature 05.1 (Stylix System Configuration) COMPLETE** ✅
+    - ✅ Story 05.1-001: Stylix Installation and Base16 Scheme (8 pts)
+      - Created dedicated `darwin/stylix.nix` module
+      - Catppuccin Mocha as base16 scheme with `polarity = "dark"`
+      - Custom wallpaper from `wallpaper/Ropey_Photo_by_Bob_Farrell.jpg`
+      - Emoji font: Noto Color Emoji
+    - ✅ Story 05.1-002: Auto Light/Dark Mode Switching (5 pts)
+      - **Key Discovery**: Stylix doesn't support dynamic polarity switching ([Issue #447](https://github.com/danth/stylix/issues/447))
+      - **Solution**: Native app support (Ghostty, Zed have built-in auto-switching)
+      - Ghostty: `theme = "light:Catppuccin Latte,dark:Catppuccin Mocha"`
+      - Zed: `theme.mode = "system"` with light/dark variants
+  - **Feature 05.2 (Font Configuration) COMPLETE** ✅
+    - ✅ Story 05.2-001: JetBrains Mono Nerd Font Installation (5 pts)
+      - `pkgs.nerd-fonts.jetbrains-mono` in Stylix fonts.monospace
+      - Inter for sans-serif, Source Serif 4 for serif
+      - Font sizes: terminal=12, applications=11, desktop=10, popups=10
+    - ✅ Story 05.2-002: Font Ligature Configuration (5 pts)
+      - Ghostty: `font-feature = +liga, +calt, +dlig`
+      - Zed: `buffer_font_features.calt = true`
+  - **Files Created/Modified**:
+    - NEW: `darwin/stylix.nix` - Dedicated Stylix configuration module
+    - MODIFIED: `flake.nix` - Added `./darwin/stylix.nix` to commonModules
+    - MODIFIED: `darwin/configuration.nix` - Removed inline Stylix config
+    - MODIFIED: `bootstrap.sh` - Added `darwin/stylix.nix` and wallpaper to Phase 4
+  - **Build Verification**: `nix flake check` PASSED, both profiles build successfully
+  - **Epic-05 Progress**: 50% complete (4/8 stories, 23/42 pts)
+  - **Next**: Feature 05.3 (App-Specific Theming) - 3 stories, 11 pts
 - **2025-12-05**: 🎉 **EPIC-04 DEVELOPMENT ENVIRONMENT - 100% COMPLETE!** (74/117 stories, 395/614 points)
   - **Feature 04.9 (Editor Configuration) COMPLETE** ✅
     - ✅ Story 04.9-001: Zed Editor Theming (1 pt) - Already implemented in Epic-02

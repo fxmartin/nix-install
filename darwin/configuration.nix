@@ -190,35 +190,6 @@
     "Use 'uv' for Python project dependencies and version management"
   ];
 
-  # Stylix System-wide Theming (Catppuccin)
-  # Will be expanded in Epic-05
-  stylix = {
-    enable = true;
-
-    # Disable version mismatch warnings between Stylix and nix-darwin
-    # Safe to use as we track nixpkgs-unstable for both
-    enableReleaseChecks = false;
-
-    # Catppuccin Mocha theme (dark mode)
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
-
-    # Generate solid color wallpaper from theme
-    image = config.lib.stylix.pixel "base00";
-
-    # Font configuration (JetBrains Mono Nerd Font)
-    fonts = {
-      monospace = {
-        package = pkgs.nerd-fonts.jetbrains-mono;
-        name = "JetBrainsMono Nerd Font";
-      };
-      sansSerif = {
-        package = pkgs.inter;
-        name = "Inter";
-      };
-      serif = {
-        package = pkgs.source-serif;
-        name = "Source Serif 4";
-      };
-    };
-  };
+  # NOTE: Stylix theming configuration has been moved to darwin/stylix.nix (Epic-05)
+  # The stylix.nix module is imported via flake.nix commonModules
 }

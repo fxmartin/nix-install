@@ -1692,6 +1692,7 @@ fetch_flake_from_github() {
         "homebrew.nix"
         "macos-defaults.nix"
         "email-accounts.nix"
+        "stylix.nix"
     )
 
     for file in "${darwin_files[@]}"; do
@@ -1818,6 +1819,19 @@ fetch_flake_from_github() {
         return 1
     }
 
+    # Fetch wallpaper for Stylix theming (Story 05.1-001)
+    log_info "Fetching wallpaper for Stylix theming..."
+    mkdir -p wallpaper
+    log_info "  - wallpaper/Ropey_Photo_by_Bob_Farrell.jpg"
+    if ! curl -fsSL -o "wallpaper/Ropey_Photo_by_Bob_Farrell.jpg" "${base_url}/wallpaper/Ropey_Photo_by_Bob_Farrell.jpg"; then
+        log_error "Failed to fetch wallpaper/Ropey_Photo_by_Bob_Farrell.jpg"
+        return 1
+    fi
+    [[ -s "wallpaper/Ropey_Photo_by_Bob_Farrell.jpg" ]] || {
+        log_error "Downloaded wallpaper/Ropey_Photo_by_Bob_Farrell.jpg is empty"
+        return 1
+    }
+
     echo ""
     log_success "All configuration files fetched successfully"
     log_info "Files downloaded:"
@@ -1826,6 +1840,7 @@ fetch_flake_from_github() {
     log_info "  • darwin/configuration.nix"
     log_info "  • darwin/homebrew.nix"
     log_info "  • darwin/macos-defaults.nix"
+    log_info "  • darwin/stylix.nix"
     log_info "  • home-manager/home.nix"
     log_info "  • home-manager/modules/shell.nix"
     log_info "  • home-manager/modules/github.nix"
@@ -1837,6 +1852,7 @@ fetch_flake_from_github() {
     log_info "  • home-manager/modules/claude-code.nix"
     log_info "  • home-manager/modules/python.nix"
     log_info "  • home-manager/modules/podman.nix"
+    log_info "  • wallpaper/Ropey_Photo_by_Bob_Farrell.jpg"
     echo ""
 
     return 0

@@ -61,7 +61,10 @@ fi
 # ---------------------------------------------------------------------------
 echo "Checking Homebrew..."
 if command -v brew &> /dev/null; then
-    if brew doctor &>/dev/null; then
+    # Check if Homebrew is managed by nix-darwin (expected state)
+    if [[ -d "/opt/homebrew/Library/.homebrew-is-managed-by-nix" ]]; then
+        print_status "ok" "Homebrew managed by nix-darwin"
+    elif brew doctor &>/dev/null; then
         print_status "ok" "Homebrew healthy"
     else
         print_status "warn" "Homebrew issues detected"

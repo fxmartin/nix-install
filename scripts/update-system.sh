@@ -65,12 +65,18 @@ update_flake() {
 
     log_success "Flake updated successfully"
 
-    # Show what changed
+    # Show what changed and prompt for commit
     if git diff --quiet flake.lock; then
         log_info "No changes to flake.lock"
     else
         log_info "Changes to flake.lock:"
-        git diff flake.lock | grep -E '^\+|^\-' | grep -v '^\+\+\+|^\-\-\-' || true
+        git diff flake.lock | /usr/bin/grep -E '^\+|^\-' | /usr/bin/grep -v '^\+\+\+|^\-\-\-' || true
+        echo ""
+        log_warning "flake.lock has uncommitted changes"
+        echo ""
+        echo "To commit and push:"
+        echo "  git add flake.lock && git commit -m 'chore: update flake.lock' && git push"
+        echo ""
     fi
 }
 
@@ -92,16 +98,6 @@ rebuild_system() {
     fi
 
     log_success "System rebuilt successfully"
-
-    # Check for uncommitted changes
-    if ! git diff --quiet flake.lock; then
-        log_warning "flake.lock has uncommitted changes"
-        log_info "Consider committing with:"
-        echo "  cd $PROJECT_ROOT"
-        echo "  git add flake.lock"
-        echo "  git commit -m 'chore: update flake.lock'"
-        echo "  git push"
-    fi
 }
 
 # Show usage

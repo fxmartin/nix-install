@@ -9,12 +9,13 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **64.3% complete** (74/117 stories, 395/614 points)
+  - Current project status: **70.9% complete** (81/116 stories, 431/608 points)
   - Epic-01: **89.5% complete** (17/19 stories, 104/113 points) 🟢 Bootstrap functional
   - **Epic-02: 100% COMPLETE** (25/25 stories, 118/118 points) ✅ All apps delivered!
   - **Epic-03: 100% COMPLETE** (14/14 stories, 76/76 points) ✅ System config complete!
   - **Epic-04: 100% COMPLETE** (18/18 stories, 97/97 points) ✅ Development environment complete!
-  - Recent: 🎉 Epic-04 COMPLETE! 4 epics now complete, moving to Epic-05 Theming
+  - **Epic-05: 100% COMPLETE** (7/7 stories, 36/36 points) ✅ Theming & visual consistency complete!
+  - Recent: 🎉 Epic-05 COMPLETE! 5 epics now complete, moving to Epic-06 Maintenance
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns
@@ -35,14 +36,15 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ## 🎯 Current Status (Quick Reference)
 
-**Overall Project**: 64.3% complete (74/117 stories, 395/614 points)
+**Overall Project**: 70.9% complete (81/116 stories, 431/608 points)
 
 **Epic-01: Bootstrap & Installation System** - 89.5% complete (92.0% by points) 🟢
 **Epic-02: Application Installation** - 100% COMPLETE (25/25 stories, 118/118 points) ✅
 **Epic-03: System Configuration** - 100% COMPLETE (14/14 stories, 76/76 points) ✅
 **Epic-04: Development Environment** - 100% COMPLETE (18/18 stories, 97/97 points) ✅
+**Epic-05: Theming & Visual Consistency** - 100% COMPLETE (7/7 stories, 36/36 points) ✅
 
-### ✅ Completed Stories (74)
+### ✅ Completed Stories (81)
 
 #### Epic-01 Stories (17)
 1. **01.1-001** - Pre-flight Environment Checks (5 pts) - 2025-11-08
@@ -128,13 +130,22 @@ Welcome to the nix-install development documentation. This directory contains al
 73. **04.9-001** - Zed Editor Theming (1 pt) - 2025-11-12 (Already in Epic-02)
 74. **04.9-002** - VSCode Configuration (1 pt) - 2025-11-12 (Already in Epic-02)
 
+#### Epic-05 Stories (7/7 complete - 100%) ✅ EPIC COMPLETE!
+75. **05.1-001** - Stylix Installation and Base16 Scheme (8 pts) - 2025-12-06 (VM Tested)
+76. **05.1-002** - Auto Light/Dark Mode Switching (5 pts) - 2025-12-06 (VM Tested)
+77. **05.2-001** - JetBrains Mono Nerd Font Installation (5 pts) - 2025-12-06 (VM Tested)
+78. **05.2-002** - Font Ligature Configuration (5 pts) - 2025-12-06 (VM Tested)
+79. **05.3-001** - Ghostty Terminal Theming (5 pts) - 2025-12-06 (VM Tested)
+80. **05.3-002** - Zed Editor Theming (5 pts) - 2025-12-06 (VM Tested)
+81. **05.4-001** - Visual Consistency and Switching Verification (3 pts) - 2025-12-06 (VM Tested)
+
 ### 🚧 Next Stories
 
-**Epic-05: Theming & Visual Consistency** (Next Epic - 0% complete, 8 stories):
-- **05.1-001** - Stylix Theme Configuration
-- **05.1-002** - Catppuccin Theme Integration
-- **05.2-001** - Nerd Font Configuration
-- **05.3-001** - App Theme Verification
+**Epic-06: Maintenance & Monitoring** (Next Epic - 0% complete, 10 stories):
+- **06.1-001** - Nix Store Garbage Collection
+- **06.1-002** - Store Optimization
+- **06.2-001** - System Health Monitoring
+- **06.2-002** - Disk Usage Monitoring
 
 **Epic-01 Cleanup** (Optional enhancements):
 - **01.1-003** - Progress Indicators (3 pts) - P1 optional enhancement
@@ -145,6 +156,7 @@ Welcome to the nix-install development documentation. This directory contains al
 - **Epic-02**: ✅ **COMPLETE** (25/25 stories, 100%)
 - **Epic-03**: ✅ **COMPLETE** (14/14 stories, 100%)
 - **Epic-04**: ✅ **COMPLETE** (18/18 stories, 100%)
+- **Epic-05**: ✅ **COMPLETE** (7/7 stories, 100%)
 
 ## 🛠️ What to Read First?
 

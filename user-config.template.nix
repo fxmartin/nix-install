@@ -5,6 +5,7 @@
   username = "@MACOS_USERNAME@";  # macOS login username
   fullName = "@FULL_NAME@";
   email = "@EMAIL@";
+  notificationEmail = "@NOTIFICATION_EMAIL@";  # Email for maintenance notifications
   githubUsername = "@GITHUB_USERNAME@";
   hostname = "@HOSTNAME@";  # Only letters, numbers, and hyphens
   signingKey = "";  # GPG key ID (leave empty initially)

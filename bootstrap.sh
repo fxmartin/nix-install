@@ -378,6 +378,7 @@ check_existing_user_config() {
         # Set global variables for use in generate_user_config
         USER_FULLNAME="${parsed_fullname}"
         USER_EMAIL="${parsed_email}"
+        NOTIFICATION_EMAIL="${parsed_email}"  # Default to main email when reusing git config
         GITHUB_USERNAME="${parsed_github_username}"
 
         log_success "Reusing existing configuration"
@@ -431,6 +432,23 @@ prompt_user_info() {
 
         echo ""
 
+        # Prompt for notification email (defaults to main email)
+        while true; do
+            read -r -p "Notification Email (press Enter to use $USER_EMAIL): " NOTIFICATION_EMAIL
+            if [[ -z "$NOTIFICATION_EMAIL" ]]; then
+                NOTIFICATION_EMAIL="$USER_EMAIL"
+                log_info "✓ Using main email for notifications"
+                break
+            elif validate_email "$NOTIFICATION_EMAIL"; then
+                log_info "✓ Notification email validated"
+                break
+            else
+                log_error "Invalid email format. Please include @ and domain (e.g., user@example.com)"
+            fi
+        done
+
+        echo ""
+
         # Prompt for GitHub username with validation
         while true; do
             read -r -p "GitHub Username: " GITHUB_USERNAME
@@ -449,6 +467,7 @@ prompt_user_info() {
         log_info "Please confirm your information:"
         echo "  Name:          $USER_FULLNAME"
         echo "  Email:         $USER_EMAIL"
+        echo "  Notifications: $NOTIFICATION_EMAIL"
         echo "  GitHub:        $GITHUB_USERNAME"
         echo ""
 
@@ -655,6 +674,7 @@ generate_user_config() {
     if ! sed -e "s/@MACOS_USERNAME@/${macos_username}/g" \
         -e "s/@FULL_NAME@/${USER_FULLNAME}/g" \
         -e "s/@EMAIL@/${USER_EMAIL}/g" \
+        -e "s/@NOTIFICATION_EMAIL@/${NOTIFICATION_EMAIL}/g" \
         -e "s/@GITHUB_USERNAME@/${GITHUB_USERNAME}/g" \
         -e "s/@HOSTNAME@/${hostname}/g" \
         -e "s/@INSTALL_PROFILE@/${INSTALL_PROFILE}/g" \

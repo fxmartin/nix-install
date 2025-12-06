@@ -135,14 +135,14 @@
           "-c"
           ''
             # Set notification email from user config
-            export NOTIFICATION_EMAIL="${userConfig.email}"
+            export NOTIFICATION_EMAIL="${userConfig.notificationEmail}"
             export PATH="/run/current-system/sw/bin:/usr/bin:/bin:$PATH"
             export HOME="/Users/${userConfig.username}"
 
             # Run weekly digest script
             SCRIPT="${"$"}{HOME}/Documents/nix-install/scripts/weekly-maintenance-digest.sh"
             if [[ -x "$SCRIPT" ]]; then
-              "$SCRIPT" "${userConfig.email}"
+              "$SCRIPT" "${userConfig.notificationEmail}"
             else
               echo "Weekly digest script not found: $SCRIPT" >> /tmp/weekly-digest.err
               exit 1
@@ -168,7 +168,7 @@
         EnvironmentVariables = {
           PATH = "/run/current-system/sw/bin:/usr/bin:/bin";
           HOME = "/Users/${userConfig.username}";
-          NOTIFICATION_EMAIL = userConfig.email;
+          NOTIFICATION_EMAIL = userConfig.notificationEmail;
         };
 
         # Don't restart on failure - wait for next scheduled run

@@ -135,8 +135,10 @@
       # System Preferences
       ./darwin/macos-defaults.nix
 
-      # Theming with Stylix
+      # Theming with Stylix (Story 05.1-001, 05.2-001)
+      # Stylix module must be loaded before our configuration
       stylix.darwinModules.stylix
+      ./darwin/stylix.nix
     ];
 
     # Helper function to create darwin configuration

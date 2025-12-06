@@ -139,6 +139,10 @@
       # Stylix module must be loaded before our configuration
       stylix.darwinModules.stylix
       ./darwin/stylix.nix
+
+      # Maintenance LaunchAgents (Epic-06: Features 06.1, 06.2)
+      # Automated garbage collection and store optimization
+      ./darwin/maintenance.nix
     ];
 
     # Helper function to create darwin configuration

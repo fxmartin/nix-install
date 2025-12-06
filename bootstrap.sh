@@ -1693,6 +1693,7 @@ fetch_flake_from_github() {
         "macos-defaults.nix"
         "email-accounts.nix"
         "stylix.nix"
+        "maintenance.nix"
     )
 
     for file in "${darwin_files[@]}"; do
@@ -1819,6 +1820,75 @@ fetch_flake_from_github() {
         return 1
     }
 
+    log_info "  - home-manager/modules/msmtp.nix"
+    if ! curl -fsSL -o "home-manager/modules/msmtp.nix" "${base_url}/home-manager/modules/msmtp.nix"; then
+        log_error "Failed to fetch home-manager/modules/msmtp.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/msmtp.nix" ]] || {
+        log_error "Downloaded home-manager/modules/msmtp.nix is empty"
+        return 1
+    }
+
+    # Fetch maintenance scripts (Epic-06)
+    log_info "Fetching maintenance scripts..."
+    mkdir -p scripts
+
+    log_info "  - scripts/health-check.sh"
+    if ! curl -fsSL -o "scripts/health-check.sh" "${base_url}/scripts/health-check.sh"; then
+        log_error "Failed to fetch scripts/health-check.sh"
+        return 1
+    fi
+    [[ -s "scripts/health-check.sh" ]] || {
+        log_error "Downloaded scripts/health-check.sh is empty"
+        return 1
+    }
+    chmod +x "scripts/health-check.sh"
+
+    log_info "  - scripts/setup-msmtp-keychain.sh"
+    if ! curl -fsSL -o "scripts/setup-msmtp-keychain.sh" "${base_url}/scripts/setup-msmtp-keychain.sh"; then
+        log_error "Failed to fetch scripts/setup-msmtp-keychain.sh"
+        return 1
+    fi
+    [[ -s "scripts/setup-msmtp-keychain.sh" ]] || {
+        log_error "Downloaded scripts/setup-msmtp-keychain.sh is empty"
+        return 1
+    }
+    chmod +x "scripts/setup-msmtp-keychain.sh"
+
+    log_info "  - scripts/send-notification.sh"
+    if ! curl -fsSL -o "scripts/send-notification.sh" "${base_url}/scripts/send-notification.sh"; then
+        log_error "Failed to fetch scripts/send-notification.sh"
+        return 1
+    fi
+    [[ -s "scripts/send-notification.sh" ]] || {
+        log_error "Downloaded scripts/send-notification.sh is empty"
+        return 1
+    }
+    chmod +x "scripts/send-notification.sh"
+
+    log_info "  - scripts/maintenance-wrapper.sh"
+    if ! curl -fsSL -o "scripts/maintenance-wrapper.sh" "${base_url}/scripts/maintenance-wrapper.sh"; then
+        log_error "Failed to fetch scripts/maintenance-wrapper.sh"
+        return 1
+    fi
+    [[ -s "scripts/maintenance-wrapper.sh" ]] || {
+        log_error "Downloaded scripts/maintenance-wrapper.sh is empty"
+        return 1
+    }
+    chmod +x "scripts/maintenance-wrapper.sh"
+
+    log_info "  - scripts/weekly-maintenance-digest.sh"
+    if ! curl -fsSL -o "scripts/weekly-maintenance-digest.sh" "${base_url}/scripts/weekly-maintenance-digest.sh"; then
+        log_error "Failed to fetch scripts/weekly-maintenance-digest.sh"
+        return 1
+    fi
+    [[ -s "scripts/weekly-maintenance-digest.sh" ]] || {
+        log_error "Downloaded scripts/weekly-maintenance-digest.sh is empty"
+        return 1
+    }
+    chmod +x "scripts/weekly-maintenance-digest.sh"
+
     # Fetch wallpaper for Stylix theming (Story 05.1-001)
     log_info "Fetching wallpaper for Stylix theming..."
     mkdir -p wallpaper
@@ -1841,6 +1911,7 @@ fetch_flake_from_github() {
     log_info "  • darwin/homebrew.nix"
     log_info "  • darwin/macos-defaults.nix"
     log_info "  • darwin/stylix.nix"
+    log_info "  • darwin/maintenance.nix"
     log_info "  • home-manager/home.nix"
     log_info "  • home-manager/modules/shell.nix"
     log_info "  • home-manager/modules/github.nix"
@@ -1852,6 +1923,12 @@ fetch_flake_from_github() {
     log_info "  • home-manager/modules/claude-code.nix"
     log_info "  • home-manager/modules/python.nix"
     log_info "  • home-manager/modules/podman.nix"
+    log_info "  • home-manager/modules/msmtp.nix"
+    log_info "  • scripts/health-check.sh"
+    log_info "  • scripts/setup-msmtp-keychain.sh"
+    log_info "  • scripts/send-notification.sh"
+    log_info "  • scripts/maintenance-wrapper.sh"
+    log_info "  • scripts/weekly-maintenance-digest.sh"
     log_info "  • wallpaper/Ropey_Photo_by_Bob_Farrell.jpg"
     echo ""
 

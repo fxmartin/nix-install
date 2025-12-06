@@ -70,8 +70,12 @@
       gc = "nix-collect-garbage -d";  # Delete old generations
       cleanup = "nix-collect-garbage -d && nix-store --optimize";  # GC + optimize store
 
-      # Health check (placeholder - will be implemented in Epic-06)
-      health-check = "echo 'Health check script not yet implemented (Epic-06)'";
+      # Health check (Feature 06.4 - Epic-06)
+      health-check = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/health-check.sh";
+
+      # Weekly maintenance digest (Feature 06.5 - Epic-06)
+      # Manual trigger for weekly digest email (normally runs Sunday 8 AM automatically)
+      weekly-digest = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/weekly-maintenance-digest.sh";
 
       # =============================================================================
       # GENERAL SHELL ALIASES (Story 04.5-002)

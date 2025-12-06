@@ -2,19 +2,21 @@
 
 ## Epic Overview
 **Epic ID**: Epic-06
-**Epic Description**: Automated system maintenance including daily garbage collection, Nix store optimization, system monitoring tools installation and configuration, and health check commands to validate system state. Ensures the Nix-based system stays healthy, clean, and performant over time with minimal manual intervention.
-**Business Value**: Prevents disk bloat from old Nix generations, maintains optimal system performance, provides visibility into system health
-**User Impact**: FX gets automated cleanup and easy monitoring without manual maintenance tasks
+**Epic Description**: Automated system maintenance including daily garbage collection, Nix store optimization, system monitoring tools installation and configuration, health check commands to validate system state, and email notifications for issues and weekly digests. Ensures the Nix-based system stays healthy, clean, and performant over time with minimal manual intervention.
+**Business Value**: Prevents disk bloat from old Nix generations, maintains optimal system performance, provides visibility into system health, proactive notification of issues
+**User Impact**: FX gets automated cleanup, easy monitoring, and email alerts without manual maintenance tasks
 **Success Metrics**:
 - Automated GC runs daily and removes old generations
 - Disk space recovered via store optimization
 - Health check command reports system status accurately
 - Monitoring tools (btop, iStat Menus, macmon) functional
+- Email notifications sent when maintenance fails or issues detected
+- Weekly digest email summarizes maintenance activity
 
 ## Epic Scope
-**Total Stories**: 10
-**Total Story Points**: 55
-**MVP Stories**: 10 (100% of epic)
+**Total Stories**: 13
+**Total Story Points**: 71
+**MVP Stories**: 10 (77% of epic - Features 06.1-06.4)
 **Priority Level**: Must Have
 **Target Release**: Phase 7 (Week 5)
 
@@ -43,6 +45,11 @@
 **Story Count**: 2 | **Story Points**: 8 | **Priority**: Medium | **Complexity**: Medium
 👉 **[View detailed implementation](../docs/development/stories/epic-06-feature-06.4.md)**
 
+### Feature 06.5: Email Notification System
+**Feature Description**: Email notifications for maintenance failures and weekly digest summaries
+**Story Count**: 3 | **Story Points**: 16 | **Priority**: Should Have (P1) | **Complexity**: Medium
+👉 **[View detailed implementation](../docs/development/stories/epic-06-feature-06.5.md)**
+
 ## Epic Dependencies
 
 ### Dependencies on Other Epics
@@ -65,10 +72,12 @@
 | Sprint | Stories | Story Points | Sprint Goal |
 |--------|---------|--------------|-------------|
 | Sprint 8 | 06.1-001 to 06.4-002 | 55 | Automated maintenance, monitoring tools, health checks |
+| Sprint 9 | 06.5-001 to 06.5-003 | 16 | Email notification system |
 
 ### Delivery Milestones
 - **Milestone 1**: End Sprint 8 - Automated GC and optimization running, monitoring tools configured
-- **Epic Complete**: Week 5 - Health check verified, all maintenance automation tested
+- **Milestone 2**: End Sprint 9 - Email notifications functional, weekly digest operational
+- **Epic Complete**: Week 6 - All features verified, email notifications tested
 
 ### Risk Assessment
 **Low Risk Items**:
@@ -77,14 +86,15 @@
 ## Epic Progress Tracking
 
 ### Completion Status
-- **Stories Completed**: 0 of 10 (0%)
-- **Story Points Completed**: 0 of 55 (0%)
+- **Stories Completed**: 0 of 13 (0%)
+- **Story Points Completed**: 0 of 71 (0%)
 - **MVP Stories Completed**: 0 of 10 (0%)
 
 ### Sprint Progress
 | Sprint | Planned Points | Completed Points | Stories Done | Status |
 |--------|----------------|------------------|--------------|--------|
 | Sprint 8 | 55 | 0 | 0/10 | Not Started |
+| Sprint 9 | 16 | 0 | 0/3 | Not Started |
 
 ## Epic Acceptance Criteria
 - [ ] All MVP stories (10/10) completed and accepted
@@ -97,6 +107,14 @@
 - [ ] Actionable recommendations provided for issues
 - [ ] VM testing successful
 - [ ] Physical hardware testing successful (verify launchd jobs run overnight)
+
+### P1 Acceptance Criteria (Feature 06.5)
+- [ ] msmtp configured with Gandi SMTP
+- [ ] Credentials stored securely in macOS Keychain
+- [ ] Email sent when maintenance jobs fail
+- [ ] Weekly digest email sent Sunday 8 AM
+- [ ] Manual `weekly-digest` alias works
+- [ ] No passwords stored in config files (verified)
 
 ## Story Validation Checklist
 

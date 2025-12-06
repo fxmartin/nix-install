@@ -185,11 +185,11 @@
     }
   ];
 
-  # Warning Messages
-  warnings = [
-    "Remember to run 'xcode-select --install' if building fails"
-    "Use 'uv' for Python project dependencies and version management"
-  ];
+  # Warning Messages (disabled - these showed on every rebuild)
+  # warnings = [
+  #   "Remember to run 'xcode-select --install' if building fails"
+  #   "Use 'uv' for Python project dependencies and version management"
+  # ];
 
   # NOTE: Stylix theming configuration has been moved to darwin/stylix.nix (Epic-05)
   # The stylix.nix module is imported via flake.nix commonModules

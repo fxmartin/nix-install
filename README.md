@@ -1,8 +1,8 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: ✅ Epic-04 Complete - Moving to Epic-05
+> **Status**: ✅ Epic-05 Complete - Moving to Epic-06
 > **Version**: 0.1.0 (Pre-Release)
-> **Last Updated**: 2025-12-05
+> **Last Updated**: 2025-12-06
 
 Automated, declarative MacBook configuration system using Nix + nix-darwin + Home Manager. Transform a fresh macOS installation into a fully configured development environment in <30 minutes with zero manual intervention (except license activations).
 
@@ -28,11 +28,11 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 | **Epic-02** | Application Installation | 25 | 118 | **25** | **118** | 100% | 100% | ✅ Complete |
 | **Epic-03** | System Configuration | 14 | 76 | **14** | **76** | 100% | 100% | ✅ Complete |
 | **Epic-04** | Development Environment | 18 | 97 | **18** | **97** | 100% | 100% | ✅ Complete |
-| **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-05** | Theming & Visual Consistency | 7 | 36 | **7** | **36** | 100% | 100% | ✅ Complete |
 | **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **117** | **614** | **74** | **395** | **63.2%** | **64.3%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **116** | **608** | **81** | **431** | **69.8%** | **70.9%** | 🟡 In Progress |
 
 ### ✅ Completed
 - **Requirements Definition** ([REQUIREMENTS.md](./docs/REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
@@ -59,14 +59,23 @@ Automated, declarative MacBook configuration system using Nix + nix-darwin + Hom
 - Feature 04.8: Container Development Environment (2 stories, 13 pts)
 - Feature 04.9: Editor Configuration (2 stories, 2 pts - already in Epic-02)
 
+**Epic-05 Stories (7/7 complete - 100%)**: ✅ **COMPLETE**
+- Feature 05.1: Stylix System Configuration (2 stories, 13 pts) - VM Tested
+- Feature 05.2: Font Configuration (2 stories, 10 pts) - VM Tested
+- Feature 05.3: Application-Specific Theming (2 stories, 10 pts) - VM Tested
+- Feature 05.4: Theme Verification (1 story, 3 pts) - VM Tested
+- Catppuccin Mocha/Latte with auto light/dark switching
+- JetBrains Mono Nerd Font with ligatures
+
 ### 🔄 In Progress
 - **Epic-01: Bootstrap System** - 17/19 stories (89.5%), 104/113 points (92.0%) - **FUNCTIONAL** 🟢
 - **Epic-02: Application Installation** - 25/25 stories (100%), 118/118 points (100%) - ✅ **COMPLETE**
 - **Epic-03: System Configuration** - 14/14 stories (100%), 76/76 points (100%) - ✅ **COMPLETE**
 - **Epic-04: Development Environment** - 18/18 stories (100%), 97/97 points (100%) - ✅ **COMPLETE**
+- **Epic-05: Theming & Visual Consistency** - 7/7 stories (100%), 36/36 points (100%) - ✅ **COMPLETE**
 - **Remaining Epic-01 Stories**: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
 - **Bootstrap Status**: ALL 9 phases working! Phases 1-8 VM tested and verified ✅
-- **Recent Milestone**: Epic-04 Development Environment COMPLETE! 🎉 (4 epics now complete)
+- **Recent Milestone**: Epic-05 Theming & Visual Consistency COMPLETE! 🎉 (5 epics now complete)
 
 ### 📅 Upcoming
 - **Phase 1-2**: Core bootstrap implementation (Week 2)

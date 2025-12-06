@@ -58,6 +58,48 @@ curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh 
 
 ---
 
+## Automated Maintenance
+
+The system runs **automated maintenance** via LaunchAgents:
+
+| Schedule | Task | Description |
+|----------|------|-------------|
+| Daily 3:00 AM | Garbage Collection | Removes old generations, frees disk space |
+| Daily 3:30 AM | Store Optimization | Deduplicates Nix store via hard links |
+| Sunday 7:00 AM | Release Monitor | AI-powered update analysis (see below) |
+| Sunday 8:00 AM | Weekly Digest | Health report email |
+
+### Weekly Maintenance Digest (Example)
+
+```
+========================================
+Weekly Maintenance Digest - MacBook-Pro
+========================================
+Report Period: 2025-11-29 to 2025-12-06
+
+MAINTENANCE ACTIVITY
+--------------------
+Garbage Collection Runs: 7
+Store Optimization Runs: 7
+
+SYSTEM STATE
+------------
+Nix Store Size: 45G
+Disk Free (/nix): 380G
+System Generations: 12
+
+SECURITY STATUS
+---------------
+FileVault: Enabled ✅
+Firewall: Enabled ✅
+
+RECOMMENDATIONS
+---------------
+• No issues detected. System is healthy! ✅
+```
+
+---
+
 ## AI-Powered Release Monitor
 
 A unique feature: the system **proactively suggests improvements** rather than just maintaining config.
@@ -68,7 +110,44 @@ A unique feature: the system **proactively suggests improvements** rather than j
 3. **Create GitHub issues** with smart deduplication
 4. **Email summary** grouped by category
 
-**Claude Code integration**:
+### Release Monitor Email (Example)
+
+```
+=======================================================
+        WEEKLY RELEASE MONITOR REPORT
+=======================================================
+Generated: Sun Dec 6 07:00:00 2025
+Host: MacBook-Pro
+
+STATUS: ATTENTION REQUIRED: Security updates found
+
+SUMMARY
+-------
+🔴 Security Updates: 1
+🟠 Breaking Changes: 0
+🟢 New Features: 2
+🤖 Ollama Models: 1
+🔵 Notable Updates: 3
+
+GITHUB ISSUES CREATED
+---------------------
+🔴 Security Updates:
+  ca-certificates: https://github.com/fxmartin/nix-install/issues/64
+
+🟢 New Features:
+  ghostty: https://github.com/fxmartin/nix-install/issues/65
+
+🔵 Notable Updates:
+  python: https://github.com/fxmartin/nix-install/issues/66
+
+NEXT STEPS
+----------
+  - Review security updates immediately
+  - Consider adopting new features
+```
+
+### Claude Code Integration
+
 ```bash
 /release-updates          # List pending updates
 /plan-release-update 64   # Get implementation plan for issue #64

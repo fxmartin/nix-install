@@ -33,8 +33,13 @@
   ...
 }: let
   # Wallpaper path - copied to a persistent location for macOS to access
-  wallpaperSource = ../wallpaper/Ropey_Photo_by_Bob_Farrell.jpg;
+  # Using builtins.path to ensure proper Nix store path resolution
+  wallpaperSource = builtins.path {
+    path = ../wallpaper/Ropey_Photo_by_Bob_Farrell.jpg;
+    name = "wallpaper.jpg";
+  };
   wallpaperDest = "/Users/${userConfig.username}/.local/share/wallpaper/current.jpg";
+  wallpaperDir = "/Users/${userConfig.username}/.local/share/wallpaper";
 in {
   # Stylix System-wide Theming Configuration
   stylix = {
@@ -140,17 +145,21 @@ in {
   # - Nix store paths can change between rebuilds
   # - macOS needs a stable path for the wallpaper
   # - User-accessible location for easy verification
-  system.activationScripts.setWallpaper.text = ''
+  # Use postActivation - one of the hardcoded script names that nix-darwin actually runs
+  # See: https://github.com/nix-darwin/nix-darwin/issues/663
+  system.activationScripts.postActivation.text = ''
     echo "Setting macOS desktop wallpaper..."
 
     # Create wallpaper directory if it doesn't exist
-    WALLPAPER_DIR="/Users/${userConfig.username}/.local/share/wallpaper"
-    mkdir -p "$WALLPAPER_DIR"
+    mkdir -p "${wallpaperDir}"
 
     # Copy wallpaper from Nix store to persistent location
     # The source path is the Nix store path of the wallpaper image
-    WALLPAPER_SOURCE="${wallpaperSource}"
+    WALLPAPER_SOURCE="${toString wallpaperSource}"
     WALLPAPER_DEST="${wallpaperDest}"
+
+    echo "  Source: $WALLPAPER_SOURCE"
+    echo "  Destination: $WALLPAPER_DEST"
 
     if [[ -f "$WALLPAPER_SOURCE" ]]; then
       cp -f "$WALLPAPER_SOURCE" "$WALLPAPER_DEST"
@@ -159,17 +168,19 @@ in {
 
       # Set wallpaper for all desktops using osascript
       # This AppleScript sets the desktop picture for every desktop/space
-      /usr/bin/osascript -e "
+      if /usr/bin/osascript -e "
         tell application \"System Events\"
           tell every desktop
             set picture to \"$WALLPAPER_DEST\"
           end tell
         end tell
-      " 2>/dev/null && echo "✓ Desktop wallpaper set successfully" || {
+      "; then
+        echo "✓ Desktop wallpaper set successfully"
+      else
         echo "⚠️  Warning: Could not set wallpaper via osascript"
         echo "   This may require running as the logged-in user"
         echo "   You can manually set it from: $WALLPAPER_DEST"
-      }
+      fi
     else
       echo "⚠️  Warning: Wallpaper source not found: $WALLPAPER_SOURCE"
       echo "   Skipping wallpaper setup"

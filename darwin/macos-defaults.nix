@@ -318,7 +318,13 @@
   # - ~/Library/Caches: Application caches (reproducible)
   # - ~/Downloads: Usually temporary files
   # - /private/var/folders: System temporary files
-  system.activationScripts.configureTimeMachine.text = ''
+  # Use extraActivation - one of the hardcoded script names that nix-darwin actually runs
+  # Custom script names like 'configureTimeMachine' are NOT executed
+  # See: https://github.com/nix-darwin/nix-darwin/issues/663
+  system.activationScripts.extraActivation.text = ''
+    # ============================================================================
+    # TIME MACHINE CONFIGURATION
+    # ============================================================================
     echo "Configuring Time Machine preferences and exclusions..."
 
     # Don't prompt to use new hard drives as backup volume

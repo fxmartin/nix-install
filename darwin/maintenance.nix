@@ -176,5 +176,61 @@
         KeepAlive = false;
       };
     };
+
+    # =========================================================================
+    # RELEASE MONITOR (Feature 06.6, Story 06.6-004)
+    # =========================================================================
+    # Runs weekly on Monday at 7:00 AM to check for upstream updates
+    # Fetches Homebrew, Nix, nix-darwin, and Ollama releases
+    # Analyzes with Claude CLI and creates GitHub issues for actionable items
+    release-monitor = {
+      serviceConfig = {
+        # Command to execute release monitor script
+        ProgramArguments = [
+          "/bin/bash"
+          "-c"
+          ''
+            # Set environment
+            export NOTIFICATION_EMAIL="${userConfig.notificationEmail}"
+            export PATH="/run/current-system/sw/bin:/usr/bin:/bin:$PATH"
+            export HOME="/Users/${userConfig.username}"
+
+            # Run release monitor script
+            SCRIPT="${"$"}{HOME}/Documents/nix-install/scripts/release-monitor.sh"
+            if [[ -x "$SCRIPT" ]]; then
+              "$SCRIPT"
+            else
+              echo "Release monitor script not found: $SCRIPT" >> /tmp/release-monitor.err
+              exit 1
+            fi
+          ''
+        ];
+
+        # Schedule: Monday at 7:00 AM
+        # Weekday: 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        StartCalendarInterval = [
+          {
+            Weekday = 1;
+            Hour = 7;
+            Minute = 0;
+          }
+        ];
+
+        # Logging configuration
+        StandardOutPath = "/tmp/release-monitor.log";
+        StandardErrorPath = "/tmp/release-monitor.err";
+
+        # Environment
+        EnvironmentVariables = {
+          PATH = "/run/current-system/sw/bin:/usr/bin:/bin";
+          HOME = "/Users/${userConfig.username}";
+          NOTIFICATION_EMAIL = userConfig.notificationEmail;
+        };
+
+        # Don't restart on failure - wait for next scheduled run
+        RunAtLoad = false;
+        KeepAlive = false;
+      };
+    };
   };
 }

@@ -82,7 +82,6 @@
       # Browsers (Story 02.3-001, 02.3-002)
       # Auto-update disable: Updates managed by Homebrew (no in-app setting available)
       "brave-browser" # Brave Browser - Privacy-focused browser with built-in ad/tracker blocking
-      "arc"           # Arc Browser - Modern workspace-focused browser with unique UI
 
       # Productivity & Utilities (Story 02.4-001, 02.4-002, 02.4-004)
       # Auto-update disable: Raycast/1Password (Preferences → Advanced), Dropbox (Preferences → Account → Disable automatic updates)

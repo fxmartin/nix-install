@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ABOUTME: Comprehensive disk cleanup script for development caches (Feature 06.7)
-# ABOUTME: Cleans uv, Homebrew, npm, pip, node-gyp, Podman/Docker caches with size reporting
+# ABOUTME: Cleans uv, Homebrew, npm, pip, node-gyp, and Podman/Docker caches with size reporting
 
 set -euo pipefail
 
@@ -124,12 +124,6 @@ analyze_caches() {
     total_kb=$((total_kb + hf_kb))
     print_status "info" "Huggingface cache: ${hf_size}"
 
-    # Arc browser cache
-    local arc_size=$(get_size ~/Library/Caches/Arc)
-    local arc_kb=$(get_size_bytes ~/Library/Caches/Arc)
-    total_kb=$((total_kb + arc_kb))
-    print_status "info" "Arc browser cache: ${arc_size}"
-
     # Podman/Docker
     if command -v podman &>/dev/null && podman machine list 2>/dev/null | grep -q "Currently running"; then
         local podman_info=$(podman system df --format "{{.TotalCount}} items, {{.Size}}" 2>/dev/null | head -1 || echo "unknown")
@@ -215,17 +209,6 @@ cleanup_nodegyp() {
         print_status "cleaned" "node-gyp cache cleaned (was: ${before})"
     else
         print_status "skip" "node-gyp cache not present"
-    fi
-}
-
-cleanup_arc() {
-    print_header "Cleaning Arc Browser Cache"
-    local before=$(get_size ~/Library/Caches/Arc)
-    if [[ -d ~/Library/Caches/Arc ]]; then
-        rm -rf ~/Library/Caches/Arc/*
-        print_status "cleaned" "Arc browser cache cleaned (was: ${before})"
-    else
-        print_status "skip" "Arc cache not present"
     fi
 }
 
@@ -342,7 +325,6 @@ main() {
         cleanup_npm
         cleanup_pip
         cleanup_nodegyp
-        cleanup_arc
         cleanup_containers
 
         # Final disk space

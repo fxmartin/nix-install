@@ -96,7 +96,7 @@
 **Technical Notes**:
 - Check for Xcode: `xcode-select -p`
 - Check for Nix: `command -v nix`
-- Check for existing config: `[ -d ~/Documents/nix-install ]`
+- Check for existing config: `[ -d ~/.config/nix-install ]`
 - Prompt user before overwriting existing configurations
 
 **Definition of Done**:
@@ -109,9 +109,10 @@
 **Implementation Notes**:
 - Story completed on main branch (2025-11-10)
 - Function implemented: check_existing_user_config() (89 lines)
-- Checks two locations in priority order:
-  1. ~/Documents/nix-install/user-config.nix (completed installation)
-  2. /tmp/nix-bootstrap/user-config.nix (previous bootstrap attempt)
+- Checks three locations in priority order:
+  1. ~/.config/nix-install/user-config.nix (new default)
+  2. ~/Documents/nix-install/user-config.nix (legacy location)
+  3. /tmp/nix-bootstrap/user-config.nix (previous bootstrap attempt)
 - Parses existing config values (fullName, email, githubUsername) using grep + sed
 - Validates parsed values (no placeholders, not empty), falls back gracefully
 - Displays found config and prompts: "Reuse this configuration? (y/n)"
@@ -1133,23 +1134,23 @@
 **Acceptance Criteria**:
 - **Given** GitHub SSH connection test passed
 - **When** the bootstrap clones the repository
-- **Then** it clones git@github.com:fxmartin/nix-install.git to ~/Documents/nix-install
+- **Then** it clones git@github.com:fxmartin/nix-install.git to ~/.config/nix-install
 - **And** it copies the generated user-config.nix from /tmp to the repo
 - **And** it preserves the generated user-config.nix (do not overwrite with template)
-- **And** it changes directory to ~/Documents/nix-install
+- **And** it changes directory to ~/.config/nix-install
 - **And** it displays clone success message
 - **And** it shows repository path for user reference
 
 **Additional Requirements**:
-- Clone location: ~/Documents/nix-install (configurable)
+- Clone location: ~/.config/nix-install (default, configurable via NIX_INSTALL_DIR)
 - Preserve user-config.nix: Copy from /tmp, do not overwrite
-- Create ~/Documents if it doesn't exist
+- Create ~/.config if it doesn't exist
 - Handle case where directory already exists (offer to remove or skip)
 
 **Technical Notes**:
-- Clone command: `git clone git@github.com:fxmartin/nix-install.git ~/Documents/nix-install`
-- Copy config: `cp /tmp/nix-bootstrap/user-config.nix ~/Documents/nix-install/`
-- Check existing directory: `[ -d ~/Documents/nix-install ]`
+- Clone command: `git clone git@github.com:fxmartin/nix-install.git ~/.config/nix-install`
+- Copy config: `cp /tmp/nix-bootstrap/user-config.nix ~/.config/nix-install/`
+- Check existing directory: `[ -d ~/.config/nix-install ]`
 - If exists: Prompt "Directory exists. Remove and re-clone? (y/n)"
 
 **Definition of Done**:
@@ -1179,7 +1180,7 @@
 **Acceptance Criteria**:
 - **Given** repository has been cloned
 - **When** the bootstrap runs final rebuild
-- **Then** it runs `darwin-rebuild switch --flake ~/Documents/nix-install#<profile>`
+- **Then** it runs `darwin-rebuild switch --flake ~/.config/nix-install#<profile>`
 - **And** it uses the correct profile (standard or power)
 - **And** it completes faster than initial build (2-5 minutes due to caching)
 - **And** it symlinks configs to home directory (~/.config/ghostty, ~/.zshrc, etc.)
@@ -1196,11 +1197,11 @@
 **Technical Notes**:
 - Rebuild command:
   ```bash
-  darwin-rebuild switch --flake ~/Documents/nix-install#${INSTALL_PROFILE}
+  darwin-rebuild switch --flake ~/.config/nix-install#${INSTALL_PROFILE}
   ```
 - Verify symlinks: Check `ls -la ~/.config/ghostty` or `ls -la ~/.zshrc`
 - Display summary of configured items
-- Show path to documentation: ~/Documents/nix-install/README.md
+- Show path to documentation: ~/.config/nix-install/README.md
 
 **Definition of Done**:
 - [x] Final rebuild completes successfully ✅ **COMPLETE (2025-11-11)**

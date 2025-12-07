@@ -69,9 +69,10 @@
     missingAttrs = builtins.filter (attr: !(builtins.hasAttr attr userConfig)) requiredAttrs;
 
     # Enhanced user configuration with directory defaults
+    # Default: .config/nix-install (matches bootstrap.sh default)
     enhancedUserConfig = userConfig // {
       directories = (userConfig.directories or {}) // {
-        dotfiles = userConfig.directories.dotfiles or "dev/nix-install";
+        dotfiles = userConfig.directories.dotfiles or ".config/nix-install";
       };
     };
 

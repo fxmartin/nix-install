@@ -35,6 +35,19 @@ This directory contains configuration files for the nix-darwin MacBook setup.
   - **Why this works**: Symlink points to repo working directory, not read-only /nix/store (Issue #26)
   - Referenced via activation script in `home-manager/modules/zed.nix`
 
+- **istat-menus/iStat Menus Settings.ismp7** - iStat Menus configuration export
+  - **Status**: Active - Manual import on bootstrap
+  - **Configuration**: FX's preferred menubar items, update intervals, display formats, auto-update disabled
+  - **Deployment**: Manual import via iStat Menus → Preferences → General → Import Settings
+  - **Benefits**:
+    * Consistent iStat Menus setup across all MacBooks
+    * Auto-update already disabled in exported settings (critical for update control policy)
+    * Version-controlled configuration, changes trackable
+    * Quick setup on new machines (no manual configuration)
+  - **Note**: iStat Menus cannot be configured via symlink (encrypted plist), requires manual import
+  - **Export New Settings**: Preferences → General → Export Settings → Save to this directory
+  - Referenced in `docs/apps/system/system-monitoring.md`
+
 ## Reference Files (Legacy/Backup)
 
 These files are preserved as reference from the previous Oh My Zsh + Powerlevel10k setup:

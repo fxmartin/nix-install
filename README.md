@@ -10,6 +10,9 @@ One git repo defines everything. Push a change, rebuild, and all machines stay p
 
 The stack: **Nix + nix-darwin + Home Manager** for declarative, atomic, rollback-capable configuration — plus an AI-powered release monitor that opens GitHub issues before I even know updates exist.
 
+![Rebuild in action](./docs/images/rebuild-screenshot.png)
+*A `rebuild` in action — Ghostty terminal with Catppuccin theme, iStat Menus monitoring, and system-wide consistency.*
+
 ---
 
 ## Quick Start

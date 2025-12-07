@@ -3991,16 +3991,17 @@ copy_user_config_to_repo() {
 
     log_success "✓ User configuration copied to repository"
 
-    # Git add user-config.nix so Nix flake can see it
-    # Nix flakes only evaluate git-tracked files for security
-    log_info "Adding user-config.nix to git..."
-    if ! (cd "${REPO_CLONE_DIR}" && git add user-config.nix); then
-        log_error "Failed to git add user-config.nix"
-        log_error "You may need to manually run: cd ${REPO_CLONE_DIR} && git add user-config.nix"
-        return 1
+    # Mark user-config.nix as skip-worktree so local changes aren't tracked
+    # This prevents accidental commits of personal info while keeping the file visible to Nix
+    # The file remains in git's index (required by Nix flakes) but local changes are ignored
+    log_info "Marking user-config.nix as skip-worktree..."
+    if ! (cd "${REPO_CLONE_DIR}" && git update-index --skip-worktree user-config.nix); then
+        log_warning "Could not set skip-worktree on user-config.nix"
+        log_warning "Your personal config may appear in git status - do NOT commit it"
+    else
+        log_success "✓ User configuration protected from accidental commits"
     fi
 
-    log_success "✓ User configuration tracked in git"
     return 0
 }
 

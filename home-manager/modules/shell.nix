@@ -83,7 +83,7 @@
       health-check = "bash ${dotfilesPath}/scripts/health-check.sh";
 
       # Disk cleanup (Feature 06.7 - Epic-06)
-      # Cleans uv, Homebrew, npm, pip, node-gyp, Arc, and Podman/Docker caches
+      # Cleans uv, Homebrew, npm, pip, node-gyp, and Podman/Docker caches
       disk-cleanup = "bash ${dotfilesPath}/scripts/disk-cleanup.sh";
 
       # Weekly maintenance digest (Feature 06.5 - Epic-06)

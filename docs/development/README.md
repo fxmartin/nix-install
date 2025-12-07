@@ -9,13 +9,17 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **70.9% complete** (81/116 stories, 431/608 points)
-  - Epic-01: **89.5% complete** (17/19 stories, 104/113 points) 🟢 Bootstrap functional
+  - Current project status: **97.6% complete** (121/124 stories, 636/650 points)
+  - 🎉 **MILESTONE (2025-12-07)**: MacBook Pro M3 Max successfully running Power profile!
+  - Epic-01: **94.7% complete** (18/19 stories, 107/113 points) 🟢 Bootstrap functional
   - **Epic-02: 100% COMPLETE** (25/25 stories, 118/118 points) ✅ All apps delivered!
   - **Epic-03: 100% COMPLETE** (14/14 stories, 76/76 points) ✅ System config complete!
   - **Epic-04: 100% COMPLETE** (18/18 stories, 97/97 points) ✅ Development environment complete!
   - **Epic-05: 100% COMPLETE** (7/7 stories, 36/36 points) ✅ Theming & visual consistency complete!
-  - Recent: 🎉 Epic-05 COMPLETE! 5 epics now complete, moving to Epic-06 Maintenance
+  - **Epic-06: 100% COMPLETE** (18/18 stories, 97/97 points) ✅ Maintenance & monitoring complete!
+  - **Epic-07: 100% COMPLETE** (8/8 stories, 34/34 points) ✅ Documentation & UX complete!
+  - **NFR: 87% COMPLETE** (13/15 stories, 71/79 points) 🟢 Nearly complete!
+  - Next: MacBook Air migrations (Phase 11)
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns
@@ -36,15 +40,20 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ## 🎯 Current Status (Quick Reference)
 
-**Overall Project**: 70.9% complete (81/116 stories, 431/608 points)
+**Overall Project**: 97.6% complete (121/124 stories, 636/650 points) 🎉
 
-**Epic-01: Bootstrap & Installation System** - 89.5% complete (92.0% by points) 🟢
+**🎉 MILESTONE (2025-12-07)**: MacBook Pro M3 Max successfully running Power profile!
+
+**Epic-01: Bootstrap & Installation System** - 94.7% complete (18/19 stories, 107/113 points) 🟢
 **Epic-02: Application Installation** - 100% COMPLETE (25/25 stories, 118/118 points) ✅
 **Epic-03: System Configuration** - 100% COMPLETE (14/14 stories, 76/76 points) ✅
 **Epic-04: Development Environment** - 100% COMPLETE (18/18 stories, 97/97 points) ✅
 **Epic-05: Theming & Visual Consistency** - 100% COMPLETE (7/7 stories, 36/36 points) ✅
+**Epic-06: Maintenance & Monitoring** - 100% COMPLETE (18/18 stories, 97/97 points) ✅
+**Epic-07: Documentation & User Experience** - 100% COMPLETE (8/8 stories, 34/34 points) ✅
+**NFR: Non-Functional Requirements** - 87% COMPLETE (13/15 stories, 71/79 points) 🟢
 
-### ✅ Completed Stories (81)
+### ✅ Completed Stories (121)
 
 #### Epic-01 Stories (17)
 1. **01.1-001** - Pre-flight Environment Checks (5 pts) - 2025-11-08
@@ -139,24 +148,53 @@ Welcome to the nix-install development documentation. This directory contains al
 80. **05.3-002** - Zed Editor Theming (5 pts) - 2025-12-06 (VM Tested)
 81. **05.4-001** - Visual Consistency and Switching Verification (3 pts) - 2025-12-06 (VM Tested)
 
-### 🚧 Next Stories
+#### Epic-06 Stories (18/18 complete - 100%) ✅ EPIC COMPLETE!
+82. **06.1-001** - Nix Store Garbage Collection LaunchAgent (5 pts) - 2025-12-06
+83. **06.1-002** - Garbage Collection Manual Trigger Alias (3 pts) - 2025-12-06
+84. **06.2-001** - Nix Store Optimization LaunchAgent (5 pts) - 2025-12-06
+85. **06.2-002** - Store Optimization Manual Trigger Alias (3 pts) - 2025-12-06
+86. **06.3-001** - btop Terminal Monitor Installation (3 pts) - 2025-12-06
+87. **06.3-002** - gotop Terminal Monitor Installation (3 pts) - 2025-12-06
+88. **06.3-003** - macmon macOS-specific Monitor Installation (3 pts) - 2025-12-06
+89. **06.4-001** - iStat Menus Installation (3 pts) - 2025-12-06
+90. **06.5-001** - health-check Script Implementation (8 pts) - 2025-12-06
+91. **06.5-002** - health-check Alias Integration (2 pts) - 2025-12-06
+92. **06.6-001** - Weekly Maintenance Digest Script (8 pts) - 2025-12-06
+93. **06.6-002** - Maintenance Digest LaunchAgent (5 pts) - 2025-12-06
+94. **06.6-003** - Maintenance Digest Email Configuration (3 pts) - 2025-12-06
+95. **06.7-001** - Release Monitor Core Script (13 pts) - 2025-12-06
+96. **06.7-002** - Release Monitor GitHub Integration (8 pts) - 2025-12-06
+97. **06.7-003** - Release Monitor Email Reports (5 pts) - 2025-12-06
+98. **06.7-004** - Release Monitor LaunchAgent (5 pts) - 2025-12-06
+99. **06.7-005** - Release Monitor Claude Code Commands (5 pts) - 2025-12-06
 
-**Epic-06: Maintenance & Monitoring** (Next Epic - 0% complete, 10 stories):
-- **06.1-001** - Nix Store Garbage Collection
-- **06.1-002** - Store Optimization
-- **06.2-001** - System Health Monitoring
-- **06.2-002** - Disk Usage Monitoring
+#### Epic-07 Stories (8/8 complete - 100%) ✅ EPIC COMPLETE!
+100. **07.1-001** - README Quick Start Guide (5 pts) - 2025-12-06
+101. **07.1-002** - Update Philosophy Documentation (5 pts) - 2025-12-06
+102. **07.2-001** - Licensed App Documentation (5 pts) - 2025-12-06
+103. **07.2-002** - Post-Install Checklist (3 pts) - 2025-12-06
+104. **07.3-001** - Common Issues Documentation (5 pts) - 2025-12-06
+105. **07.3-002** - Rollback Documentation (3 pts) - 2025-12-06
+106. **07.4-001** - Adding Apps Documentation (5 pts) - 2025-12-06
+107. **07.4-002** - Configuration Examples (3 pts) - 2025-12-06
+
+### 🚧 Remaining Stories
 
 **Epic-01 Cleanup** (Optional enhancements):
 - **01.1-003** - Progress Indicators (3 pts) - P1 optional enhancement
 - **01.1-004** - Modular Bootstrap Architecture (8 pts) - P1, deferred to post-Epic-01
 
-### ⏳ Remaining Stories
+**NFR Stories** (15 stories, 79 points):
+- Non-functional requirements for security, performance, error handling
+
+### ⏳ Summary
 - **Epic-01**: 2 stories remaining (01.1-003, 01.1-004) - both P1 optional/deferred
 - **Epic-02**: ✅ **COMPLETE** (25/25 stories, 100%)
 - **Epic-03**: ✅ **COMPLETE** (14/14 stories, 100%)
 - **Epic-04**: ✅ **COMPLETE** (18/18 stories, 100%)
 - **Epic-05**: ✅ **COMPLETE** (7/7 stories, 100%)
+- **Epic-06**: ✅ **COMPLETE** (18/18 stories, 100%)
+- **Epic-07**: ✅ **COMPLETE** (8/8 stories, 100%)
 
 ## 🛠️ What to Read First?
 

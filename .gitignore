@@ -7,7 +7,5 @@ tests/test_helper/bats-support/
 tests/test_helper/bats-assert/
 .DS_Store
 
-# User-specific configuration (generated during bootstrap, not committed)
-# Each machine generates its own user-config.nix with correct paths and settings
-user-config.nix
+# User config backup (generated during bootstrap)
 user-config.nix.backup

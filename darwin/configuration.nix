@@ -168,6 +168,7 @@
           "weekly-maintenance-digest.sh"
           "release-monitor.sh"
           "health-check.sh"
+          "disk-cleanup.sh"
           "send-notification.sh"
           "fetch-release-notes.sh"
           "analyze-releases.sh"

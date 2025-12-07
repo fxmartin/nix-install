@@ -240,5 +240,63 @@ in {
         KeepAlive = false;
       };
     };
+
+    # =========================================================================
+    # MONTHLY DISK CLEANUP (Feature 06.7, Story 06.7-001)
+    # =========================================================================
+    # Runs monthly on the 1st at 4:00 AM to clean development caches
+    # Cleans uv, Homebrew, npm, pip, node-gyp, Arc, and Podman/Docker caches
+    # Sends email report to NOTIFICATION_EMAIL after cleanup
+    disk-cleanup = {
+      serviceConfig = {
+        # Command to execute disk cleanup script
+        ProgramArguments = [
+          "/bin/bash"
+          "-c"
+          ''
+            # Set environment
+            export NOTIFICATION_EMAIL="${userConfig.notificationEmail}"
+            export SCRIPTS_DIR="${scriptsDir}"
+            export PATH="/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin:$PATH"
+            export HOME="/Users/${userConfig.username}"
+
+            # Run disk cleanup script from ~/.local/bin (TCC-safe location)
+            SCRIPT="${scriptsDir}/disk-cleanup.sh"
+            if [[ -x "$SCRIPT" ]]; then
+              "$SCRIPT"
+            else
+              echo "Disk cleanup script not found: $SCRIPT" >> /tmp/disk-cleanup.err
+              exit 1
+            fi
+          ''
+        ];
+
+        # Schedule: 1st of every month at 4:00 AM
+        # Day: 1 = 1st day of month
+        StartCalendarInterval = [
+          {
+            Day = 1;
+            Hour = 4;
+            Minute = 0;
+          }
+        ];
+
+        # Logging configuration
+        StandardOutPath = "/tmp/disk-cleanup.log";
+        StandardErrorPath = "/tmp/disk-cleanup.err";
+
+        # Environment - must include per-user Nix profile for msmtp and other tools
+        EnvironmentVariables = {
+          PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
+          HOME = "/Users/${userConfig.username}";
+          NOTIFICATION_EMAIL = userConfig.notificationEmail;
+          SCRIPTS_DIR = scriptsDir;
+        };
+
+        # Don't restart on failure - wait for next scheduled run
+        RunAtLoad = false;
+        KeepAlive = false;
+      };
+    };
   };
 }

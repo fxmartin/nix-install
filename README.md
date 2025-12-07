@@ -45,11 +45,18 @@ curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh 
 
 1. **Restart Terminal** or run `source ~/.zshrc`
 2. **Enable FileVault** if not already enabled (System Settings → Privacy & Security)
-3. **Activate licenses** — See [Licensed Apps Guide](./docs/licensed-apps.md):
+3. **Mac App Store apps** (if you skipped during install):
+   ```bash
+   mas install 6714467650  # Perplexity
+   mas install 302584613   # Kindle
+   mas install 890031187   # Marked 2
+   mas install 310633997   # WhatsApp
+   ```
+4. **Activate licenses** — See [Licensed Apps Guide](./docs/licensed-apps.md):
    - 1Password, Dropbox, NordVPN (sign in)
    - iStat Menus, Parallels (enter license key)
    - Zoom, Webex (sign in)
-4. **Install Office 365** manually if needed (not in Homebrew)
+5. **Install Office 365** manually if needed (not in Homebrew)
 
 ---
 

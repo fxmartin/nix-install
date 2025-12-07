@@ -13,6 +13,9 @@
   # Installation Profile
   installProfile = "power";  # "standard" or "power"
 
+  # Mac App Store apps (requires App Store sign-in)
+  enableMasApps = false;  # Set to true if signed into App Store
+
   # Directory Configuration
   directories = {
     dotfiles = "Documents/nix-install";  # Nix configuration repository location

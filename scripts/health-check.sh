@@ -160,7 +160,57 @@ if [[ -d /nix/store ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# Check 8: LaunchAgents status
+# Check 8: Development cache sizes
+# ---------------------------------------------------------------------------
+echo "Checking development caches..."
+
+# Helper to get cache size in KB for comparison
+get_cache_kb() {
+    local path="${1}"
+    if [[ -d "${path}" ]]; then
+        du -sk "${path}" 2>/dev/null | cut -f1
+    else
+        echo "0"
+    fi
+}
+
+# Cache size threshold (1GB = 1048576 KB)
+CACHE_WARNING_KB=1048576
+
+# Check each cache
+UV_CACHE_KB=$(get_cache_kb ~/.cache/uv)
+UV_CACHE_SIZE=$(du -sh ~/.cache/uv 2>/dev/null | cut -f1 || echo "0B")
+if [[ ${UV_CACHE_KB} -gt ${CACHE_WARNING_KB} ]]; then
+    print_status "warn" "uv cache: ${UV_CACHE_SIZE} (large!)"
+else
+    print_status "info" "uv cache: ${UV_CACHE_SIZE}"
+fi
+
+BREW_CACHE_KB=$(get_cache_kb ~/Library/Caches/Homebrew)
+BREW_CACHE_SIZE=$(du -sh ~/Library/Caches/Homebrew 2>/dev/null | cut -f1 || echo "0B")
+if [[ ${BREW_CACHE_KB} -gt ${CACHE_WARNING_KB} ]]; then
+    print_status "warn" "Homebrew cache: ${BREW_CACHE_SIZE} (large!)"
+else
+    print_status "info" "Homebrew cache: ${BREW_CACHE_SIZE}"
+fi
+
+NPM_CACHE_KB=$(get_cache_kb ~/.npm)
+NPM_CACHE_SIZE=$(du -sh ~/.npm 2>/dev/null | cut -f1 || echo "0B")
+if [[ ${NPM_CACHE_KB} -gt ${CACHE_WARNING_KB} ]]; then
+    print_status "warn" "npm cache: ${NPM_CACHE_SIZE} (large!)"
+else
+    print_status "info" "npm cache: ${NPM_CACHE_SIZE}"
+fi
+
+# Total cache estimate
+TOTAL_CACHE_KB=$((UV_CACHE_KB + BREW_CACHE_KB + NPM_CACHE_KB))
+TOTAL_CACHE_GB=$((TOTAL_CACHE_KB / 1024 / 1024))
+if [[ ${TOTAL_CACHE_GB} -gt 5 ]]; then
+    print_status "warn" "Total dev caches: ~${TOTAL_CACHE_GB}GB → Run: disk-cleanup"
+fi
+
+# ---------------------------------------------------------------------------
+# Check 9: LaunchAgents status
 # ---------------------------------------------------------------------------
 echo "Checking maintenance LaunchAgents..."
 # Capture launchctl output once (avoids pipefail issues with repeated calls)
@@ -187,6 +237,13 @@ else
     echo "    → Run: darwin-rebuild switch"
 fi
 
+if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.disk-cleanup"; then
+    print_status "ok" "disk-cleanup LaunchAgent loaded (monthly)"
+else
+    print_status "warn" "disk-cleanup LaunchAgent not loaded"
+    echo "    → Run: darwin-rebuild switch"
+fi
+
 # ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
@@ -197,6 +254,7 @@ echo "Quick commands:"
 echo "  gc           - Remove old user generations"
 echo "  gc-system    - Remove old system generations (sudo)"
 echo "  cleanup      - GC + store optimization"
+echo "  disk-cleanup - Clean dev caches (uv, npm, Homebrew, Podman)"
 echo "  rebuild      - Rebuild system configuration"
 echo "  update       - Update flake.lock + rebuild"
 echo "  brew-upgrade - Update all Homebrew packages"

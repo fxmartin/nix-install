@@ -252,16 +252,21 @@
     # Note: Finder cannot be removed from Dock (macOS restriction)
     # Format: Full path to .app bundle
     persistent-apps = [
+      # Communication (leftmost - most frequently accessed)
       "/System/Applications/Mail.app"
-      "/Applications/Claude.app"
-      "/Applications/Ghostty.app"
       "/Applications/WhatsApp.app"
-      "/Applications/Perplexity.app"
+      # AI Tools (core productivity)
+      "/Applications/Claude.app"
       "/Applications/ChatGPT.app"
-      "/Applications/1Password.app"
+      "/Applications/Perplexity.app"
+      # Development
+      "/Applications/Ghostty.app"
       "/Applications/Brave Browser.app"
-      "/Applications/Parallels Desktop.app"
+      # Security & Infrastructure
+      "/Applications/1Password.app"
       "/Applications/NordVPN.app"
+      # System (rightmost - less frequent)
+      "/Applications/Parallels Desktop.app"
       "/System/Applications/System Settings.app"
     ];
 

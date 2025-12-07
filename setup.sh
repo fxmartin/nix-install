@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ABOUTME: Curl-pipeable wrapper script that downloads and executes bootstrap.sh
+# ABOUTME: Curl-pipeable wrapper script that downloads and executes bootstrap-dist.sh
 # ABOUTME: Solves stdin redirection issue when script is executed via curl | bash
 
 # ==============================================================================
@@ -43,7 +43,8 @@ readonly REPO_OWNER="fxmartin"
 readonly REPO_NAME="nix-install"
 readonly BRANCH="${NIX_INSTALL_BRANCH:-main}"  # Allow override via env var
 readonly REPO_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}"
-readonly BOOTSTRAP_SCRIPT="bootstrap.sh"
+# Use bootstrap-dist.sh - the standalone built version that doesn't require lib/*.sh
+readonly BOOTSTRAP_SCRIPT="bootstrap-dist.sh"
 readonly USER_CONFIG_TEMPLATE="user-config.template.nix"
 readonly TEMP_DIR="/tmp/nix-install-setup-$$"
 

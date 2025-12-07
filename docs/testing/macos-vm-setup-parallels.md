@@ -1,6 +1,3 @@
-# ABOUTME: Guide for setting up a fresh macOS VM in Parallels Desktop for bootstrap testing
-# ABOUTME: Documents the macOS Setup Assistant steps with recommended choices
-
 # macOS VM Setup in Parallels Desktop
 
 This guide documents the steps to set up a fresh macOS virtual machine in Parallels Desktop for testing the nix-install bootstrap script.
@@ -27,75 +24,112 @@ This guide documents the steps to set up a fresh macOS virtual machine in Parall
 Once the VM boots, you'll go through the macOS Setup Assistant. Here are the recommended choices for testing:
 
 ### Step 1: Language Selection
-- Select your preferred language (e.g., **English**)
-- Click the arrow to continue
+
+Select your preferred language (e.g., **English**) and click the arrow to continue.
+
+![Language Selection](images/01-language.png)
 
 ### Step 2: Country or Region
-- Select your country (e.g., **Luxembourg**)
-- Click **Continue**
+
+Select your country (e.g., **Luxembourg**) and click **Continue**.
+
+![Country Selection](images/02-country.png)
 
 ### Step 3: Migration Assistant
-- Select **"Set up as new"** (important for clean testing)
-- Click **Continue**
+
+Select **"Set up as new"** (important for clean testing) and click **Continue**.
+
+![Migration Assistant](images/03-migration.png)
 
 ### Step 4: Input Sources (Keyboard)
-- Select your keyboard layout (e.g., **Swiss French**, **ABC**)
-- Click **Continue**
+
+Select your keyboard layout (e.g., **Swiss French**, **ABC**) and click **Continue**.
+
+![Keyboard Layout](images/04-keyboard.png)
 
 ### Step 5: Dictation
-- Select your dictation language (e.g., **English (United Kingdom)**)
-- Click **Continue**
+
+Select your dictation language (e.g., **English (United Kingdom)**) and click **Continue**.
+
+![Dictation](images/05-dictation.png)
 
 ### Step 6: Accessibility
-- Click **Not Now** (can be configured later)
+
+Click **Not Now** (can be configured later).
+
+![Accessibility](images/06-accessibility.png)
 
 ### Step 7: Data & Privacy
-- Review the privacy information
-- Click **Continue**
+
+Review the privacy information and click **Continue**.
+
+![Data & Privacy](images/07-privacy.png)
 
 ### Step 8: Create Mac Account
+
+Fill in your account details:
 - **Full Name**: Enter the same username you'll use for the bootstrap (e.g., `fxmartin`)
 - **Account Name**: This becomes your home folder name (e.g., `fxmartin`)
 - **Password**: Set a password you'll remember
 - **Hint**: Optional
-- Check/uncheck "Allow computer account password to be reset with your Apple Account"
-- Click **Continue**
+
+Click **Continue**.
+
+![Create Account](images/08-account.png)
 
 ### Step 9: Apple Account Sign-In
-- Click **"Set Up Later"** for faster testing
-- Or sign in if you need iCloud/App Store features
+
+Click **"Set Up Later"** for faster testing. Or sign in if you need iCloud/App Store features.
+
+![Apple Account](images/09-apple-account.png)
 
 ### Step 10: Terms and Conditions
-- Review the macOS Software Licence Agreement
-- Click **Agree**
+
+Review the macOS Software Licence Agreement and click **Agree**.
+
+![Terms and Conditions](images/10-terms.png)
 
 ### Step 11: Location Services
-- Uncheck "Enable Location Services on this Mac" (optional for testing)
-- Click **Continue**
+
+Uncheck "Enable Location Services on this Mac" (optional for testing) and click **Continue**.
+
+![Location Services](images/11-location.png)
 
 ### Step 12: Time Zone
-- Select your time zone (e.g., **Central European Standard Time**)
-- Select closest city (e.g., **Luxembourg - Luxembourg**)
-- Click **Continue**
+
+Select your time zone (e.g., **Central European Standard Time**) and closest city (e.g., **Luxembourg - Luxembourg**). Click **Continue**.
+
+![Time Zone](images/12-timezone.png)
 
 ### Step 13: Analytics
-- Uncheck "Share Mac Analytics with Apple" (recommended for testing)
-- Click **Continue**
+
+Uncheck "Share Mac Analytics with Apple" (recommended for testing) and click **Continue**.
+
+![Analytics](images/13-analytics.png)
 
 ### Step 14: Screen Time
-- Click **Set Up Later**
+
+Click **Set Up Later**.
+
+![Screen Time](images/14-screentime.png)
 
 ### Step 15: Siri
-- Uncheck "Enable Ask Siri" (optional for testing)
-- Click **Continue**
+
+Uncheck "Enable Ask Siri" (optional for testing) and click **Continue**.
+
+![Siri](images/15-siri.png)
 
 ### Step 16: Choose Your Look (Appearance)
-- Select **Light**, **Auto**, or **Dark**
-- Click **Continue**
+
+Select **Light**, **Auto**, or **Dark** and click **Continue**.
+
+![Appearance](images/16-appearance.png)
 
 ### Step 17: Software Updates
-- Click **"Only Download Automatically"** (recommended - we control updates via nix-darwin)
-- Or click **Continue** for automatic updates
+
+Click **"Only Download Automatically"** (recommended - we control updates via nix-darwin).
+
+![Software Updates](images/17-updates.png)
 
 ## Post-Setup: Ready for Bootstrap
 

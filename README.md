@@ -17,7 +17,7 @@ The stack: **Nix + nix-darwin + Home Manager** for declarative, atomic, rollback
 Run this single command on a fresh macOS installation:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh | bash
 ```
 
 **Installation time**: ~30 minutes (mostly automated, a few prompts)

@@ -4,6 +4,9 @@
 
 set -euo pipefail
 
+# Script version
+readonly UPDATE_SYSTEM_VERSION="1.0.0"
+
 # Colors for output
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'

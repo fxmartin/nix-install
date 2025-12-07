@@ -1,7 +1,7 @@
 # ABOUTME: Main Nix flake defining system configurations for Standard and Power profiles
 # ABOUTME: Integrates nixpkgs, nix-darwin, home-manager, nix-homebrew, and stylix
 {
-  description = "Nix-darwin configuration for FX's MacBooks - Standard and Power profiles";
+  description = "Nix-darwin configuration for FX's MacBooks - Standard and Power profiles (v1.0.0)";
 
   inputs = {
     # Package Sources

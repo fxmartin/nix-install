@@ -54,6 +54,9 @@ readonly GREEN='\033[0;32m'
 readonly YELLOW='\033[1;33m'
 readonly NC='\033[0m' # No Color
 
+# Bootstrap script version
+readonly BOOTSTRAP_VERSION="1.0.0"
+
 # Minimum required macOS version
 readonly MIN_MACOS_VERSION=14
 

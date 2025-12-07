@@ -32,9 +32,35 @@ log_error() {
     echo -e "${RED}✗${NC} $*" >&2
 }
 
+# Check if user-config.nix exists and provide helpful error if not
+check_user_config() {
+    local user_config="${PROJECT_ROOT}/user-config.nix"
+    local template="${PROJECT_ROOT}/user-config.template.nix"
+
+    if [[ ! -f "$user_config" ]]; then
+        log_error "user-config.nix not found!"
+        echo ""
+        echo "This file contains your personal configuration and is not tracked in git."
+        echo ""
+        if [[ -f "$template" ]]; then
+            echo "To create it, either:"
+            echo "  1. Run the bootstrap script: curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/bootstrap.sh | bash"
+            echo "  2. Or manually copy the template and fill in your values:"
+            echo "     cp ${template} ${user_config}"
+            echo "     # Then edit ${user_config} with your actual values"
+        else
+            echo "Run the bootstrap script to set up your configuration:"
+            echo "  curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/bootstrap.sh | bash"
+        fi
+        echo ""
+        return 1
+    fi
+    return 0
+}
+
 # Detect profile from user-config.nix or hostname
 detect_profile() {
-    # First, try to read from user-config.nix (most reliable)
+    # First, check if user-config.nix exists
     local user_config="${PROJECT_ROOT}/user-config.nix"
     if [[ -f "$user_config" ]]; then
         local profile
@@ -98,6 +124,9 @@ update_flake() {
 # Rebuild system configuration
 rebuild_system() {
     local profile="${1:-}"
+
+    # Check user-config.nix exists before attempting rebuild
+    check_user_config || return 1
 
     if [[ -z "$profile" ]]; then
         profile=$(detect_profile) || return 1

@@ -116,28 +116,36 @@ jobs:
     name: Run BATS Tests
     runs-on: ubuntu-latest
     needs: validate-and-build
-    if: ${{ hashFiles('tests/*.bats') != '' }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Check for BATS tests
+        id: check-tests
+        run: |
+          if [ -d tests ] && ls tests/*.bats 1> /dev/null 2>&1; then
+            echo "has_tests=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_tests=false" >> $GITHUB_OUTPUT
+            echo "No BATS tests found, skipping test job"
+          fi
+
       - name: Install BATS
+        if: steps.check-tests.outputs.has_tests == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y bats
 
       - name: Download bootstrap-dist.sh
+        if: steps.check-tests.outputs.has_tests == 'true'
         uses: actions/download-artifact@v4
         with:
           name: bootstrap-dist
 
       - name: Run BATS tests
+        if: steps.check-tests.outputs.has_tests == 'true'
         run: |
           echo "Running BATS tests..."
-          if [ -d tests ] && ls tests/*.bats 1> /dev/null 2>&1; then
-            bats tests/*.bats
-          else
-            echo "No BATS tests found, skipping"
-          fi
+          bats tests/*.bats
         continue-on-error: true  # Tests may need macOS environment

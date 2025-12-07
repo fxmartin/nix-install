@@ -247,6 +247,21 @@
 
   # Story 03.6-001: Dock Behavior and Apps
   system.defaults.dock = {
+    # Persistent applications in Dock (replaces macOS defaults)
+    # Only show apps FX actually uses - removes Safari, Finder, etc.
+    # Note: Finder cannot be removed from Dock (macOS restriction)
+    # Format: Full path to .app bundle
+    persistent-apps = [
+      "/System/Applications/Mail.app"
+      "/Applications/Claude.app"
+      "/Applications/Ghostty.app"
+      "/Applications/WhatsApp.app"
+      "/Applications/Perplexity.app"
+      "/Applications/ChatGPT.app"
+      "/Applications/1Password.app"
+      "/Applications/Brave Browser.app"
+    ];
+
     # Minimize windows into their application's icon (cleaner Dock)
     # Instead of creating separate minimized window icons
     minimize-to-application = true;
@@ -399,6 +414,7 @@
   # - [✅] Auto-correct disabled (Story 03.5-001)
 
   # Feature 03.6: Dock Configuration (Complete)
+  # - [✅] Persistent apps configured (Story 03.6-001) - Mail, Claude, Ghostty, WhatsApp, Perplexity, ChatGPT, 1Password, Brave
   # - [✅] Minimize to application icon (Story 03.6-001)
   # - [✅] Auto-hide enabled (Story 03.6-001)
   # - [✅] Fast auto-hide animation (Story 03.6-001)

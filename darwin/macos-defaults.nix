@@ -260,6 +260,9 @@
       "/Applications/ChatGPT.app"
       "/Applications/1Password.app"
       "/Applications/Brave Browser.app"
+      "/System/Applications/System Settings.app"
+      "/Applications/Parallels Desktop.app"
+      "/Applications/NordVPN.app"
     ];
 
     # Minimize windows into their application's icon (cleaner Dock)
@@ -414,7 +417,7 @@
   # - [✅] Auto-correct disabled (Story 03.5-001)
 
   # Feature 03.6: Dock Configuration (Complete)
-  # - [✅] Persistent apps configured (Story 03.6-001) - Mail, Claude, Ghostty, WhatsApp, Perplexity, ChatGPT, 1Password, Brave
+  # - [✅] Persistent apps configured (Story 03.6-001) - Mail, Claude, Ghostty, WhatsApp, Perplexity, ChatGPT, 1Password, Brave, Settings, Parallels, NordVPN
   # - [✅] Minimize to application icon (Story 03.6-001)
   # - [✅] Auto-hide enabled (Story 03.6-001)
   # - [✅] Fast auto-hide animation (Story 03.6-001)

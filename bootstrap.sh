@@ -183,12 +183,13 @@ check_terminal_full_disk_access() {
     echo ""
 
     # Determine current terminal app
+    # Use :- default to handle unset variables with set -u
     local terminal_app="Terminal"
-    if [[ -n "${GHOSTTY_RESOURCES_DIR}" ]]; then
+    if [[ -n "${GHOSTTY_RESOURCES_DIR:-}" ]]; then
         terminal_app="Ghostty"
-    elif [[ -n "${ITERM_SESSION_ID}" ]]; then
+    elif [[ -n "${ITERM_SESSION_ID:-}" ]]; then
         terminal_app="iTerm2"
-    elif [[ "${TERM_PROGRAM}" == "Apple_Terminal" ]]; then
+    elif [[ "${TERM_PROGRAM:-}" == "Apple_Terminal" ]]; then
         terminal_app="Terminal.app"
     fi
 

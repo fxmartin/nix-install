@@ -1949,6 +1949,57 @@ fetch_flake_from_github() {
         return 1
     }
 
+    # CLI tool configurations with Catppuccin theming
+    log_info "  - home-manager/modules/btop.nix"
+    if ! curl -fsSL -o "home-manager/modules/btop.nix" "${base_url}/home-manager/modules/btop.nix"; then
+        log_error "Failed to fetch home-manager/modules/btop.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/btop.nix" ]] || {
+        log_error "Downloaded home-manager/modules/btop.nix is empty"
+        return 1
+    }
+
+    log_info "  - home-manager/modules/bat.nix"
+    if ! curl -fsSL -o "home-manager/modules/bat.nix" "${base_url}/home-manager/modules/bat.nix"; then
+        log_error "Failed to fetch home-manager/modules/bat.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/bat.nix" ]] || {
+        log_error "Downloaded home-manager/modules/bat.nix is empty"
+        return 1
+    }
+
+    log_info "  - home-manager/modules/ripgrep.nix"
+    if ! curl -fsSL -o "home-manager/modules/ripgrep.nix" "${base_url}/home-manager/modules/ripgrep.nix"; then
+        log_error "Failed to fetch home-manager/modules/ripgrep.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/ripgrep.nix" ]] || {
+        log_error "Downloaded home-manager/modules/ripgrep.nix is empty"
+        return 1
+    }
+
+    log_info "  - home-manager/modules/fd.nix"
+    if ! curl -fsSL -o "home-manager/modules/fd.nix" "${base_url}/home-manager/modules/fd.nix"; then
+        log_error "Failed to fetch home-manager/modules/fd.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/fd.nix" ]] || {
+        log_error "Downloaded home-manager/modules/fd.nix is empty"
+        return 1
+    }
+
+    log_info "  - home-manager/modules/httpie.nix"
+    if ! curl -fsSL -o "home-manager/modules/httpie.nix" "${base_url}/home-manager/modules/httpie.nix"; then
+        log_error "Failed to fetch home-manager/modules/httpie.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/httpie.nix" ]] || {
+        log_error "Downloaded home-manager/modules/httpie.nix is empty"
+        return 1
+    }
+
     # Fetch maintenance scripts (Epic-06)
     log_info "Fetching maintenance scripts..."
     mkdir -p scripts

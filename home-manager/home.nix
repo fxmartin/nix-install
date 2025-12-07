@@ -31,6 +31,12 @@
     ./modules/podman.nix
     # Email notifications for maintenance (Feature 06.5)
     ./modules/msmtp.nix
+    # CLI tool configurations with Catppuccin theming and sensible defaults
+    ./modules/btop.nix     # System monitor with Catppuccin Mocha theme
+    ./modules/bat.nix      # Cat replacement with syntax highlighting
+    ./modules/ripgrep.nix  # Grep replacement with smart defaults
+    ./modules/fd.nix       # Find replacement with ignore patterns
+    ./modules/httpie.nix   # HTTP client with developer defaults
   ];
 
   home = {
@@ -53,17 +59,19 @@
   programs = {
     home-manager.enable = true;
 
-    # Epic-04 will add:
-    # - programs.zsh (full Zsh configuration with Oh My Zsh)
-    # - programs.starship (prompt configuration)
-    # - programs.git (Git configuration)
-    # - programs.fzf (fuzzy finder)
-    # - programs.bat (cat replacement)
-    # - programs.eza (ls replacement)
-    # - programs.ripgrep (grep replacement)
-    # - programs.jq (JSON processor)
-    # - programs.btop (system monitor)
-    # - programs.direnv (directory environments)
+    # Implemented via modules:
+    # - programs.zsh (shell.nix - Oh My Zsh integration)
+    # - programs.starship (shell.nix - prompt configuration)
+    # - programs.git (git.nix - Git configuration)
+    # - programs.fzf (shell.nix - fuzzy finder)
+    # - programs.bat (bat.nix - cat replacement with Catppuccin)
+    # - programs.btop (btop.nix - system monitor with Catppuccin)
+    # - programs.direnv (python.nix - directory environments)
+    #
+    # Implemented via config files:
+    # - ripgrep (ripgrep.nix - ~/.ripgreprc)
+    # - fd (fd.nix - ~/.fdignore)
+    # - httpie (httpie.nix - ~/.config/httpie/config.json)
   };
 
   # Stylix Target Configuration (Epic-05)

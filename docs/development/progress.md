@@ -5,22 +5,23 @@
 
 | Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
 |---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
+| **Epic-01** | Bootstrap & Installation System | 19 | 113 | **18** | **107** | 94.7% | 94.7% | 🟢 Functional |
 | **Epic-02** | Application Installation | 25 | 118 | **25** | **118** | 100% | 100% | ✅ Complete |
 | **Epic-03** | System Configuration | 14 | 76 | **14** | **76** | 100% | 100% | ✅ Complete |
 | **Epic-04** | Development Environment | 18 | 97 | **18** | **97** | 100% | 100% | ✅ Complete |
 | **Epic-05** | Theming & Visual Consistency | 7 | 36 | **7** | **36** | 100% | 100% | ✅ Complete |
-| **Epic-06** | Maintenance & Monitoring | 18 | 97 | **5** | **26** | 28% | 27% | 🟡 In Progress |
-| **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
+| **Epic-06** | Maintenance & Monitoring | 18 | 97 | **18** | **97** | 100% | 100% | ✅ Complete |
+| **Epic-07** | Documentation & User Experience | 8 | 34 | **8** | **34** | 100% | 100% | ✅ Complete |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **124** | **650** | **86** | **457** | **69.4%** | **70.3%** | 🟡 In Progress |
+| **TOTAL** | **All Epics** | **124** | **650** | **108** | **565** | **87.1%** | **86.9%** | 🟡 In Progress |
 
-### Epic-01 Completed Stories (17/19)
+### Epic-01 Completed Stories (18/19)
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
 | 01.1-001 | Pre-flight Environment Checks | 5 | ✅ Complete | feature/01.1-001 | 2025-11-08 |
 | 01.1-002 | Idempotency Check (User Config) | 3 | ✅ Complete | main | 2025-11-10 |
+| 01.1-003 | Progress Indicators | 3 | ✅ Complete | main | 2025-12-07 |
 | 01.2-001 | User Information Prompts | 5 | ✅ Complete | feature/01.2-001-user-prompts | 2025-11-09 |
 | 01.2-002 | Profile Selection System | 8 | ✅ Complete | feature/01.2-002-profile-selection | 2025-11-09 |
 | 01.2-003 | User Config File Generation | 3 | ✅ Complete | feature/01.2-003-user-config-generation | 2025-11-09 |
@@ -176,10 +177,25 @@
     - Legacy tools accessible via oldgrep, oldcat, oldfind, oldls aliases
     - FZF enhanced with bat preview for files, eza preview for directories
 
-### Epic-06 Completed Stories (5/18)
+### Epic-06 Completed Stories (18/18) ✅ EPIC COMPLETE!
 
 | Story ID | Story Name | Points | Status | Branch | Date Completed |
 |----------|------------|--------|--------|--------|----------------|
+| 06.1-001 | Garbage Collection LaunchAgent | 8 | ✅ Complete | main | 2025-12-06 |
+| 06.1-002 | Manual Garbage Collection Alias | 5 | ✅ Complete | main | 2025-12-06 |
+| 06.1-003 | Garbage Collection Verification | 5 | ✅ Complete | main | 2025-12-06 |
+| 06.2-001 | Store Optimization LaunchAgent | 5 | ✅ Complete | main | 2025-12-06 |
+| 06.2-002 | Manual Store Optimization Alias | 3 | ✅ Complete | main | 2025-12-06 |
+| 06.2-003 | Store Optimization Verification | 3 | ✅ Complete | main | 2025-12-06 |
+| 06.3-001 | btop Installation | 3 | ✅ Complete | main | 2025-12-06 |
+| 06.3-002 | gotop Installation | 3 | ✅ Complete | main | 2025-12-06 |
+| 06.3-003 | macmon Installation | 3 | ✅ Complete | main | 2025-12-06 |
+| 06.3-004 | iStat Menus Installation | 5 | ✅ Complete | main | 2025-12-06 |
+| 06.4-001 | Health Check Script | 5 | ✅ Complete | main | 2025-12-06 |
+| 06.4-002 | Health Check Alias | 3 | ✅ Complete | main | 2025-12-06 |
+| 06.5-001 | msmtp Configuration | 8 | ✅ Complete | main | 2025-12-06 |
+| 06.5-002 | Notification Script | 5 | ✅ Complete | main | 2025-12-06 |
+| 06.5-003 | Weekly Digest LaunchAgent | 3 | ✅ Complete | main | 2025-12-06 |
 | 06.6-001 | Release Note Fetcher Script | 5 | ✅ Complete | main | 2025-12-06 |
 | 06.6-002 | Claude CLI Analysis Integration | 8 | ✅ Complete | main | 2025-12-06 |
 | 06.6-003 | GitHub Issue Creation | 5 | ✅ Complete | main | 2025-12-06 |
@@ -187,38 +203,84 @@
 | 06.6-005 | Release Monitor Email Report | 3 | ✅ Complete | main | 2025-12-06 |
 
 **Notes**:
-- **2025-12-06**: Feature 06.6 (Release Monitoring) **COMPLETE** ✅
-  - All 5 scripts created and tested: fetch-release-notes.sh, analyze-releases.sh, create-release-issues.sh, release-monitor.sh, send-release-summary.sh
-  - Bug fixed during testing: Deduplication was failing due to truncated search terms
-  - Email tested and working via msmtp to notifications@fxmartin.me
-  - LaunchAgent and shell alias deferred to next rebuild
-  - 11 GitHub issues created for Homebrew, Nix, and Ollama updates
+- **2025-12-06**: 🎉 **EPIC-06 COMPLETE** - All 18 stories, 97 points implemented and tested
+  - Feature 06.1: GC LaunchAgent (3 AM daily, 30-day retention) + gc/cleanup aliases
+  - Feature 06.2: Store optimization LaunchAgent (3:30 AM daily) + nix-store --optimize
+  - Feature 06.3: btop, gotop, macmon via Nix; iStat Menus via Homebrew
+  - Feature 06.4: health-check.sh script with Nix daemon, Homebrew, disk, security checks
+  - Feature 06.5: msmtp email + weekly-digest LaunchAgent (Sunday 8 AM)
+  - Feature 06.6: Release monitoring with Claude CLI analysis, GitHub issues, email reports
+  - All LaunchAgents configured in darwin/maintenance.nix
+  - All scripts in scripts/ directory, tested and working
+
+### Epic-07 Completed Stories (8/8) ✅ EPIC COMPLETE!
+
+| Story ID | Story Name | Points | Status | Branch | Date Completed |
+|----------|------------|--------|--------|--------|----------------|
+| 07.1-001 | README Quick Start Guide | 5 | ✅ Complete | main | 2025-12-06 |
+| 07.1-002 | Update Philosophy Documentation | 5 | ✅ Complete | main | 2025-12-06 |
+| 07.2-001 | Licensed App Documentation | 5 | ✅ Complete | main | 2025-12-06 |
+| 07.2-002 | Post-Install Checklist | 3 | ✅ Complete | main | 2025-12-06 |
+| 07.3-001 | Common Issues Documentation | 5 | ✅ Complete | main | 2025-12-06 |
+| 07.3-002 | Rollback Documentation | 3 | ✅ Complete | main | 2025-12-06 |
+| 07.4-001 | Adding Apps Documentation | 5 | ✅ Complete | main | 2025-12-06 |
+| 07.4-002 | Configuration Examples | 3 | ✅ Complete | main | 2025-12-06 |
+
+**Notes**:
+- **2025-12-06**: **EPIC-07 COMPLETE!** 🎉 All 8 stories (34 points) delivered
+- **2025-12-06**: Feature 07.4 (Customization Guide) **COMPLETE** ✅
+  - Story 07.4-001: Adding Apps Documentation (docs/customization.md)
+  - Story 07.4-002: Configuration Examples (4 real-world examples)
+- **2025-12-06**: Feature 07.3 (Troubleshooting Guide) **COMPLETE** ✅
+  - Story 07.3-001: Common Issues Documentation (docs/troubleshooting.md, 9 sections, 25+ issues)
+  - Story 07.3-002: Rollback Documentation (Section 9 with 6 subsections)
+- **2025-12-06**: Story 07.3-001 (Common Issues Documentation) **COMPLETE** ✅
+  - Created docs/troubleshooting.md with 8 main sections, 25+ issues
+  - Uses Symptom → Cause → Solution format throughout
+  - Covers: Build failures, SSH, Homebrew, Podman, Nix Store, Apps, Shell, System
+  - Quick Reference table at end for common commands
+- **2025-12-06**: Feature 07.2 (Licensed App Activation Guide) **COMPLETE** ✅
+  - Story 07.2-001: Licensed App Documentation (existing 900+ lines enhanced)
+  - Story 07.2-002: Post-Install Checklist (new docs/post-install.md)
+    - 6 sections: Immediate, Security, Licensed Apps, Optional, Verify, Commands
+    - Time estimate: 10-15 minutes
+    - Verification commands for shell, dev tools, applications
+- **2025-12-06**: Feature 07.1 (Quick Start Documentation) **COMPLETE** ✅
+  - Story 07.1-001: README Quick Start Guide
+  - Story 07.1-002: Update Philosophy Documentation
 
 ### Overall Project Status
 
 - **Total Project Scope**: 124 stories, 650 story points
-- **Completed**: 86 stories (69.4%), 457 points (70.3%)
+- **Completed**: 103 stories (83.1%), 546 points (84.0%)
+- **Completed Epics**:
+  - ✅ **Epic-02 Application Installation (100%)** - 25 stories, 118 pts
+  - ✅ **Epic-03 System Configuration (100%)** - 14 stories, 76 pts
+  - ✅ **Epic-04 Development Environment (100%)** - 18 stories, 97 pts
+  - ✅ **Epic-05 Theming & Visual Consistency (100%)** - 7 stories, 36 pts
+  - ✅ **Epic-06 Maintenance & Monitoring (100%)** - 18 stories, 97 pts
+  - 🟢 Epic-01 Bootstrap & Installation (89.5%) - 17/19 stories, 104/113 pts - **FUNCTIONAL**
 - **In Progress**:
-  - Epic-01 Bootstrap & Installation (89.5% complete by stories, 92.0% by points) - **FUNCTIONAL** 🟢
-  - **Epic-02 Application Installation (100% complete)** - ✅ **COMPLETE**
-  - **Epic-03 System Configuration (100% complete)** - ✅ **COMPLETE**
-  - **Epic-04 Development Environment (100% complete)** - ✅ **COMPLETE**
-  - **Epic-05 Theming & Visual Consistency (100% complete)** - ✅ **COMPLETE** 🎉
-  - Epic-06 Maintenance & Monitoring (28% complete) - Feature 06.6 complete, Features 06.1-06.5 pending
-- **Current Phase**: Phase 6-8 (Theming, Monitoring, Docs, Week 5-6)
-- **Next Stories**:
-  - **Epic-06: Maintenance & Monitoring (28% complete)** - In progress (18 stories, 97 pts)
-    - ⚪ Feature 06.1: Automated Garbage Collection (4 stories, 19 pts)
-    - ⚪ Feature 06.2: Store Optimization (3 stories, 11 pts)
-    - ⚪ Feature 06.3: System Monitoring Tools (4 stories, 16 pts)
-    - ⚪ Feature 06.4: Health Check Command (2 stories, 8 pts)
-    - ⚪ Feature 06.5: Email Notification System (3 stories, 16 pts)
-    - ✅ Feature 06.6: Release Monitoring & Improvement Suggestions (5 stories, 26 pts) **COMPLETE!**
+  - 🔄 **Epic-07: Documentation & User Experience (50%)** - 4/8 stories, 18/34 pts - Features 07.1, 07.2 complete
+- **Remaining Work**:
+  - ⚪ **NFR: Non-Functional Requirements (0%)** - 15 stories, 79 pts
   - Epic-01: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Recent Milestone**: 🎉 **Feature 06.6 COMPLETE!** 86/124 stories, 457/650 points (70.3%)
+- **Current Phase**: Phase 8 (Documentation, Week 6)
+- **Recent Milestone**: 103/124 stories, 546/650 points (84.0%)
 
 ### Recent Activity
 
+- **2025-12-06**: ✅ **FEATURE 07.2 COMPLETE** - Licensed App Activation Guide (2 stories, 8 pts)
+  - Story 07.2-001: Licensed App Documentation (enhanced existing)
+  - Story 07.2-002: Post-Install Checklist (new docs/post-install.md)
+  - Project now at 84.0% complete (103/124 stories, 546/650 points)
+- **2025-12-06**: ✅ **FEATURE 07.1 COMPLETE** - Quick Start Documentation (2 stories, 10 pts)
+  - Story 07.1-001: README Quick Start Guide
+  - Story 07.1-002: Update Philosophy Documentation
+- **2025-12-06**: 🎉 **EPIC-06 COMPLETE** - Maintenance & Monitoring (18 stories, 97 pts)
+  - All Features verified in code: GC LaunchAgent, Store Optimization, Monitoring Tools, Health Check, Email, Release Monitor
+  - All LaunchAgents in darwin/maintenance.nix
+  - All scripts in scripts/ directory
 - **2025-12-06**: ✅ **FEATURE 06.6 COMPLETE** - Release Monitoring & Improvement Suggestions (5 stories, 26 pts)
   - All 5 scripts created and tested: fetch-release-notes.sh, analyze-releases.sh, create-release-issues.sh, release-monitor.sh, send-release-summary.sh
   - Bug fixed during testing: Deduplication was failing due to truncated search terms (exact title matching now used)

@@ -86,6 +86,38 @@ log_success() {
     echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
+# Phase progress indicator with consistent formatting
+# Usage: log_phase <phase_num> <phase_name> [estimated_time]
+# Example: log_phase 3 "Xcode CLI Tools" "~5 minutes"
+log_phase() {
+    local phase_num="$1"
+    local phase_name="$2"
+    local estimated_time="${3:-}"
+    local total_phases=9
+
+    echo ""
+    echo "════════════════════════════════════════════════════════════════════════════"
+    if [[ -n "${estimated_time}" ]]; then
+        log_info "Phase ${phase_num}/${total_phases}: ${phase_name} (${estimated_time})"
+    else
+        log_info "Phase ${phase_num}/${total_phases}: ${phase_name}"
+    fi
+    echo "════════════════════════════════════════════════════════════════════════════"
+    echo ""
+}
+
+# Phase completion indicator
+# Usage: log_phase_complete <phase_num> <phase_name> <duration_seconds>
+log_phase_complete() {
+    local phase_num="$1"
+    local phase_name="$2"
+    local duration="$3"
+
+    echo ""
+    log_success "✓ Phase ${phase_num}/9 completed: ${phase_name} (${duration}s)"
+    echo ""
+}
+
 # Check macOS version is Sonoma (14.0) or newer
 check_macos_version() {
     local version
@@ -395,10 +427,7 @@ check_existing_user_config() {
 # Prompt user for personal information with validation
 # Sets global variables: USER_FULLNAME, USER_EMAIL, GITHUB_USERNAME
 prompt_user_info() {
-    log_info "==================================="
-    log_info "Phase 2/10: User Configuration"
-    log_info "==================================="
-    echo ""
+    # Phase header logged in main() - this is part of Phase 2
     log_info "Please provide your information for Git, SSH, and system configuration."
     echo ""
 
@@ -827,10 +856,7 @@ confirm_profile_choice() {
 # Sets global variable: INSTALL_PROFILE ("standard" or "power")
 # Interactive prompt with validation and confirmation
 select_installation_profile() {
-    log_info "==================================="
-    log_info "Phase 2/10: Profile Selection"
-    log_info "==================================="
-    echo ""
+    # Part of Phase 2 - no separate header needed
     log_info "Choose the installation profile for this MacBook."
     log_info "This determines which apps and models will be installed."
 
@@ -873,9 +899,12 @@ select_installation_profile() {
 
 # Run all pre-flight validation checks
 preflight_checks() {
+    local phase_start
+    phase_start=$(date +%s)
+
+    log_phase 1 "Pre-flight System Validation"
+
     # shellcheck disable=SC2310  # Intentional: capture failures to show all errors
-    log_info "Starting pre-flight system validation..."
-    echo ""
 
     # Display system information first
     display_system_info
@@ -907,7 +936,9 @@ preflight_checks() {
         return 1
     fi
 
-    log_info "All pre-flight checks passed ✓"
+    local phase_end
+    phase_end=$(date +%s)
+    log_phase_complete 1 "Pre-flight System Validation" $((phase_end - phase_start))
     return 0
 }
 
@@ -999,15 +1030,17 @@ verify_xcode_installation() {
 # Main orchestration function for Xcode installation
 # Returns: 0 on success (installed or already present), 1 on failure
 install_xcode_phase() {
-    log_info "========================================"
-    log_info "Phase 3/10: Xcode Command Line Tools"
-    log_info "========================================"
-    echo ""
+    local phase_start
+    phase_start=$(date +%s)
+
+    log_phase 3 "Xcode Command Line Tools" "~5 minutes"
 
     # Check if already installed
     if check_xcode_installed; then
         log_info "✓ Xcode CLI Tools already installed, skipping installation"
-        echo ""
+        local phase_end
+        phase_end=$(date +%s)
+        log_phase_complete 3 "Xcode Command Line Tools" $((phase_end - phase_start))
         return 0
     fi
 
@@ -1293,21 +1326,20 @@ verify_nix_installation() {
 #   0 - Nix installed and configured successfully
 #   1 - Installation failed at any step
 install_nix_phase() {
-    echo ""
-    log_info "========================================"
-    log_info "Phase 4/10: Nix Package Manager"
-    log_info "========================================"
-    echo ""
+    local phase_start
+    phase_start=$(date +%s)
+    log_phase 4 "Nix Package Manager Installation" "~5-10 minutes"
 
     log_info "This phase will install the Nix package manager with flakes support."
     log_info "Nix is required for nix-darwin and all declarative system configuration."
-    log_info "Estimated time: 5-10 minutes (depending on network speed)"
     echo ""
 
     # Check if already installed
     if check_nix_installed; then
         log_info "✓ Nix is already installed, skipping installation"
-        echo ""
+        local phase_end
+        phase_end=$(date +%s)
+        log_phase_complete 4 "Nix Package Manager Installation" $((phase_end - phase_start))
         return 0
     fi
 
@@ -1341,8 +1373,9 @@ install_nix_phase() {
         return 1
     fi
 
-    log_info "✓ Nix Package Manager installation phase complete"
-    echo ""
+    local phase_end
+    phase_end=$(date +%s)
+    log_phase_complete 4 "Nix Package Manager Installation" $((phase_end - phase_start))
     return 0
 }
 
@@ -2298,20 +2331,15 @@ verify_nix_darwin_installed() {
 install_nix_darwin_phase() {
     local phase_start
     phase_start=$(date +%s)
+    log_phase 5 "Nix-Darwin Installation" "~10-25 minutes"
 
-    echo ""
-    log_info "========================================"
-    log_info "PHASE 5: NIX-DARWIN INSTALLATION"
-    log_info "Story 01.5-001: Install nix-darwin"
-    log_info "========================================"
     log_info "This phase will:"
     log_info "  1. Fetch flake configuration from GitHub"
     log_info "  2. Copy user configuration"
     log_info "  3. Initialize Git repository"
-    log_info "  4. Run initial nix-darwin build (10-20 minutes)"
+    log_info "  4. Run initial nix-darwin build"
     log_info "  5. Verify installation"
     echo ""
-    log_warn "Estimated total time: 10-25 minutes"
     log_warn "Most time is spent downloading and building packages"
     echo ""
 
@@ -2345,17 +2373,8 @@ install_nix_darwin_phase() {
 
     local phase_end
     phase_end=$(date +%s)
-    local phase_duration=$((phase_end - phase_start))
-    local phase_minutes=$((phase_duration / 60))
-    local phase_seconds=$((phase_duration % 60))
+    log_phase_complete 5 "Nix-Darwin Installation" $((phase_end - phase_start))
 
-    echo ""
-    log_success "========================================"
-    log_success "PHASE 5 COMPLETE: NIX-DARWIN INSTALLED"
-    log_success "========================================"
-    log_info "Phase duration: ${phase_minutes}m ${phase_seconds}s"
-    log_info "Profile: ${INSTALL_PROFILE}"
-    echo ""
     log_info "What was accomplished:"
     log_info "  ✓ Flake configuration fetched from GitHub"
     log_info "  ✓ User configuration integrated"
@@ -2364,7 +2383,6 @@ install_nix_darwin_phase() {
     log_info "  ✓ Homebrew installed and configured"
     echo ""
     log_info "Your system is now managed declaratively by nix-darwin!"
-    log_info "Future updates: darwin-rebuild switch --flake ${WORK_DIR}#${INSTALL_PROFILE}"
     echo ""
 
     return 0
@@ -3111,11 +3129,11 @@ display_ssh_key_summary() {
 # Arguments: None
 # Returns: 0 on success, 1 if any CRITICAL step fails
 setup_ssh_key_phase() {
-    echo ""
-    log_info "========================================"
-    log_info "PHASE 6/10: SSH KEY GENERATION"
-    log_info "Story 01.6-001: Generate SSH key for GitHub"
-    log_info "========================================"
+    local phase_start
+    phase_start=$(date +%s)
+    log_phase 6 "SSH & GitHub Authentication" "~3-5 minutes"
+
+    log_info "Step 1/3: Generate SSH key for GitHub authentication"
     echo ""
 
     # Step 1: Ensure .ssh directory exists (NON-CRITICAL)
@@ -3166,8 +3184,7 @@ setup_ssh_key_phase() {
         log_warn "Could not display SSH key summary (non-critical)"
     fi
 
-    log_success "✓ SSH key setup complete"
-    log_info "Phase 6 completed successfully"
+    log_success "✓ SSH key generation complete"
     echo ""
 
     return 0
@@ -3474,14 +3491,8 @@ fallback_manual_key_upload() {
 # Workflow: Check auth → Authenticate → Check exists → Upload → Fallback
 # Returns: 0 on success, 1 if CRITICAL step fails
 upload_github_key_phase() {
-    local phase_start_time
-    phase_start_time=$(date +%s)
-
-    echo ""
-    log_info "========================================"
-    log_info "PHASE 6 (CONTINUED): GITHUB SSH KEY UPLOAD"
-    log_info "Story 01.6-002: Automated GitHub CLI upload"
-    log_info "========================================"
+    # Continuation of Phase 6 - no separate header needed
+    log_info "Step 2/3: Upload SSH key to GitHub"
     echo ""
 
     # GitHub CLI (gh) is installed via Homebrew in Phase 5 (darwin/homebrew.nix)
@@ -3505,58 +3516,29 @@ upload_github_key_phase() {
     fi
 
     # Step 2: Check if key already exists on GitHub (NON-CRITICAL)
-    log_info "Step 2/4: Checking if SSH key already exists on GitHub..."
+    log_info "Checking if SSH key already exists on GitHub..."
     if check_key_exists_on_github; then
         log_success "✓ SSH key already exists on GitHub"
         log_info "Skipping upload (idempotency check passed)"
         echo ""
-
-        # Calculate phase duration
-        local phase_end_time
-        phase_end_time=$(date +%s)
-        local phase_duration=$((phase_end_time - phase_start_time))
-
-        log_success "✓ GitHub SSH key verification complete"
-        log_info "Phase 6 (continued) completed successfully in ${phase_duration} seconds"
-        echo ""
-
         return 0
     fi
 
     # Step 3: Upload SSH key to GitHub (CRITICAL)
-    log_info "Step 3/4: Uploading SSH key to GitHub..."
+    log_info "Uploading SSH key to GitHub..."
     echo ""
 
     if upload_ssh_key_to_github; then
         log_success "✓ SSH key uploaded to GitHub successfully"
         echo ""
-
-        # Calculate phase duration
-        local phase_end_time
-        phase_end_time=$(date +%s)
-        local phase_duration=$((phase_end_time - phase_start_time))
-
-        log_success "✓ GitHub SSH key upload complete"
-        log_info "Phase 6 (continued) completed successfully in ${phase_duration} seconds"
-        echo ""
-
         return 0
     else
-        # Step 4: Fallback to manual upload if automation failed
+        # Fallback to manual upload if automation failed
         log_warn "Automated upload failed, falling back to manual process"
         echo ""
-
         fallback_manual_key_upload
-
-        # Calculate phase duration
-        local phase_end_time
-        phase_end_time=$(date +%s)
-        local phase_duration=$((phase_end_time - phase_start_time))
-
         log_success "✓ GitHub SSH key upload complete (manual)"
-        log_info "Phase 6 (continued) completed successfully in ${phase_duration} seconds"
         echo ""
-
         return 0
     fi
 }
@@ -3732,31 +3714,15 @@ prompt_continue_without_ssh() {
 # Workflow: Retry connection → Display troubleshooting on failure → Prompt to continue or abort
 # Returns: 0 on success or user continue, 1 if user aborts
 test_github_ssh_phase() {
-    local phase_start_time
-    phase_start_time=$(date +%s)
-
-    echo ""
-    log_info "========================================"
-    log_info "PHASE 6 (CONTINUED): GITHUB SSH CONNECTION TEST"
-    log_info "Story 01.6-003: Verify SSH authentication"
-    log_info "========================================"
-    echo ""
-
-    log_info "Testing SSH connection to GitHub..."
+    # Continuation of Phase 6 - no separate header needed
+    log_info "Step 3/3: Testing SSH connection to GitHub"
     log_info "This validates that your SSH key is correctly configured."
     echo ""
 
     # Attempt connection with retry mechanism
     if retry_ssh_connection; then
-        local phase_end_time phase_duration
-        phase_end_time=$(date +%s)
-        phase_duration=$((phase_end_time - phase_start_time))
-
+        log_success "✓ GitHub SSH connection verified"
         echo ""
-        log_success "✓ GitHub SSH connection test completed successfully"
-        log_info "Phase 6 (continued) completed in ${phase_duration} seconds"
-        echo ""
-
         return 0
     fi
 
@@ -3765,14 +3731,9 @@ test_github_ssh_phase() {
 
     # Ask user if they want to continue or abort
     if prompt_continue_without_ssh; then
-        local phase_end_time phase_duration
-        phase_end_time=$(date +%s)
-        phase_duration=$((phase_end_time - phase_start_time))
-
         log_warn "Proceeding to next phase despite SSH test failure"
-        log_info "Phase 6 (continued) completed with warnings in ${phase_duration} seconds"
+        log_warn "Repository cloning in Phase 7 may fail if SSH is not configured correctly"
         echo ""
-
         return 0
     else
         # User chose to abort
@@ -4061,16 +4022,10 @@ display_clone_success_message() {
 clone_repository_phase() {
     local phase_start_time
     phase_start_time=$(date +%s)
-
-    echo ""
-    log_info "========================================"
-    log_info "PHASE 7: CLONING NIX-INSTALL REPOSITORY"
-    log_info "Story 01.7-001: Clone repository to ~/Documents"
-    log_info "========================================"
-    echo ""
+    log_phase 7 "Repository Clone" "~1-2 minutes"
 
     # Step 1: Create ~/Documents directory if needed (NON-CRITICAL)
-    log_info "📂 Step 1: Creating ~/Documents directory..."
+    log_info "Step 1/5: Creating ~/Documents directory..."
     if ! create_documents_directory; then
         log_error "Failed to create Documents directory"
         return 1
@@ -4078,7 +4033,7 @@ clone_repository_phase() {
     echo ""
 
     # Step 2: Check for existing repository directory (NON-CRITICAL)
-    log_info "📂 Step 2: Checking for existing repository..."
+    log_info "Step 2/5: Checking for existing repository..."
     if check_existing_repo_directory; then
         log_warn "Existing repository directory found: ${REPO_CLONE_DIR}"
         echo ""
@@ -4096,7 +4051,7 @@ clone_repository_phase() {
             echo ""
 
             # Still need to verify and copy user-config.nix
-            log_info "📄 Copying user-config.nix to existing repository..."
+            log_info "Copying user-config.nix to existing repository..."
             if ! copy_user_config_to_repo; then
                 log_error "Failed to copy user-config.nix"
                 return 1
@@ -4104,7 +4059,7 @@ clone_repository_phase() {
             echo ""
 
             # Verify existing repository
-            log_info "🔍 Verifying existing repository..."
+            log_info "Verifying existing repository..."
             if ! verify_repository_clone; then
                 log_error "Existing repository verification failed"
                 log_warn "Consider removing and re-cloning"
@@ -4114,10 +4069,9 @@ clone_repository_phase() {
             # Display success and return
             display_clone_success_message
 
-            local phase_end_time phase_duration
+            local phase_end_time
             phase_end_time=$(date +%s)
-            phase_duration=$((phase_end_time - phase_start_time))
-            log_info "Phase 7 completed in ${phase_duration} seconds (using existing repository)"
+            log_phase_complete 7 "Repository Clone" $((phase_end_time - phase_start_time))
 
             return 0
         fi
@@ -4127,7 +4081,7 @@ clone_repository_phase() {
     echo ""
 
     # Step 3: Clone repository from GitHub (CRITICAL)
-    log_info "📂 Step 3: Cloning repository from GitHub..."
+    log_info "Step 3/5: Cloning repository from GitHub..."
     if ! clone_repository; then
         log_error "Repository clone failed"
         return 1
@@ -4135,7 +4089,7 @@ clone_repository_phase() {
     echo ""
 
     # Step 4: Copy user-config.nix to repository (CRITICAL)
-    log_info "📄 Step 4: Copying user-config.nix..."
+    log_info "Step 4/5: Copying user-config.nix..."
     if ! copy_user_config_to_repo; then
         log_error "Failed to copy user configuration"
         return 1
@@ -4143,7 +4097,7 @@ clone_repository_phase() {
     echo ""
 
     # Step 5: Verify repository clone (CRITICAL)
-    log_info "🔍 Step 5: Verifying repository clone..."
+    log_info "Step 5/5: Verifying repository clone..."
     if ! verify_repository_clone; then
         log_error "Repository verification failed"
         return 1
@@ -4152,13 +4106,9 @@ clone_repository_phase() {
     # Display success message
     display_clone_success_message
 
-    local phase_end_time phase_duration
+    local phase_end_time
     phase_end_time=$(date +%s)
-    phase_duration=$((phase_end_time - phase_start_time))
-
-    log_success "✓ Repository clone phase complete"
-    log_info "Phase 7 completed in ${phase_duration} seconds"
-    echo ""
+    log_phase_complete 7 "Repository Clone" $((phase_end_time - phase_start_time))
 
     return 0
 }
@@ -4390,26 +4340,19 @@ display_rebuild_success_message() {
 final_darwin_rebuild_phase() {
     local phase_start_time
     phase_start_time=$(date +%s)
-
-    echo ""
-    log_info "========================================"
-    log_info "PHASE 8: FINAL DARWIN REBUILD"
-    log_info "Story 01.7-002: Apply complete system configuration"
-    log_info "========================================"
-    echo ""
+    log_phase 8 "Final Darwin Rebuild" "~5-10 minutes"
 
     # Step 1: Load profile from user-config.nix (CRITICAL)
-    log_info "📋 Step 1: Loading installation profile..."
+    log_info "Step 1/3: Loading installation profile..."
     if ! load_profile_from_user_config; then
         log_error "Failed to load profile from user-config.nix"
         return 1
     fi
     echo ""
 
-    # Step 1.5: Prepare for Home Manager shell management (NON-CRITICAL)
+    # Prepare for Home Manager shell management (NON-CRITICAL)
     # Home Manager needs to manage ~/.zshrc for Oh My Zsh, FZF, autosuggestions, etc.
-    # Remove any existing .zshrc so Home Manager can create its managed version
-    log_info "🐚 Step 1.5: Preparing shell configuration for Home Manager..."
+    log_info "Preparing shell configuration for Home Manager..."
     if [[ -f "${HOME}/.zshrc" && ! -L "${HOME}/.zshrc" ]]; then
         log_info "Found existing ~/.zshrc (not managed by Home Manager)"
         log_info "Backing up to ~/.zshrc.pre-nix-install"
@@ -4423,7 +4366,7 @@ final_darwin_rebuild_phase() {
     echo ""
 
     # Step 2: Run darwin-rebuild switch (CRITICAL)
-    log_info "🔧 Step 2: Running darwin-rebuild switch..."
+    log_info "Step 2/3: Running darwin-rebuild switch..."
     log_info "This will apply your complete system configuration from:"
     log_info "  ${REPO_CLONE_DIR}"
     echo ""
@@ -4437,21 +4380,17 @@ final_darwin_rebuild_phase() {
     echo ""
 
     # Step 3: Verify Home Manager symlinks (NON-CRITICAL)
-    log_info "🔍 Step 3: Verifying Home Manager symlinks..."
+    log_info "Step 3/3: Verifying Home Manager symlinks..."
     verify_home_manager_symlinks
     echo ""
 
-    # Calculate phase duration
-    local phase_end_time phase_duration
+    # Calculate phase duration and display success
+    local phase_end_time
     phase_end_time=$(date +%s)
-    phase_duration=$((phase_end_time - phase_start_time))
+    local phase_duration=$((phase_end_time - phase_start_time))
 
-    # Display success message
     display_rebuild_success_message "${phase_duration}"
-
-    log_success "✓ Final darwin-rebuild phase complete"
-    log_info "Phase 8 completed in ${phase_duration} seconds"
-    echo ""
+    log_phase_complete 8 "Final Darwin Rebuild" "${phase_duration}"
 
     return 0
 }
@@ -4709,11 +4648,7 @@ display_documentation_paths() {
 # Returns: 0 always (final phase, non-critical)
 # Output: Complete installation summary to stdout
 installation_summary_phase() {
-    echo ""
-    echo "════════════════════════════════════════════════════════════════════"
-    log_success "  INSTALLATION SUMMARY"
-    echo "════════════════════════════════════════════════════════════════════"
-    echo ""
+    log_phase 9 "Installation Summary"
 
     # Calculate total installation duration
     local bootstrap_end_time duration_str
@@ -4771,9 +4706,6 @@ main() {
     # Running them twice is harmless - defense in depth.
     # ==========================================================================
 
-    log_info "Phase 1/10: Pre-flight System Validation"
-    echo ""
-
     # shellcheck disable=SC2310  # Intentional: Using ! to handle validation failure
     if ! preflight_checks; then
         log_error "Pre-flight checks failed. Aborting installation."
@@ -4782,17 +4714,16 @@ main() {
         exit 1
     fi
 
-    echo ""
-    log_info "Pre-flight validation complete!"
-    log_info "System is ready for Nix-Darwin installation."
-    echo ""
-
     # ==========================================================================
     # PHASE 2: USER CONFIGURATION & PROFILE SELECTION
     # ==========================================================================
     # This is the first phase with interactive prompts, which is why the
     # two-stage bootstrap pattern exists - to ensure stdin works correctly.
     # ==========================================================================
+
+    local phase2_start
+    phase2_start=$(date +%s)
+    log_phase 2 "User Configuration & Profile Selection" "~2 minutes"
 
     # Story 01.1-002: Check for existing user-config.nix (idempotency)
     # If found and user confirms reuse, skip interactive prompts
@@ -4813,20 +4744,9 @@ main() {
         exit 1
     fi
 
-    # ==========================================================================
-    # PHASE 2 (CONTINUED): FULL DISK ACCESS CHECK FOR POWER PROFILE
-    # ==========================================================================
     # Story 02.8-001: Parallels Desktop requires terminal FDA for installation
     # Only check for Power profile (Parallels is Power-only)
-    # Discovered during VM testing 2025-01-16
-    # ==========================================================================
-
     if [[ "${INSTALL_PROFILE}" == "power" ]]; then
-        echo ""
-        log_info "==================================="
-        log_info "Power Profile FDA Check"
-        log_info "==================================="
-        echo ""
         log_info "Power profile requires terminal Full Disk Access for Parallels Desktop installation."
         echo ""
 
@@ -4841,6 +4761,10 @@ main() {
         log_info "✓ Terminal has required permissions for Power profile"
         echo ""
     fi
+
+    local phase2_end
+    phase2_end=$(date +%s)
+    log_phase_complete 2 "User Configuration & Profile Selection" $((phase2_end - phase2_start))
 
     # ==========================================================================
     # PHASE 3: XCODE COMMAND LINE TOOLS INSTALLATION
@@ -4939,11 +4863,15 @@ main() {
     echo ""
 
     # ==========================================================================
-    # PHASE 6: SSH KEY GENERATION
+    # PHASE 6: SSH & GITHUB AUTHENTICATION
     # ==========================================================================
     # Story 01.6-001: Generate SSH key for GitHub authentication
-    # Generates ed25519 key, handles existing keys, starts ssh-agent
+    # Story 01.6-002: Automated GitHub CLI SSH key upload
+    # Story 01.6-003: Test GitHub SSH connection with retry mechanism
     # ==========================================================================
+
+    local phase6_start
+    phase6_start=$(date +%s)
 
     # shellcheck disable=SC2310  # Intentional: Using ! to handle SSH key setup failure
     if ! setup_ssh_key_phase; then
@@ -4952,13 +4880,6 @@ main() {
         exit 1
     fi
 
-    # ==========================================================================
-    # PHASE 6 (CONTINUED): GITHUB SSH KEY UPLOAD
-    # ==========================================================================
-    # Story 01.6-002: Automated GitHub CLI SSH key upload
-    # Uploads generated SSH key to GitHub for repository cloning
-    # ==========================================================================
-
     # shellcheck disable=SC2310  # Intentional: Using ! to handle GitHub key upload failure
     if ! upload_github_key_phase; then
         log_error "GitHub SSH key upload failed"
@@ -4966,19 +4887,17 @@ main() {
         exit 1
     fi
 
-    # ==========================================================================
-    # PHASE 6 (CONTINUED): GITHUB SSH CONNECTION TEST
-    # ==========================================================================
-    # Story 01.6-003: Test GitHub SSH connection with retry mechanism
-    # Validates SSH authentication works before repository cloning
-    # ==========================================================================
-
     # shellcheck disable=SC2310  # Intentional: Using ! to handle SSH test failure or user abort
     if ! test_github_ssh_phase; then
         log_error "GitHub SSH connection test failed or aborted by user"
         log_error "Bootstrap process terminated."
         exit 1
     fi
+
+    # Phase 6 complete
+    local phase6_end
+    phase6_end=$(date +%s)
+    log_phase_complete 6 "SSH & GitHub Authentication" $((phase6_end - phase6_start))
 
     # ==========================================================================
     # PHASE 7: REPOSITORY CLONE

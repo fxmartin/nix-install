@@ -85,7 +85,7 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 | Epic-05 | 7/7 | 36/36 | 7 | 36 | 100% ✅ |
 | Epic-06 | 18/18 | 97/97 | 18 | 97 | 100% ✅ |
 | Epic-07 | 8/8 | 34/34 | 8 | 34 | 100% ✅ |
-| NFR | 15/15 | 79/79 | 13 | 71 | 87% |
+| NFR | 15/15 | 79/79 | 14 | 76 | 93% |
 
 **Notes**:
 - **2025-11-10**: Epic-01 reduced from 108 to 105 points after Story 01.6-002 scope change
@@ -98,10 +98,11 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 - **Total Stories**: 124
 - **Total Story Points**: 650
 - **Average Story Size**: 5.2 points
-- **Completed Stories**: 121 (97.6%)
-- **Completed Points**: 636 (97.8%)
-- **MVP Completion**: 97.6% by stories, 97.8% by points
+- **Completed Stories**: 122 (98.4%)
+- **Completed Points**: 641 (98.6%)
+- **MVP Completion**: 98.4% by stories, 98.6% by points
 - **🎉 MILESTONE**: MacBook Pro M3 Max successfully running Power profile (2025-12-07)
+- **CHANGELOG.md**: Created 2025-12-07 - v1.0.0 release documented
 
 ## Story Dependencies
 

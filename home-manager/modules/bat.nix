@@ -77,13 +77,14 @@
     ];
 
     # Catppuccin Mocha theme for bat
+    # Source: https://github.com/catppuccin/bat
     themes = {
       "Catppuccin Mocha" = {
         src = pkgs.fetchFromGitHub {
           owner = "catppuccin";
           repo = "bat";
-          rev = "d2bbee4f7e7d5bac63c054e4d8efa57a2571c0ee";
-          sha256 = "sha256-x1yqPCWuoBSx/cI94eA+AWwhiSA42cLNUOFJl7qjhmw=";
+          rev = "6810349b28055dce54076712fc05fc68da4b8ec0";
+          sha256 = "1y5sfi7jfr97z1g6vm2mzbsw59j1jizwlmbadvmx842m0i5ak5ll";
         };
         file = "themes/Catppuccin Mocha.tmTheme";
       };

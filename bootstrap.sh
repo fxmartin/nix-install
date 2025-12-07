@@ -503,7 +503,7 @@ prompt_user_info() {
         read -r -p "Is this correct? (y/n): " confirmed
         echo ""
 
-        if [[ "$confirmed" != "y" ]]; then
+        if [[ ! "$confirmed" =~ ^[Yy]$ ]]; then
             log_warn "Let's try again. Please re-enter your information."
             echo ""
         fi
@@ -691,12 +691,21 @@ generate_user_config() {
     echo ""
     log_info "Generating user configuration file..."
 
-    # Check template exists
+    # Check template exists, download if missing (when run via setup.sh from /tmp)
     local template_file="user-config.template.nix"
     if [[ ! -f "${template_file}" ]]; then
-        log_error "Template file not found: ${template_file}"
-        log_error "Please ensure you're running this script from the project root directory."
-        return 1
+        log_warn "Template file not found locally, downloading from GitHub..."
+        local template_url="https://raw.githubusercontent.com/fxmartin/nix-install/main/${template_file}"
+        if ! curl -fsSL "${template_url}" -o "${template_file}"; then
+            log_error "Failed to download template file from: ${template_url}"
+            log_error "Please check your internet connection and try again."
+            return 1
+        fi
+        if [[ ! -s "${template_file}" ]]; then
+            log_error "Downloaded template file is empty"
+            return 1
+        fi
+        log_info "✓ Template file downloaded successfully"
     fi
 
     # Replace placeholders and generate config file
@@ -845,7 +854,7 @@ confirm_profile_choice() {
     local confirmed
     read -r -p "Continue with this profile? (y/n): " confirmed
 
-    if [[ "$confirmed" == "y" ]]; then
+    if [[ "$confirmed" =~ ^[Yy]$ ]]; then
         return 0
     else
         return 1
@@ -860,10 +869,10 @@ select_installation_profile() {
     log_info "Choose the installation profile for this MacBook."
     log_info "This determines which apps and models will be installed."
 
-    local profile_confirmed="n"
+    local profile_confirmed=""
 
     # Loop until user confirms profile choice
-    while [[ "$profile_confirmed" != "y" ]]; do
+    while [[ ! "$profile_confirmed" =~ ^[Yy]$ ]]; do
         # Display profile options
         display_profile_options
 

@@ -3393,6 +3393,60 @@ setup_ssh_key_phase() {
 # Story 01.6-002: Automated GitHub SSH key upload using gh CLI
 # =============================================================================
 
+# Function: ensure_gh_in_path
+# Purpose: Ensure GitHub CLI (gh) is available in PATH
+# Note: After darwin-rebuild installs Homebrew, gh is at /opt/homebrew/bin/gh
+#       but the bootstrap shell may not have updated PATH yet
+# Returns: 0 if gh is available, 1 if not found
+ensure_gh_in_path() {
+    # Check if gh is already in PATH
+    if command -v gh >/dev/null 2>&1; then
+        log_info "✓ GitHub CLI (gh) found in PATH"
+        return 0
+    fi
+
+    # Add Homebrew bin to PATH if it exists (macOS arm64)
+    if [[ -d "/opt/homebrew/bin" ]]; then
+        log_info "Adding /opt/homebrew/bin to PATH for gh access..."
+        export PATH="/opt/homebrew/bin:${PATH}"
+
+        if command -v gh >/dev/null 2>&1; then
+            log_info "✓ GitHub CLI (gh) now available via Homebrew"
+            return 0
+        fi
+    fi
+
+    # Check Intel Mac location
+    if [[ -d "/usr/local/bin" ]]; then
+        export PATH="/usr/local/bin:${PATH}"
+
+        if command -v gh >/dev/null 2>&1; then
+            log_info "✓ GitHub CLI (gh) now available via Homebrew (Intel)"
+            return 0
+        fi
+    fi
+
+    # Check nix profile location (Home Manager)
+    local nix_profile="${HOME}/.nix-profile/bin"
+    if [[ -d "${nix_profile}" ]]; then
+        export PATH="${nix_profile}:${PATH}"
+
+        if command -v gh >/dev/null 2>&1; then
+            log_info "✓ GitHub CLI (gh) now available via Nix profile"
+            return 0
+        fi
+    fi
+
+    # Still not found
+    log_error "GitHub CLI (gh) not found in any expected location"
+    log_error "Expected locations checked:"
+    log_error "  - PATH: $(echo $PATH | tr ':' '\n' | head -5)"
+    log_error "  - /opt/homebrew/bin/gh (macOS arm64)"
+    log_error "  - /usr/local/bin/gh (macOS Intel)"
+    log_error "  - ~/.nix-profile/bin/gh (Nix/Home Manager)"
+    return 1
+}
+
 # Function: check_github_cli_authenticated
 # Purpose: Check if GitHub CLI is authenticated (NON-CRITICAL)
 # Returns: 0 if authenticated, 1 if not authenticated or check fails
@@ -3687,16 +3741,33 @@ fallback_manual_key_upload() {
 
 # Function: upload_github_key_phase
 # Purpose: Orchestrate GitHub SSH key upload workflow (Phase 6 continued)
-# Workflow: Check auth → Authenticate → Check exists → Upload → Fallback
+# Workflow: Ensure gh in PATH → Check auth → Authenticate → Check exists → Upload → Fallback
 # Returns: 0 on success, 1 if CRITICAL step fails
 upload_github_key_phase() {
     # Continuation of Phase 6 - no separate header needed
     log_info "Step 2/3: Upload SSH key to GitHub"
     echo ""
 
-    # GitHub CLI (gh) is installed via Homebrew in Phase 5 (darwin/homebrew.nix)
-    # Homebrew formulas are immediately available in PATH after darwin-rebuild
-    # This enables automated OAuth flow without requiring shell reload
+    # CRITICAL: Ensure gh CLI is available in PATH
+    # After Phase 5 darwin-rebuild, gh is installed via Homebrew at /opt/homebrew/bin/gh
+    # but the current shell session may not have updated PATH yet
+    # Hotfix for Issue: "bootstrap-dist.sh: line 3540: gh: command not found"
+    log_info "Ensuring GitHub CLI (gh) is available..."
+    if ! ensure_gh_in_path; then
+        log_error "GitHub CLI (gh) is not available"
+        log_error "This is required for automated SSH key upload"
+        log_error ""
+        log_error "Possible causes:"
+        log_error "  1. Phase 5 darwin-rebuild did not complete successfully"
+        log_error "  2. Homebrew installation failed"
+        log_error "  3. gh brew formula not installed"
+        log_error ""
+        log_error "Falling back to manual SSH key upload..."
+        echo ""
+        fallback_manual_key_upload
+        return 0
+    fi
+    echo ""
 
     # Step 1: Check if GitHub CLI is already authenticated (NON-CRITICAL)
     log_info "Step 1/4: Checking GitHub CLI authentication..."

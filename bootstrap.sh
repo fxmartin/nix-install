@@ -86,6 +86,27 @@ log_success() {
     echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
+# Read user input with /dev/tty fallback for curl | bash scenarios
+# Usage: read_input "variable_name" "prompt"
+# This ensures read works when stdin is consumed by curl pipe
+read_input() {
+    local var_name="$1"
+    local prompt="$2"
+    local value
+
+    # Try reading from stdin first, fall back to /dev/tty if needed
+    if [[ -t 0 ]]; then
+        # stdin is a terminal, read normally
+        read -r -p "$prompt" value
+    else
+        # stdin is not a terminal (piped), use /dev/tty
+        read -r -p "$prompt" value < /dev/tty
+    fi
+
+    # Assign to the named variable
+    printf -v "$var_name" '%s' "$value"
+}
+
 # Phase progress indicator with consistent formatting
 # Usage: log_phase <phase_num> <phase_name> [estimated_time]
 # Example: log_phase 3 "Xcode CLI Tools" "~5 minutes"
@@ -404,7 +425,7 @@ check_existing_user_config() {
 
     # Prompt user to reuse or re-enter
     local reuse_config
-    read -r -p "Reuse this configuration? (y/n): " reuse_config
+    read_input reuse_config "Reuse this configuration? (y/n): "
     echo ""
 
     if [[ "${reuse_config}" =~ ^[Yy]$ ]]; then
@@ -435,10 +456,10 @@ prompt_user_info() {
     local confirmed="n"
 
     # Loop until user confirms all information
-    while [[ "$confirmed" != "y" ]]; do
+    while [[ ! "$confirmed" =~ ^[Yy]$ ]]; do
         # Prompt for full name with validation
         while true; do
-            read -r -p "Full Name: " USER_FULLNAME
+            read_input USER_FULLNAME "Full Name: "
             if validate_name "$USER_FULLNAME"; then
                 log_info "✓ Name validated"
                 break
@@ -451,7 +472,7 @@ prompt_user_info() {
 
         # Prompt for email with validation
         while true; do
-            read -r -p "Email Address: " USER_EMAIL
+            read_input USER_EMAIL "Email Address: "
             if validate_email "$USER_EMAIL"; then
                 log_info "✓ Email validated"
                 break
@@ -464,7 +485,7 @@ prompt_user_info() {
 
         # Prompt for notification email (defaults to main email)
         while true; do
-            read -r -p "Notification Email (press Enter to use $USER_EMAIL): " NOTIFICATION_EMAIL
+            read_input NOTIFICATION_EMAIL "Notification Email (press Enter to use $USER_EMAIL): "
             if [[ -z "$NOTIFICATION_EMAIL" ]]; then
                 NOTIFICATION_EMAIL="$USER_EMAIL"
                 log_info "✓ Using main email for notifications"
@@ -481,7 +502,7 @@ prompt_user_info() {
 
         # Prompt for GitHub username with validation
         while true; do
-            read -r -p "GitHub Username: " GITHUB_USERNAME
+            read_input GITHUB_USERNAME "GitHub Username: "
             if validate_github_username "$GITHUB_USERNAME"; then
                 log_info "✓ GitHub username validated"
                 break
@@ -501,7 +522,7 @@ prompt_user_info() {
         echo "  GitHub:        $GITHUB_USERNAME"
         echo ""
 
-        read -r -p "Is this correct? (y/n): " confirmed
+        read_input confirmed "Is this correct? (y/n): "
         echo ""
 
         if [[ ! "$confirmed" =~ ^[Yy]$ ]]; then
@@ -853,7 +874,7 @@ confirm_profile_choice() {
     echo ""
 
     local confirmed
-    read -r -p "Continue with this profile? (y/n): " confirmed
+    read_input confirmed "Continue with this profile? (y/n): "
 
     if [[ "$confirmed" =~ ^[Yy]$ ]]; then
         return 0
@@ -880,7 +901,7 @@ select_installation_profile() {
         # Prompt for profile choice
         local choice
         while true; do
-            read -r -p "Enter your choice (1 or 2): " choice
+            read_input choice "Enter your choice (1 or 2): "
 
             if validate_profile_choice "$choice"; then
                 log_info "✓ Profile choice validated"
@@ -1004,7 +1025,8 @@ wait_for_xcode_installation() {
     log_info "  3. Return here and press ENTER to continue"
     echo ""
 
-    read -r -p "Press ENTER when installation is complete... "
+    local dummy
+    read_input dummy "Press ENTER when installation is complete... "
     echo ""
     return 0
 }
@@ -2801,7 +2823,7 @@ prompt_use_existing_key() {
     echo ""
 
     local response
-    read -r -p "Use existing SSH key? (y/n) [default: yes]: " response
+    read_input response "Use existing SSH key? (y/n) [default: yes]: "
 
     # Trim whitespace
     response=$(echo "${response}" | xargs)
@@ -3487,7 +3509,8 @@ fallback_manual_key_upload() {
     echo ""
 
     # Wait for user confirmation
-    read -p "Press ENTER when you've added the key to GitHub..."
+    local dummy
+    read_input dummy "Press ENTER when you've added the key to GitHub..."
 
     echo ""
     log_success "✓ Manual key upload completed"
@@ -3689,7 +3712,7 @@ prompt_continue_without_ssh() {
     echo ""
 
     while true; do
-        read -p "Continue without SSH test? (y/n) [not recommended]: " response
+        read_input response "Continue without SSH test? (y/n) [not recommended]: "
 
         # Trim whitespace and convert to lowercase
         response=$(echo "$response" | xargs | tr '[:upper:]' '[:lower:]')
@@ -3809,7 +3832,7 @@ prompt_remove_existing_repo() {
     echo ""
 
     while true; do
-        read -r -p "Remove existing directory and re-clone? (y/n): " response
+        read_input response "Remove existing directory and re-clone? (y/n): "
         case "${response}" in
             y|Y)
                 log_info "User chose to remove and re-clone"

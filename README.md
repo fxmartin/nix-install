@@ -1,6 +1,6 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 87% Complete (108/124 stories) | **Version**: 0.1.0 (Pre-Release)
+> **Status**: 97.6% Complete (121/124 stories) | **Version**: 0.1.0 (Pre-Release) | **🎉 MacBook Pro M3 Max Running!**
 
 **Three MacBooks. One config. Zero drift.**
 
@@ -365,8 +365,14 @@ nix-install/
 | **05** | Theming & Visual Consistency | ✅ 100% |
 | **06** | Maintenance & Monitoring | ✅ 100% |
 | **07** | Documentation & UX | ✅ 100% |
+| **NFR** | Non-Functional Requirements | 🟢 87% |
 
-**Current**: All functional epics complete! Only Epic-01 remaining story (01.1-004 - deferred) and NFRs pending.
+**🎉 Milestone (2025-12-07)**: MacBook Pro M3 Max successfully running Power profile!
+- Shell startup: 259ms (target <500ms) ✅
+- Rebuild time: 14 seconds (target <5min) ✅
+- All 27 Homebrew apps installed, 5 Ollama models verified
+
+**Next**: MacBook Air migrations (Phase 11)
 
 ---
 

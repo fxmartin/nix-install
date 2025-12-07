@@ -115,13 +115,17 @@ FX's role: ALL testing, execution, and validation except if he willingly authori
 - `docs/REQUIREMENTS.md`: Comprehensive PRD (1600+ lines) - **THE SOURCE OF TRUTH** for requirements
 - `docs/development/README.md`: Development documentation master index - **CHECK THIS FIRST** for:
   - Navigation to progress tracking, story details, workflows
-  - Current status: 70.9% complete overall (81/116 stories, 431/608 points)
-  - Epic-01: 89.5% complete (17/19 stories, 104/113 points) - Bootstrap system functional
+  - Current status: 97.6% complete overall (121/124 stories, 636/650 points)
+  - 🎉 **MILESTONE (2025-12-07)**: MacBook Pro M3 Max successfully running Power profile!
+  - Epic-01: 94.7% complete (18/19 stories, 107/113 points) - Bootstrap system functional
   - Epic-02: 100% complete (25/25 stories, 118/118 points) - ✅ COMPLETE
   - Epic-03: 100% complete (14/14 stories, 76/76 points) - ✅ COMPLETE
   - Epic-04: 100% complete (18/18 stories, 97/97 points) - ✅ COMPLETE
   - Epic-05: 100% complete (7/7 stories, 36/36 points) - ✅ COMPLETE
-  - Recent: Epic-05 Theming & Visual Consistency COMPLETE! 🎉 (5 epics now complete)
+  - Epic-06: 100% complete (18/18 stories, 97/97 points) - ✅ COMPLETE
+  - Epic-07: 100% complete (8/8 stories, 34/34 points) - ✅ COMPLETE
+  - NFR: 87% complete (13/15 stories, 71/79 points) - 🟢 Nearly complete
+  - Next: MacBook Air migrations (Phase 11)
   - Quick reference for completed stories and testing metrics
 - `docs/development/progress.md`: Epic overview table, completed stories, recent activity
 - `docs/development/stories/epic-XX-feature-XX.X.md`: Detailed story implementations (split by feature for maintainability)
@@ -156,16 +160,18 @@ FX's role: ALL testing, execution, and validation except if he willingly authori
 - `setup.sh`: Legacy setup script (deprecated, use bootstrap.sh)
 - `mlgruby-repo-for-reference/`: Reference implementation to learn from
 
-**To Be Implemented** (Epic-05 onwards):
-- Theming (Epic-05): Stylix system-wide theming
-- Maintenance (Epic-06): Garbage collection, store optimization, health checks
-- Documentation (Epic-07): Quick-start guides, troubleshooting, customization guides
-
 **Completed Epics**:
 - Epic-01: Bootstrap & Installation System (89.5% - functional, 2 optional stories remaining)
 - Epic-02: Application Installation (100% complete) ✅
 - Epic-03: System Configuration (100% complete) ✅
 - Epic-04: Development Environment (100% complete) ✅
+- Epic-05: Theming & Visual Consistency (100% complete) ✅
+- Epic-06: Maintenance & Monitoring (100% complete) ✅
+- Epic-07: Documentation & User Experience (100% complete) ✅
+
+**Remaining Work**:
+- Epic-01: 2 optional stories (modular architecture, advanced idempotency)
+- NFR: 15 non-functional requirement stories
 
 ### Implementation Phases (8-Week Plan)
 

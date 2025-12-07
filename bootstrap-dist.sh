@@ -4441,6 +4441,61 @@ load_profile_from_user_config() {
     return 0
 }
 
+# Function: ensure_nix_paths_in_path
+# Purpose: Ensure Nix and darwin-rebuild are available in PATH
+# Note: After Phase 5 nix-darwin install, darwin-rebuild is at /run/current-system/sw/bin
+#       but the bootstrap shell may not have updated PATH yet
+# Returns: 0 if darwin-rebuild is available, 1 if not found
+ensure_nix_paths_in_path() {
+    # Check if darwin-rebuild is already in PATH
+    if command -v darwin-rebuild >/dev/null 2>&1; then
+        log_info "✓ darwin-rebuild found in PATH"
+        return 0
+    fi
+
+    log_info "darwin-rebuild not in PATH, adding Nix paths..."
+
+    # Add nix-darwin system path (where darwin-rebuild lives after install)
+    if [[ -d "/run/current-system/sw/bin" ]]; then
+        export PATH="/run/current-system/sw/bin:${PATH}"
+        log_info "Added /run/current-system/sw/bin to PATH"
+    fi
+
+    # Add Nix default profile (backup location)
+    if [[ -d "/nix/var/nix/profiles/default/bin" ]]; then
+        export PATH="/nix/var/nix/profiles/default/bin:${PATH}"
+        log_info "Added /nix/var/nix/profiles/default/bin to PATH"
+    fi
+
+    # Add user's Nix profile
+    if [[ -d "${HOME}/.nix-profile/bin" ]]; then
+        export PATH="${HOME}/.nix-profile/bin:${PATH}"
+        log_info "Added ~/.nix-profile/bin to PATH"
+    fi
+
+    # Source nix-daemon if available (ensures NIX_PATH and other vars are set)
+    if [[ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]]; then
+        # shellcheck source=/dev/null
+        . "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
+        log_info "Sourced nix-daemon.sh"
+    fi
+
+    # Check again after PATH updates
+    if command -v darwin-rebuild >/dev/null 2>&1; then
+        log_info "✓ darwin-rebuild now available in PATH"
+        return 0
+    fi
+
+    # Still not found - report detailed error
+    log_error "darwin-rebuild still not found after updating PATH"
+    log_error "Checked locations:"
+    log_error "  - /run/current-system/sw/bin/darwin-rebuild"
+    log_error "  - /nix/var/nix/profiles/default/bin/darwin-rebuild"
+    log_error "  - ~/.nix-profile/bin/darwin-rebuild"
+    log_error "Current PATH: ${PATH}"
+    return 1
+}
+
 # Function: run_final_darwin_rebuild
 # Purpose: Execute darwin-rebuild switch with cloned repository flake (CRITICAL)
 # Returns: 0 on success, 1 on failure
@@ -4464,6 +4519,18 @@ run_final_darwin_rebuild() {
 
     # darwin-rebuild switch requires sudo for system activation
     log_warn "This step requires sudo privileges for system activation"
+    echo ""
+
+    # CRITICAL: Ensure darwin-rebuild is available in PATH
+    # After Phase 5 nix-darwin install, darwin-rebuild is installed but the current
+    # shell session may not have updated PATH yet
+    # Hotfix for Issue: "Cannot find darwin-rebuild command in PATH"
+    log_info "Ensuring darwin-rebuild is available in PATH..."
+    if ! ensure_nix_paths_in_path; then
+        log_error "Failed to locate darwin-rebuild"
+        log_error "Phase 5 nix-darwin installation may have failed"
+        return 1
+    fi
     echo ""
 
     rebuild_start_time=$(date +%s)

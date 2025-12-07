@@ -80,9 +80,10 @@ in {
   home.activation.claudeCodeSetup = lib.hm.dag.entryAfter ["writeBoundary"] ''
     # Dynamically find repo location (works with any NIX_INSTALL_DIR)
     # Search for nix-install repo by looking for flake.nix + config/claude directory
+    # Priority: ~/.config/nix-install (new default) > ~/nix-install > ~/Documents/nix-install (legacy)
     REPO_ROOT=""
-    for candidate in "${config.home.homeDirectory}/nix-install" \
-                     "${config.home.homeDirectory}/.config/nix-install" \
+    for candidate in "${config.home.homeDirectory}/.config/nix-install" \
+                     "${config.home.homeDirectory}/nix-install" \
                      "${config.home.homeDirectory}/Documents/nix-install"; do
       if [ -f "$candidate/flake.nix" ] && [ -d "$candidate/config/claude" ]; then
         REPO_ROOT="$candidate"

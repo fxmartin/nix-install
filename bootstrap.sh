@@ -65,9 +65,9 @@ readonly USER_CONFIG_FILE="${WORK_DIR}/user-config.nix"
 readonly BOOTSTRAP_TEMP_DIR="/tmp/nix-bootstrap"
 
 # Repository clone directory (configurable via NIX_INSTALL_DIR environment variable)
-# Default: ~/Documents/nix-install
+# Default: ~/.config/nix-install
 # Custom: export NIX_INSTALL_DIR="~/nix-install" before running bootstrap
-readonly REPO_CLONE_DIR="${NIX_INSTALL_DIR:-${HOME}/Documents/nix-install}"
+readonly REPO_CLONE_DIR="${NIX_INSTALL_DIR:-${HOME}/.config/nix-install}"
 
 # Logging functions
 log_info() {
@@ -364,8 +364,9 @@ validate_name() {
 # Purpose: Detect and parse existing user-config.nix from previous runs to avoid re-prompting
 # Story: 01.1-002 (Idempotency Check)
 # Locations checked (priority order):
-#   1. ~/Documents/nix-install/user-config.nix (completed installation)
-#   2. /tmp/nix-bootstrap/user-config.nix (previous bootstrap attempt)
+#   1. ~/.config/nix-install/user-config.nix (completed installation - new default)
+#   2. ~/Documents/nix-install/user-config.nix (legacy location)
+#   3. /tmp/nix-bootstrap/user-config.nix (previous bootstrap attempt)
 # Sets global variables: USER_FULLNAME, USER_EMAIL, GITHUB_USERNAME
 # Returns: 0 if config found and user chose to reuse, 1 if not found or user declined
 # Pattern: Based on mlgruby-repo-for-reference/scripts/install/pre-nix-installation.sh (lines 239-289)
@@ -374,9 +375,13 @@ check_existing_user_config() {
     local config_source=""
 
     # Check priority locations (completed install takes precedence)
-    if [[ -f "$HOME/Documents/nix-install/user-config.nix" ]]; then
-        existing_config="$HOME/Documents/nix-install/user-config.nix"
+    # New default location first, then legacy location for backwards compatibility
+    if [[ -f "$HOME/.config/nix-install/user-config.nix" ]]; then
+        existing_config="$HOME/.config/nix-install/user-config.nix"
         config_source="completed installation"
+    elif [[ -f "$HOME/Documents/nix-install/user-config.nix" ]]; then
+        existing_config="$HOME/Documents/nix-install/user-config.nix"
+        config_source="completed installation (legacy location)"
     elif [[ -f "/tmp/nix-bootstrap/user-config.nix" ]]; then
         existing_config="/tmp/nix-bootstrap/user-config.nix"
         config_source="previous bootstrap run"
@@ -704,9 +709,9 @@ generate_user_config() {
 
     # Set dotfiles path
     # Derive dotfiles path from REPO_CLONE_DIR (relative to HOME)
-    # Example: ~/Documents/nix-install → Documents/nix-install
+    # Example: ~/.config/nix-install → .config/nix-install (default)
     # Example: ~/nix-install → nix-install
-    # Example: ~/.nix-install → .nix-install
+    # Example: ~/Documents/nix-install → Documents/nix-install (legacy)
     local dotfiles_path="${REPO_CLONE_DIR#${HOME}/}"
     log_info "Dotfiles path: ${dotfiles_path}"
 
@@ -3793,7 +3798,7 @@ create_documents_directory() {
 }
 
 # Function: check_existing_repo_directory
-# Purpose: Check if ~/Documents/nix-install already exists (NON-CRITICAL)
+# Purpose: Check if nix-install directory already exists at configured location (NON-CRITICAL)
 # Returns: 0 if exists, 1 if not found
 check_existing_repo_directory() {
     if [[ -d "${REPO_CLONE_DIR}" ]] || [[ -e "${REPO_CLONE_DIR}" ]]; then
@@ -3863,7 +3868,8 @@ remove_existing_repo_directory() {
 
 # Function: clone_repository
 # Purpose: Clone nix-install repository from GitHub via SSH (CRITICAL)
-# Method: git clone git@github.com:fxmartin/nix-install.git ~/Documents/nix-install
+# Method: git clone git@github.com:fxmartin/nix-install.git $REPO_CLONE_DIR
+# Default location: ~/.config/nix-install (configurable via NIX_INSTALL_DIR)
 # Returns: 0 on success, exits script on failure
 clone_repository() {
     local repo_url="git@github.com:fxmartin/nix-install.git"
@@ -4138,7 +4144,7 @@ clone_repository_phase() {
 # PHASE 8: FINAL DARWIN REBUILD
 # ==============================================================================
 # Story 01.7-002: Perform final darwin-rebuild with cloned repository
-# Applies complete system configuration from ~/Documents/nix-install
+# Applies complete system configuration from $REPO_CLONE_DIR
 # ==============================================================================
 
 # Function: load_profile_from_user_config
@@ -4280,7 +4286,7 @@ verify_home_manager_symlinks() {
     if [[ ${symlinks_found} -eq 0 ]]; then
         log_warn "No Home Manager symlinks detected"
         log_warn "This may be normal if home-manager modules aren't configured yet"
-        log_warn "Check ~/Documents/nix-install/home-manager/ for configuration"
+        log_warn "Check ${REPO_CLONE_DIR}/home-manager/ for configuration"
     else
         log_success "✓ Found ${symlinks_found} Home Manager symlinks"
     fi
@@ -4938,14 +4944,14 @@ main() {
     # PHASE 8: FINAL DARWIN REBUILD
     # ==========================================================================
     # Story 01.7-002: Apply complete system configuration from cloned repository
-    # Runs darwin-rebuild switch with flake from ~/Documents/nix-install
+    # Runs darwin-rebuild switch with flake from $REPO_CLONE_DIR
     # ==========================================================================
 
     # shellcheck disable=SC2310  # Intentional: Using ! to handle rebuild failure
     if ! final_darwin_rebuild_phase; then
         log_error "Final darwin-rebuild failed"
         log_error "Bootstrap process terminated."
-        log_error "You can retry manually: sudo darwin-rebuild switch --flake ~/Documents/nix-install#<profile>"
+        log_error "You can retry manually: sudo darwin-rebuild switch --flake ${REPO_CLONE_DIR}#<profile>"
         exit 1
     fi
 

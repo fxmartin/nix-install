@@ -879,7 +879,7 @@
   3. Validate with: nix flake check
   4. Re-run: darwin-rebuild switch --flake ~/.config/nix-install#<profile>
 
-  If you need help, see: ~/Documents/nix-install/docs/troubleshooting.md
+  If you need help, see: ~/.config/nix-install/docs/troubleshooting.md
   Or open an issue: https://github.com/fxmartin/nix-install/issues
   ```
 - Bad error message example:
@@ -940,7 +940,7 @@
   ```
 - Confirmation example:
   ```bash
-  WARNING: This will delete existing ~/Documents/nix-install directory
+  WARNING: This will delete existing ~/.config/nix-install directory
 
   Are you sure you want to continue? (y/N): _
   # Default to 'N' (safe option)

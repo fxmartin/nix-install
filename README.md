@@ -30,7 +30,7 @@ curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh 
 4. **Xcode CLI tools** — Installs automatically if needed
 5. **Nix installation** — Multi-user Nix with flakes enabled
 6. **SSH key setup** — Generates key, you add it to GitHub (prompted with instructions)
-7. **Repository clone** — Clones this repo to `~/Documents/nix-install`
+7. **Repository clone** — Clones this repo to `~/.config/nix-install`
 8. **System build** — Runs `darwin-rebuild` to configure everything
 9. **Post-install summary** — Shows next steps for license activation
 

@@ -51,20 +51,24 @@
     # Shell aliases
     # Nix system management aliases using scripts/update-system.sh
     # Modern CLI tool aliases added in Story 04.5-001, 04.5-002, 04.5-003
-    shellAliases = {
+    # Dynamic path to nix-install repository (configured in user-config.nix)
+    # Default: ~/.config/nix-install, but respects user's custom path
+    shellAliases = let
+      dotfilesPath = "${config.home.homeDirectory}/${userConfig.directories.dotfiles}";
+    in {
       # =============================================================================
       # NIX SYSTEM MANAGEMENT (Story 04.5-001)
       # =============================================================================
       # Using scripts/update-system.sh wrapper for profile auto-detection
-      nix-update = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/update-system.sh update";
-      nix-rebuild = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/update-system.sh rebuild";
-      nix-full = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/update-system.sh full";
+      nix-update = "bash ${dotfilesPath}/scripts/update-system.sh update";
+      nix-rebuild = "bash ${dotfilesPath}/scripts/update-system.sh rebuild";
+      nix-full = "bash ${dotfilesPath}/scripts/update-system.sh full";
 
       # Quick rebuild (auto-detect profile)
-      rebuild = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/update-system.sh rebuild";
+      rebuild = "bash ${dotfilesPath}/scripts/update-system.sh rebuild";
 
       # Update flake.lock and rebuild (convenience alias)
-      update = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/update-system.sh update";
+      update = "bash ${dotfilesPath}/scripts/update-system.sh update";
 
       # Nix garbage collection aliases
       gc = "nix-collect-garbage -d";  # Delete old user generations
@@ -76,16 +80,16 @@
       brew-upgrade = "brew update && brew upgrade --greedy";
 
       # Health check (Feature 06.4 - Epic-06)
-      health-check = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/health-check.sh";
+      health-check = "bash ${dotfilesPath}/scripts/health-check.sh";
 
       # Weekly maintenance digest (Feature 06.5 - Epic-06)
       # Manual trigger for weekly digest email (normally runs Sunday 8 AM automatically)
-      weekly-digest = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/weekly-maintenance-digest.sh";
+      weekly-digest = "bash ${dotfilesPath}/scripts/weekly-maintenance-digest.sh";
 
       # Release monitor (Feature 06.6 - Epic-06)
       # Manual trigger for release monitoring (normally runs Monday 7 AM automatically)
       # Checks Homebrew, nixpkgs, nix-darwin, Ollama for updates and creates GitHub issues
-      release-monitor = "bash ${config.home.homeDirectory}/Documents/nix-install/scripts/release-monitor.sh";
+      release-monitor = "bash ${dotfilesPath}/scripts/release-monitor.sh";
 
       # =============================================================================
       # GENERAL SHELL ALIASES (Story 04.5-002)

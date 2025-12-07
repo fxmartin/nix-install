@@ -47,6 +47,7 @@ curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh 
 2. **Enable FileVault** if not already enabled (System Settings → Privacy & Security)
 3. **Mac App Store apps** (if you skipped during install):
    ```bash
+   # Note: mas 4.0+ requires sudo for install commands (auto-prompts)
    mas install 6714467650  # Perplexity
    mas install 302584613   # Kindle
    mas install 890031187   # Marked 2

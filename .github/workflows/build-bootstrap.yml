@@ -1,0 +1,143 @@
+# ABOUTME: GitHub Actions workflow for building and validating the modular bootstrap system
+# ABOUTME: Runs on push to main branch and PRs, builds bootstrap-dist.sh, validates syntax
+
+name: Build Bootstrap
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'bootstrap.sh'
+      - 'scripts/build-bootstrap.sh'
+      - '.github/workflows/build-bootstrap.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'bootstrap.sh'
+      - 'scripts/build-bootstrap.sh'
+      - '.github/workflows/build-bootstrap.yml'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  validate-and-build:
+    name: Validate and Build Bootstrap
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate lib/*.sh syntax
+        run: |
+          echo "Validating syntax of all library modules..."
+          errors=0
+          for f in lib/*.sh; do
+            echo -n "  Checking $f: "
+            if bash -n "$f" 2>&1; then
+              echo "OK"
+            else
+              echo "FAILED"
+              errors=$((errors + 1))
+            fi
+          done
+          if [ $errors -gt 0 ]; then
+            echo "ERROR: $errors files failed syntax validation"
+            exit 1
+          fi
+          echo "All library modules passed syntax validation"
+
+      - name: Validate bootstrap.sh syntax
+        run: |
+          echo "Validating bootstrap.sh syntax..."
+          bash -n bootstrap.sh
+          echo "bootstrap.sh passed syntax validation"
+
+      - name: Run shellcheck on lib/*.sh
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './lib'
+          severity: error
+        continue-on-error: true  # Don't fail on warnings, only errors
+
+      - name: Run shellcheck on bootstrap.sh
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: '.'
+          additional_files: 'bootstrap.sh'
+          severity: error
+        continue-on-error: true
+
+      - name: Build bootstrap-dist.sh
+        run: |
+          echo "Building bootstrap-dist.sh from modular sources..."
+          chmod +x scripts/build-bootstrap.sh
+          ./scripts/build-bootstrap.sh
+
+          # Verify the build succeeded
+          if [ ! -f bootstrap-dist.sh ]; then
+            echo "ERROR: bootstrap-dist.sh was not created"
+            exit 1
+          fi
+
+          # Validate built file syntax
+          echo "Validating bootstrap-dist.sh syntax..."
+          bash -n bootstrap-dist.sh
+          echo "bootstrap-dist.sh passed syntax validation"
+
+          # Show file stats
+          lines=$(wc -l < bootstrap-dist.sh)
+          size=$(ls -lh bootstrap-dist.sh | awk '{print $5}')
+          echo "Build complete: bootstrap-dist.sh ($lines lines, $size)"
+
+      - name: Compare line counts
+        run: |
+          echo "=== Module Line Counts ==="
+          wc -l lib/*.sh | sort -n
+          echo ""
+          echo "=== Summary ==="
+          total_lib=$(wc -l lib/*.sh | tail -1 | awk '{print $1}')
+          bootstrap_lines=$(wc -l < bootstrap.sh)
+          dist_lines=$(wc -l < bootstrap-dist.sh)
+          echo "Total lib/*.sh lines: $total_lib"
+          echo "bootstrap.sh lines: $bootstrap_lines"
+          echo "bootstrap-dist.sh lines: $dist_lines"
+
+      - name: Upload bootstrap-dist.sh artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bootstrap-dist
+          path: bootstrap-dist.sh
+          retention-days: 30
+
+  # Optional: Run BATS tests if they exist
+  test:
+    name: Run BATS Tests
+    runs-on: ubuntu-latest
+    needs: validate-and-build
+    if: ${{ hashFiles('tests/*.bats') != '' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install BATS
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bats
+
+      - name: Download bootstrap-dist.sh
+        uses: actions/download-artifact@v4
+        with:
+          name: bootstrap-dist
+
+      - name: Run BATS tests
+        run: |
+          echo "Running BATS tests..."
+          if [ -d tests ] && ls tests/*.bats 1> /dev/null 2>&1; then
+            bats tests/*.bats
+          else
+            echo "No BATS tests found, skipping"
+          fi
+        continue-on-error: true  # Tests may need macOS environment

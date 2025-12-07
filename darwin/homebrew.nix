@@ -158,23 +158,19 @@
     };
 
     # Mac App Store apps
-    # Epic-02 will populate with:
-    # - Kindle (302584613)
-    # - WhatsApp (310633997)
-    masApps = {
-      # AI & LLM Tools (Story 02.1-001)
-      # Perplexity AI desktop app (released October 24, 2024)
-      # No Homebrew cask available - distributed via Mac App Store only
-      "Perplexity" = 6714467650;
-
-      # File Utilities (Story 02.4-003)
-      # Kindle and Marked 2 distributed via Mac App Store only
-      "Kindle" = 302584613;     # Kindle ebook reader app
-      "Marked 2" = 890031187;   # Markdown preview and export app
-
-      # Communication Tools (Story 02.5-001)
-      # WhatsApp Desktop - Messaging app requiring phone QR code linking
-      "WhatsApp" = 310633997;  # WhatsApp Desktop app (corrected App ID)
+    # Controlled by userConfig.enableMasApps (set during bootstrap)
+    # Requires user to be signed into App Store before installation
+    #
+    # If disabled, install manually after bootstrap:
+    #   mas install 6714467650  # Perplexity
+    #   mas install 302584613   # Kindle
+    #   mas install 890031187   # Marked 2
+    #   mas install 310633997   # WhatsApp
+    masApps = lib.mkIf (userConfig.enableMasApps or false) {
+      "Perplexity" = 6714467650;  # AI search assistant
+      "Kindle" = 302584613;       # Ebook reader
+      "Marked 2" = 890031187;     # Markdown preview
+      "WhatsApp" = 310633997;     # Messaging app
     };
   };
 

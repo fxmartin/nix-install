@@ -13,6 +13,10 @@
   # Installation Profile
   installProfile = "@INSTALL_PROFILE@";  # "standard" or "power"
 
+  # Mac App Store apps (requires App Store sign-in)
+  # Set to true only if signed into App Store before running bootstrap
+  enableMasApps = @ENABLE_MAS_APPS@;
+
   # Directory Configuration
   directories = {
     dotfiles = "@DOTFILES_PATH@";  # Nix configuration repository location

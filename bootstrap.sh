@@ -743,6 +743,7 @@ generate_user_config() {
         -e "s/@GITHUB_USERNAME@/${GITHUB_USERNAME}/g" \
         -e "s/@HOSTNAME@/${hostname}/g" \
         -e "s/@INSTALL_PROFILE@/${INSTALL_PROFILE}/g" \
+        -e "s/@ENABLE_MAS_APPS@/${ENABLE_MAS_APPS}/g" \
         -e "s|@DOTFILES_PATH@|${dotfiles_path}|g" \
         "${template_file}" > "${USER_CONFIG_PATH}"; then
         log_error "Failed to generate user config file"
@@ -930,6 +931,46 @@ select_installation_profile() {
 
     echo ""
     log_info "✓ Installation profile selected: $INSTALL_PROFILE"
+    echo ""
+}
+
+# Global variable for MAS apps preference
+ENABLE_MAS_APPS="false"
+
+# Prompt user for Mac App Store apps installation preference
+# Sets global variable: ENABLE_MAS_APPS ("true" or "false")
+prompt_mas_apps_preference() {
+    echo ""
+    log_info "Mac App Store Apps Installation"
+    echo ""
+    log_info "The following apps are available from the Mac App Store:"
+    echo "  • Perplexity (AI search assistant)"
+    echo "  • Kindle (ebook reader)"
+    echo "  • Marked 2 (Markdown preview)"
+    echo "  • WhatsApp (messaging)"
+    echo ""
+    log_warn "IMPORTANT: You must be signed into the App Store for this to work."
+    log_warn "If not signed in, these installations will fail and block the bootstrap."
+    echo ""
+
+    local response
+    read_input response "Install Mac App Store apps? (y/n) [default: no]: "
+
+    # Trim whitespace
+    response=$(echo "${response}" | xargs)
+
+    # Default to no if empty
+    if [[ -z "${response}" ]]; then
+        response="n"
+    fi
+
+    if [[ "${response}" =~ ^[Yy]$ ]]; then
+        ENABLE_MAS_APPS="true"
+        log_info "✓ Mac App Store apps will be installed"
+    else
+        ENABLE_MAS_APPS="false"
+        log_info "✓ Mac App Store apps skipped (install manually later with 'mas install')"
+    fi
     echo ""
 }
 
@@ -4762,6 +4803,9 @@ main() {
 
     # Story 01.2-002: Select installation profile (Standard vs Power)
     select_installation_profile
+
+    # Prompt for Mac App Store apps preference
+    prompt_mas_apps_preference
 
     # Story 01.2-003: Generate user-config.nix from collected information
     # shellcheck disable=SC2310  # Intentional: Using ! to handle validation failure

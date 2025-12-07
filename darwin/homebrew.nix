@@ -127,6 +127,13 @@
       # Permissions: Network Extension permission required on first VPN connection
       "nordvpn" # NordVPN - VPN privacy and security service (subscription required)
 
+      # Network Firewall (Story 02.7-001)
+      # Auto-update disable: Preferences → Advanced → Uncheck "Automatically check for updates"
+      # License: Paid software ($59 single license, or subscription)
+      # Permissions: Network Extension and System Extension permissions required
+      # Note: Requires system restart after installation to enable kernel extension
+      "little-snitch" # Little Snitch - Application-level network firewall and monitor
+
       # Office 365 (Story 02.9-001)
       # Sign-in required: Microsoft account (personal, work, or school) - ONE-TIME activates ALL apps
       # Auto-update disable: EACH app → Preferences → Update → Uncheck (6 apps total: Word, Excel, PowerPoint, Outlook, OneNote, Teams)

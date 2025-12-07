@@ -38,7 +38,9 @@ detect_profile() {
     local user_config="${PROJECT_ROOT}/user-config.nix"
     if [[ -f "$user_config" ]]; then
         local profile
-        profile=$(grep 'installProfile' "$user_config" | sed 's/.*"\([^"]*\)".*/\1/' | head -1)
+        # Extract value: installProfile = "standard"; -> standard
+        # Use awk to get the first quoted string after the = sign, ignoring comments
+        profile=$(grep 'installProfile' "$user_config" | awk -F'"' '{print $2}' | head -1)
         if [[ "$profile" == "standard" || "$profile" == "power" ]]; then
             echo "$profile"
             return 0

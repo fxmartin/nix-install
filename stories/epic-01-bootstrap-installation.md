@@ -132,6 +132,7 @@
 ##### Story 01.1-003: Progress Indicators
 **User Story**: As FX, I want clear progress indicators during installation so that I know the script is working and how long to wait
 
+**Status**: ✅ Implemented (2025-12-07)
 **Priority**: Must Have
 **Story Points**: 3
 **Sprint**: Sprint 1
@@ -139,7 +140,7 @@
 **Acceptance Criteria**:
 - **Given** the bootstrap script is running
 - **When** each phase starts
-- **Then** it displays phase number and name (e.g., "Phase 2/10: Installing Xcode CLI Tools")
+- **Then** it displays phase number and name (e.g., "Phase 2/9: User Configuration & Profile Selection")
 - **And** it shows estimated time for long-running operations
 - **And** it displays success/failure status after each phase
 - **And** it shows a final summary when complete
@@ -152,18 +153,25 @@
 - Consider using tput for colored output (optional)
 
 **Definition of Done**:
-- [ ] Progress indicators for all 10 bootstrap phases
-- [ ] Estimated time displayed for downloads/builds
-- [ ] Success/failure status clear
-- [ ] Final summary shows what was installed
-- [ ] Tested in VM with full bootstrap run
-- [ ] Output is readable and professional
+- [x] Progress indicators for all 9 bootstrap phases
+- [x] Estimated time displayed for downloads/builds
+- [x] Success/failure status clear
+- [x] Final summary shows what was installed
+- [ ] Tested in VM with full bootstrap run (FX to validate)
+- [x] Output is readable and professional
 
 **Dependencies**:
 - Story 01.1-001 (pre-flight checks)
 
 **Risk Level**: Low
 **Risk Mitigation**: N/A
+
+**Implementation Summary** (2025-12-07):
+- Added `log_phase()` and `log_phase_complete()` functions for consistent phase tracking
+- All 9 phases now display with format: "Phase N/9: Phase Name (estimated time)"
+- Each phase completion shows duration in seconds
+- Estimated times added for long operations (Nix: 5-10 min, Darwin: 10-25 min, etc.)
+- Phase 9 (Installation Summary) displays total installation time and component summary
 
 ---
 

@@ -77,14 +77,11 @@
   # Stylix Target Configuration (Epic-05)
   # Configure which applications Stylix should theme
   stylix.targets = {
-    # Terminal applications
-    # Epic-05 will configure: ghostty, alacritty (if used)
+    # System monitoring - Stylix auto-themes btop with Catppuccin colors
+    btop.enable = true;
 
-    # Development tools
-    # Epic-05 will enable: neovim, bat, lazygit, tmux
-
-    # System monitoring
-    # Epic-05 will enable: btop
+    # bat - Stylix can theme bat but we use custom Catppuccin theme
+    bat.enable = false;  # Using catppuccin/bat theme instead
 
     # Disable targets we don't use
     vim.enable = false;

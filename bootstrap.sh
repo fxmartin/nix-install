@@ -3953,7 +3953,9 @@ clone_repository() {
 
 # Function: copy_user_config_to_repo
 # Purpose: Copy generated user-config.nix from /tmp to repository (CRITICAL)
-# Protection: Do NOT overwrite if user-config.nix already exists in repo
+# Behavior: ALWAYS overwrites existing user-config.nix with freshly generated one
+#           The user already confirmed their settings in Phase 2, so we use those values
+#           This ensures paths (dotfiles) and settings match the current bootstrap environment
 # Returns: 0 on success, 1 on failure
 copy_user_config_to_repo() {
     local source_config="${BOOTSTRAP_TEMP_DIR}/user-config.nix"
@@ -3966,23 +3968,14 @@ copy_user_config_to_repo() {
         return 1
     fi
 
-    # Check if destination already exists (preserve user customizations)
+    # Check if destination already exists - we'll overwrite it with fresh config
     if [[ -f "${dest_config}" ]]; then
-        log_warn "user-config.nix already exists in repository (preserving existing file)"
-        log_info "Skipping copy to preserve your customizations"
-
-        # Ensure it's git-tracked even if already exists
-        log_info "Ensuring user-config.nix is tracked in git..."
-        if ! (cd "${REPO_CLONE_DIR}" && git add user-config.nix); then
-            log_warn "Failed to git add existing user-config.nix (may already be tracked)"
-        else
-            log_success "✓ User configuration tracked in git"
-        fi
-
-        return 0
+        log_info "user-config.nix exists in repository - will update with fresh configuration"
+        log_info "Backing up existing config to user-config.nix.backup"
+        cp "${dest_config}" "${dest_config}.backup" 2>/dev/null || true
     fi
 
-    # Copy user-config.nix to repository
+    # Copy user-config.nix to repository (always use freshly generated config)
     log_info "Copying user-config.nix to repository..."
     if ! cp "${source_config}" "${dest_config}"; then
         log_error "Failed to copy user-config.nix"

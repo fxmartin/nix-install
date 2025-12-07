@@ -1759,24 +1759,12 @@ fetch_flake_from_github() {
         return 1
     }
 
-    # Story 02.10-001: Fetch email configuration template (tracked in git)
-    log_info "Fetching email-config.template.nix..."
-    if ! curl -fsSL -o email-config.template.nix "${base_url}/email-config.template.nix"; then
-        log_error "Failed to fetch email-config.template.nix from GitHub"
-        return 1
-    fi
-    [[ -s email-config.template.nix ]] || {
-        log_error "Downloaded email-config.template.nix is empty"
-        return 1
-    }
-
     # Fetch darwin configuration files
     log_info "Fetching darwin configuration files..."
     local darwin_files=(
         "configuration.nix"
         "homebrew.nix"
         "macos-defaults.nix"
-        "email-accounts.nix"
         "stylix.nix"
         "maintenance.nix"
     )

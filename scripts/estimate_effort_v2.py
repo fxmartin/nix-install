@@ -331,15 +331,49 @@ def get_daily_breakdown(activities: List[Tuple[str, datetime]]) -> Dict:
     return daily
 
 
+def get_repo_name() -> str:
+    """Get repository name from git remote or directory name"""
+    try:
+        # Try to get from git remote
+        result = subprocess.run(
+            ["git", "remote", "get-url", "origin"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        remote_url = result.stdout.strip()
+        # Extract repo name from URL (handles both HTTPS and SSH)
+        # Examples:
+        #   https://github.com/user/repo.git -> repo
+        #   git@github.com:user/repo.git -> repo
+        repo_name = remote_url.rstrip("/").split("/")[-1].replace(".git", "")
+        return repo_name
+    except subprocess.CalledProcessError:
+        pass
+
+    try:
+        # Fallback: get from current directory name
+        result = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return Path(result.stdout.strip()).name
+    except subprocess.CalledProcessError:
+        return "Unknown Project"
+
+
 def output_text_format(data: Dict, args) -> str:
     """Generate human-readable text output"""
     activities = data["activities"]
     metrics = data["metrics"]
     estimates = data["estimates"]
+    repo_name = get_repo_name()
 
     output = []
     output.append("=" * 70)
-    output.append("PORTFOLIO MANAGEMENT PROJECT - TIME ANALYSIS")
+    output.append(f"{repo_name.upper()} - TIME ANALYSIS")
     output.append("=" * 70)
 
     # Data sources
@@ -388,9 +422,11 @@ def output_text_format(data: Dict, args) -> str:
 
 def output_json_format(data: Dict, args) -> str:
     """Generate machine-readable JSON output"""
+    repo_name = get_repo_name()
     # Make data JSON serializable
     serializable_data = {
         "metadata": {
+            "project_name": repo_name,
             "analysis_date": datetime.now().isoformat(),
             "threshold_minutes": args.threshold,
             "final_session_minutes": args.final_session,

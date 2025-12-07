@@ -389,8 +389,12 @@
   # STARSHIP PROMPT (Story 04.2-001)
   # =============================================================================
   # Starship prompt replaces Oh My Zsh themes with a fast, customizable prompt
-  # Configuration based on Powerlevel10k lean style (adapted from config/p10k.zsh)
-  # Features: 2-line prompt, git status, Python version, cloud contexts, Nerd Font icons
+  # Best practices applied:
+  # - Performance: scan_timeout, ignore_submodules for large repos
+  # - Minimal left prompt: os, directory, git (most important info)
+  # - Right prompt: contextual info (language versions, cloud, duration)
+  # - 2-line prompt: clean separation between info and command input
+  # - Nerd Font icons: JetBrains Mono NF for consistent iconography
 
   programs.starship = {
     enable = true;
@@ -398,25 +402,36 @@
     # Enable Zsh integration (adds eval "$(starship init zsh)" to .zshrc)
     enableZshIntegration = true;
 
-    # Inline settings for key prompt configuration
-    # Full configuration is in config/starship.toml but we define key settings here
-    # for better integration with Home Manager and Nix store paths
     settings = {
-      # Don't add blank lines between prompts
+      # ==========================================================================
+      # GLOBAL SETTINGS
+      # ==========================================================================
+
+      # Don't add blank lines between prompts (cleaner terminal)
       add_newline = false;
 
-      # 2-line prompt format: os, directory, git on line 1; prompt char on line 2
+      # Performance: prevent hangs on slow network mounts or large repos
+      scan_timeout = 10;
+
+      # 2-line prompt format:
+      # Line 1: OS icon, directory path, git info
+      # Line 2: prompt character (color indicates last command success/failure)
       format = ''
         $os$directory$git_branch$git_status
         $character
       '';
 
-      # Right prompt with context info
+      # Right prompt: contextual information (only shown when relevant)
+      # Order: status → duration → jobs → env → languages → cloud → identity
       right_format = ''
-        $status$cmd_duration$jobs$direnv$python$nodejs$ruby$golang$rust$kubernetes$terraform$aws$gcloud$azure$nix_shell$username$hostname
+        $status$cmd_duration$jobs$direnv$python$nodejs$rust$golang$ruby$kubernetes$terraform$aws$gcloud$azure$nix_shell$username$hostname
       '';
 
-      # OS icon
+      # ==========================================================================
+      # LEFT PROMPT MODULES (Primary Context)
+      # ==========================================================================
+
+      # OS icon - visual indicator of platform
       os = {
         disabled = false;
         style = "bold white";
@@ -428,124 +443,184 @@
         };
       };
 
-      # Directory (truncated, repo-aware)
+      # Directory - most important context
+      # Truncated to 3 levels, repo-aware for cleaner paths in git projects
       directory = {
         style = "bold cyan";
         format = "[$path]($style)[$read_only]($read_only_style) ";
         truncation_length = 3;
-        truncate_to_repo = true;
+        truncate_to_repo = true;  # Show path relative to git root
         read_only = " ";
         read_only_style = "red";
+        # Common directory substitutions for shorter paths
+        substitutions = {
+          "Documents" = "󰈙 ";
+          "Downloads" = " ";
+          "Developer" = " ";
+          "Projects" = " ";
+          ".config" = " ";
+        };
       };
 
-      # Git branch
+      # Git branch - current branch with icon
       git_branch = {
         symbol = " ";
-        style = "bold green";
+        style = "bold purple";
         format = "[$symbol$branch]($style) ";
       };
 
-      # Git status (compact format)
+      # Git status - compact format showing all relevant info
+      # Performance: ignore_submodules speeds up status in complex repos
       git_status = {
         format = "([$all_status$ahead_behind]($style) )";
         style = "bold yellow";
+        ignore_submodules = true;  # Performance optimization
         conflicted = "=";
         ahead = "⇡\${count}";
         behind = "⇣\${count}";
         diverged = "⇕⇡\${ahead_count}⇣\${behind_count}";
-        untracked = "?\${count}";
+        untracked = "?";
         stashed = "$";
-        modified = "!\${count}";
-        staged = "+\${count}";
-        renamed = "»\${count}";
-        deleted = "✘\${count}";
+        modified = "!";
+        staged = "+";
+        renamed = "»";
+        deleted = "✘";
       };
 
-      # Prompt character
+      # Prompt character - indicates last command success/failure
       character = {
         success_symbol = "[❯](bold green)";
         error_symbol = "[❯](bold red)";
-        vimcmd_symbol = "[❮](bold green)";
+        vimcmd_symbol = "[❮](bold green)";  # Vi mode indicator
       };
 
-      # Status (show on error)
+      # ==========================================================================
+      # RIGHT PROMPT MODULES (Contextual Info)
+      # ==========================================================================
+
+      # Exit status - only shown on error (non-zero exit code)
       status = {
         disabled = false;
         style = "bold red";
         format = "[$symbol$status]($style) ";
-        symbol = "✘";
+        symbol = "✘ ";
       };
 
-      # Command duration
+      # Command duration - only shown if command took >2 seconds
       cmd_duration = {
         min_time = 2000;
         style = "bold yellow";
         format = "[$duration]($style) ";
+        show_milliseconds = false;
       };
 
-      # Background jobs
+      # Background jobs indicator
       jobs = {
-        symbol = "✦";
+        symbol = "✦ ";
         style = "bold blue";
         number_threshold = 1;
         format = "[$symbol$number]($style) ";
       };
 
-      # Python (show version and venv)
+      # Direnv - show when .envrc is loaded
+      direnv = {
+        symbol = " ";
+        style = "bold yellow";
+        format = "[$symbol$loaded]($style) ";
+        disabled = false;
+        allowed_msg = "";
+        denied_msg = "✗";
+        loaded_msg = "✓";
+        unloaded_msg = "";
+      };
+
+      # ==========================================================================
+      # LANGUAGE VERSION MODULES (Only shown in relevant directories)
+      # ==========================================================================
+
+      # Python - show version and virtualenv name
       python = {
         symbol = " ";
         style = "bold yellow";
-        format = "[\${symbol}\${pyenv_prefix}(\${version} )(\\(\${virtualenv}\\) )]($style)";
+        format = "[\${symbol}\${pyenv_prefix}(\${version})(\\(\${virtualenv}\\))]($style) ";
         pyenv_version_name = true;
         detect_extensions = ["py"];
-        detect_files = [".python-version" "Pipfile" "pyproject.toml" "requirements.txt" "setup.py"];
+        detect_files = [".python-version" "Pipfile" "pyproject.toml" "requirements.txt" "setup.py" "uv.lock"];
       };
 
-      # Node.js
+      # Node.js - for JavaScript/TypeScript projects
       nodejs = {
         symbol = " ";
         style = "bold green";
-        format = "[$symbol($version )]($style)";
+        format = "[$symbol($version)]($style) ";
         detect_files = ["package.json" ".node-version" ".nvmrc"];
-      };
-
-      # Ruby
-      ruby = {
-        symbol = " ";
-        style = "bold red";
-        format = "[$symbol($version )]($style)";
-        detect_files = ["Gemfile" ".ruby-version"];
-      };
-
-      # Go
-      golang = {
-        symbol = " ";
-        style = "bold cyan";
-        format = "[$symbol($version )]($style)";
-        detect_extensions = ["go"];
+        detect_extensions = ["js" "ts" "mjs" "cjs"];
       };
 
       # Rust
       rust = {
         symbol = " ";
         style = "bold red";
-        format = "[$symbol($version )]($style)";
+        format = "[$symbol($version)]($style) ";
         detect_extensions = ["rs"];
+        detect_files = ["Cargo.toml"];
       };
 
-      # AWS
+      # Go
+      golang = {
+        symbol = " ";
+        style = "bold cyan";
+        format = "[$symbol($version)]($style) ";
+        detect_extensions = ["go"];
+        detect_files = ["go.mod" "go.sum"];
+      };
+
+      # Ruby
+      ruby = {
+        symbol = " ";
+        style = "bold red";
+        format = "[$symbol($version)]($style) ";
+        detect_files = ["Gemfile" ".ruby-version"];
+        detect_extensions = ["rb"];
+      };
+
+      # ==========================================================================
+      # CLOUD & INFRASTRUCTURE MODULES
+      # ==========================================================================
+
+      # Kubernetes context
+      kubernetes = {
+        symbol = "☸ ";
+        style = "bold blue";
+        format = "[$symbol$context(/$namespace)]($style) ";
+        disabled = false;
+        detect_files = ["k8s" "kubernetes" "helm"];
+        detect_folders = [".kube"];
+      };
+
+      # Terraform workspace
+      terraform = {
+        symbol = "󱁢 ";
+        style = "bold purple";
+        format = "[$symbol$workspace]($style) ";
+        disabled = false;
+        detect_files = [".terraform"];
+        detect_extensions = ["tf"];
+      };
+
+      # AWS profile/region
       aws = {
         symbol = " ";
         style = "bold yellow";
-        format = "[$symbol($profile )(\\(\${region}\\) )]($style)";
+        format = "[$symbol($profile)(/$region)]($style) ";
         disabled = false;
       };
 
       # Google Cloud
       gcloud = {
-        symbol = "☁️ ";
+        symbol = " ";
         style = "bold blue";
-        format = "[$symbol$account(@$domain)(\\($region\\))]($style) ";
+        format = "[$symbol$account(/$project)]($style) ";
         disabled = false;
       };
 
@@ -557,41 +632,26 @@
         disabled = false;
       };
 
-      # Kubernetes
-      kubernetes = {
-        symbol = "☸ ";
-        style = "bold blue";
-        format = "[$symbol$context( \\($namespace\\))]($style) ";
-        disabled = false;
-      };
+      # ==========================================================================
+      # ENVIRONMENT MODULES
+      # ==========================================================================
 
-      # Terraform
-      terraform = {
-        symbol = "💠 ";
-        style = "bold purple";
-        format = "[$symbol$workspace]($style) ";
-        disabled = false;
-      };
-
-      # Direnv
-      direnv = {
-        symbol = "▶ ";
-        style = "bold orange";
-        format = "[$symbol$loaded/$allowed]($style) ";
-        disabled = false;
-      };
-
-      # Nix shell
+      # Nix shell indicator
       nix_shell = {
         symbol = " ";
         style = "bold blue";
-        format = "[$symbol$state( \\($name\\))]($style) ";
+        format = "[$symbol$state(/$name)]($style) ";
         disabled = false;
-        impure_msg = "[impure](bold red)";
-        pure_msg = "[pure](bold green)";
+        impure_msg = "impure";
+        pure_msg = "pure";
+        unknown_msg = "";
       };
 
-      # Username (show only in SSH or as root)
+      # ==========================================================================
+      # IDENTITY MODULES (Only shown in SSH/remote sessions)
+      # ==========================================================================
+
+      # Username - only shown in SSH sessions or as root
       username = {
         show_always = false;
         style_user = "bold yellow";
@@ -600,13 +660,40 @@
         disabled = false;
       };
 
-      # Hostname (show only in SSH)
+      # Hostname - only shown in SSH sessions
       hostname = {
         ssh_only = true;
         style = "bold green";
         format = "[@$hostname]($style) ";
         disabled = false;
         trim_at = ".";
+      };
+
+      # ==========================================================================
+      # DISABLED MODULES (Uncomment to enable)
+      # ==========================================================================
+
+      # Package version (slow, rarely needed)
+      package = {
+        disabled = true;
+      };
+
+      # Docker context (enable if you use Docker contexts)
+      docker_context = {
+        disabled = true;
+        symbol = " ";
+      };
+
+      # Java (enable if you do Java development)
+      java = {
+        disabled = true;
+        symbol = " ";
+      };
+
+      # PHP (enable if you do PHP development)
+      php = {
+        disabled = true;
+        symbol = " ";
       };
     };
   };

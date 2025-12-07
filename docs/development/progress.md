@@ -51,6 +51,18 @@
 | Rebuild time | <5min | 14s | ✅ |
 | Bootstrap (clean) | <30min | ~25min | ✅ |
 
+### Development Effort (as of 2025-12-07)
+
+| Metric | Value |
+|--------|-------|
+| Total commits | 430 |
+| GitHub issues | 60 (50 closed) |
+| Active development days | 18 |
+| Project timespan | 2025-11-08 to 2025-12-07 |
+| **Estimated active hours** | **~78 hours** |
+| Commits per day | 23.9 |
+| Issue completion rate | 83.3% |
+
 ## Story Details
 
 For detailed story information, see the epic files:

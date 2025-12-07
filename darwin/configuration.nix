@@ -151,6 +151,42 @@
           echo "✓ Xcode Command Line Tools installed"
         fi
       '';
+
+      # Sync maintenance scripts to ~/.local/bin (TCC-safe location for LaunchAgents)
+      # macOS TCC blocks LaunchAgents from accessing ~/Documents, so we copy scripts
+      # to ~/.local/bin which is not a protected folder
+      syncMaintenanceScripts.text = ''
+        echo "Syncing maintenance scripts to ~/.local/bin..."
+        SCRIPTS_SRC="/Users/${userConfig.username}/${userConfig.directories.dotfiles}/scripts"
+        SCRIPTS_DST="/Users/${userConfig.username}/.local/bin"
+
+        # Create destination directory if it doesn't exist
+        mkdir -p "$SCRIPTS_DST"
+
+        # List of scripts used by LaunchAgents
+        SCRIPTS=(
+          "weekly-maintenance-digest.sh"
+          "release-monitor.sh"
+          "health-check.sh"
+          "send-notification.sh"
+          "fetch-release-notes.sh"
+          "analyze-releases.sh"
+          "create-release-issues.sh"
+          "send-release-summary.sh"
+        )
+
+        for script in "''${SCRIPTS[@]}"; do
+          if [[ -f "$SCRIPTS_SRC/$script" ]]; then
+            cp "$SCRIPTS_SRC/$script" "$SCRIPTS_DST/$script"
+            chmod 755 "$SCRIPTS_DST/$script"
+            echo "  ✓ Synced $script"
+          else
+            echo "  ⚠ Script not found: $script"
+          fi
+        done
+
+        echo "✓ Maintenance scripts synced to $SCRIPTS_DST"
+      '';
     };
 
     # macOS System Preferences

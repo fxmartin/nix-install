@@ -111,57 +111,11 @@ jobs:
           path: bootstrap-dist.sh
           retention-days: 30
 
-  # Optional: Run BATS tests if they exist
-  test:
-    name: Run BATS Tests
-    runs-on: ubuntu-latest
-    needs: validate-and-build
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check for BATS tests
-        id: check-tests
-        run: |
-          if [ -d tests ] && ls tests/*.bats 1> /dev/null 2>&1; then
-            echo "has_tests=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_tests=false" >> $GITHUB_OUTPUT
-            echo "No BATS tests found, skipping test job"
-          fi
-
-      - name: Install BATS
-        if: steps.check-tests.outputs.has_tests == 'true'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y bats
-
-      - name: Download bootstrap-dist.sh
-        if: steps.check-tests.outputs.has_tests == 'true'
-        uses: actions/download-artifact@v4
-        with:
-          name: bootstrap-dist
-
-      - name: Setup test environment
-        if: steps.check-tests.outputs.has_tests == 'true'
-        run: |
-          # Make bootstrap-dist.sh available as bootstrap.sh for tests
-          # Tests reference ${BATS_TEST_DIRNAME}/../bootstrap.sh
-          chmod +x bootstrap-dist.sh
-          cp bootstrap-dist.sh bootstrap.sh
-          echo "Test environment setup complete"
-          echo "bootstrap.sh lines: $(wc -l < bootstrap.sh)"
-
-      - name: Run BATS tests
-        if: steps.check-tests.outputs.has_tests == 'true'
-        run: |
-          echo "Running BATS tests..."
-          # Run tests with continue-on-error since some tests are macOS-specific
-          bats tests/*.bats || {
-            echo ""
-            echo "Note: Some tests may fail on Ubuntu because they require macOS"
-            echo "These tests are designed for the actual bootstrap environment"
-            exit 0  # Don't fail the job for macOS-specific test failures
-          }
-        continue-on-error: true  # Tests may need macOS environment
+  # NOTE: BATS tests are macOS-specific and should be run locally or in VM
+  # The tests in tests/*.bats are designed to validate the bootstrap script
+  # on actual macOS hardware. Running them on Ubuntu would produce false
+  # negatives for macOS-specific functionality.
+  #
+  # To run tests locally:
+  #   brew install bats-core
+  #   bats tests/*.bats

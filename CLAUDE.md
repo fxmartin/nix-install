@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repository implements an automated, declarative MacBook configuration system using Nix, nix-darwin, and Home Manager. The goal is to transform a fresh macOS install into a fully configured development environment in <30 minutes with zero manual intervention (except license activations).
 
+**Status**: ✅ **v1.0.0 Released** - All 7 epics complete, ~78 hours development effort
+
 **Target User**: FX manages 3 MacBooks (1x MacBook Pro M3 Max, 2x MacBook Air) with periodic reinstalls. Split usage between Office 365 work and weekend Python development.
 
 **Key Philosophy**:
@@ -35,7 +37,15 @@ This repository implements an automated, declarative MacBook configuration syste
 3. **Mac App Store (mas)**: Only when no alternative (Kindle, WhatsApp)
 4. **Manual**: Licensed software (Office 365)
 
-**Why nixpkgs-unstable**: Latest packages, better macOS arm64 support, faster updates. Flake lock provides reproducibility despite "unstable" name.
+### Modular Bootstrap Architecture
+
+The bootstrap system uses a modular architecture:
+- **`lib/`**: 10 library modules (~5,000 lines total), one per installation phase
+- **`bootstrap.sh`**: Orchestrator that sources lib/*.sh files (~360 lines)
+- **`bootstrap-dist.sh`**: Built standalone version for curl-pipe installation (~5,135 lines)
+- **`scripts/build-bootstrap.sh`**: Build script that concatenates modules
+
+**For curl installation**: `setup.sh` downloads `bootstrap-dist.sh` (the standalone version)
 
 ### Theming System
 
@@ -44,7 +54,6 @@ This repository implements an automated, declarative MacBook configuration syste
 - **Font**: JetBrains Mono Nerd Font with ligatures
 - **Auto-switch**: Follows macOS system appearance (light/dark)
 - **Applies to**: Ghostty (terminal), Zed (editor), shell, and other Stylix-supported apps
-- **Goal**: Visual consistency when switching between terminal and editor
 
 ### Shell Environment
 
@@ -60,148 +69,82 @@ This repository implements an automated, declarative MacBook configuration syste
 - `update`: Update flake.lock (gets latest versions) + rebuild
 - Auto-updates disabled via: `HOMEBREW_NO_AUTO_UPDATE=1`, app configs, system defaults
 
-Apps requiring auto-update disable: Homebrew, Zed, VSCode, Arc, Firefox, Dropbox, 1Password, Zoom, Webex, Raycast, Ghostty, macOS system updates.
+## Project Structure
 
-## Development Workflow
+```
+nix-install/
+├── flake.nix                 # System definition (Standard/Power profiles)
+├── bootstrap.sh              # Modular orchestrator (sources lib/*.sh)
+├── bootstrap-dist.sh         # Built standalone version for installation
+├── setup.sh                  # Curl-pipeable wrapper
+├── lib/                      # Modular library files
+│   ├── common.sh             # Shared logging and utilities
+│   ├── preflight.sh          # Phase 1: Pre-flight checks
+│   ├── user-config.sh        # Phase 2: User configuration
+│   ├── xcode.sh              # Phase 3: Xcode CLI tools
+│   ├── nix-install.sh        # Phase 4: Nix installation
+│   ├── nix-darwin.sh         # Phase 5: nix-darwin setup
+│   ├── ssh-github.sh         # Phase 6: SSH key and GitHub
+│   ├── repo-clone.sh         # Phase 7: Repository clone
+│   ├── darwin-rebuild.sh     # Phase 8: Final rebuild
+│   └── summary.sh            # Phase 9: Installation summary
+├── darwin/                   # System-level nix-darwin configs
+│   ├── configuration.nix     # System packages, PATH
+│   ├── homebrew.nix          # Casks, brews, Mac App Store
+│   ├── macos-defaults.nix    # Finder, Dock, trackpad, security
+│   ├── maintenance.nix       # GC, optimization, LaunchAgents
+│   └── stylix.nix            # Catppuccin theming
+├── home-manager/modules/     # User-level dotfiles
+│   ├── shell.nix             # Zsh + Oh My Zsh + Starship + FZF
+│   ├── git.nix               # Git config + LFS
+│   ├── ghostty.nix           # Terminal with Catppuccin
+│   ├── zed.nix / vscode.nix  # Editor configs
+│   ├── python.nix            # Python + uv + ruff
+│   ├── podman.nix            # Container development
+│   └── claude-code.nix       # Claude Code CLI + MCP servers
+├── scripts/                  # Build and maintenance scripts
+│   ├── build-bootstrap.sh    # Build bootstrap-dist.sh from modules
+│   ├── health-check.sh       # System health validation
+│   ├── release-monitor.sh    # AI-powered update checker
+│   └── estimate_effort_v2.py # Development effort analysis
+└── docs/                     # Documentation
+```
 
-### Testing Strategy (CRITICAL)
+## Development Guidelines
 
-**⚠️ CLAUDE DOES NOT PERFORM TESTING WITHOUT APPROVAL FROM FX ⚠️**
+### Testing Strategy
 
-Claude's role: Write code, configuration, and documentation ONLY.
-FX's role: ALL testing, execution, and validation except if he willingly authorise CLaude to test.
+**Claude's role**: Write code, configuration, and documentation.
+**FX's role**: All testing, execution, and validation.
 
-**Testing sequence (performed by FX manually)**:
+**Static analysis tools ARE allowed** (safe, read-only):
+- `shellcheck` - Shell script linter
+- `bash -n` - Syntax validation
+- `bats` - Bash test framework (for read-only checks)
 
-1. **VM Testing (Required)**: FX tests in Parallels macOS VM first
-   - Create fresh macOS VM (4+ CPU cores, 8+ GB RAM, 100+ GB disk)
-   - Test Power profile (matches MacBook Pro M3 Max complexity)
-   - Iterate until bootstrap succeeds with zero manual intervention
-   - Final validation: Destroy VM, rebuild from scratch (must be flawless)
+### Key Constraints
 
-2. **Physical Hardware**: Only after VM testing successful
-   - First: MacBook Pro M3 Max (Power profile)
-   - Then: MacBook Air #1 and #2 (Standard profile)
+1. **No auto-updates**: Every app must have auto-update disabled. `rebuild` is the ONLY update mechanism.
 
-**Claude must NEVER, except if specifically ordered to**:
-- Run bootstrap.sh, setup.sh, or any installation scripts
-- Execute nix-darwin, darwin-rebuild, or Nix commands that modify the system
-- Test configurations on any machine (VM or physical)
-- Assume code works without FX's manual testing
+2. **nixpkgs-unstable**: Use unstable channel for latest packages, flake.lock ensures reproducibility.
 
-### Key Files
+3. **Stylix theming**: Ghostty and Zed must use matching Catppuccin themes via Stylix.
 
-**Currently Implemented**:
+4. **Two profiles only**: Standard (Air) and Power (Pro M3 Max). Don't create additional profiles without approval.
 
-**Core Infrastructure**:
-- `flake.nix`: System definition with Standard/Power profiles (10KB, both profiles working)
-- `user-config.nix`: User personal info (created during bootstrap, template at user-config.template.nix)
-- `bootstrap.sh`: Bootstrap script with 9 phases (170KB, functionally complete)
-- `darwin/`: System-level nix-darwin configs
-  - `configuration.nix`: System packages, activation scripts, PATH setup
-  - `homebrew.nix`: Homebrew casks, brews, Mac App Store apps
-  - `macos-defaults.nix`: macOS system preferences automation
-- `home-manager/`: User-level configs (dotfiles)
-  - `home.nix`: Main Home Manager entry point
-  - `modules/shell.nix`: Zsh + Oh My Zsh + Starship prompt + FZF
-  - `modules/git.nix`: Git config with LFS, user identity, aliases
-  - `modules/github.nix`: GitHub CLI configuration
-  - `modules/ghostty.nix`: Ghostty terminal with Catppuccin theme
-  - `modules/zed.nix`: Zed editor with bidirectional sync
-  - `modules/vscode.nix`: VSCode with auto dark mode
-  - `modules/claude-code.nix`: Claude Code CLI with MCP servers
+5. **Bootstrap synchronization**: When adding new .nix files, update the file download list in `lib/nix-darwin.sh`.
 
-**Documentation**:
-- `docs/REQUIREMENTS.md`: Comprehensive PRD (1600+ lines) - **THE SOURCE OF TRUTH** for requirements
-- `docs/development/README.md`: Development documentation master index - **CHECK THIS FIRST** for:
-  - Navigation to progress tracking, story details, workflows
-  - Current status: 97.6% complete overall (121/124 stories, 636/650 points)
-  - 🎉 **MILESTONE (2025-12-07)**: MacBook Pro M3 Max successfully running Power profile!
-  - Epic-01: 94.7% complete (18/19 stories, 107/113 points) - Bootstrap system functional
-  - Epic-02: 100% complete (25/25 stories, 118/118 points) - ✅ COMPLETE
-  - Epic-03: 100% complete (14/14 stories, 76/76 points) - ✅ COMPLETE
-  - Epic-04: 100% complete (18/18 stories, 97/97 points) - ✅ COMPLETE
-  - Epic-05: 100% complete (7/7 stories, 36/36 points) - ✅ COMPLETE
-  - Epic-06: 100% complete (18/18 stories, 97/97 points) - ✅ COMPLETE
-  - Epic-07: 100% complete (8/8 stories, 34/34 points) - ✅ COMPLETE
-  - NFR: 87% complete (13/15 stories, 71/79 points) - 🟢 Nearly complete
-  - Next: MacBook Air migrations (Phase 11)
-  - Quick reference for completed stories and testing metrics
-- `docs/development/progress.md`: Epic overview table, completed stories, recent activity
-- `docs/development/stories/epic-XX-feature-XX.X.md`: Detailed story implementations (split by feature for maintainability)
-  - **Epic-01** (8 files): Pre-flight, User Config, Xcode, Nix, Nix-Darwin, SSH/GitHub, Clone/Rebuild, Post-Install
-  - **Epic-02** (10 files): AI Tools, Dev Apps, Browsers, Productivity, Communication, Media, Security, Profile-Specific, Office 365, Email
-  - **Epic-03** (6 files): Finder, Security, Trackpad, Display, Keyboard, Dock
-  - **Epic-04** (9 files): Zsh, Starship, FZF, Ghostty, Aliases, Git, Python, Podman, Editors
-  - **Epic-05** (4 files): Stylix, Fonts, App Theming, Theme Verification
-  - **Epic-06** (4 files): Garbage Collection, Store Optimization, Monitoring Tools, Health Check
-  - **Epic-07** (4 files): Quick Start Docs, License Guide, Troubleshooting, Customization
-  - See `stories/epic-XX-*.md` files for feature overviews with links to detailed implementations
-- `docs/development/multi-agent-workflow.md`: Agent selection strategy and usage patterns
-- `docs/development/tools-and-testing.md`: Development environment setup and testing
-- `docs/development/hotfixes.md`: Production hotfix documentation
-- `docs/apps/`: Application post-install configuration guides (organized by category)
-  - `docs/apps/README.md`: Master index of all app documentation
-  - `docs/apps/ai/`: AI & LLM tools (ai-llm-tools.md)
-  - `docs/apps/browsers/`: Web browsers (arc.md, brave.md)
-  - `docs/apps/communication/`: Communication apps (whatsapp.md, zoom.md, cisco-webex.md)
-  - `docs/apps/dev/`: Development tools (zed-editor.md, vscode.md, ghostty-terminal.md, podman.md, python-tools.md, claude-code-cli.md)
-  - `docs/apps/media/`: Media apps (vlc.md, gimp.md)
-  - `docs/apps/productivity/`: Productivity apps (raycast.md, 1password.md, dropbox.md, office-365.md, file-utilities.md, system-utilities.md)
-  - `docs/apps/security/`: Security & VPN (nordvpn.md)
-  - `docs/apps/system/`: System monitoring (system-monitoring.md)
-  - `docs/apps/virtualization/`: Virtualization tools (parallels-desktop.md)
-- `docs/licensed-apps.md`: License activation guide for apps requiring sign-in or purchase
-- `docs/testing-*.md`: VM testing guides for various phases
+### Git Commit Template
 
-**Configuration**:
-- `README.md`: Quick start guide
-- `config/ghostty/config`: Ghostty terminal configuration (Catppuccin theme, JetBrains Mono font)
-- `setup.sh`: Legacy setup script (deprecated, use bootstrap.sh)
-- `mlgruby-repo-for-reference/`: Reference implementation to learn from
+```
+<type>: <subject>
 
-**Completed Epics**:
-- Epic-01: Bootstrap & Installation System (89.5% - functional, 2 optional stories remaining)
-- Epic-02: Application Installation (100% complete) ✅
-- Epic-03: System Configuration (100% complete) ✅
-- Epic-04: Development Environment (100% complete) ✅
-- Epic-05: Theming & Visual Consistency (100% complete) ✅
-- Epic-06: Maintenance & Monitoring (100% complete) ✅
-- Epic-07: Documentation & User Experience (100% complete) ✅
+<body>
 
-**Remaining Work**:
-- Epic-01: 2 optional stories (modular architecture, advanced idempotency)
-- NFR: 15 non-functional requirement stories
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
-### Implementation Phases (8-Week Plan)
-
-**Phase 0-2** (Week 1-2): Foundation + bootstrap script
-**Phase 3-5** (Week 3-4): Apps, system config, dev environment
-**Phase 6-8** (Week 5-6): Theming, monitoring, documentation
-**Phase 9** (Week 6): **VM Testing** (required before hardware)
-**Phase 10** (Week 7): MacBook Pro M3 Max migration
-**Phase 11** (Week 8): MacBook Air migrations
-
-See docs/REQUIREMENTS.md Implementation Plan section for detailed checklists.
-
-## Working with This Codebase
-
-### Understanding the mlgruby Reference
-
-`mlgruby-repo-for-reference/dotfile-nix/` is a **production-grade reference implementation** to learn from:
-- Proven architecture (nix-darwin + Home Manager + Stylix)
-- 35+ Nix files showing modular design patterns
-- Comprehensive documentation (50+ markdown files)
-- **Do not copy blindly** - it has AWS-specific config, different app choices
-- **Do copy patterns**: Module structure, flake setup, Stylix integration, Home Manager patterns
-
-### Key Architectural Decisions
-
-1. **No Homebrew Pre-Installation**: Bootstrap installs Nix first, then nix-darwin manages Homebrew declaratively
-2. **Profile-Based Flake**: Single flake.nix with `darwinConfigurations.standard` and `darwinConfigurations.power`
-3. **SSH Key Before Clone**: Generate SSH key, display to user, wait for GitHub upload, test connection, then clone repo
-4. **Stylix for Consistency**: System-wide theming ensures Ghostty and Zed match visually
-5. **Modular Home Manager**: One concern per file (zsh.nix, git.nix, etc.) not monolithic config
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+```
 
 ### Common Nix Patterns
 
@@ -225,382 +168,54 @@ environment.variables.HOMEBREW_NO_AUTO_UPDATE = "1";
 programs.vscode.userSettings."update.mode" = "none";
 ```
 
-### Working with docs/REQUIREMENTS.md
-
-**docs/REQUIREMENTS.md is the single source of truth** for:
-- All P0 (must-have), P1 (should-have), P2 (nice-to-have) requirements
-- Acceptance criteria for each feature
-- App inventory with installation methods
-- System preferences to automate (Finder, trackpad, security, etc.)
-- Bootstrap flow diagrams
-- Profile comparison tables
-- Risk analysis and mitigation
-
-**When implementing**: Cross-reference requirements (e.g., REQ-BOOT-001, REQ-APP-002) in code comments and commit messages.
-
-### Requirements Change Control
-
-**Baseline Protection**
-Once requirements are approved via `/approve-requirements` command:
-- Requirements document is considered baselined
-- External integrity file provides tamper-evident validation
-- All changes require formal change control process
-- Document hash validation prevents unauthorized modifications
-
-**External Integrity Validation**
-- **Integrity File**: `requirements-integrity.json` contains validation hashes
-- **Verification Script**: `scripts/verify-requirements-integrity.sh` validates document integrity
-- **Separation of Concerns**: Validation data stored externally to prevent circular dependencies
-- **Tamper Detection**: Any modification to requirements invalidates stored hash
-
-**Change Request Process**
-1. **Identify Change Need**: Document business justification
-2. **Impact Assessment**: Analyze effect on timeline, budget, scope
-3. **Stakeholder Review**: Present change to approval stakeholders
-4. **Approval Decision**: Formal approval/rejection with rationale
-5. **Document Update**: Update docs/REQUIREMENTS.md with change log entry
-6. **Integrity Update**: Regenerate external integrity validation
-7. **Communication**: Notify all stakeholders of approved changes
-
-**Change Control Authority**
-- **Minor Changes** (clarifications, typos): Technical Lead approval
-- **Major Changes** (scope, timeline, budget): Stakeholder approval required
-- **Critical Changes** (fundamental approach): Full stakeholder committee approval
-
-**Change Tracking**
-All changes tracked in the Post-Approval Change Log in docs/REQUIREMENTS.md with:
-- Change description and rationale
-- Impact assessment results
-- Approval authority and date
-- Updated document version
-- New integrity validation hash
-
-**Integrity Verification Commands**
-```bash
-# Quick integrity check
-./scripts/verify-requirements-integrity.sh
-
-# Manual verification
-STORED=$(grep '"final_document"' requirements-integrity.json | cut -d'"' -f4)
-CURRENT=$(shasum -a 256 docs/REQUIREMENTS.md | cut -d' ' -f1)
-echo "Stored: $STORED"
-echo "Current: $CURRENT"
-[ "$STORED" = "$CURRENT" ] && echo "✅ VERIFIED" || echo "❌ COMPROMISED"
-```
-
 ## Configuration Preferences
-
-### User Expectations (from ~/.claude/CLAUDE.md)
 
 - Address user as **"FX"** (not "the user" or "the human")
 - Simple, maintainable solutions over clever/complex
 - **NEVER use --no-verify** when committing
 - Match existing code style and formatting
 - **NEVER remove code comments** unless provably false
-- Test output must be pristine (no exceptions to testing policy)
 - Prefer `uv` for Python package management
 - Conventional commit format, imperative mood, present tense
 - Always add `ABOUTME:` comment at top of new files
 
-### Testing Requirements
-
-- Unit tests, integration tests, AND end-to-end tests required (no exceptions without explicit authorization)
-- TDD: Write tests before implementation
-- Test output must be pristine - logs/errors must be captured and tested
-
-### Git Commit Template
-
-```
-<type>: <subject>
-
-<body>
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
-```
-
-## Important Constraints
-
-1. **CRITICAL - NO AUTOMATED TESTING**: Claude must NEVER execute bootstrap scripts or perform any system configuration changes. ALL testing is done MANUALLY by FX only. This includes:
-   - ❌ Do NOT run bootstrap.sh or setup.sh
-   - ❌ Do NOT run `nix-darwin` commands
-   - ❌ Do NOT run `darwin-rebuild`
-   - ❌ Do NOT execute any installation or configuration scripts
-   - ✅ Only write code, documentation, and configuration files
-   - ✅ FX will test manually in VM and on hardware
-   - ✅ **EXCEPTION**: Static analysis tools ARE allowed (safe, read-only):
-     - `shellcheck` - Shell script linter (syntax/quality checking)
-     - `bats` - Bash test framework (when running read-only static checks)
-     - These tools NEVER modify the system or execute bootstrap code
-
-1.5. **CRITICAL - BOOTSTRAP SYNCHRONIZATION**: Whenever creating or modifying Nix configuration files, ALWAYS update bootstrap.sh Phase 4 download list:
-   - ❌ **DO NOT** create new .nix files without updating bootstrap.sh
-   - ✅ **ALWAYS** add new files to `download_darwin_files()` function in bootstrap.sh
-   - ✅ **ALWAYS** add files to the "Files downloaded:" log output
-   - **Why**: Bootstrap downloads specific files from GitHub before Nix is available. Missing files cause "Path does not exist in Git repository" errors.
-   - **Location**: bootstrap.sh lines ~1600-1700 (Phase 4 - Flake Infrastructure Setup)
-   - **Pattern**: For each new file, add:
-     ```bash
-     log_info "  - path/to/new/file.nix"
-     if ! curl -fsSL -o "path/to/new/file.nix" "${base_url}/path/to/new/file.nix"; then
-         log_error "Failed to fetch path/to/new/file.nix"
-         return 1
-     fi
-     [[ -s "path/to/new/file.nix" ]] || {
-         log_error "Downloaded path/to/new/file.nix is empty"
-         return 1
-     }
-     ```
-   - **Lesson**: Hotfix #17 (Issue #31) - Forgot to add zed.nix, vscode.nix, ghostty.nix causing VM test failures
-
-2. **No auto-updates**: Every app must have auto-update disabled. `rebuild` is the ONLY update mechanism.
-
-3. **VM testing required**: Never test directly on physical MacBooks until VM testing passes. (FX performs this testing, not Claude)
-
-4. **nixpkgs-unstable**: Use unstable channel for latest packages, flake.lock ensures reproducibility.
-
-5. **Stylix theming**: Ghostty and Zed must use matching Catppuccin themes via Stylix.
-
-6. **Two profiles only**: Standard (Air) and Power (Pro M3 Max). Don't create additional profiles without approval.
-
-7. **Public repo**: Configuration is public (exclude secrets, use SOPS/age for P1 phase).
-
-## Story Management Protocol
-
-### Single Source of Truth Declaration
-The `/stories/` directory and its epic files constitute the **single source of truth** for:
-- All epic, feature, and user story definitions
-- Story progress tracking and completion status
-- Sprint planning and delivery milestones
-- Acceptance criteria and definition of done status
-- Cross-epic dependencies and risk management
-
-### Mandatory Usage Requirements
-- **Development Teams**: Must reference epic files for story details and acceptance criteria
-- **Product Owners**: Must update story status and acceptance in epic files
-- **Scrum Masters**: Must track sprint progress and dependencies in epic files
-- **Stakeholders**: Must consult epic files for current story status and progress
-- **QA Teams**: Must validate against acceptance criteria defined in epic files
-
-### Story File Hierarchy
-```
-STORIES.md (overview and navigation)
-└── stories/
-    ├── epic-01-bootstrap-installation.md (detailed epic stories and progress)
-    ├── epic-02-application-installation.md (detailed epic stories and progress)
-    ├── epic-03-system-configuration.md (detailed epic stories and progress)
-    ├── epic-04-development-environment.md (detailed epic stories and progress)
-    ├── epic-05-theming-visual-consistency.md (detailed epic stories and progress)
-    ├── epic-06-maintenance-monitoring.md (detailed epic stories and progress)
-    ├── epic-07-documentation-user-experience.md (detailed epic stories and progress)
-    └── non-functional-requirements.md (NFR stories and progress)
-```
-
-### Progress Update Protocol
-**All story progress MUST be updated in the individual epic files:**
-
-1. **Story Status Updates**: Update story completion checkboxes in epic files
-2. **Sprint Progress**: Update sprint breakdown tables in each epic
-3. **Acceptance Criteria**: Mark completed criteria in story definitions
-4. **Dependency Status**: Update dependency tracking in epic files
-5. **Risk Mitigation**: Update risk status and mitigation progress
-6. **Story Point Burndown**: Track completed story points in epic progress sections
-
-### Development Workflow Integration
-- **Sprint Planning**: Use epic files for detailed story selection and estimation
-- **Daily Standups**: Reference story IDs from epic files for progress updates
-- **Code Reviews**: Link PRs to specific story IDs in epic files (e.g., "Implements Story 01.2-001")
-- **Testing**: Use acceptance criteria from epic files for test validation
-- **Deployment**: Update story completion status in epic files post-deployment
-- **Retrospectives**: Reference epic file progress for velocity and improvement insights
-
-### Documentation Maintenance
-- **Story Updates**: Always update in the source epic file first, then communicate changes
-- **Cross-References**: Maintain links between STORIES.md overview and epic files
-- **Version Control**: Commit epic file changes with story completion and progress updates
-- **Progress Reporting**: Generate stakeholder reports from epic file status data
-- **Dependency Tracking**: Update cross-epic dependencies when stories complete
-
-### Integration Points
-- **GitHub Issues**: Link to specific Story IDs from epic files in issue descriptions
-- **PR Reviews**: Reference epic file story acceptance criteria in pull request descriptions
-- **Sprint Reports**: Generate velocity and burndown from epic file completion status
-- **Stakeholder Updates**: Source all progress data from epic file metrics
-- **Release Planning**: Use epic file story completion for release readiness assessment
-
-### Prohibited Actions
-❌ **DO NOT**:
-- Update story details outside of the epic files
-- Track progress in separate spreadsheets or project management tools
-- Create duplicate story documentation in other formats
-- Update STORIES.md overview with detailed story changes (only update metrics/summaries)
-- Maintain story status in external systems without updating epic files first
-
-✅ **DO**:
-- Use epic files as the authoritative source for all story information
-- Update story status directly in epic files immediately upon completion
-- Reference story IDs from epic files in all project communications
-- Maintain story history through git commits on epic files
-- Generate all reports and metrics from epic file data
-
-### Quality Assurance
-- **Story Integrity**: Regular audits to ensure epic files reflect actual development status
-- **Cross-Reference Validation**: Verify all story dependencies are accurately tracked
-- **Progress Accuracy**: Ensure story completion status matches deployed functionality
-- **Documentation Currency**: Keep epic files updated within 24 hours of story completion
-
-**CRITICAL**: This story structure is now the project's single source of truth for all epic, feature, and story information. All progress tracking, status updates, detailed planning, and stakeholder communication must reference and update these files directly. Violation of this protocol undermines project tracking integrity and delivery predictability.
-
-## GitHub Labels
-
-### Available Labels for Issue Tracking
-
-The project uses a comprehensive labeling system to categorize and track issues. All labels are managed via `scripts/setup-github-labels.sh`.
-
-**🔴 Severity Levels** (4 labels)
-- `critical` - Critical issues requiring immediate attention
-- `high` - High priority issues, fix soon
-- `medium` - Medium priority issues, normal timeline
-- `low` - Low priority issues, fix when convenient
-
-**🟠 Issue Types** (7 labels)
-- `bug` - Something isn't working correctly
-- `enhancement` - New feature or improvement
-- `performance` - Performance optimization needed
-- `security` - Security vulnerability or concern
-- `documentation` - Documentation needs update
-- `refactor` - Code refactoring needed
-- `code-quality` - Code quality improvements (linting, style)
-
-**🔵 Technology Stack** (6 labels)
-- `bash/shell` - Bash/Shell scripting related
-- `nix` - Nix package manager related
-- `nix-darwin` - nix-darwin system configuration
-- `homebrew` - Homebrew package management
-- `macos` - macOS system preferences/settings
-- `testing` - BATS tests, shellcheck, testing framework
-
-**🎯 Epic Tracking** (8 labels)
-- `epic-01` - Epic 01: Bootstrap & Installation System
-- `epic-02` - Epic 02: Application Installation & Configuration
-- `epic-03` - Epic 03: System Configuration & macOS Preferences
-- `epic-04` - Epic 04: Development Environment & Shell
-- `epic-05` - Epic 05: Theming & Visual Consistency
-- `epic-06` - Epic 06: Maintenance & Monitoring
-- `epic-07` - Epic 07: Documentation & User Experience
-- `epic-nfr` - Non-Functional Requirements
-
-**🟢 Component Areas** (7 labels)
-- `bootstrap` - Bootstrap script and pre-flight checks
-- `system-config` - macOS system preferences (Finder, security, etc.)
-- `dev-environment` - Development tools (Zsh, Git, Python, Podman)
-- `theming` - Stylix, Catppuccin, visual consistency
-- `monitoring` - Health checks, garbage collection, optimization
-- `apps` - Application installation (GUI, CLI, Mac App Store)
-- `dotfiles` - Home Manager dotfiles configuration
-
-**🟣 Agent Assignment** (4 labels)
-- `bash-zsh-macos` - For bash-zsh-macos-engineer agent
-- `code-review` - For senior-code-reviewer agent
-- `qa-expert` - For qa-expert agent (testing strategy)
-- `multi-agent` - Requires multiple agents
-
-**🟡 Workflow Status** (5 labels)
-- `in-progress` - Currently being worked on
-- `blocked` - Blocked by dependencies or external factors
-- `needs-review` - Ready for code review
-- `vm-testing` - Ready for VM testing by FX
-- `needs-info` - More information required
-
-**⭐ Special Labels** (4 labels)
-- `good-first-issue` - Good for newcomers or quick wins
-- `help-wanted` - Extra attention needed
-- `breaking-change` - Introduces breaking changes to config
-- `hotfix` - Urgent fix needed
-
-**📏 Story Points** (6 labels - matching docs/REQUIREMENTS.md estimation)
-- `points/1` - 1 story point (Trivial complexity)
-- `points/2` - 2 story points (Simple complexity)
-- `points/3` - 3 story points (Medium complexity)
-- `points/5` - 5 story points (Complex)
-- `points/8` - 8 story points (Very Complex)
-- `points/13` - 13 story points (Highly Complex)
-
-**🚀 Implementation Phases** (6 labels)
-- `phase-0-2` - Phase 0-2: Foundation + Bootstrap (Week 1-2)
-- `phase-3-5` - Phase 3-5: Apps, System Config, Dev Env (Week 3-5)
-- `phase-6-8` - Phase 6-8: Theming, Monitoring, Docs (Week 5-6)
-- `phase-9` - Phase 9: VM Testing (Week 6)
-- `phase-10-11` - Phase 10-11: Hardware Migration (Week 7-8)
-- `mvp` - Minimum viable product - Must have for P0
-
-**💻 Profile Targets** (3 labels)
-- `profile/standard` - MacBook Air - Standard profile (~35GB)
-- `profile/power` - MacBook Pro M3 Max - Power profile (~120GB)
-- `profile/both` - Affects both Standard and Power profiles
-
-### Label Usage Guidelines
-
-**Issue Creation Examples**:
-```bash
-# Bootstrap bug
-gh issue create --title "[Story 01.1-001] Fix pre-flight checks" \
-  --label "bug,high,bootstrap,epic-01,bash-zsh-macos,points/5,phase-0-2"
-
-# System configuration enhancement
-gh issue create --title "Add Finder preferences automation" \
-  --label "enhancement,medium,system-config,epic-03,points/3"
-
-# Testing/QA issue
-gh issue create --title "Add integration test suite" \
-  --label "testing,qa-expert,points/8,code-quality"
-
-# VM testing ready
-gh issue create --title "Bootstrap ready for VM validation" \
-  --label "vm-testing,phase-9,profile/both,epic-01"
-```
-
-**Story Tracking Pattern**:
-- Use story ID in issue title: `[Story 01.1-001]` or `[Story 04.2-003]`
-- Tag with corresponding epic: `epic-01` through `epic-07` or `epic-nfr`
-- Add story points: `points/1` through `points/13`
-- Include phase label: `phase-0-2`, `phase-3-5`, etc.
-- Tag appropriate agent: `bash-zsh-macos`, `code-review`, `qa-expert`
-- Add profile if relevant: `profile/standard`, `profile/power`, `profile/both`
-
-**Multi-Agent Story Example**:
-```bash
-# Full-stack feature requiring multiple agents
-gh issue create --title "[Story 04.3-002] Configure Zsh with Starship" \
-  --label "epic-04,dev-environment,multi-agent,bash-zsh-macos,code-review,points/8,phase-3-5"
-```
-
-### Label Maintenance
-
-To recreate or update all labels:
-```bash
-bash scripts/setup-github-labels.sh
-```
-
-The script is idempotent - safe to run multiple times. It uses `|| true` to ignore errors if labels already exist.
-
 ## Reference Documentation
 
 - **Primary**: `docs/REQUIREMENTS.md` (comprehensive PRD)
-- **Progress**: `docs/development/README.md` (master index for all development docs)
-  - `docs/development/progress.md` (epic overview, story completion, recent activity)
-  - `docs/development/stories/epic-01-bootstrap.md` (detailed Epic-01 implementations)
-  - `docs/development/multi-agent-workflow.md` (agent selection and patterns)
-  - `docs/development/tools-and-testing.md` (development environment)
-  - `docs/development/hotfixes.md` (production hotfix log)
-- **Stories**: `STORIES.md` (epic overview) + `/stories/epic-*.md` (detailed stories)
+- **Progress**: `docs/development/progress.md` (metrics and milestones)
+- **Stories**: `STORIES.md` + `/stories/epic-*.md` (detailed stories)
+- **Apps**: `docs/apps/` (per-app configuration guides)
 - **Reference**: `mlgruby-repo-for-reference/dotfile-nix/` (production example)
-- **User preferences**: `~/.claude/CLAUDE.md`, `~/.claude/docs/*.md`
-- **Ghostty config**: `config/config.ghostty` (template for Home Manager)
 
-**⚠️ IMPORTANT**: Always read `docs/development/README.md` at the start of a session to check:
-- What stories have been completed (see progress.md)
-- Current progress percentage (stories/points completed)
-- Implementation details and lessons learned (see stories/epic-*.md)
-- Which story to work on next
+## GitHub Labels
+
+Labels are managed via `scripts/setup-github-labels.sh`. Key categories:
+- **Severity**: critical, high, medium, low
+- **Type**: bug, enhancement, documentation, refactor
+- **Epic**: epic-01 through epic-07, epic-nfr
+- **Profile**: profile/standard, profile/power, profile/both
+
+## Completed Milestones
+
+| Date | Milestone |
+|------|-----------|
+| 2025-12-07 | v1.0.0 Released - MacBook Pro M3 Max running Power profile |
+| 2025-12-07 | Epic-01 Complete - Modular Bootstrap Architecture |
+| 2025-12-06 | Epics 02-07 Complete |
+
+### Performance Metrics
+
+| Metric | Target | Actual |
+|--------|--------|--------|
+| Shell startup | <500ms | 259ms ✅ |
+| Rebuild time | <5min | 14s ✅ |
+| Bootstrap (clean) | <30min | ~25min ✅ |
+
+### Development Effort
+
+| Metric | Value |
+|--------|-------|
+| Total commits | 430+ |
+| Active days | 18 |
+| Estimated hours | ~78 |
+| Issue completion | 83.3% |

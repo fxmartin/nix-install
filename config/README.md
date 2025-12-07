@@ -48,6 +48,38 @@ This directory contains configuration files for the nix-darwin MacBook setup.
   - **Export New Settings**: Preferences → General → Export Settings → Save to this directory
   - Referenced in `docs/apps/system/system-monitoring.md`
 
+### CLI Tool Configurations (Home Manager Generated)
+
+The following CLI tools have their configurations managed via Home Manager modules in `home-manager/modules/`:
+
+- **btop** - System monitor with Catppuccin Mocha theme
+  - **Module**: `home-manager/modules/btop.nix`
+  - **Config Location**: `~/.config/btop/btop.conf` (generated)
+  - **Theme File**: `~/.config/btop/themes/catppuccin_mocha.theme` (generated)
+  - **Features**: 2s update interval, braille graphs, battery monitoring
+
+- **bat** - Cat replacement with syntax highlighting
+  - **Module**: `home-manager/modules/bat.nix`
+  - **Config Location**: `~/.config/bat/config` (generated)
+  - **Theme**: Catppuccin Mocha (downloaded from catppuccin/bat repo)
+  - **Features**: Line numbers, changes indicator, grid style
+
+- **ripgrep** - Grep replacement with smart defaults
+  - **Module**: `home-manager/modules/ripgrep.nix`
+  - **Config Location**: `~/.ripgreprc` (generated)
+  - **Features**: Smart case, hidden files, common ignores (node_modules, __pycache__, .venv, etc.)
+  - **Environment**: `RIPGREP_CONFIG_PATH` set automatically
+
+- **fd** - Find replacement with ignore patterns
+  - **Module**: `home-manager/modules/fd.nix`
+  - **Config Location**: `~/.fdignore` (generated)
+  - **Features**: Comprehensive ignore patterns for development (build artifacts, lock files, media)
+
+- **httpie** - HTTP client with developer defaults
+  - **Module**: `home-manager/modules/httpie.nix`
+  - **Config Location**: `~/.config/httpie/config.json` (generated)
+  - **Features**: Pretty print, monokai style, follow redirects, JSON default
+
 ## Reference Files (Legacy/Backup)
 
 These files are preserved as reference from the previous Oh My Zsh + Powerlevel10k setup:

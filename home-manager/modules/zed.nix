@@ -42,20 +42,20 @@
     ZED_SETTINGS="$ZED_CONFIG_DIR/settings.json"
 
     # Dynamically find repo location (works with any NIX_INSTALL_DIR)
-    # Search for nix-install repo by looking for flake.nix + config/zed directory
+    # Search for nix-install repo by looking for flake.nix
     REPO_ROOT=""
-    for candidate in "${config.home.homeDirectory}/nix-install" \
-                     "${config.home.homeDirectory}/.config/nix-install" \
+    for candidate in "${config.home.homeDirectory}/.config/nix-install" \
+                     "${config.home.homeDirectory}/nix-install" \
                      "${config.home.homeDirectory}/Documents/nix-install"; do
-      if [ -f "$candidate/flake.nix" ] && [ -d "$candidate/config/zed" ]; then
+      if [ -f "$candidate/flake.nix" ]; then
         REPO_ROOT="$candidate"
         break
       fi
     done
 
-    # Fallback to default if not found
+    # Fallback to ~/.config/nix-install (standard install location)
     if [ -z "$REPO_ROOT" ]; then
-      REPO_ROOT="${config.home.homeDirectory}/nix-install"
+      REPO_ROOT="${config.home.homeDirectory}/.config/nix-install"
     fi
 
     REPO_SETTINGS="$REPO_ROOT/config/zed/settings.json"

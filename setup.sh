@@ -312,7 +312,10 @@ main() {
 
     cd "${TEMP_DIR}" || handle_error "Failed to change to temporary directory"
 
-    if bash "${BOOTSTRAP_SCRIPT}"; then
+    # CRITICAL: Redirect stdin from /dev/tty to provide interactive input
+    # When setup.sh is piped from curl, stdin is the curl stream (now exhausted)
+    # We need to reconnect stdin to the terminal for bootstrap.sh's read commands
+    if bash "${BOOTSTRAP_SCRIPT}" < /dev/tty; then
         log_success "Bootstrap installation completed successfully! 🎉"
         echo ""
     else

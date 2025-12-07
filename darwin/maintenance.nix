@@ -1,17 +1,25 @@
 # ABOUTME: Maintenance LaunchAgents for automated system cleanup (Epic-06)
 # ABOUTME: Configures garbage collection, store optimization, and weekly digest schedules
+# ABOUTME: Scripts are installed to ~/.local/bin to avoid macOS TCC restrictions on ~/Documents
 {
   config,
   pkgs,
   lib,
   userConfig,
   ...
-}: {
+}: let
+  # Scripts are installed to ~/.local/bin to avoid macOS TCC (Transparency, Consent, Control)
+  # restrictions that block LaunchAgents from accessing ~/Documents
+  scriptsDir = "/Users/${userConfig.username}/.local/bin";
+in {
   # =============================================================================
   # MAINTENANCE LAUNCHAGENTS (Epic-06: Maintenance & Monitoring)
   # =============================================================================
   # User-level LaunchAgents for automated Nix maintenance tasks
   # Reference: https://daiderd.com/nix-darwin/manual/index.html#opt-launchd.user.agents
+  #
+  # NOTE: Scripts must be in ~/.local/bin (not ~/Documents) because macOS TCC
+  # blocks LaunchAgents from accessing protected folders like ~/Documents
 
   launchd.user.agents = {
     # =========================================================================
@@ -56,9 +64,9 @@
         StandardOutPath = "/tmp/nix-gc.log";
         StandardErrorPath = "/tmp/nix-gc.err";
 
-        # Environment
+        # Environment - include per-user profile for consistency with other agents
         EnvironmentVariables = {
-          PATH = "/run/current-system/sw/bin:/usr/bin:/bin";
+          PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
           HOME = "/Users/${userConfig.username}";
         };
 
@@ -110,9 +118,9 @@
         StandardOutPath = "/tmp/nix-optimize.log";
         StandardErrorPath = "/tmp/nix-optimize.err";
 
-        # Environment
+        # Environment - include per-user profile for consistency with other agents
         EnvironmentVariables = {
-          PATH = "/run/current-system/sw/bin:/usr/bin:/bin";
+          PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
           HOME = "/Users/${userConfig.username}";
         };
 
@@ -139,8 +147,8 @@
             export PATH="/run/current-system/sw/bin:/usr/bin:/bin:$PATH"
             export HOME="/Users/${userConfig.username}"
 
-            # Run weekly digest script
-            SCRIPT="${"$"}{HOME}/Documents/nix-install/scripts/weekly-maintenance-digest.sh"
+            # Run weekly digest script from ~/.local/bin (TCC-safe location)
+            SCRIPT="${scriptsDir}/weekly-maintenance-digest.sh"
             if [[ -x "$SCRIPT" ]]; then
               "$SCRIPT" "${userConfig.notificationEmail}"
             else
@@ -164,9 +172,9 @@
         StandardOutPath = "/tmp/weekly-digest.log";
         StandardErrorPath = "/tmp/weekly-digest.err";
 
-        # Environment
+        # Environment - must include per-user Nix profile for msmtp
         EnvironmentVariables = {
-          PATH = "/run/current-system/sw/bin:/usr/bin:/bin";
+          PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
           HOME = "/Users/${userConfig.username}";
           NOTIFICATION_EMAIL = userConfig.notificationEmail;
         };
@@ -195,8 +203,8 @@
             export PATH="/run/current-system/sw/bin:/usr/bin:/bin:$PATH"
             export HOME="/Users/${userConfig.username}"
 
-            # Run release monitor script
-            SCRIPT="${"$"}{HOME}/Documents/nix-install/scripts/release-monitor.sh"
+            # Run release monitor script from ~/.local/bin (TCC-safe location)
+            SCRIPT="${scriptsDir}/release-monitor.sh"
             if [[ -x "$SCRIPT" ]]; then
               "$SCRIPT"
             else
@@ -220,9 +228,9 @@
         StandardOutPath = "/tmp/release-monitor.log";
         StandardErrorPath = "/tmp/release-monitor.err";
 
-        # Environment
+        # Environment - must include per-user Nix profile for msmtp and other tools
         EnvironmentVariables = {
-          PATH = "/run/current-system/sw/bin:/usr/bin:/bin";
+          PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
           HOME = "/Users/${userConfig.username}";
           NOTIFICATION_EMAIL = userConfig.notificationEmail;
         };

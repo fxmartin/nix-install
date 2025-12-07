@@ -260,9 +260,9 @@
       "/Applications/ChatGPT.app"
       "/Applications/1Password.app"
       "/Applications/Brave Browser.app"
-      "/System/Applications/System Settings.app"
       "/Applications/Parallels Desktop.app"
       "/Applications/NordVPN.app"
+      "/System/Applications/System Settings.app"
     ];
 
     # Minimize windows into their application's icon (cleaner Dock)

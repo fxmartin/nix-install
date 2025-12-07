@@ -32,8 +32,20 @@ log_error() {
     echo -e "${RED}✗${NC} $*" >&2
 }
 
-# Detect profile based on hostname
+# Detect profile from user-config.nix or hostname
 detect_profile() {
+    # First, try to read from user-config.nix (most reliable)
+    local user_config="${PROJECT_ROOT}/user-config.nix"
+    if [[ -f "$user_config" ]]; then
+        local profile
+        profile=$(grep 'installProfile' "$user_config" | sed 's/.*"\([^"]*\)".*/\1/' | head -1)
+        if [[ "$profile" == "standard" || "$profile" == "power" ]]; then
+            echo "$profile"
+            return 0
+        fi
+    fi
+
+    # Fallback: detect from hostname
     local hostname
     hostname=$(hostname -s | tr '[:upper:]' '[:lower:]')
 
@@ -46,6 +58,7 @@ detect_profile() {
             ;;
         *)
             log_warning "Could not auto-detect profile from hostname: $hostname"
+            log_warning "And could not read from user-config.nix"
             log_info "Please specify profile: ./scripts/update-system.sh [update|rebuild] [standard|power]"
             return 1
             ;;

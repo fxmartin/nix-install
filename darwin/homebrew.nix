@@ -106,11 +106,9 @@
       # Permission notes: iStat Menus may request Accessibility permissions for system monitoring
       "istat-menus" # iStat Menus - Professional menubar system monitoring (licensed app)
 
-      # Media & Creative Tools (Story 02.6-001)
+      # Media Tools (Story 02.6-001)
       # Auto-update disable: VLC (Preferences → General → Uncheck auto-update)
-      # GIMP: No auto-update to disable (open source, Homebrew-controlled)
       "vlc"  # VLC - Universal media player supporting 100+ formats (Story 02.6-001)
-      "gimp" # GIMP - Free image editor (Photoshop alternative) (Story 02.6-001)
 
       # Communication Tools - Video Conferencing (Story 02.5-002)
       # CRITICAL: Auto-update disable required for both apps

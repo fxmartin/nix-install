@@ -9,8 +9,9 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **97.6% complete** (121/124 stories, 636/650 points)
+  - Current project status: **98.4% complete** (122/124 stories, 641/650 points)
   - 🎉 **MILESTONE (2025-12-07)**: MacBook Pro M3 Max successfully running Power profile!
+  - 📝 **CHANGELOG.md**: Created 2025-12-07 - v1.0.0 release documented
   - Epic-01: **94.7% complete** (18/19 stories, 107/113 points) 🟢 Bootstrap functional
   - **Epic-02: 100% COMPLETE** (25/25 stories, 118/118 points) ✅ All apps delivered!
   - **Epic-03: 100% COMPLETE** (14/14 stories, 76/76 points) ✅ System config complete!
@@ -18,7 +19,7 @@ Welcome to the nix-install development documentation. This directory contains al
   - **Epic-05: 100% COMPLETE** (7/7 stories, 36/36 points) ✅ Theming & visual consistency complete!
   - **Epic-06: 100% COMPLETE** (18/18 stories, 97/97 points) ✅ Maintenance & monitoring complete!
   - **Epic-07: 100% COMPLETE** (8/8 stories, 34/34 points) ✅ Documentation & UX complete!
-  - **NFR: 87% COMPLETE** (13/15 stories, 71/79 points) 🟢 Nearly complete!
+  - **NFR: 93% COMPLETE** (14/15 stories, 76/79 points) ✅ Nearly complete!
   - Next: MacBook Air migrations (Phase 11)
 
 ### Development Guides
@@ -40,9 +41,10 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ## 🎯 Current Status (Quick Reference)
 
-**Overall Project**: 97.6% complete (121/124 stories, 636/650 points) 🎉
+**Overall Project**: 98.4% complete (122/124 stories, 641/650 points) 🎉
 
 **🎉 MILESTONE (2025-12-07)**: MacBook Pro M3 Max successfully running Power profile!
+**📝 CHANGELOG.md**: Created 2025-12-07 - v1.0.0 release documented
 
 **Epic-01: Bootstrap & Installation System** - 94.7% complete (18/19 stories, 107/113 points) 🟢
 **Epic-02: Application Installation** - 100% COMPLETE (25/25 stories, 118/118 points) ✅
@@ -51,9 +53,9 @@ Welcome to the nix-install development documentation. This directory contains al
 **Epic-05: Theming & Visual Consistency** - 100% COMPLETE (7/7 stories, 36/36 points) ✅
 **Epic-06: Maintenance & Monitoring** - 100% COMPLETE (18/18 stories, 97/97 points) ✅
 **Epic-07: Documentation & User Experience** - 100% COMPLETE (8/8 stories, 34/34 points) ✅
-**NFR: Non-Functional Requirements** - 87% COMPLETE (13/15 stories, 71/79 points) 🟢
+**NFR: Non-Functional Requirements** - 93% COMPLETE (14/15 stories, 76/79 points) ✅
 
-### ✅ Completed Stories (121)
+### ✅ Completed Stories (122)
 
 #### Epic-01 Stories (17)
 1. **01.1-001** - Pre-flight Environment Checks (5 pts) - 2025-11-08

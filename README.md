@@ -1,6 +1,6 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 97.6% Complete (121/124 stories) | **Version**: 0.1.0 (Pre-Release) | **🎉 MacBook Pro M3 Max Running!**
+> **Status**: 98.4% Complete (122/124 stories) | **Version**: 1.0.0 | **🎉 MacBook Pro M3 Max Running!**
 
 **Three MacBooks. One config. Zero drift.**
 

@@ -47,6 +47,9 @@ readonly BOOTSTRAP_SCRIPT="bootstrap.sh"
 readonly USER_CONFIG_TEMPLATE="user-config.template.nix"
 readonly TEMP_DIR="/tmp/nix-install-setup-$$"
 
+# Setup script version (should match bootstrap.sh)
+readonly SETUP_VERSION="1.0.0"
+
 # Minimum required macOS version
 readonly MIN_MACOS_VERSION=14
 

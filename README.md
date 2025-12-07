@@ -376,14 +376,17 @@ nix-install/
 - Rebuild time: 14 seconds (target <5min) ✅
 - All 27 Homebrew apps installed, 5 Ollama models verified
 
-### Development Effort
+### Project Statistics
 
-| Metric | Value |
-|--------|-------|
-| Total commits | 430 |
-| Active development days | 18 |
-| **Estimated active hours** | **~78 hours** |
-| Issue completion rate | 83.3% |
+| Category | Metric |
+|----------|--------|
+| **Commits** | 448 (72 feat, 56 fix, 24 docs) |
+| **Development** | 18 active days, ~78 hours |
+| **Code** | 19K lines (Nix + Shell + Python) |
+| **Tests** | 1,140 test cases (16 BATS files) |
+| **Documentation** | 46K lines across 137 markdown files |
+| **GitHub Issues** | 60 total (83% closed) |
+| **Packages** | 25 casks, 4 brews, 4 MAS, 50+ Nix |
 
 **Next**: MacBook Air migrations (Phase 11)
 

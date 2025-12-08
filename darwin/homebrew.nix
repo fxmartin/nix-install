@@ -49,7 +49,7 @@
     # GUI Applications (Casks)
     # Epic-02 will populate with:
     # - Development: Zed, VSCode, Cursor, Podman Desktop
-    # - Browsers: Arc, Firefox, Google Chrome
+    # - Browsers: Brave
     # - Communication: Zoom, Webex, Slack, WhatsApp
     # - Productivity: 1Password, Raycast, Obsidian, Dropbox
     # - Terminal: Ghostty

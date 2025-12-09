@@ -289,6 +289,100 @@
     # Note: Renamed from deprecated 'initExtra' to 'initContent' (Home Manager 24.11+)
     initContent = ''
       # =============================================================================
+      # SSH/MOSH ENVIRONMENT-AWARE WRAPPERS
+      # =============================================================================
+      # Changes terminal background color based on environment type (dev/test/prod)
+      # Uses OSC 11 escape sequences - each Ghostty split maintains its own state
+      # Colors are subtle Catppuccin Mocha variations
+
+      # Default Catppuccin Mocha base: #1e1e2e
+      # Dev (blue-tinted):    #1e1e3a - subtle blue for development
+      # Test/Staging (green): #1e2e2e - subtle green for staging
+      # Prod (red-tinted):    #2e1e1e - subtle red warning for production
+
+      __set_env_bg() {
+        local host="$1"
+        local env_label=""
+        case "$host" in
+          *prod*)
+            # Production - red-tinted background (warning)
+            printf '\e]11;#2e1e1e\e\\'
+            env_label="🔴 PROD"
+            export __REMOTE_ENV="prod"
+            ;;
+          *test*)
+            # Staging/Test - green-tinted background
+            printf '\e]11;#1e2e2e\e\\'
+            env_label="🟢 TEST"
+            export __REMOTE_ENV="test"
+            ;;
+          *dev*)
+            # Development - blue-tinted background
+            printf '\e]11;#1e1e3a\e\\'
+            env_label="🔵 DEV"
+            export __REMOTE_ENV="dev"
+            ;;
+          *)
+            # Other hosts - slight purple tint
+            printf '\e]11;#241e2e\e\\'
+            env_label="🟣 REMOTE"
+            export __REMOTE_ENV="remote"
+            ;;
+        esac
+        # Print environment banner before SSH connects
+        echo ""
+        case "$__REMOTE_ENV" in
+          prod) printf '\e[1;31m━━━ 🔴 PRODUCTION: %s ━━━\e[0m\n' "$host" ;;
+          test) printf '\e[1;32m━━━ 🟢 STAGING: %s ━━━\e[0m\n' "$host" ;;
+          dev)  printf '\e[1;34m━━━ 🔵 DEVELOPMENT: %s ━━━\e[0m\n' "$host" ;;
+          *)    printf '\e[1;35m━━━ 🟣 REMOTE: %s ━━━\e[0m\n' "$host" ;;
+        esac
+        echo ""
+      }
+
+      __reset_env_bg() {
+        # Reset to default Catppuccin Mocha base
+        printf '\e]11;#1e1e2e\e\\'
+        unset __REMOTE_ENV
+      }
+
+      # SSH wrapper with environment-aware background
+      ssh() {
+        local host=""
+        # Extract hostname from ssh arguments (skip flags)
+        for arg in "$@"; do
+          case "$arg" in
+            -*) continue ;;
+            *@*) host="''${arg#*@}"; break ;;
+            *) host="$arg"; break ;;
+          esac
+        done
+        __set_env_bg "$host"
+        command ssh "$@"
+        local exit_code=$?
+        __reset_env_bg
+        return $exit_code
+      }
+
+      # Mosh wrapper with environment-aware background
+      mosh() {
+        local host=""
+        # Extract hostname from mosh arguments (skip flags)
+        for arg in "$@"; do
+          case "$arg" in
+            -*) continue ;;
+            *@*) host="''${arg#*@}"; break ;;
+            *) host="$arg"; break ;;
+          esac
+        done
+        __set_env_bg "$host"
+        command mosh "$@"
+        local exit_code=$?
+        __reset_env_bg
+        return $exit_code
+      }
+
+      # =============================================================================
       # ZSH OPTIONS (Story 04.1-003)
       # =============================================================================
 

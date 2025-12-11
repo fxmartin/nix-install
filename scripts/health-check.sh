@@ -210,7 +210,37 @@ if [[ ${TOTAL_CACHE_GB} -gt 5 ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# Check 9: LaunchAgents status
+# Check 9: Claude Code MCP servers
+# ---------------------------------------------------------------------------
+echo "Checking Claude Code MCP servers..."
+
+# Check if claude CLI is available
+if command -v claude &> /dev/null; then
+    # Run mcp list and capture output
+    MCP_OUTPUT=$(claude mcp list 2>/dev/null || true)
+
+    if [[ -n "${MCP_OUTPUT}" ]]; then
+        # Count connected and failed servers
+        MCP_CONNECTED=$(echo "${MCP_OUTPUT}" | /usr/bin/grep -c "✓ Connected" || true)
+        MCP_FAILED=$(echo "${MCP_OUTPUT}" | /usr/bin/grep -c "✗ Failed" || true)
+
+        if [[ ${MCP_FAILED} -gt 0 ]]; then
+            print_status "warn" "MCP servers: ${MCP_CONNECTED} connected, ${MCP_FAILED} failed"
+            echo "    → Run: ~/Documents/nix-install/scripts/update-mcp-paths.sh"
+        elif [[ ${MCP_CONNECTED} -gt 0 ]]; then
+            print_status "ok" "MCP servers: ${MCP_CONNECTED} connected"
+        else
+            print_status "warn" "No MCP servers configured"
+        fi
+    else
+        print_status "warn" "Could not check MCP servers"
+    fi
+else
+    print_status "info" "Claude Code CLI not installed (MCP check skipped)"
+fi
+
+# ---------------------------------------------------------------------------
+# Check 10: LaunchAgents status
 # ---------------------------------------------------------------------------
 echo "Checking maintenance LaunchAgents..."
 # Capture launchctl output once (avoids pipefail issues with repeated calls)

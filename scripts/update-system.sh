@@ -124,6 +124,20 @@ update_flake() {
     fi
 }
 
+# Update MCP server paths in Claude Code config files
+update_mcp_paths() {
+    local mcp_script="${SCRIPT_DIR}/update-mcp-paths.sh"
+
+    if [[ -x "$mcp_script" ]]; then
+        log_info "Updating MCP server paths..."
+        if "$mcp_script"; then
+            log_success "MCP paths updated"
+        else
+            log_warning "MCP path update failed (non-critical)"
+        fi
+    fi
+}
+
 # Rebuild system configuration
 rebuild_system() {
     local profile="${1:-}"
@@ -145,6 +159,9 @@ rebuild_system() {
     fi
 
     log_success "System rebuilt successfully"
+
+    # Update MCP server paths after successful rebuild
+    update_mcp_paths
 }
 
 # Show usage

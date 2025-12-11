@@ -22,8 +22,9 @@ theme = "light:Catppuccin Latte,dark:Catppuccin Mocha"
 # selection-foreground = cdd6f4
 # cursor-color = f5e0dc
 
-# Minimum contrast for better readability
-minimum-contrast = 1.1
+# Minimum contrast for better readability (1.0 = no adjustment, higher = more contrast)
+# Increased to 1.5 for much better text visibility on dark backgrounds
+minimum-contrast = 1.5
 
 # =========================
 # FONT CONFIGURATION
@@ -51,7 +52,8 @@ adjust-font-baseline = -1
 # WINDOW & APPEARANCE
 # =========================
 # Background transparency and blur for a modern look
-background-opacity = 0.95
+# Increased opacity from 0.95 to 1.0 for better text readability
+background-opacity = 1.0
 background-blur = 10
 
 # Window padding for breathing room
@@ -66,8 +68,8 @@ window-decoration = auto
 # Theme follows system light/dark mode
 window-theme = auto
 
-# Split configuration
-unfocused-split-opacity = 0.85
+# Split configuration - increased from 0.85 to 0.95 for better readability in unfocused splits
+unfocused-split-opacity = 0.95
 split-divider-color = 45475a
 
 # Resize overlay settings

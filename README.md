@@ -1,492 +1,422 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 🔄 Epic-03 In Progress - Feature 03.2 Complete
-> **Version**: 0.1.0 (Pre-Release)
-> **Last Updated**: 2025-12-04
+> **Status**: 98.4% Complete (122/124 stories) | **Version**: 1.0.0 | **🎉 MacBook Pro M3 Max Running!**
 
-Automated, declarative MacBook configuration system using Nix + nix-darwin + Home Manager. Transform a fresh macOS installation into a fully configured development environment in <30 minutes with zero manual intervention (except license activations).
+**Three MacBooks. One config. Zero drift.**
 
----
+I got tired of my machines slowly becoming strangers — different tools here, tweaked settings there, no idea what I changed six months ago. So I built this.
 
-## 🎯 Project Vision
+One git repo defines everything. Push a change, rebuild, and all machines stay perfectly in sync. Fresh MacBook? 30 minutes to identical setup.
 
-**Problem**: Managing 3 MacBooks with periodic reinstalls is time-consuming (4-6 hours per install) and error-prone. Configuration drift occurs between machines, and there's no rollback mechanism when changes break the system.
+The stack: **Nix + nix-darwin + Home Manager** for declarative, atomic, rollback-capable configuration — plus an AI-powered release monitor that opens GitHub issues before I even know updates exist.
 
-**Solution**: Declarative configuration-as-code that reduces setup time by 90%, ensures 100% consistency across machines, and provides atomic updates with instant rollback capability.
-
-**Target**: FX manages 3 MacBooks (1x MacBook Pro M3 Max, 2x MacBook Air) with periodic reinstalls. Split usage between Office 365 work and weekend Python development.
+![Rebuild in action](./docs/images/rebuild-screenshot.png)
+*A `rebuild` in action — Ghostty terminal with Catppuccin theme, iStat Menus monitoring, and system-wide consistency.*
 
 ---
 
-## 📊 Current Status
+## Quick Start
 
-### Epic Overview Progress
-
-| Epic ID | Epic Name | Total Stories | Total Points | Completed Stories | Completed Points | % Complete (Stories) | % Complete (Points) | Status |
-|---------|-----------|---------------|--------------|-------------------|------------------|---------------------|-------------------|--------|
-| **Epic-01** | Bootstrap & Installation System | 19 | 113 | **17** | **104** | 89.5% | 92.0% | 🟢 Functional |
-| **Epic-02** | Application Installation | 25 | 118 | **25** | **118** | 100% | 100% | ✅ Complete |
-| **Epic-03** | System Configuration | 14 | 76 | **6** | **36** | 42.9% | 47.4% | 🟡 In Progress |
-| **Epic-04** | Development Environment | 18 | 97 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **Epic-05** | Theming & Visual Consistency | 8 | 42 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **Epic-06** | Maintenance & Monitoring | 10 | 55 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **Epic-07** | Documentation & User Experience | 8 | 34 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **NFR** | Non-Functional Requirements | 15 | 79 | 0 | 0 | 0% | 0% | ⚪ Not Started |
-| **TOTAL** | **All Epics** | **117** | **614** | **48** | **258** | **41.0%** | **42.0%** | 🟡 In Progress |
-
-### ✅ Completed
-- **Requirements Definition** ([REQUIREMENTS.md](./docs/REQUIREMENTS.md)) - Comprehensive PRD with 1,700+ lines
-- **User Story Breakdown** ([STORIES.md](./STORIES.md)) - 117 stories across 7 epics + NFR (614 story points)
-- **Story Management Protocol** - Modular epic structure with detailed acceptance criteria
-- **Requirements Baseline** - v1.1 approved (change control re-approval completed)
-- **Project Architecture** - Two-tier profiles (Standard/Power), Stylix theming, nixpkgs-unstable
-
-**Epic-01 Stories (17/19 complete - 89.5%)**:
-- 01.1-001, 01.1-002, 01.2-001, 01.2-002, 01.2-003 ✅
-- 01.3-001, 01.4-001, 01.4-002, 01.4-003 ✅
-- 01.5-001, 01.5-002, 01.6-001, 01.6-002, 01.6-003 ✅
-- 01.7-001, 01.7-002, 01.8-001 ✅
-- All VM tested and validated
-
-**Epic-02 Stories (25/25 complete - 100%)**: ✅ **COMPLETE**
-
-**Epic-03 Stories (6/14 complete - 42.9%)**:
-- **Story 03.1-001** - Finder View and Display Settings (✅ Complete - 2025-11-19, 5 pts, VM TESTED)
-- **Story 03.1-002** - Finder Behavior Settings (✅ Complete - 2025-12-04, 5 pts, VM TESTED)
-- **Story 03.1-003** - Finder Sidebar and Desktop (✅ Complete - 2025-12-04, 8 pts, VM TESTED)
-- **Story 03.2-001** - Firewall Configuration (✅ Complete - 2025-12-04, 5 pts, VM TESTED)
-- **Story 03.2-002** - FileVault Encryption Prompt (✅ Complete - 2025-12-04, 8 pts, Implemented)
-- **Story 03.2-003** - Screen Lock and Password Policies (✅ Complete - 2025-12-04, 5 pts, VM TESTED with known limitation)
-
-### 🔄 In Progress
-- **Epic-01: Bootstrap System** - 17/19 stories (89.5%), 104/113 points (92.0%) - **FUNCTIONAL** 🟢
-- **Epic-02: Application Installation** - 25/25 stories (100%), 118/118 points (100%) - ✅ **COMPLETE**
-- **Epic-03: System Configuration** - 6/14 stories (42.9%), 36/76 points (47.4%) - 🟡 **IN PROGRESS**
-- **Remaining Epic-01 Stories**: 01.1-003 (Progress Indicators - P1 optional), 01.1-004 (Modular Bootstrap - P1 deferred)
-- **Bootstrap Status**: ALL 9 phases working! Phases 1-8 VM tested and verified ✅
-- **Recent Milestone**: Feature 03.1 (Finder) and Feature 03.2 (Security) COMPLETE! 🎉
-
-### 📅 Upcoming
-- **Phase 1-2**: Core bootstrap implementation (Week 2)
-- **Phase 3-5**: Applications, system config, dev environment (Week 3-4)
-- **Phase 6-8**: Theming, monitoring, documentation (Week 5-6)
-- **Phase 9**: VM testing in Parallels (Week 6)
-- **Phase 10-11**: Physical hardware migrations (Week 7-8)
-
----
-
-## 📊 Development Effort Analysis
-
-### Time Investment Metrics
-
-**Analysis Period**: November 8-16, 2025 (9 active days)
-
-**Development Activity**:
-- **262 git commits** (29.1 commits/day average)
-- **23 GitHub issues** (21 closed, 91% completion rate)
-- **306 total tracked activities**
-
-**Velocity Metrics**:
-- Activities per day: 34.0
-- Development intensity: 34.0 activities/day over 9 day span
-- Issue completion rate: 91.3%
-
-**Estimated Active Development Time**: **~47.3 hours** total
-
-Development time: ~47.3 hours (262 commits across 9 active days)
-Current pace: 29.1 commits/day, 91% issues resolved
-Development intensity: 34.0 activities/day over 9 day span
-
-This represents approximately 47 hours of focused, productive development work over a 9-day period. The strong commit rate (29.1/day) and high issue closure rate (91%) indicate efficient, iterative development with robust progress tracking and quality control.
-
-*Metrics generated via `python3 scripts/estimate_effort_v2.py`*
-
----
-
-## 📚 Documentation
-
-### Essential Reading
-
-1. **[REQUIREMENTS.md](./docs/REQUIREMENTS.md)** - Complete product requirements document
-   - Business objectives and success metrics
-   - Detailed functional and non-functional requirements
-   - Profile comparison (Standard vs Power)
-   - Bootstrap flow diagrams
-   - 8-week implementation plan
-
-2. **[STORIES.md](./STORIES.md)** - User story overview and epic navigation
-   - 117 total stories, 614 story points
-   - Epic summaries and metrics
-   - Sprint planning guidance
-   - Cross-epic dependencies
-
-3. **[/stories/](./stories/)** - Detailed epic files (single source of truth)
-   - Epic-01: Bootstrap & Installation (19 stories, 113 points) - 89.5% complete
-   - Epic-02: Application Installation (25 stories, 118 points) - 100% complete ✅
-   - Epic-03: System Configuration (14 stories, 76 points) - 42.9% complete
-   - Epic-04: Development Environment (18 stories, 97 points) - 0% complete
-   - Epic-05: Theming & Visual Consistency (8 stories, 42 points) - 0% complete
-   - Epic-06: Maintenance & Monitoring (10 stories, 55 points) - 0% complete
-   - Epic-07: Documentation & UX (8 stories, 34 points) - 0% complete
-   - Non-Functional Requirements (15 stories, 79 points) - 0% complete
-
-4. **[CLAUDE.md](./CLAUDE.md)** - Developer guidance and architectural decisions
-   - Project overview and philosophy
-   - Story management protocol
-   - Testing strategy (VM first, then hardware)
-   - Key architectural decisions
-   - Requirements change control process
-
----
-
-## 🚀 Quick Start (Coming Soon)
-
-> **Note**: The automated bootstrap script is currently under development. See [Epic-01](./stories/epic-01-bootstrap-installation.md) for implementation progress.
-
-### System Requirements
-
-Before running the bootstrap script, ensure your system meets these prerequisites:
-
-#### Prerequisites
-- **macOS Version**: Sonoma (14.0) or newer
-- **Internet Connection**: Required for package downloads from nixos.org and github.com
-- **User Permissions**: Run as regular user (not root) - script will request sudo when needed
-- **Disk Space**:
-  - Standard Profile: ~35GB free
-  - Power Profile: ~120GB free
-- **⚠️ Mac App Store Sign-In**: **REQUIRED BEFORE RUNNING BOOTSTRAP**
-  - Open **App Store** app and sign in with your Apple ID
-  - Some apps (e.g., Perplexity) are installed via Mac App Store CLI (`mas`)
-  - `mas` cannot install apps without App Store authentication
-  - Verify sign-in: `mas account` (should show your Apple ID email)
-  - If not signed in, darwin-rebuild will fail during app installation
-
-#### Pre-flight Validation
-The bootstrap script automatically validates:
-- ✅ macOS version compatibility (Sonoma 14.0+)
-- ✅ Internet connectivity to nixos.org and github.com
-- ✅ User is not running as root
-- ✅ System meets minimum requirements
-
-If any check fails, the script will display clear, actionable error messages and exit gracefully.
-
-### Installation (Once Complete)
-
-Setup will be as simple as:
+Run this single command on a fresh macOS installation:
 
 ```bash
-# Recommended: One-line installation via setup.sh wrapper
 curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh | bash
 ```
 
-Or, if you prefer to inspect the script first:
+**Installation time**: ~30 minutes (mostly automated, a few prompts)
 
+### What happens during installation
+
+1. **Pre-flight checks** — Verifies macOS version, disk space, internet
+2. **User prompts** — Enter your name, email, and GitHub username
+3. **Profile selection** — Choose Standard (MacBook Air) or Power (MacBook Pro)
+4. **Xcode CLI tools** — Installs automatically if needed
+5. **Nix installation** — Multi-user Nix with flakes enabled
+6. **SSH key setup** — Generates key, you add it to GitHub (prompted with instructions)
+7. **Repository clone** — Clones this repo to `~/.config/nix-install`
+8. **System build** — Runs `darwin-rebuild` to configure everything
+9. **Post-install summary** — Shows next steps for license activation
+
+### Requirements
+
+- **macOS**: Sonoma 14.0+ (Apple Silicon or Intel)
+- **Disk space**: 35GB (Standard) or 120GB (Power profile)
+- **Internet**: Required throughout installation
+- **GitHub account**: For SSH key authentication
+
+### Manual steps after installation
+
+1. **Restart Terminal** or run `source ~/.zshrc`
+2. **Enable FileVault** if not already enabled (System Settings → Privacy & Security)
+3. **Mac App Store apps** (if you skipped during install):
+   ```bash
+   # Note: mas 4.0+ requires sudo for install commands (auto-prompts)
+   mas install 6714467650  # Perplexity
+   mas install 302584613   # Kindle
+   mas install 890031187   # Marked 2
+   mas install 310633997   # WhatsApp
+   ```
+4. **Activate licenses** — See [Licensed Apps Guide](./docs/licensed-apps.md):
+   - 1Password, Dropbox, NordVPN (sign in)
+   - iStat Menus, Parallels (enter license key)
+   - Zoom, Webex (sign in)
+5. **Install Office 365** manually if needed (not in Homebrew)
+
+---
+
+## Common Commands
+
+After installation, manage your system with these aliases:
+
+| Command | Description |
+|---------|-------------|
+| `rebuild` | Apply config changes (uses locked package versions) |
+| `update` | Update flake.lock + rebuild (the ONLY way to update apps) |
+| `gc` | Garbage collection (delete old generations) |
+| `cleanup` | Full cleanup (GC + store optimization) |
+| `health-check` | System health report |
+| `brew-upgrade` | Update Homebrew packages |
+| `release-monitor` | Run AI-powered update checker |
+
+**Rollback** if something breaks:
 ```bash
-# Download and inspect before running
-curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh -o setup.sh
-less setup.sh  # Review the script
-bash setup.sh  # Run it
-```
-
-#### What Happens During Installation
-
-The installation uses a **two-stage bootstrap pattern** for reliability:
-
-**Stage 1 (setup.sh)**: Curl-pipeable wrapper
-- Downloads the full bootstrap script to a temporary directory
-- Executes it locally (not piped) to ensure interactive prompts work correctly
-
-**Stage 2 (bootstrap.sh)**: Interactive installer
-1. **Pre-flight Validation**: Check system requirements (Story 01.1-001 ✅)
-2. **User Information**: Collect name, email, GitHub username with validation (Story 01.2-001 ✅)
-3. **Profile Selection**: Choose Standard or Power profile (Story 01.2-002 ✅)
-4. **User Config**: Generate user-config.nix from inputs (Story 01.2-003 ✅)
-5. **Xcode CLI Tools**: Install Command Line Tools (Story 01.3-001 ✅)
-6. **Nix Installation**: Install Nix package manager with flakes enabled (Story 01.4-001 ✅)
-7. **Nix Configuration**: Configure binary cache, performance, trusted users, sandbox (Story 01.4-002 ✅)
-8. Install nix-darwin and Homebrew (managed declaratively)
-9. Generate SSH key and guide GitHub upload
-10. Clone this repository and apply full configuration
-11. Display post-install checklist (license activations, etc.)
-
-**Estimated Time**: <30 minutes (mostly hands-off)
-
-> **Technical Note**: The two-stage pattern solves stdin redirection issues when scripts are executed via `curl | bash`. This ensures interactive prompts can properly read user input without requiring `/dev/tty` workarounds.
-
-#### Environment Variables
-
-**For Contributors/Developers**: When testing feature branches, use the `NIX_INSTALL_BRANCH` environment variable to ensure setup.sh downloads bootstrap.sh from the same branch:
-
-```bash
-# Testing a feature branch
-NIX_INSTALL_BRANCH=feature/my-branch \
-  curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/feature/my-branch/setup.sh | bash
-```
-
-**Why this is needed**: When setup.sh is executed via `curl | bash`, it cannot auto-detect which branch it was downloaded from. By default, it downloads bootstrap.sh from the `main` branch. The environment variable overrides this behavior for feature branch testing.
-
-**Production users**: No environment variable needed - always use `main` branch as shown in installation instructions above.
-
-#### Customizing Repository Clone Location
-
-By default, the bootstrap script clones the nix-install repository to `~/Documents/nix-install`. You can customize this location using the `NIX_INSTALL_DIR` environment variable:
-
-```bash
-# Clone to home directory instead of Documents
-NIX_INSTALL_DIR="${HOME}/nix-install" \
-  curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh | bash
-```
-
-**Common alternative locations**:
-```bash
-# Hidden directory in home
-NIX_INSTALL_DIR="${HOME}/.nix-install" ...
-
-# XDG config directory
-NIX_INSTALL_DIR="${HOME}/.config/nix-install" ...
-
-# Absolute path (outside home directory)
-NIX_INSTALL_DIR="/opt/nix-install" ...
-```
-
-**Important notes**:
-- The `NIX_INSTALL_DIR` variable must be set **before** running `setup.sh`
-- If not specified, defaults to `~/Documents/nix-install` (maintains backward compatibility)
-- The path should NOT end with a trailing slash
-- Paths with spaces are supported but must be properly quoted
-- **Note about `~/.config/*` paths**: Paths under `~/.config/` are fully supported as of Hotfix #10. The bootstrap script automatically detects and fixes any permission issues that may arise when Nix creates subdirectories like `~/.config/nix/`.
-- The repository clone location affects:
-  - Where the configuration files are stored
-  - The `dotfiles_path` used in `user-config.nix`
-  - The path shown in post-installation documentation
-
-**Example with feature branch + custom location**:
-```bash
-# Testing feature branch with custom clone location
-NIX_INSTALL_BRANCH=feature/my-branch \
-NIX_INSTALL_DIR="${HOME}/.config/nix-install" \
-  curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/feature/my-branch/setup.sh | bash
+darwin-rebuild --rollback  # Instant rollback to previous generation
 ```
 
 ---
 
-## 🏗️ Architecture Overview
+## Update Philosophy
 
-### Two-Tier Installation Profiles
+**All app updates are controlled via commands only. Auto-updates are disabled everywhere.**
 
-**Standard Profile** (MacBook Air targets):
-- Core apps, single Ollama model (`gpt-oss:20b`)
-- No virtualization
-- ~35GB disk usage
-- Target: MacBook Air #1 and #2
+### Why No Auto-Updates?
 
-**Power Profile** (MacBook Pro M3 Max target):
-- All Standard apps + Parallels Desktop
-- 4 Ollama models (`gpt-oss:20b`, `qwen2.5-coder:32b`, `llama3.1:70b`, `deepseek-r1:32b`)
-- ~120GB disk usage
-- Target: MacBook Pro M3 Max
+| Benefit | Explanation |
+|---------|-------------|
+| **Reproducibility** | Same config = same versions = identical system state across machines |
+| **Control** | You choose when to update, not apps updating randomly |
+| **Testing** | Update one machine first, verify it works, then update others |
+| **Rollback** | If an update breaks something, instant rollback to previous state |
+| **No Surprises** | Apps don't change behavior unexpectedly mid-workday |
 
-### Package Management Strategy
+### rebuild vs update
 
-1. **Nix First** (via nixpkgs-unstable): CLI tools, dev tools, Python 3.12, uv, ruff, Podman
-2. **Homebrew Casks**: GUI apps (Zed, Ghostty, Arc, Firefox, Claude Desktop, Office 365 via microsoft-office-businesspro)
-3. **Mac App Store (mas)**: Only when no alternative (Kindle, WhatsApp)
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  rebuild                           │  update                    │
+├─────────────────────────────────────────────────────────────────┤
+│  • Uses current flake.lock         │  • Updates flake.lock      │
+│  • Same package versions           │  • Gets latest versions    │
+│  • Fast (packages cached)          │  • Downloads new packages  │
+│  • For config changes only         │  • THE way to update apps  │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-**Recent Change (v1.1)**: Office 365 installation method changed from manual to Homebrew cask (`microsoft-office-businesspro`). Installation is now automated, but activation still requires manual Microsoft account sign-in.
+**`rebuild`** — Apply configuration changes
+- Use after editing any `.nix` file
+- Adds/removes apps, changes settings, updates dotfiles
+- Package versions stay the same (from `flake.lock`)
+- Fast because most packages are already cached
 
-### Key Features
+**`update`** — Update all packages and rebuild
+- Updates `flake.lock` to latest versions from nixpkgs
+- Then runs a rebuild with new versions
+- This is the **ONLY** way apps update
+- Run weekly or when you want latest versions
 
-- **Declarative Configuration**: System state defined in code, not manual steps
-- **Atomic Updates**: All-or-nothing updates with instant rollback via `darwin-rebuild`
-- **Version Control**: Entire system configuration in Git with flake.lock for reproducibility
-- **Stylix Theming**: System-wide Catppuccin theme (Latte/Mocha) with auto light/dark switching
-- **No Auto-Updates**: All app updates controlled via `rebuild` command only
-- **Modular Design**: One concern per Nix file for maintainability
+### Checking for Available Updates
+
+```bash
+cd ~/Documents/nix-install
+nix flake metadata                      # See current input versions
+nix flake update --dry-run              # Preview what would update
+```
+
+### Rollback if Something Breaks
+
+Every `rebuild` creates a new "generation" you can rollback to:
+
+```bash
+darwin-rebuild --list-generations       # List all available generations
+darwin-rebuild --rollback               # Rollback to previous generation
+```
+
+Rollback is instant — no re-downloading, just switches symlinks.
+
+### Multi-Machine Update Strategy
+
+1. Run `update` on **one machine** first (e.g., MacBook Pro)
+2. Test for a day — verify apps work, no regressions
+3. If good, run `update` on other machines
+4. If broken, `rollback` and wait for fix upstream
 
 ---
 
-## 🛠️ Development Workflow
+## What Gets Installed
 
-### For Contributors
+### Applications (50+ apps)
 
-**Story Management**:
-- All stories tracked in [/stories/](./stories/) epic files (single source of truth)
-- Reference story IDs in commits (e.g., "Implements Story 01.2-001")
-- Update story completion status in epic files after deployment
-- See [Story Management Protocol](./CLAUDE.md#story-management-protocol) for details
+**AI & LLM Tools**:
+- Claude Desktop, ChatGPT, Perplexity
+- Ollama with models (1 for Standard, 4 for Power)
 
-**Testing Strategy**:
-- **Phase 9**: VM testing in Parallels macOS VM first (mandatory)
-- **Phase 10-11**: Physical hardware testing only after VM success
-- Never test directly on production MacBooks until VM-validated
+**Development**:
+- Zed Editor, VSCode (with auto dark mode)
+- Ghostty terminal (Catppuccin themed)
+- Python 3.12 + uv + ruff + mypy
+- Podman (rootless containers)
+- Git + Git LFS
 
-**Commit Format**:
-```
-<type>: <subject>
+**Browsers**: Arc, Brave
 
-<body>
+**Productivity**:
+- Raycast (launcher)
+- 1Password (password manager)
+- Dropbox (cloud storage)
+- Calibre, Kindle, Marked 2
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
+**Communication**: WhatsApp, Zoom, Webex
 
-Co-Authored-By: Claude <noreply@anthropic.com>
-```
+**System**: iStat Menus, OnyX, f.lux, btop, gotop
 
-### Requirements Change Control
+**Power Profile Only**: Parallels Desktop, additional Ollama models
 
-Requirements are baselined and change-controlled:
-- **Current Version**: v1.1 (Change Control Re-Approval completed 2025-11-08)
-- **Baseline Hash**: `ed51883bb71d31dbae500606ac42ed9e81f853ff8ed3e720c3e9a5ac1be6d5b0`
-- **Verification**: Run `./scripts/verify-requirements-integrity.sh` to validate integrity
-- **Changes**: Must follow change control process (see CLAUDE.md)
-- **Tracking**: All changes logged in REQUIREMENTS.md Post-Approval Change Log
-- **Audit Trail**: Complete version history maintained in `requirements-integrity.json`
+### System Configuration
 
-**Latest Change (v1.1)**:
-- Office 365 installation method: Manual → Homebrew cask (`microsoft-office-businesspro`)
-- Impact: Low - simplifies installation, activation still manual
-- Approved by: FX (Product Owner)
+- **Finder**: List view, show hidden files, path bar, status bar
+- **Dock**: Auto-hide, small icons, no recent apps
+- **Trackpad**: Tap-to-click, three-finger drag, natural scrolling off
+- **Security**: Firewall enabled, stealth mode, FileVault prompt
+- **Keyboard**: Fast key repeat, no auto-correct
+
+### Shell Environment
+
+- **Zsh** with Oh My Zsh (git plugin, autosuggestions, syntax highlighting)
+- **Starship** prompt with Nerd Font icons
+- **FZF** fuzzy finder (Ctrl+R history, Ctrl+T files)
+- **Modern CLI**: ripgrep, bat, eza, zoxide, httpie, tldr
+
+### Theming
+
+- **Catppuccin** Mocha (dark) and Latte (light)
+- Auto-switches with macOS appearance
+- Consistent across Ghostty, Zed, and shell
 
 ---
 
-## 📦 Project Structure (Planned)
+## Two Installation Profiles
+
+| Feature | Standard | Power |
+|---------|----------|-------|
+| **Target** | MacBook Air | MacBook Pro M3 Max |
+| **Apps** | 47+ | 51+ |
+| **Ollama Models** | 1 (~12GB) | 4 (~80GB) |
+| **Parallels Desktop** | No | Yes |
+| **Disk Usage** | ~35GB | ~120GB |
+
+### Package Sources (Priority Order)
+
+1. **Nix** (nixpkgs-unstable): CLI tools, Python, Podman, dev tools
+2. **Homebrew Casks**: GUI apps (Zed, Ghostty, Arc, Claude Desktop)
+3. **Mac App Store**: Only when no alternative (Kindle, WhatsApp)
+
+### Key Design Principles
+
+- **Declarative**: Configuration IS the documentation—no drift
+- **Atomic Updates**: All-or-nothing with instant rollback
+- **No Auto-Updates**: All updates via `rebuild`/`update` only
+- **Stylix Theming**: System-wide Catppuccin with auto light/dark
+- **AI Release Monitor**: Weekly scans → GitHub issues → Claude Code integration
+
+---
+
+## Automated Maintenance
+
+The system runs **automated maintenance** via LaunchAgents:
+
+| Schedule | Task | Description |
+|----------|------|-------------|
+| Daily 3:00 AM | Garbage Collection | Removes old generations, frees disk space |
+| Daily 3:30 AM | Store Optimization | Deduplicates Nix store via hard links |
+| Sunday 7:00 AM | Release Monitor | AI-powered update analysis (see below) |
+| Sunday 8:00 AM | Weekly Digest | Health report email |
+
+### Weekly Maintenance Digest (Example)
+
+```
+========================================
+Weekly Maintenance Digest - MacBook-Pro
+========================================
+Report Period: 2025-11-29 to 2025-12-06
+
+MAINTENANCE ACTIVITY
+--------------------
+Garbage Collection Runs: 7
+Store Optimization Runs: 7
+
+SYSTEM STATE
+------------
+Nix Store Size: 45G
+Disk Free (/nix): 380G
+System Generations: 12
+
+SECURITY STATUS
+---------------
+FileVault: Enabled ✅
+Firewall: Enabled ✅
+
+RECOMMENDATIONS
+---------------
+• No issues detected. System is healthy! ✅
+```
+
+---
+
+## AI-Powered Release Monitor
+
+A unique feature: the system **proactively suggests improvements** rather than just maintaining config.
+
+**Weekly pipeline** (Sunday 7 AM):
+1. **Fetch** release notes from Homebrew, Nix, tracked tools
+2. **Analyze** with Claude CLI → categorize by priority
+3. **Create GitHub issues** with smart deduplication
+4. **Email summary** grouped by category
+
+### Release Monitor Email (Example)
+
+```
+=======================================================
+        WEEKLY RELEASE MONITOR REPORT
+=======================================================
+Generated: Sun Dec 6 07:00:00 2025
+Host: MacBook-Pro
+
+STATUS: ATTENTION REQUIRED: Security updates found
+
+SUMMARY
+-------
+🔴 Security Updates: 1
+🟠 Breaking Changes: 0
+🟢 New Features: 2
+🤖 Ollama Models: 1
+🔵 Notable Updates: 3
+
+GITHUB ISSUES CREATED
+---------------------
+🔴 Security Updates:
+  ca-certificates: https://github.com/fxmartin/nix-install/issues/64
+
+🟢 New Features:
+  ghostty: https://github.com/fxmartin/nix-install/issues/65
+
+🔵 Notable Updates:
+  python: https://github.com/fxmartin/nix-install/issues/66
+
+NEXT STEPS
+----------
+  - Review security updates immediately
+  - Consider adopting new features
+```
+
+### Claude Code Integration
+
+```bash
+/release-updates          # List pending updates
+/plan-release-update 64   # Get implementation plan for issue #64
+```
+
+**Priority categories**: Security (HIGH) → Breaking Changes (HIGH) → New Features (MEDIUM) → Notable Updates (LOW)
+
+---
+
+## Project Structure
 
 ```
 nix-install/
-├── flake.nix                    # System definition (Standard/Power profiles)
-├── flake.lock                   # Dependency lock file
-├── user-config.nix              # User personal info (created during bootstrap)
-├── user-config.template.nix     # Template for new users
-├── setup.sh                     # Stage 1: Curl-pipeable wrapper script
-├── bootstrap.sh                 # Stage 2: Full interactive installer
-│
-├── darwin/                      # System-level configs (nix-darwin)
-│   ├── configuration.nix        # Main darwin config
-│   ├── homebrew.nix             # Homebrew packages/casks
-│   ├── macos-defaults.nix       # macOS system preferences
-│   ├── system-monitoring.nix    # GC, optimization, health checks
-│   └── nix-settings.nix         # Nix daemon configuration
-│
-├── home-manager/                # User-level configs (dotfiles)
-│   ├── default.nix              # Main home-manager entry
-│   ├── modules/
-│   │   ├── zsh.nix              # Zsh + Oh My Zsh config
-│   │   ├── git.nix              # Git configuration
-│   │   ├── ssh.nix              # SSH config
-│   │   ├── starship.nix         # Shell prompt
-│   │   ├── fzf.nix              # Fuzzy finder
-│   │   └── aliases.nix          # Shell aliases & functions
-│   └── configs/
-│       └── ghostty/             # Ghostty terminal config
-│
-├── config/                      # Standalone config files
-│   └── config.ghostty           # Original ghostty config
-│
-├── scripts/                     # Automation & utilities
-│   ├── health-check.sh          # System health validation
-│   ├── cleanup.sh               # Manual GC + optimization
-│   └── backup-before-rebuild.sh # Safety backup
-│
-├── docs/                        # User documentation
-│   ├── quick-start.md           # Installation guide
-│   ├── licensed-apps.md         # Activation instructions
-│   ├── customization.md         # How to modify config
-│   └── troubleshooting.md       # Common issues & fixes
-│
-└── stories/                     # User stories & sprint planning
-    ├── epic-01-*.md             # Bootstrap stories
-    ├── epic-02-*.md             # Application stories
-    └── ...                      # Other epics
+├── flake.nix                 # System definition (Standard/Power profiles)
+├── bootstrap.sh              # Interactive installer (9 phases)
+├── darwin/                   # System-level nix-darwin configs
+│   ├── configuration.nix     # System packages, PATH
+│   ├── homebrew.nix          # Casks, brews, Mac App Store
+│   ├── macos-defaults.nix    # Finder, Dock, trackpad, security
+│   ├── maintenance.nix       # GC, optimization, LaunchAgents
+│   └── stylix.nix            # Catppuccin theming
+├── home-manager/modules/     # User-level dotfiles
+│   ├── shell.nix             # Zsh + Oh My Zsh + Starship + FZF
+│   ├── git.nix               # Git config + LFS
+│   ├── ghostty.nix           # Terminal with Catppuccin
+│   ├── zed.nix / vscode.nix  # Editor configs
+│   ├── python.nix            # Python + uv + ruff
+│   ├── podman.nix            # Container development
+│   └── claude-code.nix       # Claude Code CLI + MCP servers
+├── scripts/                  # Maintenance & monitoring
+│   ├── health-check.sh       # System health validation
+│   ├── release-monitor.sh    # AI-powered update checker
+│   └── weekly-maintenance-digest.sh
+└── docs/                     # Documentation (Epic-07)
 ```
 
 ---
 
-## 🎯 Success Metrics
+## Progress
 
-**Time Savings**:
-- Setup time: 4-6 hours → <30 minutes (90% reduction)
-- Time saved per reinstall: 3-4 hours
+| Epic | Focus | Status |
+|------|-------|--------|
+| **01** | Bootstrap & Installation | ✅ 100% |
+| **02** | Application Installation | ✅ 100% |
+| **03** | System Configuration | ✅ 100% |
+| **04** | Development Environment | ✅ 100% |
+| **05** | Theming & Visual Consistency | ✅ 100% |
+| **06** | Maintenance & Monitoring | ✅ 100% |
+| **07** | Documentation & UX | ✅ 100% |
+| **NFR** | Non-Functional Requirements | 🟢 87% |
 
-**Quality**:
-- Configuration consistency: 100% across same-profile machines
-- Bootstrap success rate: >90% first-time success
-- Rollback capability: Instant via `darwin-rebuild --rollback`
+**🎉 Milestone (2025-12-07)**: MacBook Pro M3 Max successfully running Power profile!
+- Shell startup: 259ms (target <500ms) ✅
+- Rebuild time: 14 seconds (target <5min) ✅
+- All 27 Homebrew apps installed, 5 Ollama models verified
 
-**Adoption**:
-- Target: All 3 MacBooks migrated within 30 days
-- User confidence: >8/10 "I can rebuild my Mac confidently"
+### Project Statistics
 
----
+| Category | Metric |
+|----------|--------|
+| **Commits** | 448 (72 feat, 56 fix, 24 docs) |
+| **Development** | 18 active days, ~78 hours |
+| **Code** | 19K lines (Nix + Shell + Python) |
+| **Tests** | 1,140 test cases (16 BATS files) |
+| **Documentation** | 46K lines across 137 markdown files |
+| **GitHub Issues** | 60 total (83% closed) |
+| **Packages** | 25 casks, 4 brews, 4 MAS, 50+ Nix |
 
-## 🔗 Key Technologies
-
-- **[Nix](https://nixos.org/)**: Declarative package management with reproducibility
-- **[nix-darwin](https://github.com/LnL7/nix-darwin)**: Nix-based macOS system configuration
-- **[Home Manager](https://github.com/nix-community/home-manager)**: Declarative dotfile and user environment management
-- **[Stylix](https://github.com/danth/stylix)**: System-wide theming framework
-- **[nixpkgs-unstable](https://github.com/NixOS/nixpkgs)**: Latest packages with flake.lock reproducibility
-- **Homebrew**: GUI application management (declaratively controlled by nix-darwin)
-
----
-
-## 📋 Implementation Phases
-
-| Phase | Timeline | Focus | Status |
-|-------|----------|-------|--------|
-| Phase 0 | Week 1 | Foundation & repository structure | 🔄 In Progress |
-| Phase 1-2 | Week 1-2 | Core bootstrap script | 📅 Planned |
-| Phase 3-5 | Week 3-4 | Apps, system config, dev environment | 📅 Planned |
-| Phase 6-8 | Week 5-6 | Theming, monitoring, documentation | 📅 Planned |
-| Phase 9 | Week 6 | VM testing (Parallels) | 📅 Planned |
-| Phase 10 | Week 7 | MacBook Pro M3 Max migration | 📅 Planned |
-| Phase 11 | Week 8 | MacBook Air migrations | 📅 Planned |
+**Next**: MacBook Air migrations (Phase 11)
 
 ---
 
-## ⚠️ Important Notes
+## Documentation
 
-### Testing Policy
-- **Claude's Role**: Write code, configuration, and documentation ONLY
-- **FX's Role**: ALL testing, execution, and validation
-- **Never**: Run bootstrap scripts, nix-darwin commands, or test on production hardware
-- **Always**: Test in VM first, then physical hardware
-
-### Update Philosophy
-- **All app updates** controlled via `rebuild` or `update` commands only
-- **No auto-updates** for any application (Homebrew, Zed, VSCode, Arc, etc.)
-- **Reproducibility**: Same config version = same app versions guaranteed
-
-### Security
-- **No secrets in Git**: License keys and API tokens managed separately
-- **SSH keys**: Generated locally, never transmitted
-- **FileVault**: Encryption enforced on all machines
-- **Firewall**: Enabled by default with stealth mode
+| Document | Purpose |
+|----------|---------|
+| [REQUIREMENTS.md](./docs/REQUIREMENTS.md) | Complete PRD (1,700+ lines) |
+| [STORIES.md](./STORIES.md) | Epic overview & story tracking |
+| [/stories/](./stories/) | Detailed epic files (source of truth) |
+| [CLAUDE.md](./CLAUDE.md) | Developer guidance & architecture |
+| [/docs/apps/](./docs/apps/) | Per-app configuration guides |
 
 ---
 
-## 🤝 Contributing
+## Technologies
 
-This is primarily a personal configuration repository, but contributions and suggestions are welcome:
-
-1. Review [REQUIREMENTS.md](./REQUIREMENTS.md) for project scope
-2. Check [STORIES.md](./STORIES.md) for current implementation status
-3. Reference story IDs in pull request descriptions
-4. Follow [Story Management Protocol](./CLAUDE.md#story-management-protocol)
-5. Ensure changes align with project philosophy (declarative, reproducible, maintainable)
+- **[Nix](https://nixos.org/)** + **[nix-darwin](https://github.com/LnL7/nix-darwin)** + **[Home Manager](https://github.com/nix-community/home-manager)**: Declarative system & dotfile management
+- **[Stylix](https://github.com/danth/stylix)**: System-wide theming
+- **[Claude Code](https://claude.ai/code)**: AI-assisted development & release monitoring
 
 ---
 
-## 📄 License
+## Acknowledgments
 
-This project is open source and available for reference and adaptation. See individual package licenses for third-party software installed via this configuration.
-
----
-
-## 🙏 Acknowledgments
-
-- **[mlgruby/dotfile-nix](https://github.com/mlgruby/dotfile-nix)**: Reference implementation for architecture patterns
-- **Nix Community**: For nix-darwin, Home Manager, and Stylix
-- **Claude Code**: Development assistance and documentation
+- **[mlgruby/dotfile-nix](https://github.com/mlgruby/dotfile-nix)**: Reference implementation
+- **Nix Community**: For the incredible ecosystem
 
 ---
 
-**Built with**: Nix + nix-darwin + Home Manager + Stylix + Catppuccin + ❤️
+**Built with**: Nix + nix-darwin + Home Manager + Stylix + Claude Code

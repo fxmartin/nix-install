@@ -247,6 +247,29 @@
 
   # Story 03.6-001: Dock Behavior and Apps
   system.defaults.dock = {
+    # Persistent applications in Dock (replaces macOS defaults)
+    # Only show apps FX actually uses - removes Safari, Finder, etc.
+    # Note: Finder cannot be removed from Dock (macOS restriction)
+    # Format: Full path to .app bundle
+    persistent-apps = [
+      # Communication (leftmost - most frequently accessed)
+      "/System/Applications/Mail.app"
+      "/Applications/WhatsApp.app"
+      # AI Tools (core productivity)
+      "/Applications/Claude.app"
+      "/Applications/ChatGPT.app"
+      "/Applications/Perplexity.app"
+      # Development
+      "/Applications/Ghostty.app"
+      "/Applications/Brave Browser.app"
+      # Security & Infrastructure
+      "/Applications/1Password.app"
+      "/Applications/NordVPN.app"
+      # System (rightmost - less frequent)
+      "/Applications/Parallels Desktop.app"
+      "/System/Applications/System Settings.app"
+    ];
+
     # Minimize windows into their application's icon (cleaner Dock)
     # Instead of creating separate minimized window icons
     minimize-to-application = true;
@@ -318,7 +341,13 @@
   # - ~/Library/Caches: Application caches (reproducible)
   # - ~/Downloads: Usually temporary files
   # - /private/var/folders: System temporary files
-  system.activationScripts.configureTimeMachine.text = ''
+  # Use extraActivation - one of the hardcoded script names that nix-darwin actually runs
+  # Custom script names like 'configureTimeMachine' are NOT executed
+  # See: https://github.com/nix-darwin/nix-darwin/issues/663
+  system.activationScripts.extraActivation.text = ''
+    # ============================================================================
+    # TIME MACHINE CONFIGURATION
+    # ============================================================================
     echo "Configuring Time Machine preferences and exclusions..."
 
     # Don't prompt to use new hard drives as backup volume
@@ -393,6 +422,7 @@
   # - [✅] Auto-correct disabled (Story 03.5-001)
 
   # Feature 03.6: Dock Configuration (Complete)
+  # - [✅] Persistent apps configured (Story 03.6-001) - Mail, Claude, Ghostty, WhatsApp, Perplexity, ChatGPT, 1Password, Brave, Settings, Parallels, NordVPN
   # - [✅] Minimize to application icon (Story 03.6-001)
   # - [✅] Auto-hide enabled (Story 03.6-001)
   # - [✅] Fast auto-hide animation (Story 03.6-001)

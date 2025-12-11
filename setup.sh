@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ABOUTME: Curl-pipeable wrapper script that downloads and executes bootstrap.sh
+# ABOUTME: Curl-pipeable wrapper script that downloads and executes bootstrap-dist.sh
 # ABOUTME: Solves stdin redirection issue when script is executed via curl | bash
 
 # ==============================================================================
@@ -43,9 +43,13 @@ readonly REPO_OWNER="fxmartin"
 readonly REPO_NAME="nix-install"
 readonly BRANCH="${NIX_INSTALL_BRANCH:-main}"  # Allow override via env var
 readonly REPO_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}"
-readonly BOOTSTRAP_SCRIPT="bootstrap.sh"
+# Use bootstrap-dist.sh - the standalone built version that doesn't require lib/*.sh
+readonly BOOTSTRAP_SCRIPT="bootstrap-dist.sh"
 readonly USER_CONFIG_TEMPLATE="user-config.template.nix"
 readonly TEMP_DIR="/tmp/nix-install-setup-$$"
+
+# Setup script version (should match bootstrap.sh)
+readonly SETUP_VERSION="1.0.0"
 
 # Minimum required macOS version
 readonly MIN_MACOS_VERSION=14
@@ -312,7 +316,10 @@ main() {
 
     cd "${TEMP_DIR}" || handle_error "Failed to change to temporary directory"
 
-    if bash "${BOOTSTRAP_SCRIPT}"; then
+    # CRITICAL: Redirect stdin from /dev/tty to provide interactive input
+    # When setup.sh is piped from curl, stdin is the curl stream (now exhausted)
+    # We need to reconnect stdin to the terminal for bootstrap.sh's read commands
+    if bash "${BOOTSTRAP_SCRIPT}" < /dev/tty; then
         log_success "Bootstrap installation completed successfully! 🎉"
         echo ""
     else

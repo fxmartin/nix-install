@@ -534,11 +534,31 @@ After trial activation, menubar icons appear for enabled sensors:
 - **Sensors**: Temperature and fan speed
 - **Battery**: Battery percentage and time remaining (laptops)
 
-**5. Initial Configuration**:
+**5. Import Pre-Configured Settings** (RECOMMENDED):
+A pre-configured settings file is available with FX's preferred configuration:
+
+1. Open iStat Menus Preferences (click any menubar icon → Preferences)
+2. Click **General** tab
+3. Click **Import Settings** button
+4. Navigate to the nix-install repository:
+   - `~/Documents/nix-install/config/istat-menus/iStat Menus Settings.ismp7`
+   - OR `~/.config/nix-install/config/istat-menus/iStat Menus Settings.ismp7`
+5. Select the `.ismp7` file → Click **Open**
+6. Settings are applied immediately (menubar icons update)
+
+**What's Pre-Configured**:
+- Menubar items: CPU, Memory, Network (minimal, non-cluttering)
+- Update interval: 3 seconds (balanced performance)
+- Auto-update: **DISABLED** (critical for update control policy)
+- Display formats: Optimized for readability
+
+**6. Manual Configuration** (Alternative):
+If not importing settings:
 1. Click any menubar icon to open dropdown
 2. Click **Preferences** to customize settings
 3. Enable/disable desired menubar items
 4. Customize display format (percentage, graph, text)
+5. **CRITICAL**: Disable auto-update (see [Auto-Update Disable](#istat-menus-auto-update-disable))
 
 ---
 
@@ -792,6 +812,12 @@ darwin-rebuild switch --flake ~/nix-install#power
 - **Import Settings** → Load saved configuration
 - Ensures consistent setup across all MacBooks
 
+**Pre-Configured Settings Available**:
+- A pre-configured settings file is included at `config/istat-menus/iStat Menus Settings.ismp7`
+- This file contains FX's preferred configuration (menubar items, update intervals, display formats)
+- **Import on new Mac**: Preferences → General → Import Settings → Select the `.ismp7` file
+- Settings file is version-controlled, so changes can be tracked across rebuilds
+
 **Network Interface Selection**:
 - **Preferences → Network → Interface**
 - Choose which interface to monitor:
@@ -813,6 +839,12 @@ darwin-rebuild switch --flake ~/nix-install#power
 - [ ] Verify trial countdown: Preferences → License → "14 days remaining"
 - [ ] Menubar icons appear after trial activation
 - [ ] Trial works without account sign-up or credit card
+
+**Settings Import** (4 tests):
+- [ ] Verify settings file exists at `config/istat-menus/iStat Menus Settings.ismp7`
+- [ ] Preferences → General → Import Settings → Select the `.ismp7` file
+- [ ] Settings import successfully (no error message)
+- [ ] Menubar icons update to reflect imported configuration
 
 **Auto-Update Disable** (CRITICAL - 5 tests):
 - [ ] Click any menubar icon → Preferences

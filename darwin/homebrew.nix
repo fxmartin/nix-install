@@ -49,7 +49,7 @@
     # GUI Applications (Casks)
     # Epic-02 will populate with:
     # - Development: Zed, VSCode, Cursor, Podman Desktop
-    # - Browsers: Arc, Firefox, Google Chrome
+    # - Browsers: Brave
     # - Communication: Zoom, Webex, Slack, WhatsApp
     # - Productivity: 1Password, Raycast, Obsidian, Dropbox
     # - Terminal: Ghostty
@@ -82,7 +82,6 @@
       # Browsers (Story 02.3-001, 02.3-002)
       # Auto-update disable: Updates managed by Homebrew (no in-app setting available)
       "brave-browser" # Brave Browser - Privacy-focused browser with built-in ad/tracker blocking
-      "arc"           # Arc Browser - Modern workspace-focused browser with unique UI
 
       # Productivity & Utilities (Story 02.4-001, 02.4-002, 02.4-004)
       # Auto-update disable: Raycast/1Password (Preferences → Advanced), Dropbox (Preferences → Account → Disable automatic updates)
@@ -107,11 +106,9 @@
       # Permission notes: iStat Menus may request Accessibility permissions for system monitoring
       "istat-menus" # iStat Menus - Professional menubar system monitoring (licensed app)
 
-      # Media & Creative Tools (Story 02.6-001)
+      # Media Tools (Story 02.6-001)
       # Auto-update disable: VLC (Preferences → General → Uncheck auto-update)
-      # GIMP: No auto-update to disable (open source, Homebrew-controlled)
       "vlc"  # VLC - Universal media player supporting 100+ formats (Story 02.6-001)
-      "gimp" # GIMP - Free image editor (Photoshop alternative) (Story 02.6-001)
 
       # Communication Tools - Video Conferencing (Story 02.5-002)
       # CRITICAL: Auto-update disable required for both apps
@@ -129,6 +126,13 @@
       # License: Requires active NordVPN subscription (NO free tier)
       # Permissions: Network Extension permission required on first VPN connection
       "nordvpn" # NordVPN - VPN privacy and security service (subscription required)
+
+      # Network Firewall (Story 02.7-001)
+      # Auto-update disable: Preferences → Advanced → Uncheck "Automatically check for updates"
+      # License: Paid software ($59 single license, or subscription)
+      # Permissions: Network Extension and System Extension permissions required
+      # Note: Requires system restart after installation to enable kernel extension
+      "little-snitch" # Little Snitch - Application-level network firewall and monitor
 
       # Office 365 (Story 02.9-001)
       # Sign-in required: Microsoft account (personal, work, or school) - ONE-TIME activates ALL apps
@@ -158,23 +162,19 @@
     };
 
     # Mac App Store apps
-    # Epic-02 will populate with:
-    # - Kindle (302584613)
-    # - WhatsApp (310633997)
-    masApps = {
-      # AI & LLM Tools (Story 02.1-001)
-      # Perplexity AI desktop app (released October 24, 2024)
-      # No Homebrew cask available - distributed via Mac App Store only
-      "Perplexity" = 6714467650;
-
-      # File Utilities (Story 02.4-003)
-      # Kindle and Marked 2 distributed via Mac App Store only
-      "Kindle" = 302584613;     # Kindle ebook reader app
-      "Marked 2" = 890031187;   # Markdown preview and export app
-
-      # Communication Tools (Story 02.5-001)
-      # WhatsApp Desktop - Messaging app requiring phone QR code linking
-      "WhatsApp" = 310633997;  # WhatsApp Desktop app (corrected App ID)
+    # Controlled by userConfig.enableMasApps (set during bootstrap)
+    # Requires user to be signed into App Store before installation
+    #
+    # If disabled, install manually after bootstrap:
+    #   mas install 6714467650  # Perplexity
+    #   mas install 302584613   # Kindle
+    #   mas install 890031187   # Marked 2
+    #   mas install 310633997   # WhatsApp
+    masApps = lib.mkIf (userConfig.enableMasApps or false) {
+      "Perplexity" = 6714467650;  # AI search assistant
+      "Kindle" = 302584613;       # Ebook reader
+      "Marked 2" = 890031187;     # Markdown preview
+      "WhatsApp" = 310633997;     # Messaging app
     };
   };
 

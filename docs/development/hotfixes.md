@@ -2165,4 +2165,146 @@ FX - Reported Electron crashes during rebuild with request: "disable vscode inst
 
 ---
 
+## HOTFIX #19: Home Manager .zshrc Conflict and FZF Plugin Path Error
+**Date**: 2025-12-05
+**Issue**: Epic-04 shell configuration not applied - Oh My Zsh aliases and FZF not working
+**Status**: ✅ FIXED
+**Branch**: main
+
+### Problem
+
+During Epic-04 testing, FX reported:
+1. Oh My Zsh git aliases (`gst`, `gco`, `glog`) not working - "command not found"
+2. FZF plugin error: `[oh-my-zsh] fzf plugin: Cannot find fzf installation directory`
+
+**Impact**: Epic-04 Feature 04.1 (Zsh/Oh My Zsh) and Feature 04.3 (FZF) both broken.
+
+### Root Cause
+
+**Two separate issues**:
+
+1. **Home Manager .zshrc conflict**: An existing `~/.zshrc` file (created manually during earlier testing with just temp aliases) was blocking Home Manager from creating its managed version. Home Manager won't overwrite non-managed files for safety.
+
+2. **FZF not installed + wrong plugin approach**: The `fzf` package wasn't in the system packages, and the Oh My Zsh `fzf` plugin requires `FZF_BASE` to be set to find the installation. Nix-installed packages don't have a standard location the plugin can find.
+
+### Solution Implemented
+
+**Fix 1: Bootstrap .zshrc Handling (bootstrap.sh Phase 8)**
+
+Added Step 1.5 in `final_darwin_rebuild_phase()` to backup and remove existing .zshrc before rebuild:
+
+```bash
+# Step 1.5: Prepare for Home Manager shell management (NON-CRITICAL)
+# Home Manager needs to manage ~/.zshrc for Oh My Zsh, FZF, autosuggestions, etc.
+# Remove any existing .zshrc so Home Manager can create its managed version
+log_info "🐚 Step 1.5: Preparing shell configuration for Home Manager..."
+if [[ -f "${HOME}/.zshrc" && ! -L "${HOME}/.zshrc" ]]; then
+    log_info "Found existing ~/.zshrc (not managed by Home Manager)"
+    log_info "Backing up to ~/.zshrc.pre-nix-install"
+    mv "${HOME}/.zshrc" "${HOME}/.zshrc.pre-nix-install"
+    log_success "✓ Backed up existing .zshrc - Home Manager will create new one"
+elif [[ -L "${HOME}/.zshrc" ]]; then
+    log_info "~/.zshrc is already a symlink (likely Home Manager managed)"
+else
+    log_info "No existing ~/.zshrc found - Home Manager will create one"
+fi
+```
+
+**Fix 2: FZF Installation and Integration**
+
+A. Added `fzf` and `fd` to system packages in `darwin/configuration.nix`:
+```nix
+# Shell Enhancement Tools (Epic-04)
+fzf                 # Fuzzy finder for shell (Ctrl+R history, Ctrl+T files)
+fd                  # Fast find alternative (used by fzf)
+```
+
+B. Switched from Oh My Zsh fzf plugin to Home Manager's `programs.fzf` in `home-manager/modules/shell.nix`:
+```nix
+# Removed "fzf" from oh-my-zsh.plugins list
+plugins = [
+  "git"   # Git aliases only
+];
+
+# Added Home Manager FZF configuration
+programs.fzf = {
+  enable = true;
+  enableZshIntegration = true;
+  defaultCommand = "fd --type f --hidden --follow --exclude .git";
+  defaultOptions = [ "--height 40%" "--layout=reverse" "--border" "--inline-info" ];
+  fileWidgetCommand = "fd --type f --hidden --follow --exclude .git";
+  fileWidgetOptions = [ "--preview 'head -100 {}'" ];
+  changeDirWidgetCommand = "fd --type d --hidden --follow --exclude .git";
+  changeDirWidgetOptions = [ "--preview 'ls -la {}'" ];
+  historyWidgetOptions = [ "--sort" "--exact" ];
+};
+```
+
+### Files Modified
+
+1. **bootstrap.sh**: Added Step 1.5 in `final_darwin_rebuild_phase()` (+14 lines)
+2. **darwin/configuration.nix**: Added `fzf` and `fd` to system packages (+3 lines)
+3. **home-manager/modules/shell.nix**:
+   - Removed `fzf` from Oh My Zsh plugins (-1 line)
+   - Added `programs.fzf` configuration (+25 lines)
+
+### Testing Results
+
+**Hardware Tested**: MacBook Pro M3 Max (Physical Hardware)
+**Profile**: Power
+**Date**: 2025-12-05
+
+| Test | Result |
+|------|--------|
+| `gst` (git status) | ✅ PASS |
+| `gco` (git checkout) | ✅ PASS |
+| Autosuggestions | ✅ PASS |
+| Syntax highlighting | ✅ PASS |
+| `Ctrl+R` (FZF history) | ✅ PASS |
+| `Ctrl+T` (FZF files) | ✅ PASS |
+| `Alt+C` (FZF dirs) | ✅ PASS |
+| `fzf --version` | ✅ 0.67.0 |
+
+### Impact
+
+- **Fixes**: Epic-04 Feature 04.1 (Zsh/Oh My Zsh) and Feature 04.3 (FZF)
+- **Unblocks**: Epic-04 testing and completion
+- **User Impact**: Shell configuration works correctly after fresh bootstrap
+
+### Why This Wasn't Caught Earlier
+
+1. **Bootstrap testing gap**: Phase 8 tests didn't simulate existing .zshrc files
+2. **FZF assumption**: Assumed Oh My Zsh fzf plugin would work with Nix, but it needs `FZF_BASE` set
+3. **Nix PATH complexity**: Nix packages don't follow standard Unix paths that plugins expect
+
+### Lessons Learned
+
+1. **Home Manager safety feature**: Home Manager won't overwrite existing non-managed dotfiles - this is a feature, not a bug, but needs handling during bootstrap
+2. **Prefer Home Manager modules over Oh My Zsh plugins**: Home Manager's `programs.fzf` handles integration better than Oh My Zsh's fzf plugin with Nix
+3. **Install tools via Nix, configure via Home Manager**: This pattern works more reliably than relying on plugins to find Nix-installed binaries
+
+### Manual Fix for Existing Systems
+
+For systems already bootstrapped with the old configuration:
+
+```bash
+# 1. Backup and remove existing .zshrc
+mv ~/.zshrc ~/.zshrc.old
+
+# 2. Stage changes and rebuild
+cd ~/Documents/nix-install
+git pull
+git add -A
+sudo darwin-rebuild switch --flake .#power  # or .#standard
+
+# 3. Restart shell
+exec zsh
+```
+
+### Identified By
+
+FX - During Epic-04 Feature 04.1 and 04.3 VM testing on hardware.
+
+---
+
 

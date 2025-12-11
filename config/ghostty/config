@@ -28,9 +28,10 @@ minimum-contrast = 1.1
 # =========================
 # FONT CONFIGURATION
 # =========================
-# JetBrains Mono is included by default, but you can use other fonts
-font-family = JetBrains Mono
-# Fallback fonts for better Unicode support
+# JetBrainsMono Nerd Font for Nerd Font icons (Starship prompt, etc.)
+# Installed via Nix: pkgs.nerd-fonts.jetbrains-mono
+font-family = JetBrainsMono Nerd Font
+# Fallback fonts for better Unicode support (emoji, CJK characters)
 font-family = Noto Color Emoji
 font-family = Noto Sans CJK JP
 

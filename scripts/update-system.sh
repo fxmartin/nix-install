@@ -4,6 +4,9 @@
 
 set -euo pipefail
 
+# Script version
+readonly UPDATE_SYSTEM_VERSION="1.0.0"
+
 # Colors for output
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
@@ -32,8 +35,48 @@ log_error() {
     echo -e "${RED}✗${NC} $*" >&2
 }
 
-# Detect profile based on hostname
+# Check if user-config.nix exists and provide helpful error if not
+check_user_config() {
+    local user_config="${PROJECT_ROOT}/user-config.nix"
+    local template="${PROJECT_ROOT}/user-config.template.nix"
+
+    if [[ ! -f "$user_config" ]]; then
+        log_error "user-config.nix not found!"
+        echo ""
+        echo "This file contains your personal configuration and is not tracked in git."
+        echo ""
+        if [[ -f "$template" ]]; then
+            echo "To create it, either:"
+            echo "  1. Run the bootstrap script: curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/bootstrap.sh | bash"
+            echo "  2. Or manually copy the template and fill in your values:"
+            echo "     cp ${template} ${user_config}"
+            echo "     # Then edit ${user_config} with your actual values"
+        else
+            echo "Run the bootstrap script to set up your configuration:"
+            echo "  curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/bootstrap.sh | bash"
+        fi
+        echo ""
+        return 1
+    fi
+    return 0
+}
+
+# Detect profile from user-config.nix or hostname
 detect_profile() {
+    # First, check if user-config.nix exists
+    local user_config="${PROJECT_ROOT}/user-config.nix"
+    if [[ -f "$user_config" ]]; then
+        local profile
+        # Extract value: installProfile = "standard"; -> standard
+        # Use awk to get the first quoted string after the = sign, ignoring comments
+        profile=$(grep 'installProfile' "$user_config" | awk -F'"' '{print $2}' | head -1)
+        if [[ "$profile" == "standard" || "$profile" == "power" ]]; then
+            echo "$profile"
+            return 0
+        fi
+    fi
+
+    # Fallback: detect from hostname
     local hostname
     hostname=$(hostname -s | tr '[:upper:]' '[:lower:]')
 
@@ -46,6 +89,7 @@ detect_profile() {
             ;;
         *)
             log_warning "Could not auto-detect profile from hostname: $hostname"
+            log_warning "And could not read from user-config.nix"
             log_info "Please specify profile: ./scripts/update-system.sh [update|rebuild] [standard|power]"
             return 1
             ;;
@@ -65,18 +109,27 @@ update_flake() {
 
     log_success "Flake updated successfully"
 
-    # Show what changed
+    # Show what changed and prompt for commit
     if git diff --quiet flake.lock; then
         log_info "No changes to flake.lock"
     else
         log_info "Changes to flake.lock:"
-        git diff flake.lock | grep -E '^\+|^\-' | grep -v '^\+\+\+|^\-\-\-' || true
+        git diff flake.lock | /usr/bin/grep -E '^\+|^\-' | /usr/bin/grep -v '^\+\+\+|^\-\-\-' || true
+        echo ""
+        log_warning "flake.lock has uncommitted changes"
+        echo ""
+        echo "To commit and push:"
+        echo "  git add flake.lock && git commit -m 'chore: update flake.lock' && git push"
+        echo ""
     fi
 }
 
 # Rebuild system configuration
 rebuild_system() {
     local profile="${1:-}"
+
+    # Check user-config.nix exists before attempting rebuild
+    check_user_config || return 1
 
     if [[ -z "$profile" ]]; then
         profile=$(detect_profile) || return 1
@@ -92,16 +145,6 @@ rebuild_system() {
     fi
 
     log_success "System rebuilt successfully"
-
-    # Check for uncommitted changes
-    if ! git diff --quiet flake.lock; then
-        log_warning "flake.lock has uncommitted changes"
-        log_info "Consider committing with:"
-        echo "  cd $PROJECT_ROOT"
-        echo "  git add flake.lock"
-        echo "  git commit -m 'chore: update flake.lock'"
-        echo "  git push"
-    fi
 }
 
 # Show usage

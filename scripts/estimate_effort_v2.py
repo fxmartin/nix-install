@@ -13,7 +13,6 @@ import logging
 from datetime import datetime, timedelta
 from typing import List, Tuple, Dict, Optional
 from pathlib import Path
-import os
 
 # Constants
 DEFAULT_THRESHOLD_MINUTES = 120
@@ -177,7 +176,7 @@ def get_github_issues() -> List[dict]:
             logging.info(f"Fetched {len(issues)} GitHub issues")
             return issues
 
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError:
             if attempt == 0:
                 logging.warning(
                     "GitHub CLI not available or not authenticated - continuing without GitHub data"
@@ -332,19 +331,53 @@ def get_daily_breakdown(activities: List[Tuple[str, datetime]]) -> Dict:
     return daily
 
 
+def get_repo_name() -> str:
+    """Get repository name from git remote or directory name"""
+    try:
+        # Try to get from git remote
+        result = subprocess.run(
+            ["git", "remote", "get-url", "origin"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        remote_url = result.stdout.strip()
+        # Extract repo name from URL (handles both HTTPS and SSH)
+        # Examples:
+        #   https://github.com/user/repo.git -> repo
+        #   git@github.com:user/repo.git -> repo
+        repo_name = remote_url.rstrip("/").split("/")[-1].replace(".git", "")
+        return repo_name
+    except subprocess.CalledProcessError:
+        pass
+
+    try:
+        # Fallback: get from current directory name
+        result = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return Path(result.stdout.strip()).name
+    except subprocess.CalledProcessError:
+        return "Unknown Project"
+
+
 def output_text_format(data: Dict, args) -> str:
     """Generate human-readable text output"""
     activities = data["activities"]
     metrics = data["metrics"]
     estimates = data["estimates"]
+    repo_name = get_repo_name()
 
     output = []
     output.append("=" * 70)
-    output.append("PORTFOLIO MANAGEMENT PROJECT - TIME ANALYSIS")
+    output.append(f"{repo_name.upper()} - TIME ANALYSIS")
     output.append("=" * 70)
 
     # Data sources
-    output.append(f"\nData sources:")
+    output.append("\nData sources:")
     output.append(f"  Git commits:     {metrics.get('total_commits', 0)}")
     output.append(
         f"  GitHub issues:   {metrics.get('total_issues', 0)} ({metrics.get('closed_issues', 0)} closed)"
@@ -358,7 +391,7 @@ def output_text_format(data: Dict, args) -> str:
         output.append(f"Active days: {metrics.get('active_days', 0)}")
 
         # Velocity metrics
-        output.append(f"\nVelocity metrics:")
+        output.append("\nVelocity metrics:")
         output.append(
             f"  Commits per day:     {metrics.get('avg_commits_per_day', 0):.1f}"
         )
@@ -373,7 +406,7 @@ def output_text_format(data: Dict, args) -> str:
         )
 
         # Time estimates
-        output.append(f"\nEstimated active development hours:")
+        output.append("\nEstimated active development hours:")
         for estimate in estimates:
             threshold = estimate["threshold_minutes"]
             hours = estimate["hours"]
@@ -389,9 +422,11 @@ def output_text_format(data: Dict, args) -> str:
 
 def output_json_format(data: Dict, args) -> str:
     """Generate machine-readable JSON output"""
+    repo_name = get_repo_name()
     # Make data JSON serializable
     serializable_data = {
         "metadata": {
+            "project_name": repo_name,
             "analysis_date": datetime.now().isoformat(),
             "threshold_minutes": args.threshold,
             "final_session_minutes": args.final_session,

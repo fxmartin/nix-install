@@ -31,9 +31,9 @@
   #    - Ghostty reads config from symlink target
   # 5. Ghostty can read config from working directory (not /nix/store)
   #
-  # Key Features (from existing config/config.ghostty):
+  # Key Features (from existing config/ghostty/config):
   # - Theme: Catppuccin (Latte for light, Mocha for dark) with automatic switching
-  # - Font: JetBrains Mono with ligatures
+  # - Font: JetBrainsMono Nerd Font with ligatures (for Starship icons)
   # - Auto-update: Disabled (auto-update = off)
   # - Background: 95% opacity with blur effect
   # - Window padding: 16px horizontal/vertical

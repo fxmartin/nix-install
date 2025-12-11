@@ -8,11 +8,68 @@
 **Feature ID**: Feature 05.3
 **Feature Name**: Application-Specific Theming
 **Epic**: Epic-05
-**Status**: 🔄 In Progress
+**Status**: ✅ Complete (VM Tested 2025-12-06)
 
+### Feature 05.3: Application-Specific Theming
+**Feature Description**: Configure app-specific theming for Ghostty and Zed
+**User Value**: Consistent colors and fonts between terminal and editor
+**Story Count**: 2
+**Story Points**: 10
+**Priority**: High
+**Complexity**: Medium
+
+#### Stories in This Feature
+
+##### Story 05.3-001: Ghostty Terminal Theming
+**User Story**: As FX, I want Ghostty themed with Catppuccin so that terminal colors match my preferred theme and auto-switch with system appearance
+
+**Priority**: Must Have
+**Story Points**: 5
+**Sprint**: Sprint 7
 
 **Acceptance Criteria**:
-- **Given** Stylix is configured
+- **Given** Ghostty is installed
+- **When** I launch Ghostty in dark mode
+- **Then** it uses Catppuccin Mocha colors
+- **When** I switch to light mode
+- **Then** it uses Catppuccin Latte colors
+- **And** theme switching is automatic (follows macOS appearance)
+- **And** JetBrains Mono Nerd Font is applied
+
+**Technical Notes**:
+- **Architecture Decision**: Ghostty uses native Catppuccin themes (not Stylix)
+- Stylix doesn't support dynamic polarity switching - would require rebuild
+- Ghostty has excellent built-in auto-switching support
+- Configuration in `config/ghostty/config`:
+  ```
+  theme = "light:Catppuccin Latte,dark:Catppuccin Mocha"
+  window-theme = auto
+  font-family = JetBrainsMono Nerd Font
+  ```
+
+**Definition of Done**:
+- [x] Ghostty themed with Catppuccin Mocha (dark) ✅ VM Tested 2025-12-06
+- [x] Ghostty themed with Catppuccin Latte (light) ✅ VM Tested 2025-12-06
+- [x] Auto-switching works with macOS appearance ✅ VM Tested 2025-12-06
+- [x] JetBrains Mono Nerd Font applied ✅ VM Tested 2025-12-06
+- [x] Tested in VM ✅ VM Tested 2025-12-06
+
+**Dependencies**:
+- Story 05.2-001 (JetBrains Mono installed)
+- Epic-02, Story 02.2-003 (Ghostty installed)
+- Epic-04, Story 04.4-001 (Ghostty config applied)
+
+---
+
+##### Story 05.3-002: Zed Editor Theming
+**User Story**: As FX, I want Zed themed with Catppuccin so that editor colors match Ghostty terminal
+
+**Priority**: Must Have
+**Story Points**: 5
+**Sprint**: Sprint 7
+
+**Acceptance Criteria**:
+- **Given** Zed is installed
 - **When** I launch Zed in dark mode
 - **Then** it uses Catppuccin Mocha theme
 - **When** I switch to light mode
@@ -21,32 +78,26 @@
 - **And** theme switching is automatic
 - **And** JetBrains Mono font is applied
 
-**Additional Requirements**:
-- Stylix manages Zed theme (if supported)
-- Manual Catppuccin theme if Stylix doesn't support Zed
-- Color consistency with Ghostty
-- Auto-switching with macOS appearance
-- JetBrains Mono font
-
 **Technical Notes**:
-- **Zed configuration handled in Story 02.2-001** (Epic-02 Applications)
-- **REQ-NFR-008 Compliance**: Zed uses repository symlink pattern, NOT programs.zed.settings
-- Configuration file: config/zed/settings.json (managed via Home Manager activation script)
-- Theme settings already configured:
-  - Catppuccin Mocha (dark) / Latte (light)
-  - System appearance auto-switching
-  - JetBrains Mono font
-- **Do NOT use programs.zed.settings** - creates read-only /nix/store symlink
-- Verify: Open Zed, check theme matches Ghostty
-- Test: Switch system appearance, Zed theme updates
+- **Architecture Decision**: Zed uses native Catppuccin themes (not Stylix)
+- **REQ-NFR-008 Compliance**: Zed uses repository symlink pattern
+- Configuration file: `config/zed/settings.json`
+- Theme settings:
+  ```json
+  "theme": {
+    "mode": "system",
+    "light": "Catppuccin Latte",
+    "dark": "Catppuccin Mocha"
+  }
+  ```
 
 **Definition of Done**:
-- [ ] Zed themed with Catppuccin
-- [ ] Colors match Ghostty
-- [ ] Auto-switching works
-- [ ] JetBrains Mono font applied
-- [ ] Tested in VM with appearance changes
-- [ ] Visual consistency verified
+- [x] Zed themed with Catppuccin Mocha (dark) ✅ VM Tested 2025-12-06
+- [x] Zed themed with Catppuccin Latte (light) ✅ VM Tested 2025-12-06
+- [x] Colors match Ghostty ✅ VM Tested 2025-12-06
+- [x] Auto-switching works ✅ VM Tested 2025-12-06
+- [x] JetBrains Mono font applied ✅ VM Tested 2025-12-06
+- [x] Tested in VM with appearance changes ✅ VM Tested 2025-12-06
 
 **Dependencies**:
 - Story 05.1-001 (Stylix configured)
@@ -55,8 +106,43 @@
 - Epic-02, Story 02.2-001 (Zed installed)
 - Epic-04, Story 04.9-001 (Zed editor configuration)
 
-**Risk Level**: Medium
-**Risk Mitigation**: Manual Catppuccin theme config if Stylix doesn't support Zed
+---
+
+## Feature Progress Summary
+
+| Story | Status | Points | Completion |
+|-------|--------|--------|------------|
+| 05.3-001 Ghostty Theming | ✅ Complete | 5 | VM Tested 2025-12-06 |
+| 05.3-002 Zed Theming | ✅ Complete | 5 | VM Tested 2025-12-06 |
+
+**Total Feature Points**: 10 (complete) / 10 (planned) = 100% complete
+**VM Testing Status**: ✅ Complete - All stories VM tested by FX on 2025-12-06
+
+### Implementation Notes (2025-12-06)
+
+**Architecture Decision: Native App Theming vs Stylix**
+
+Key insight discovered during implementation:
+1. **Stylix limitation**: Does not support dynamic polarity switching - would require rebuild to change themes
+2. **Solution**: Use native app auto-switching capabilities
+3. **Result**: Both Ghostty and Zed switch themes automatically when macOS appearance changes
+
+**Ghostty** (`config/ghostty/config`):
+```
+theme = "light:Catppuccin Latte,dark:Catppuccin Mocha"
+window-theme = auto
+```
+
+**Zed** (`config/zed/settings.json`):
+```json
+"theme": {
+  "mode": "system",
+  "light": "Catppuccin Latte",
+  "dark": "Catppuccin Mocha"
+}
+```
+
+This approach provides the best user experience - instant theme switching without requiring system rebuilds.
 
 ---
 

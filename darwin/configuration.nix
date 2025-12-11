@@ -70,12 +70,51 @@
     git                 # Git version control system
     git-lfs             # Git Large File Storage
 
-    # System Monitoring (Story 02.4-006)
+    # Shell Enhancement Tools (Epic-04)
+    fzf                 # Fuzzy finder for shell (Ctrl+R history, Ctrl+T files)
+    fd                  # Fast find alternative (used by fzf)
+
+    # Modern CLI Tools (Story 04.5-003)
+    ripgrep             # Fast grep alternative (rg) - respects .gitignore, blazing fast
+    bat                 # Cat clone with syntax highlighting and git integration
+    eza                 # Modern ls replacement with tree view, icons, git support
+    zoxide              # Smarter cd - tracks frecency (frequency + recency) for directory jumping
+    httpie              # Modern curl alternative with JSON support and colored output
+    tldr                # Simplified, community-driven man pages (tealdeer implementation)
+
+    # System Monitoring (Story 02.4-006, Feature 06.3)
+    btop                # Modern resource monitor (TUI) - prettier than gotop with themes
     gotop               # Interactive CLI system monitor (TUI for CPU, RAM, disk, network)
     macmon              # macOS system monitoring CLI tool (hardware specs, sensors)
 
     # Remote Access Tools
     mosh                # Mobile shell - persistent SSH alternative with roaming support
+
+    # Nix Development Tools
+    nil                 # Nix language server (simpler, lightweight)
+    nixd                # Nix language server (feature-rich, used by Zed extension)
+
+    # Language Servers for Editor Integration (Zed, VSCode)
+    # Python
+    pyright             # Python type checker and language server (fastest, recommended)
+
+    # Shell/Bash
+    bash-language-server  # Bash/Shell script language server
+    shellcheck          # Shell script static analysis (used by bash-language-server)
+
+    # Web Development (React.js / TypeScript / JavaScript)
+    nodePackages.typescript-language-server  # TypeScript/JavaScript language server
+    nodePackages.vscode-langservers-extracted  # HTML, CSS, JSON, ESLint language servers
+    nodePackages.prettier                    # Code formatter for JS/TS/HTML/CSS/JSON
+
+    # YAML (for docker-compose, podman-compose, CI configs)
+    yaml-language-server  # YAML language server with schema support
+
+    # TOML (for pyproject.toml, Cargo.toml)
+    taplo               # TOML language server and formatter
+
+    # Markdown
+    marksman            # Markdown language server with wiki-links support
   ];
 
   # Application Management & System Configuration
@@ -112,6 +151,43 @@
           echo "✓ Xcode Command Line Tools installed"
         fi
       '';
+
+      # Sync maintenance scripts to ~/.local/bin (TCC-safe location for LaunchAgents)
+      # macOS TCC blocks LaunchAgents from accessing ~/Documents, so we copy scripts
+      # to ~/.local/bin which is not a protected folder
+      syncMaintenanceScripts.text = ''
+        echo "Syncing maintenance scripts to ~/.local/bin..."
+        SCRIPTS_SRC="/Users/${userConfig.username}/${userConfig.directories.dotfiles}/scripts"
+        SCRIPTS_DST="/Users/${userConfig.username}/.local/bin"
+
+        # Create destination directory if it doesn't exist
+        mkdir -p "$SCRIPTS_DST"
+
+        # List of scripts used by LaunchAgents
+        SCRIPTS=(
+          "weekly-maintenance-digest.sh"
+          "release-monitor.sh"
+          "health-check.sh"
+          "disk-cleanup.sh"
+          "send-notification.sh"
+          "fetch-release-notes.sh"
+          "analyze-releases.sh"
+          "create-release-issues.sh"
+          "send-release-summary.sh"
+        )
+
+        for script in "''${SCRIPTS[@]}"; do
+          if [[ -f "$SCRIPTS_SRC/$script" ]]; then
+            cp "$SCRIPTS_SRC/$script" "$SCRIPTS_DST/$script"
+            chmod 755 "$SCRIPTS_DST/$script"
+            echo "  ✓ Synced $script"
+          else
+            echo "  ⚠ Script not found: $script"
+          fi
+        done
+
+        echo "✓ Maintenance scripts synced to $SCRIPTS_DST"
+      '';
     };
 
     # macOS System Preferences
@@ -146,41 +222,12 @@
     }
   ];
 
-  # Warning Messages
-  warnings = [
-    "Remember to run 'xcode-select --install' if building fails"
-    "Use 'uv' for Python project dependencies and version management"
-  ];
+  # Warning Messages (disabled - these showed on every rebuild)
+  # warnings = [
+  #   "Remember to run 'xcode-select --install' if building fails"
+  #   "Use 'uv' for Python project dependencies and version management"
+  # ];
 
-  # Stylix System-wide Theming (Catppuccin)
-  # Will be expanded in Epic-05
-  stylix = {
-    enable = true;
-
-    # Disable version mismatch warnings between Stylix and nix-darwin
-    # Safe to use as we track nixpkgs-unstable for both
-    enableReleaseChecks = false;
-
-    # Catppuccin Mocha theme (dark mode)
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
-
-    # Generate solid color wallpaper from theme
-    image = config.lib.stylix.pixel "base00";
-
-    # Font configuration (JetBrains Mono Nerd Font)
-    fonts = {
-      monospace = {
-        package = pkgs.nerd-fonts.jetbrains-mono;
-        name = "JetBrainsMono Nerd Font";
-      };
-      sansSerif = {
-        package = pkgs.inter;
-        name = "Inter";
-      };
-      serif = {
-        package = pkgs.source-serif;
-        name = "Source Serif 4";
-      };
-    };
-  };
+  # NOTE: Stylix theming configuration has been moved to darwin/stylix.nix (Epic-05)
+  # The stylix.nix module is imported via flake.nix commonModules
 }

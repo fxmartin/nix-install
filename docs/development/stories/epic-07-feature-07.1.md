@@ -8,7 +8,7 @@
 **Feature ID**: Feature 07.1
 **Feature Name**: Quick Start Documentation
 **Epic**: Epic-07
-**Status**: 🔄 In Progress
+**Status**: ✅ Complete (2025-12-06)
 
 **Feature Description**: Create README with installation instructions and update philosophy
 **User Value**: Clear, concise guide to get started quickly
@@ -101,14 +101,25 @@
   ```
 
 **Definition of Done**:
-- [ ] README.md created
-- [ ] Quick start section complete
-- [ ] Profile comparison clear
-- [ ] What gets installed listed
-- [ ] Post-install steps linked
-- [ ] Common commands documented
-- [ ] Written for non-Nix users
-- [ ] Reviewed for clarity
+- [x] README.md created
+- [x] Quick start section complete
+- [x] Profile comparison clear
+- [x] What gets installed listed
+- [x] Post-install steps linked
+- [x] Common commands documented
+- [x] Written for non-Nix users
+- [x] Reviewed for clarity
+
+**Status**: ✅ **COMPLETE** (2025-12-06)
+
+**Implementation Notes**:
+- Updated Quick Start with correct `bootstrap.sh` command (was incorrectly `setup.sh`)
+- Added 9-phase installation walkthrough for clarity
+- Added Requirements section with macOS, disk space, GitHub requirements
+- Added Manual Steps section linking to licensed-apps.md
+- Expanded "What Gets Installed" section with full app categories
+- Enhanced Common Commands table with gc, cleanup, rollback
+- Added Profile comparison table with detailed feature breakdown
 
 **Dependencies**:
 - Epic-01 (Bootstrap process to document)
@@ -186,12 +197,22 @@
   ```
 
 **Definition of Done**:
-- [ ] Update philosophy documented
-- [ ] rebuild vs update explained
-- [ ] Rationale for disabled auto-updates clear
-- [ ] Check for updates command shown
-- [ ] Rollback process documented
-- [ ] Reviewed for clarity
+- [x] Update philosophy documented
+- [x] rebuild vs update explained
+- [x] Rationale for disabled auto-updates clear
+- [x] Check for updates command shown
+- [x] Rollback process documented
+- [x] Reviewed for clarity
+
+**Status**: ✅ **COMPLETE** (2025-12-06)
+
+**Implementation Notes**:
+- Added new "Update Philosophy" section to README.md
+- Created visual comparison table for rebuild vs update
+- Documented 5 key benefits of no auto-updates
+- Added commands for checking available updates
+- Documented rollback with generation listing
+- Added multi-machine update strategy section
 
 **Dependencies**:
 - Epic-04, Story 04.5-001 (rebuild and update aliases)
@@ -310,13 +331,23 @@
   ```
 
 **Definition of Done**:
-- [ ] docs/licensed-apps.md created
-- [ ] All licensed apps listed
-- [ ] Activation steps for each app
-- [ ] Categorized by sign-in vs license key
-- [ ] Time estimate included
-- [ ] Vendor links provided
-- [ ] Reviewed for accuracy
+- [x] docs/licensed-apps.md created
+- [x] All licensed apps listed
+- [x] Activation steps for each app
+- [x] Categorized by sign-in vs license key
+- [x] Time estimate included
+- [x] Vendor links provided
+- [x] Reviewed for accuracy
+
+**Status**: ✅ **COMPLETE** (2025-12-06)
+
+**Implementation Notes**:
+- docs/licensed-apps.md already existed with comprehensive content (900+ lines)
+- Added Quick Reference table with time estimates and priority order
+- Added estimated total time (15-20 minutes)
+- All 8 licensed apps documented: 1Password, Dropbox, NordVPN, Zoom, Webex, iStat Menus, Parallels, Office 365
+- Each app has step-by-step activation, troubleshooting, and verification
+- Vendor support links included for all apps
 
 **Dependencies**:
 - Epic-02 (Applications requiring licenses)
@@ -406,3 +437,38 @@
 
   ## Verify Installation
 
+  - [ ] Open Ghostty terminal - theme should match system appearance
+  - [ ] Open Zed editor - theme should match Ghostty
+  - [ ] Run `python --version` - should show 3.12.x
+  - [ ] Run `podman run hello-world` - should work
+  - [ ] Run `git config user.name` - should show your name
+
+  ## Done!
+
+  Your Mac is now fully configured. See [README.md](../README.md) for common commands.
+  ```
+
+**Definition of Done**:
+- [x] docs/post-install.md created
+- [x] Checklist complete and ordered
+- [x] All manual steps included
+- [x] Links to other docs
+- [x] Checkbox format for tracking
+- [x] Reviewed for completeness
+
+**Status**: ✅ **COMPLETE** (2025-12-06)
+
+**Implementation Notes**:
+- Created comprehensive docs/post-install.md with 6 sections
+- Ordered checklist: Immediate → Security → Licensed Apps → Optional → Verify → Commands
+- Time estimate: 10-15 minutes
+- Links to licensed-apps.md and README
+- Verification commands for shell, dev tools, and applications
+- Rollback instructions included
+
+**Dependencies**:
+- Story 07.2-001 (Licensed apps guide)
+- Epic-01 (Bootstrap completion)
+
+**Risk Level**: Low
+**Risk Mitigation**: N/A

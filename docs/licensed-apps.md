@@ -5,7 +5,26 @@
 
 This document provides guidance for applications that require licenses, subscriptions, or account activation after installation via nix-darwin.
 
+**Estimated Time**: 15-20 minutes total to activate all apps
+
 **Philosophy**: Some applications cannot be fully configured via nix-darwin and require manual activation, sign-in, or license key entry. This document tracks those apps and provides activation instructions.
+
+---
+
+## Quick Reference
+
+| App | Type | Time | Priority |
+|-----|------|------|----------|
+| **1Password** | Sign-in | 2 min | High (password access) |
+| **Dropbox** | Sign-in | 2 min | Medium (file sync) |
+| **NordVPN** | Sign-in | 2 min | Medium (VPN access) |
+| **Zoom** | Sign-in | 1 min | As needed |
+| **Webex** | Sign-in | 1 min | As needed |
+| **iStat Menus** | License key | 1 min | Low (trial available) |
+| **Parallels** | License key | 2 min | Power profile only |
+| **Office 365** | Sign-in | 3 min | If needed |
+
+**Recommended order**: 1Password first (to retrieve other credentials), then remaining apps.
 
 ---
 

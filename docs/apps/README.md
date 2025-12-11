@@ -97,7 +97,6 @@ Apps for messaging, video conferencing, and collaboration.
 Apps for media playback and image editing.
 
 - [VLC Media Player](media/vlc.md) - Universal media player supporting all formats (Homebrew cask)
-- [GIMP](media/gimp.md) - Open-source image editor alternative to Photoshop (Homebrew cask)
 
 ---
 
@@ -149,8 +148,7 @@ docs/apps/
 │   ├── zoom.md                         # Zoom video conferencing
 │   └── cisco-webex.md                  # Cisco Webex collaboration
 ├── media/
-│   ├── vlc.md                          # VLC media player
-│   └── gimp.md                         # GIMP image editor
+│   └── vlc.md                          # VLC media player
 ├── security/
 │   └── nordvpn.md                      # NordVPN VPN service
 ├── virtualization/

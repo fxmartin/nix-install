@@ -9,12 +9,18 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ### Start Here
 - **[progress.md](./progress.md)** - Epic overview, completed stories, recent activity
-  - Current project status: **36.5% complete** (42/115 stories, 220/606 points)
-  - Epic-01: **89.5% complete** (17/19 stories, 104/113 points) 🟢 Bootstrap functional
+  - Current project status: **98.4% complete** (122/124 stories, 641/650 points)
+  - 🎉 **MILESTONE (2025-12-07)**: MacBook Pro M3 Max successfully running Power profile!
+  - 📝 **CHANGELOG.md**: Created 2025-12-07 - v1.0.0 release documented
+  - Epic-01: **94.7% complete** (18/19 stories, 107/113 points) 🟢 Bootstrap functional
   - **Epic-02: 100% COMPLETE** (25/25 stories, 118/118 points) ✅ All apps delivered!
-  - Story 02.10-001 (Email Config) **CANCELLED** - manual setup documented
-  - **Next Epic**: Epic-03 System Configuration (0% started, 14 stories, 76 points) 🚀
-  - Recent: 🎉 Epic-02 COMPLETE! Final 3 stories: Dropbox, NordVPN, Office 365
+  - **Epic-03: 100% COMPLETE** (14/14 stories, 76/76 points) ✅ System config complete!
+  - **Epic-04: 100% COMPLETE** (18/18 stories, 97/97 points) ✅ Development environment complete!
+  - **Epic-05: 100% COMPLETE** (7/7 stories, 36/36 points) ✅ Theming & visual consistency complete!
+  - **Epic-06: 100% COMPLETE** (18/18 stories, 97/97 points) ✅ Maintenance & monitoring complete!
+  - **Epic-07: 100% COMPLETE** (8/8 stories, 34/34 points) ✅ Documentation & UX complete!
+  - **NFR: 93% COMPLETE** (14/15 stories, 76/79 points) ✅ Nearly complete!
+  - Next: MacBook Air migrations (Phase 11)
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns
@@ -35,12 +41,21 @@ Welcome to the nix-install development documentation. This directory contains al
 
 ## 🎯 Current Status (Quick Reference)
 
-**Overall Project**: 36.5% complete (42/115 stories, 220/606 points)
+**Overall Project**: 98.4% complete (122/124 stories, 641/650 points) 🎉
 
-**Epic-01: Bootstrap & Installation System** - 89.5% complete (92.0% by points) 🟢
+**🎉 MILESTONE (2025-12-07)**: MacBook Pro M3 Max successfully running Power profile!
+**📝 CHANGELOG.md**: Created 2025-12-07 - v1.0.0 release documented
+
+**Epic-01: Bootstrap & Installation System** - 94.7% complete (18/19 stories, 107/113 points) 🟢
 **Epic-02: Application Installation** - 100% COMPLETE (25/25 stories, 118/118 points) ✅
+**Epic-03: System Configuration** - 100% COMPLETE (14/14 stories, 76/76 points) ✅
+**Epic-04: Development Environment** - 100% COMPLETE (18/18 stories, 97/97 points) ✅
+**Epic-05: Theming & Visual Consistency** - 100% COMPLETE (7/7 stories, 36/36 points) ✅
+**Epic-06: Maintenance & Monitoring** - 100% COMPLETE (18/18 stories, 97/97 points) ✅
+**Epic-07: Documentation & User Experience** - 100% COMPLETE (8/8 stories, 34/34 points) ✅
+**NFR: Non-Functional Requirements** - 93% COMPLETE (14/15 stories, 76/79 points) ✅
 
-### ✅ Completed Stories (42)
+### ✅ Completed Stories (122)
 
 #### Epic-01 Stories (17)
 1. **01.1-001** - Pre-flight Environment Checks (5 pts) - 2025-11-08
@@ -90,25 +105,98 @@ Welcome to the nix-install development documentation. This directory contains al
 
 **Note**: Story 02.10-001 (Email Account Configuration, 5 pts) was **CANCELLED**. Manual setup documented instead.
 
-### 🚧 Next Stories
+#### Epic-03 Stories (14) ✅ EPIC COMPLETE!
+43. **03.1-001** - Finder View and Display Settings (5 pts) - 2025-11-19 (VM tested)
+44. **03.1-002** - Finder Behavior Settings (5 pts) - 2025-12-04 (VM tested)
+45. **03.1-003** - Finder Sidebar and Desktop (8 pts) - 2025-12-04 (VM tested)
+46. **03.2-001** - Firewall Configuration (5 pts) - 2025-12-04 (VM tested)
+47. **03.2-002** - FileVault Encryption Prompt (8 pts) - 2025-12-04 (Implemented)
+48. **03.2-003** - Screen Lock and Password Policies (5 pts) - 2025-12-04 (VM tested)
+49. **03.3-001** - Trackpad Gestures and Speed (8 pts) - 2025-12-04 (Hardware tested)
+50. **03.3-002** - Mouse and Scroll Settings (5 pts) - 2025-12-04 (Hardware tested)
+51. **03.4-001** - Auto Light/Dark Mode and Time Format (5 pts) - 2025-12-04 (Hardware tested)
+52. **03.4-002** - Night Shift Scheduling (5 pts) - 2025-12-04 (Documented)
+53. **03.5-001** - Keyboard Repeat and Text Corrections (5 pts) - 2025-12-04 (Hardware tested)
+54. **03.6-001** - Dock Behavior and Apps (4 pts) - 2025-12-04 (Hardware tested)
+55. **03.7-001** - Time Machine Preferences & Exclusions (5 pts) - 2025-12-04 (Hardware tested)
+56. **03.7-002** - Time Machine Destination Setup Prompt (3 pts) - 2025-12-05 (Complete)
 
-**Epic-03: System Configuration** (Next Epic - 0% started, 14 stories, 76 points):
-- **03.1-001** - Finder Preferences Configuration (5 pts) - Finder behavior settings
-- **03.1-002** - Finder Toolbar Customization (3 pts) - Toolbar items and layout
-- **03.1-003** - Finder Sidebar Configuration (3 pts) - Sidebar items and favorites
+#### Epic-04 Stories (18/18 complete - 100%) ✅ EPIC COMPLETE!
+57. **04.1-001** - Zsh Shell Configuration (5 pts) - 2025-12-05 (Hardware tested)
+58. **04.1-002** - Oh My Zsh Installation and Plugin Configuration (8 pts) - 2025-12-05 (Hardware tested)
+59. **04.1-003** - Zsh Environment and Options (5 pts) - 2025-12-05 (Hardware tested)
+60. **04.2-001** - Starship Prompt Installation and Configuration (5 pts) - 2025-12-05 (Hardware tested)
+61. **04.3-001** - FZF Installation and Keybindings (5 pts) - 2025-12-05 (Hardware tested)
+62. **04.4-001** - Ghostty Configuration Integration (5 pts) - 2025-12-05 (Hardware tested)
+63. **04.5-001** - Core Nix Aliases (5 pts) - 2025-12-05 (Hardware tested)
+64. **04.5-002** - General Shell Aliases (5 pts) - 2025-12-05 (Hardware tested)
+65. **04.5-003** - Modern CLI Tool Replacements (8 pts) - 2025-12-05 (Hardware tested)
+66. **04.6-001** - Git Configuration (5 pts) - 2025-12-05 (Hardware tested)
+67. **04.6-002** - Git Aliases (5 pts) - 2025-12-05 (Hardware tested)
+68. **04.6-003** - SSH Configuration (7 pts) - 2025-12-05 (Hardware tested)
+69. **04.7-001** - Python Environment Variables (3 pts) - 2025-12-05 (Hardware tested)
+70. **04.7-002** - Python Dev Tools Configuration (5 pts) - 2025-12-05 (Hardware tested)
+71. **04.8-001** - Podman Machine Initialization (8 pts) - 2025-12-05 (Hardware tested)
+72. **04.8-002** - Docker Compatibility Aliases (5 pts) - 2025-12-05 (Hardware tested)
+73. **04.9-001** - Zed Editor Theming (1 pt) - 2025-11-12 (Already in Epic-02)
+74. **04.9-002** - VSCode Configuration (1 pt) - 2025-11-12 (Already in Epic-02)
+
+#### Epic-05 Stories (7/7 complete - 100%) ✅ EPIC COMPLETE!
+75. **05.1-001** - Stylix Installation and Base16 Scheme (8 pts) - 2025-12-06 (VM Tested)
+76. **05.1-002** - Auto Light/Dark Mode Switching (5 pts) - 2025-12-06 (VM Tested)
+77. **05.2-001** - JetBrains Mono Nerd Font Installation (5 pts) - 2025-12-06 (VM Tested)
+78. **05.2-002** - Font Ligature Configuration (5 pts) - 2025-12-06 (VM Tested)
+79. **05.3-001** - Ghostty Terminal Theming (5 pts) - 2025-12-06 (VM Tested)
+80. **05.3-002** - Zed Editor Theming (5 pts) - 2025-12-06 (VM Tested)
+81. **05.4-001** - Visual Consistency and Switching Verification (3 pts) - 2025-12-06 (VM Tested)
+
+#### Epic-06 Stories (18/18 complete - 100%) ✅ EPIC COMPLETE!
+82. **06.1-001** - Nix Store Garbage Collection LaunchAgent (5 pts) - 2025-12-06
+83. **06.1-002** - Garbage Collection Manual Trigger Alias (3 pts) - 2025-12-06
+84. **06.2-001** - Nix Store Optimization LaunchAgent (5 pts) - 2025-12-06
+85. **06.2-002** - Store Optimization Manual Trigger Alias (3 pts) - 2025-12-06
+86. **06.3-001** - btop Terminal Monitor Installation (3 pts) - 2025-12-06
+87. **06.3-002** - gotop Terminal Monitor Installation (3 pts) - 2025-12-06
+88. **06.3-003** - macmon macOS-specific Monitor Installation (3 pts) - 2025-12-06
+89. **06.4-001** - iStat Menus Installation (3 pts) - 2025-12-06
+90. **06.5-001** - health-check Script Implementation (8 pts) - 2025-12-06
+91. **06.5-002** - health-check Alias Integration (2 pts) - 2025-12-06
+92. **06.6-001** - Weekly Maintenance Digest Script (8 pts) - 2025-12-06
+93. **06.6-002** - Maintenance Digest LaunchAgent (5 pts) - 2025-12-06
+94. **06.6-003** - Maintenance Digest Email Configuration (3 pts) - 2025-12-06
+95. **06.7-001** - Release Monitor Core Script (13 pts) - 2025-12-06
+96. **06.7-002** - Release Monitor GitHub Integration (8 pts) - 2025-12-06
+97. **06.7-003** - Release Monitor Email Reports (5 pts) - 2025-12-06
+98. **06.7-004** - Release Monitor LaunchAgent (5 pts) - 2025-12-06
+99. **06.7-005** - Release Monitor Claude Code Commands (5 pts) - 2025-12-06
+
+#### Epic-07 Stories (8/8 complete - 100%) ✅ EPIC COMPLETE!
+100. **07.1-001** - README Quick Start Guide (5 pts) - 2025-12-06
+101. **07.1-002** - Update Philosophy Documentation (5 pts) - 2025-12-06
+102. **07.2-001** - Licensed App Documentation (5 pts) - 2025-12-06
+103. **07.2-002** - Post-Install Checklist (3 pts) - 2025-12-06
+104. **07.3-001** - Common Issues Documentation (5 pts) - 2025-12-06
+105. **07.3-002** - Rollback Documentation (3 pts) - 2025-12-06
+106. **07.4-001** - Adding Apps Documentation (5 pts) - 2025-12-06
+107. **07.4-002** - Configuration Examples (3 pts) - 2025-12-06
+
+### 🚧 Remaining Stories
 
 **Epic-01 Cleanup** (Optional enhancements):
 - **01.1-003** - Progress Indicators (3 pts) - P1 optional enhancement
 - **01.1-004** - Modular Bootstrap Architecture (8 pts) - P1, deferred to post-Epic-01
 
-**Epic-03** (Next Epic):
-- System Configuration (0% started, 14 stories, 76 points)
-  - Includes new Feature 03.7: Time Machine Backup Configuration (2 stories, 8 points)
+**NFR Stories** (15 stories, 79 points):
+- Non-functional requirements for security, performance, error handling
 
-### ⏳ Remaining Stories
+### ⏳ Summary
 - **Epic-01**: 2 stories remaining (01.1-003, 01.1-004) - both P1 optional/deferred
 - **Epic-02**: ✅ **COMPLETE** (25/25 stories, 100%)
-- **Epic-03**: 14 stories remaining (0 completed, next epic to start) 🚀
+- **Epic-03**: ✅ **COMPLETE** (14/14 stories, 100%)
+- **Epic-04**: ✅ **COMPLETE** (18/18 stories, 100%)
+- **Epic-05**: ✅ **COMPLETE** (7/7 stories, 100%)
+- **Epic-06**: ✅ **COMPLETE** (18/18 stories, 100%)
+- **Epic-07**: ✅ **COMPLETE** (8/8 stories, 100%)
 
 ## 🛠️ What to Read First?
 

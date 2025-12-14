@@ -237,6 +237,27 @@
   # Security Configuration
   security.pam.services.sudo_local.touchIdAuth = true; # TouchID for sudo
 
+  # Custom hosts for easy name resolution
+  # Includes Tailscale IPs, public IPs, and local network IPs
+  environment.etc.hosts.text = ''
+    ##
+    # Host Database
+    ##
+    127.0.0.1       localhost
+    255.255.255.255 broadcasthost
+    ::1             localhost
+
+    # Tailscale IPs (accessible when Tailscale is connected)
+    100.92.56.127  dev.ts dev-server.ts
+    100.98.9.111   nas.ts nas-luxembourg.ts
+
+    # Public IPs (accessible from anywhere via internet)
+    46.224.44.190  dev dev-server dev-public
+
+    # Local network IPs (accessible only on local network)
+    192.168.68.58  nas-lux nas-local
+  '';
+
   # System Configuration Validation
   assertions = [
     {

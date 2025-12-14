@@ -51,12 +51,34 @@
         controlPersist = "600";
       };
 
-      # NAS Luxembourg (TerraMaster)
+      # NAS Luxembourg (TerraMaster) - Local network
       "nas-lux" = {
         hostname = "192.168.68.58";
         user = "fxmartin";
         port = 2222;
         identityFile = "~/.ssh/id_nas_luxembourg";
+      };
+
+      # NAS Luxembourg via Tailscale (accessible from anywhere)
+      "nas.ts" = {
+        hostname = "100.98.9.111";  # Tailscale IP
+        user = "fxmartin";
+        port = 2222;
+        identityFile = "~/.ssh/id_nas_luxembourg";
+      };
+
+      # Dev Server via Tailscale
+      "dev.ts" = {
+        hostname = "100.92.56.127";  # Tailscale IP
+        user = "fxmartin";
+        identityFile = "~/.ssh/id_ed25519";
+      };
+
+      # Dev Server via Public IP (Hetzner)
+      "dev" = {
+        hostname = "46.224.44.190";  # Hetzner public IP
+        user = "fxmartin";
+        identityFile = "~/.ssh/id_ed25519";
       };
 
       # Generic SSH settings for all hosts

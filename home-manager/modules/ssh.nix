@@ -51,6 +51,14 @@
         controlPersist = "600";
       };
 
+      # NAS Luxembourg (TerraMaster)
+      "nas-lux" = {
+        hostname = "192.168.68.58";
+        user = "fxmartin";
+        port = 2222;
+        identityFile = "~/.ssh/id_nas_luxembourg";
+      };
+
       # Generic SSH settings for all hosts
       "*" = {
         # Add keys to SSH agent automatically (moved from deprecated top-level option)

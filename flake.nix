@@ -146,6 +146,10 @@
       # Maintenance LaunchAgents (Epic-06: Features 06.1, 06.2)
       # Automated garbage collection and store optimization
       ./darwin/maintenance.nix
+
+      # rsync Backup to NAS (optional - config in rsync-backup-config.nix)
+      # Automated backup of configured folders to TerraMaster NAS
+      ./darwin/rsync-backup.nix
     ];
 
     # Helper function to create darwin configuration

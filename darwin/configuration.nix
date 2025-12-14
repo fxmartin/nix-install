@@ -155,7 +155,14 @@
       # Sync maintenance scripts to ~/.local/bin (TCC-safe location for LaunchAgents)
       # macOS TCC blocks LaunchAgents from accessing ~/Documents, so we copy scripts
       # to ~/.local/bin which is not a protected folder
-      syncMaintenanceScripts.text = ''
+      #
+      # NOTE: Must use postActivation (a hardcoded name that nix-darwin runs)
+      # Custom activation script names are NOT executed automatically
+      # See: https://github.com/nix-darwin/nix-darwin/issues/663
+      postActivation.text = lib.mkAfter ''
+        # ========================================================================
+        # MAINTENANCE SCRIPTS SYNC
+        # ========================================================================
         echo "Syncing maintenance scripts to ~/.local/bin..."
         SCRIPTS_SRC="/Users/${userConfig.username}/${userConfig.directories.dotfiles}/scripts"
         SCRIPTS_DST="/Users/${userConfig.username}/.local/bin"
@@ -164,6 +171,7 @@
         mkdir -p "$SCRIPTS_DST"
 
         # List of scripts used by LaunchAgents
+        # NOTE: rsync-backup.sh is handled separately in darwin/rsync-backup.nix
         SCRIPTS=(
           "weekly-maintenance-digest.sh"
           "release-monitor.sh"
@@ -180,13 +188,28 @@
           if [[ -f "$SCRIPTS_SRC/$script" ]]; then
             cp "$SCRIPTS_SRC/$script" "$SCRIPTS_DST/$script"
             chmod 755 "$SCRIPTS_DST/$script"
+            chown ${userConfig.username}:staff "$SCRIPTS_DST/$script"
             echo "  ✓ Synced $script"
           else
             echo "  ⚠ Script not found: $script"
           fi
         done
 
+        # Ensure entire directory is owned by user
+        chown -R ${userConfig.username}:staff "$SCRIPTS_DST"
         echo "✓ Maintenance scripts synced to $SCRIPTS_DST"
+
+        # ========================================================================
+        # OSXPHOTOS INSTALLATION (for Photo Export to NAS)
+        # ========================================================================
+        # osxphotos requires pyobjc frameworks that aren't in nixpkgs
+        # Using uv (which IS Nix-managed) ensures reproducible installation
+        echo "Installing osxphotos via uv..."
+        if sudo -u ${userConfig.username} -i ${pkgs.uv}/bin/uv tool install osxphotos --force 2>&1; then
+          echo "✓ osxphotos installed via uv"
+        else
+          echo "⚠ osxphotos installation failed (may need manual: uv tool install osxphotos)"
+        fi
       '';
     };
 

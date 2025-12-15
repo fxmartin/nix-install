@@ -3,7 +3,9 @@
 # ABOUTME: Changes take effect after running 'rebuild'
 {
   # NAS connection settings
-  nasHost = "TNAS.local";
+  # Using IP address instead of TNAS.local for reliable overnight backups
+  # (mDNS/Bonjour may not resolve when Mac wakes from sleep at 2 AM)
+  nasHost = "192.168.68.58";  # nas-lux (local network)
   nasShare = "Photos";
 
   # Schedule: Daily at 2 AM

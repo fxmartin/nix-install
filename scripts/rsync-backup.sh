@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ABOUTME: Multi-job rsync backup script for TerraMaster NAS
 # ABOUTME: Reads job configuration from ~/.config/rsync-backup/jobs.conf
-# ABOUTME: Supports multiple source/destination pairs with per-job excludes
+# ABOUTME: Supports multiple source/destination pairs with per-job shares and excludes
 
 set -euo pipefail
 
@@ -10,7 +10,7 @@ set -euo pipefail
 # =============================================================================
 
 # Script version
-RSYNC_BACKUP_VERSION="2.0.0"
+RSYNC_BACKUP_VERSION="3.0.0"
 
 # Color codes for output
 RED='\033[0;31m'
@@ -34,6 +34,9 @@ TOTAL_JOBS=0
 SUCCESSFUL_JOBS=0
 FAILED_JOBS=0
 FAILED_JOB_NAMES=""
+
+# Track mounted shares
+declare -A MOUNTED_SHARES
 
 # Photo export settings
 PHOTOS_EXPORT_DIR="${HOME}/Pictures/Photos-Export"
@@ -85,7 +88,7 @@ load_config() {
         exit 1
     fi
 
-    # Source the config file (defines NAS_HOST, NAS_SHARE, JOBS, etc.)
+    # Source the config file (defines NAS_HOST, DEFAULT_SHARE, JOBS, etc.)
     # shellcheck source=/dev/null
     # shellcheck disable=SC2034  # Variables are used after sourcing
     source "${CONFIG_FILE}"
@@ -95,11 +98,6 @@ load_config() {
     # Validate required variables
     if [[ -z "${NAS_HOST:-}" ]]; then
         print_status "error" "NAS_HOST not defined in config"
-        exit 1
-    fi
-
-    if [[ -z "${NAS_SHARE:-}" ]]; then
-        print_status "error" "NAS_SHARE not defined in config"
         exit 1
     fi
 
@@ -120,44 +118,60 @@ load_config() {
 check_nas_reachable() {
     print_header "Checking NAS Connectivity"
 
+    # First try ping
     if ping -c 1 -W 5 "${NAS_HOST}" &>/dev/null; then
-        print_status "ok" "NAS ${NAS_HOST} is reachable"
+        print_status "ok" "NAS ${NAS_HOST} is reachable (ping)"
         return 0
-    else
-        print_status "error" "NAS ${NAS_HOST} is not reachable"
-        return 1
     fi
+
+    # If ping fails, try SMB connection test (NAS might block ICMP)
+    print_status "info" "Ping failed, trying SMB connection..."
+    if nc -z -w 5 "${NAS_HOST}" 445 &>/dev/null; then
+        print_status "ok" "NAS ${NAS_HOST} is reachable (SMB port 445)"
+        return 0
+    fi
+
+    print_status "error" "NAS ${NAS_HOST} is not reachable"
+    return 1
 }
 
-mount_nas_share() {
-    local mount_point="/Volumes/${NAS_SHARE}"
+# Mount a specific NAS share
+# Returns 0 if mounted (or already mounted), 1 on failure
+mount_share() {
+    local share_name="$1"
+    local mount_point="/Volumes/${share_name}"
 
-    # Check if already mounted
-    if mount | grep -q "${mount_point}"; then
-        print_status "ok" "NAS share already mounted at ${mount_point}"
+    # Check if already mounted (track in our array)
+    if [[ "${MOUNTED_SHARES[$share_name]:-}" == "1" ]]; then
         return 0
     fi
 
-    print_status "info" "Mounting NAS share ${NAS_SHARE}..."
+    # Check if already mounted on system
+    if mount | grep -q "on ${mount_point} "; then
+        print_status "ok" "Share '${share_name}' already mounted at ${mount_point}"
+        MOUNTED_SHARES[$share_name]="1"
+        return 0
+    fi
+
+    print_status "info" "Mounting NAS share '${share_name}'..."
 
     # Create mount point if needed
     if [[ ! -d "${mount_point}" ]]; then
         mkdir -p "${mount_point}" 2>/dev/null || {
-            # May need sudo, but LaunchAgents run as user
             print_status "warn" "Cannot create mount point ${mount_point}"
-            print_status "info" "Please mount the share manually: Cmd+K → smb://${NAS_HOST}/${NAS_SHARE}"
+            print_status "info" "Please mount manually: Cmd+K → smb://${NAS_HOST}/${share_name}"
             return 1
         }
     fi
 
     # Try to mount using stored Keychain credentials
-    # The -N flag tells mount_smbfs to not prompt for password (use Keychain)
-    if mount_smbfs -N "//${SMB_USERNAME:-${USER}}@${NAS_HOST}/${NAS_SHARE}" "${mount_point}" 2>/dev/null; then
-        print_status "ok" "NAS share mounted at ${mount_point}"
+    if mount_smbfs -N "//${SMB_USERNAME:-${USER}}@${NAS_HOST}/${share_name}" "${mount_point}" 2>/dev/null; then
+        print_status "ok" "Share '${share_name}' mounted at ${mount_point}"
+        MOUNTED_SHARES[$share_name]="1"
         return 0
     else
-        print_status "warn" "Auto-mount failed. Please mount manually or add credentials to Keychain."
-        print_status "info" "Manual mount: Finder → Cmd+K → smb://${NAS_HOST}/${NAS_SHARE}"
+        print_status "warn" "Auto-mount failed for '${share_name}'. Please mount manually."
+        print_status "info" "Manual mount: Finder → Cmd+K → smb://${NAS_HOST}/${share_name}"
         return 1
     fi
 }
@@ -166,19 +180,15 @@ mount_nas_share() {
 # PHOTO EXPORT (osxphotos)
 # =============================================================================
 
-# Export photos from Apple Photos library to plain files
-# Organizes by year/month, preserves original filenames, only exports new/changed
 export_photos() {
     print_header "Photo Export (osxphotos)"
 
-    # Check if osxphotos is installed
     if [[ ! -x "${OSXPHOTOS_CMD}" ]]; then
         print_status "error" "osxphotos not found at ${OSXPHOTOS_CMD}"
         print_status "info" "Run 'rebuild' to install osxphotos"
         return 1
     fi
 
-    # Create export directory if needed
     mkdir -p "${PHOTOS_EXPORT_DIR}"
 
     print_status "info" "Exporting to: ${PHOTOS_EXPORT_DIR}"
@@ -188,13 +198,6 @@ export_photos() {
     local export_start
     export_start=$(date +%s)
 
-    # Run osxphotos export
-    # --directory: Organize by year/month
-    # --filename: Keep original filename
-    # --update: Only export new/changed photos
-    # --skip-edited: Export originals only (edited versions are larger)
-    # --download-missing: Download iCloud photos if needed
-    # --retry: Retry failed downloads
     if "${OSXPHOTOS_CMD}" export "${PHOTOS_EXPORT_DIR}" \
         --directory "{created.year}/{created.month:02d}" \
         --filename "{original_name}" \
@@ -221,15 +224,23 @@ export_photos() {
 run_backup_job() {
     local job_spec="$1"
 
-    # Parse job spec: name|source|destination|excludes
-    IFS='|' read -r job_name source_path dest_path excludes_csv <<< "${job_spec}"
+    # Parse job spec: name|source|share|destination|excludes
+    IFS='|' read -r job_name source_path share_name dest_path excludes_csv <<< "${job_spec}"
 
     print_header "Backup Job: ${job_name}"
     print_status "info" "Source: ~/${source_path}"
-    print_status "info" "Destination: /Volumes/${NAS_SHARE}/${dest_path}"
+    print_status "info" "Share: ${share_name}"
+    print_status "info" "Destination: /Volumes/${share_name}/${dest_path}"
+
+    # Mount the share for this job
+    if ! mount_share "${share_name}"; then
+        print_status "error" "Cannot mount share '${share_name}' for job '${job_name}'"
+        return 1
+    fi
 
     local source_full="${HOME}/${source_path}"
-    local dest_full="/Volumes/${NAS_SHARE}/${dest_path}"
+    local dest_full="/Volumes/${share_name}"
+    [[ -n "${dest_path}" ]] && dest_full="${dest_full}/${dest_path}"
 
     # Validate source exists
     if [[ ! -e "${source_full}" ]]; then
@@ -237,12 +248,10 @@ run_backup_job() {
         return 1
     fi
 
-    # Create destination parent directory if needed
-    local dest_parent
-    dest_parent=$(dirname "${dest_full}")
-    if [[ ! -d "${dest_parent}" ]]; then
-        mkdir -p "${dest_parent}" 2>/dev/null || {
-            print_status "error" "Cannot create destination directory: ${dest_parent}"
+    # Create destination directory if needed
+    if [[ -n "${dest_path}" ]] && [[ ! -d "${dest_full}" ]]; then
+        mkdir -p "${dest_full}" 2>/dev/null || {
+            print_status "error" "Cannot create destination directory: ${dest_full}"
             return 1
         }
     fi
@@ -353,15 +362,6 @@ main() {
         exit 1
     fi
 
-    # Mount NAS share
-    if ! mount_nas_share; then
-        print_status "error" "Cannot mount NAS share. Backup aborted."
-        FAILED_JOBS=1
-        FAILED_JOB_NAMES="Mount failed"
-        send_failure_notification
-        exit 1
-    fi
-
     # Check if any job requires photo export (source contains Photos-Export)
     # shellcheck disable=SC2154  # JOBS is defined in sourced config file
     local needs_photo_export=false
@@ -376,7 +376,6 @@ main() {
     if [[ "${needs_photo_export}" == "true" ]]; then
         if ! export_photos; then
             print_status "warn" "Photo export failed, but continuing with backup..."
-            # Don't abort - rsync will just sync what's already there
         fi
     fi
 

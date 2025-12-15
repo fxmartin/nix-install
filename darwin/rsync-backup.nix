@@ -1,6 +1,6 @@
 # ABOUTME: rsync backup LaunchAgents for TerraMaster NAS
 # ABOUTME: Generates config from rsync-backup-config.nix and schedules automated backups
-# ABOUTME: Creates separate LaunchAgents for daily and weekly jobs
+# ABOUTME: Creates separate LaunchAgents for different schedules (daily, weekly by weekday)
 # ABOUTME: Scripts are installed to ~/.local/bin to avoid macOS TCC restrictions
 {
   config,
@@ -20,9 +20,16 @@
   # Scripts directory (TCC-safe location)
   scriptsDir = "/Users/${userConfig.username}/.local/bin";
 
-  # Filter jobs by schedule
+  # Weekday names for file/agent naming
+  weekdayNames = ["sunday" "monday" "tuesday" "wednesday" "thursday" "friday" "saturday"];
+
+  # Filter jobs by schedule type
   dailyJobs = lib.filter (job: (job.schedule or "daily") == "daily") rsyncConfig.jobs;
   weeklyJobs = lib.filter (job: (job.schedule or "daily") == "weekly") rsyncConfig.jobs;
+
+  # Group weekly jobs by weekday
+  # Returns attrset like { "0" = [jobs for sunday]; "3" = [jobs for wednesday]; }
+  weeklyJobsByDay = lib.groupBy (job: toString (job.weekday or 0)) weeklyJobs;
 
   # Generate the jobs.conf content for a list of jobs
   generateJobsConf = jobs: ''
@@ -53,7 +60,6 @@
 
   # Create a LaunchAgent for a schedule
   mkBackupAgent = {
-    name,
     schedule,
     configFile,
     logSuffix,
@@ -97,6 +103,39 @@
       KeepAlive = false;
     };
   };
+
+  # Generate weekly agents for each weekday that has jobs
+  weeklyAgents = lib.mapAttrs' (weekdayStr: jobs:
+    let
+      weekday = lib.toInt weekdayStr;
+      dayName = builtins.elemAt weekdayNames weekday;
+    in
+    lib.nameValuePair "rsync-backup-weekly-${dayName}" (mkBackupAgent {
+      schedule = {
+        Hour = rsyncConfig.defaultSchedule.Hour;
+        Minute = rsyncConfig.defaultSchedule.Minute;
+        Weekday = weekday;
+      };
+      configFile = "/Users/${userConfig.username}/.config/rsync-backup/jobs-weekly-${dayName}.conf";
+      logSuffix = "-weekly-${dayName}";
+    })
+  ) weeklyJobsByDay;
+
+  # Generate config file content for activation script
+  weeklyConfigGeneration = lib.concatStringsSep "\n" (lib.mapAttrsToList (weekdayStr: jobs:
+    let
+      weekday = lib.toInt weekdayStr;
+      dayName = builtins.elemAt weekdayNames weekday;
+    in ''
+      # Generate ${dayName} jobs config
+      cat > "$CONFIG_DIR/jobs-weekly-${dayName}.conf" << 'RSYNC_WEEKLY_${lib.toUpper dayName}_EOF'
+${generateJobsConf jobs}
+RSYNC_WEEKLY_${lib.toUpper dayName}_EOF
+      chmod 600 "$CONFIG_DIR/jobs-weekly-${dayName}.conf"
+      echo "✓ rsync weekly ${dayName} config: ${toString (builtins.length jobs)} job(s)"
+    ''
+  ) weeklyJobsByDay);
+
 in
   lib.mkIf rsyncConfigExists {
     # ===========================================================================
@@ -111,19 +150,16 @@ in
       CONFIG_DIR="/Users/${userConfig.username}/.config/rsync-backup"
       mkdir -p "$CONFIG_DIR"
 
+      ${lib.optionalString (builtins.length dailyJobs > 0) ''
       # Generate daily jobs config
       cat > "$CONFIG_DIR/jobs-daily.conf" << 'RSYNC_DAILY_EOF'
 ${generateJobsConf dailyJobs}
 RSYNC_DAILY_EOF
       chmod 600 "$CONFIG_DIR/jobs-daily.conf"
       echo "✓ rsync daily config: ${toString (builtins.length dailyJobs)} job(s)"
+      ''}
 
-      # Generate weekly jobs config
-      cat > "$CONFIG_DIR/jobs-weekly.conf" << 'RSYNC_WEEKLY_EOF'
-${generateJobsConf weeklyJobs}
-RSYNC_WEEKLY_EOF
-      chmod 600 "$CONFIG_DIR/jobs-weekly.conf"
-      echo "✓ rsync weekly config: ${toString (builtins.length weeklyJobs)} job(s)"
+${weeklyConfigGeneration}
 
       chown -R ${userConfig.username}:staff "$CONFIG_DIR"
 
@@ -144,28 +180,18 @@ RSYNC_WEEKLY_EOF
     # RSYNC BACKUP LAUNCHAGENTS
     # ===========================================================================
 
-    launchd.user.agents = {
-      # Daily backup (iCloud, etc.) - runs at 2 AM every day
-      rsync-backup-daily = lib.mkIf (builtins.length dailyJobs > 0) (mkBackupAgent {
-        name = "daily";
-        schedule = {
-          Hour = rsyncConfig.defaultSchedule.Hour;
-          Minute = rsyncConfig.defaultSchedule.Minute;
+    launchd.user.agents =
+      # Daily backup agent (if there are daily jobs)
+      (lib.optionalAttrs (builtins.length dailyJobs > 0) {
+        rsync-backup-daily = mkBackupAgent {
+          schedule = {
+            Hour = rsyncConfig.defaultSchedule.Hour;
+            Minute = rsyncConfig.defaultSchedule.Minute;
+          };
+          configFile = "/Users/${userConfig.username}/.config/rsync-backup/jobs-daily.conf";
+          logSuffix = "-daily";
         };
-        configFile = "/Users/${userConfig.username}/.config/rsync-backup/jobs-daily.conf";
-        logSuffix = "-daily";
-      });
-
-      # Weekly backup (Photos, etc.) - runs at 2 AM every Sunday
-      rsync-backup-weekly = lib.mkIf (builtins.length weeklyJobs > 0) (mkBackupAgent {
-        name = "weekly";
-        schedule = {
-          Hour = rsyncConfig.defaultSchedule.Hour;
-          Minute = rsyncConfig.defaultSchedule.Minute;
-          Weekday = 0; # Sunday
-        };
-        configFile = "/Users/${userConfig.username}/.config/rsync-backup/jobs-weekly.conf";
-        logSuffix = "-weekly";
-      });
-    };
+      })
+      # Weekly backup agents (one per weekday with jobs)
+      // weeklyAgents;
   }

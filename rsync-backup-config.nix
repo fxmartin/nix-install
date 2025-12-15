@@ -48,7 +48,8 @@
       source = "Library/Mobile Documents/com~apple~CloudDocs";
       share = "icloud";                   # Separate NAS share
       destination = "";                   # Root of share
-      schedule = "daily";                 # Run daily (default)
+      schedule = "weekly";                # Run weekly
+      weekday = 3;                        # Wednesday (0=Sun, 1=Mon, ..., 6=Sat)
       excludes = [
         ".DS_Store"
         "*.icloud"           # Placeholder files for not-downloaded content

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ABOUTME: Fetches release notes from Homebrew, Nix/nix-darwin, and Ollama
+# ABOUTME: Fetches release notes from macOS, Homebrew, Nix/nix-darwin, and Ollama
 # ABOUTME: Outputs structured JSON for Claude CLI analysis (Story 06.6-001)
 
 set -euo pipefail
@@ -18,6 +18,53 @@ log() {
 }
 
 log "=== Starting release note fetch ==="
+
+# Check for macOS system updates
+fetch_macos_updates() {
+    log "Checking for macOS updates..."
+
+    local current_version current_build updates_available
+
+    # Get current macOS version
+    current_version=$(sw_vers -productVersion 2>/dev/null || echo "unknown")
+    current_build=$(sw_vers -buildVersion 2>/dev/null || echo "unknown")
+
+    log "Current macOS: ${current_version} (${current_build})"
+
+    # Check for available updates (this can take a few seconds)
+    # softwareupdate -l lists available updates
+    updates_available=$(softwareupdate -l 2>&1 || echo "")
+
+    # Parse update information
+    local update_count=0
+    local updates_json="[]"
+
+    if echo "${updates_available}" | grep -q "Software Update found"; then
+        # Extract update names and versions
+        updates_json=$(echo "${updates_available}" | \
+            grep -E "^\*|Label:" | \
+            sed 's/^\* Label: //' | \
+            sed 's/^	Title: //' | \
+            grep -v "^$" | \
+            jq -R -s 'split("\n") | map(select(length > 0)) | map({name: ., recommended: (. | test("Security|macOS"))})' 2>/dev/null || echo "[]")
+        update_count=$(echo "${updates_json}" | jq 'length' 2>/dev/null || echo "0")
+    fi
+
+    log "Found ${update_count} macOS update(s) available"
+
+    jq -n \
+        --arg current_version "${current_version}" \
+        --arg current_build "${current_build}" \
+        --argjson updates "${updates_json}" \
+        --arg raw_output "$(echo "${updates_available}" | head -20)" \
+        '{
+            current_version: $current_version,
+            current_build: $current_build,
+            updates_available: $updates,
+            update_count: ($updates | length),
+            raw_check: $raw_output
+        }'
+}
 
 # Fetch Homebrew outdated packages
 fetch_homebrew_updates() {
@@ -182,8 +229,9 @@ main() {
     log "Building release notes JSON..."
 
     # Gather all data
-    local homebrew_data nixpkgs_data nix_darwin_data ollama_data flake_versions
+    local macos_data homebrew_data nixpkgs_data nix_darwin_data ollama_data flake_versions
 
+    macos_data=$(fetch_macos_updates)
     homebrew_data=$(fetch_homebrew_updates)
     nixpkgs_data=$(fetch_nixpkgs_releases)
     nix_darwin_data=$(fetch_nix_darwin_releases)
@@ -194,6 +242,7 @@ main() {
     jq -n \
         --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
         --arg hostname "$(hostname)" \
+        --argjson macos "${macos_data}" \
         --argjson homebrew "${homebrew_data}" \
         --argjson nixpkgs "${nixpkgs_data}" \
         --argjson nix_darwin "${nix_darwin_data}" \
@@ -202,6 +251,7 @@ main() {
         '{
             timestamp: $timestamp,
             hostname: $hostname,
+            macos: $macos,
             flake_versions: $flake_versions,
             homebrew: $homebrew,
             nixpkgs: $nixpkgs,

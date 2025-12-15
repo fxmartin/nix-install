@@ -2,16 +2,18 @@
 # Copy this file to ~/.config/icloud-sync/config.conf and edit paths
 # This file is NOT committed to git - contains personal paths
 
-# Source directory (local folder to sync FROM)
-SOURCE_DIR="/path/to/your/source/folder"
+# Jobs array - each job is pipe-delimited: name|source|destination|mode
+# mode: "mirror" (--delete) or "archive" (no delete)
+#
+# Example:
+# JOBS=(
+#   "proposals|/path/to/source|/path/to/icloud/dest|mirror"
+#   "management|/path/to/another/source|/path/to/another/dest|archive"
+# )
 
-# Destination directory (iCloud folder to sync TO)
-DEST_DIR="/Users/yourusername/Library/Mobile Documents/com~apple~CloudDocs/path/to/destination"
-
-# Sync mode: "mirror" or "archive"
-# mirror: Deletions in source propagate to destination (--delete)
-# archive: Deleted files on source are kept on destination
-SYNC_MODE="mirror"
+JOBS=(
+  "example|/path/to/source|/Users/yourusername/Library/Mobile Documents/com~apple~CloudDocs/path/to/dest|mirror"
+)
 
 # Schedule (for reference - actual schedule is in darwin/icloud-sync.nix)
 # Hour: 12

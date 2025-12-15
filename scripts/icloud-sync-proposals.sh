@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# ABOUTME: Syncs work proposals to iCloud Drive for backup
-# ABOUTME: Reads configuration from ~/.config/icloud-sync/config.conf
+# ABOUTME: Multi-job iCloud sync script for work folders
+# ABOUTME: Reads job configuration from ~/.config/icloud-sync/config.conf
 # ABOUTME: Scheduled via LaunchAgent, configured in darwin/icloud-sync.nix
 
 set -euo pipefail
@@ -9,7 +9,7 @@ set -euo pipefail
 # CONFIGURATION
 # =============================================================================
 
-SCRIPT_VERSION="1.1.0"
+SCRIPT_VERSION="2.0.0"
 
 # Config file location
 CONFIG_FILE="${HOME}/.config/icloud-sync/config.conf"
@@ -25,6 +25,12 @@ BLUE='\033[0;34m'
 BOLD='\033[1m'
 NC='\033[0m'
 
+# Track job results
+TOTAL_JOBS=0
+SUCCESSFUL_JOBS=0
+FAILED_JOBS=0
+FAILED_JOB_NAMES=""
+
 # =============================================================================
 # HELPER FUNCTIONS
 # =============================================================================
@@ -33,6 +39,12 @@ log() {
     local timestamp
     timestamp=$(date '+%Y-%m-%d %H:%M:%S')
     echo "[${timestamp}] $1" | tee -a "${LOG_FILE}"
+}
+
+print_header() {
+    echo ""
+    echo -e "${BOLD}=== $1 ===${NC}"
+    log "=== $1 ==="
 }
 
 print_status() {
@@ -65,21 +77,84 @@ load_config() {
     # shellcheck source=/dev/null
     source "${CONFIG_FILE}"
 
-    # Validate required variables
-    if [[ -z "${SOURCE_DIR:-}" ]]; then
-        print_status "error" "SOURCE_DIR not defined in config"
+    # Validate JOBS array exists
+    # shellcheck disable=SC2154
+    if ! declare -p JOBS &>/dev/null; then
+        print_status "error" "JOBS array not defined in config"
         exit 1
     fi
 
-    if [[ -z "${DEST_DIR:-}" ]]; then
-        print_status "error" "DEST_DIR not defined in config"
-        exit 1
+    # shellcheck disable=SC2154
+    if [[ ${#JOBS[@]} -eq 0 ]]; then
+        print_status "warn" "No sync jobs defined in config"
+        exit 0
     fi
 
-    # Default sync mode to mirror if not specified
-    SYNC_MODE="${SYNC_MODE:-mirror}"
+    # shellcheck disable=SC2154
+    print_status "ok" "Loaded config with ${#JOBS[@]} job(s)"
+}
 
-    print_status "ok" "Loaded config from ${CONFIG_FILE}"
+# =============================================================================
+# SYNC EXECUTION
+# =============================================================================
+
+run_sync_job() {
+    local job_spec="$1"
+
+    # Parse job spec: name|source|destination|mode
+    IFS='|' read -r job_name source_dir dest_dir sync_mode <<< "${job_spec}"
+
+    print_header "Sync Job: ${job_name}"
+    print_status "info" "Source: ${source_dir}"
+    print_status "info" "Destination: ${dest_dir}"
+
+    # Validate source exists
+    if [[ ! -d "${source_dir}" ]]; then
+        print_status "error" "Source directory does not exist: ${source_dir}"
+        return 1
+    fi
+
+    # Create destination directory if needed
+    if [[ ! -d "${dest_dir}" ]]; then
+        print_status "info" "Creating destination directory..."
+        mkdir -p "${dest_dir}"
+    fi
+
+    # Build rsync command based on mode
+    local rsync_opts=("-avz" "--progress")
+
+    if [[ "${sync_mode}" == "mirror" ]]; then
+        rsync_opts+=("--delete")
+        print_status "info" "Mode: Mirror (--delete)"
+    else
+        print_status "info" "Mode: Archive (no delete)"
+    fi
+
+    # Run rsync
+    print_status "info" "Starting rsync..."
+
+    local sync_start
+    sync_start=$(date +%s)
+
+    if rsync "${rsync_opts[@]}" \
+        --exclude='.DS_Store' \
+        --exclude='~$*.docx' \
+        --exclude='~$*.xlsx' \
+        --exclude='~$*.pptx' \
+        --exclude='*.tmp' \
+        --exclude='.~lock.*' \
+        "${source_dir}/" "${dest_dir}/" 2>&1 | tee -a "${LOG_FILE}"; then
+
+        local sync_end
+        sync_end=$(date +%s)
+        local duration=$((sync_end - sync_start))
+
+        print_status "ok" "Sync completed in ${duration}s"
+        return 0
+    else
+        print_status "error" "Sync failed for ${job_name}"
+        return 1
+    fi
 }
 
 # =============================================================================
@@ -98,7 +173,7 @@ main() {
     fi
 
     echo ""
-    echo -e "${BOLD}iCloud Sync - Proposals v${SCRIPT_VERSION}${NC}"
+    echo -e "${BOLD}iCloud Sync v${SCRIPT_VERSION}${NC}"
     echo "Host: ${hostname_str}"
     echo "Date: ${date_str}"
     echo ""
@@ -107,64 +182,43 @@ main() {
     # Load configuration
     load_config
 
-    # Validate source directory exists
-    if [[ ! -d "${SOURCE_DIR}" ]]; then
-        print_status "error" "Source directory does not exist: ${SOURCE_DIR}"
+    # Run each sync job
+    # shellcheck disable=SC2154
+    for job in "${JOBS[@]}"; do
+        TOTAL_JOBS=$((TOTAL_JOBS + 1))
+        local job_name
+        job_name=$(echo "${job}" | cut -d'|' -f1)
+
+        if run_sync_job "${job}"; then
+            SUCCESSFUL_JOBS=$((SUCCESSFUL_JOBS + 1))
+        else
+            FAILED_JOBS=$((FAILED_JOBS + 1))
+            if [[ -n "${FAILED_JOB_NAMES}" ]]; then
+                FAILED_JOB_NAMES="${FAILED_JOB_NAMES}, ${job_name}"
+            else
+                FAILED_JOB_NAMES="${job_name}"
+            fi
+        fi
+    done
+
+    # Summary
+    print_header "Summary"
+    print_status "info" "Total jobs: ${TOTAL_JOBS}"
+    print_status "ok" "Successful: ${SUCCESSFUL_JOBS}"
+    if [[ ${FAILED_JOBS} -gt 0 ]]; then
+        print_status "error" "Failed: ${FAILED_JOBS} (${FAILED_JOB_NAMES})"
+    else
+        print_status "ok" "Failed: 0"
+    fi
+
+    # Exit with error if any job failed
+    if [[ ${FAILED_JOBS} -gt 0 ]]; then
         exit 1
     fi
 
-    # Create destination directory if needed
-    if [[ ! -d "${DEST_DIR}" ]]; then
-        print_status "info" "Creating destination directory..."
-        mkdir -p "${DEST_DIR}"
-    fi
-
-    print_status "info" "Source: ${SOURCE_DIR}"
-    print_status "info" "Destination: ${DEST_DIR}"
-
-    # Build rsync command based on mode
-    local rsync_opts=("-avz" "--progress")
-
-    if [[ "${SYNC_MODE}" == "mirror" ]]; then
-        rsync_opts+=("--delete")
-        print_status "info" "Mode: Mirror (--delete)"
-    else
-        print_status "info" "Mode: Archive (no delete)"
-    fi
-
-    # Run rsync
-    # -a: archive mode (preserves permissions, timestamps, etc.)
-    # -v: verbose
-    # -z: compress during transfer
-    # --delete: mirror mode - remove files in dest that don't exist in source
-    # --progress: show progress (useful for manual runs)
-    # --exclude: skip unwanted files
-    print_status "info" "Starting rsync..."
-
-    local sync_start
-    sync_start=$(date +%s)
-
-    if rsync "${rsync_opts[@]}" \
-        --exclude='.DS_Store' \
-        --exclude='~$*.docx' \
-        --exclude='~$*.xlsx' \
-        --exclude='~$*.pptx' \
-        --exclude='*.tmp' \
-        --exclude='.~lock.*' \
-        "${SOURCE_DIR}/" "${DEST_DIR}/" 2>&1 | tee -a "${LOG_FILE}"; then
-
-        local sync_end
-        sync_end=$(date +%s)
-        local duration=$((sync_end - sync_start))
-
-        echo ""
-        print_status "ok" "Sync completed successfully in ${duration}s"
-        log "=== iCloud Sync Completed (${duration}s) ==="
-    else
-        print_status "error" "Sync failed!"
-        log "=== iCloud Sync FAILED ==="
-        exit 1
-    fi
+    echo ""
+    print_status "ok" "All syncs completed successfully!"
+    log "=== iCloud Sync Completed ==="
 }
 
 main "$@"

@@ -146,10 +146,6 @@
       # Maintenance LaunchAgents (Epic-06: Features 06.1, 06.2)
       # Automated garbage collection and store optimization
       ./darwin/maintenance.nix
-
-      # rsync Backup to NAS (optional - config in rsync-backup-config.nix)
-      # Automated backup of configured folders to TerraMaster NAS
-      ./darwin/rsync-backup.nix
     ];
 
     # Helper function to create darwin configuration
@@ -235,6 +231,14 @@
       system = "aarch64-darwin"; # Apple Silicon only
       isPowerProfile = true;
       modules = [
+        # rsync Backup to NAS (Power profile only)
+        # Automated backup of configured folders to TerraMaster NAS
+        ./darwin/rsync-backup.nix
+
+        # iCloud Sync for Work Proposals (Power profile only)
+        # Mirrors proposals folder to iCloud Drive daily at 12:30 PM
+        ./darwin/icloud-sync.nix
+
         ({lib, ...}: {
           # Power profile specific settings (to be expanded in Epic-02)
           # - Parallels Desktop enabled (isPowerProfile = true)

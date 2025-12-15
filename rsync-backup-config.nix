@@ -36,18 +36,21 @@
         ".osxphotos_export.db"  # osxphotos tracking database
       ];
     }
-    # Uncomment and modify to add more backup jobs:
-    # {
-    #   name = "documents";
-    #   source = "Documents";
-    #   destination = "Documents";
-    #   excludes = [ ".DS_Store" "*.tmp" ];
-    # }
-    # {
-    #   name = "music";
-    #   source = "Music";
-    #   destination = "Music";
-    #   excludes = [ ".DS_Store" ];
-    # }
+    {
+      # iCloud Drive backup - entire iCloud folder to NAS
+      name = "icloud";
+      source = "Library/Mobile Documents/com~apple~CloudDocs";
+      destination = "iCloud";
+      excludes = [
+        ".DS_Store"
+        "*.icloud"           # Placeholder files for not-downloaded content
+        ".Trash"
+        "~$*.docx"           # Office temp files
+        "~$*.xlsx"
+        "~$*.pptx"
+        "*.tmp"
+        ".~lock.*"
+      ];
+    }
   ];
 }

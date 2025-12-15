@@ -8,9 +8,10 @@
   nasHost = "192.168.68.58";  # nas-lux (local network)
   defaultShare = "Photos";    # Default share if job doesn't specify one
 
-  # Schedule: Daily at 2 AM
+  # Default schedule: Daily at 2 AM
   # Uses launchd StartCalendarInterval format
-  schedule = {
+  # Jobs can override with their own schedule
+  defaultSchedule = {
     Hour = 2;
     Minute = 0;
   };
@@ -25,6 +26,8 @@
   # Each job syncs a source folder to a destination on the NAS
   # Archive mode: deleted files on Mac are kept on NAS
   # Each job can specify its own 'share' or use defaultShare
+  # Each job can specify 'schedule' to override defaultSchedule
+  # Schedule options: "daily" (default), "weekly" (Sunday 2 AM)
   jobs = [
     {
       # Photos exported as plain browsable files (via osxphotos)
@@ -33,6 +36,7 @@
       source = "Pictures/Photos-Export";  # osxphotos exports here
       share = "Photos";                   # NAS share to use
       destination = "";                   # Root of share
+      schedule = "weekly";                # Run weekly (Sunday 2 AM)
       excludes = [
         ".DS_Store"
         ".osxphotos_export.db"  # osxphotos tracking database
@@ -44,6 +48,7 @@
       source = "Library/Mobile Documents/com~apple~CloudDocs";
       share = "icloud";                   # Separate NAS share
       destination = "";                   # Root of share
+      schedule = "daily";                 # Run daily (default)
       excludes = [
         ".DS_Store"
         "*.icloud"           # Placeholder files for not-downloaded content

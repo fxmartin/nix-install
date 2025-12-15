@@ -20,8 +20,8 @@ BLUE='\033[0;34m'
 BOLD='\033[1m'
 NC='\033[0m' # No Color
 
-# Paths
-CONFIG_FILE="${HOME}/.config/rsync-backup/jobs.conf"
+# Paths - CONFIG_FILE can be overridden by environment variable
+CONFIG_FILE="${CONFIG_FILE:-${HOME}/.config/rsync-backup/jobs.conf}"
 LOG_FILE="/tmp/rsync-backup.log"
 SCRIPTS_DIR="${SCRIPTS_DIR:-$(dirname "$0")}"
 SEND_NOTIFICATION="${SCRIPTS_DIR}/send-notification.sh"

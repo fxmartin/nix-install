@@ -231,6 +231,10 @@
       system = "aarch64-darwin"; # Apple Silicon only
       isPowerProfile = true;
       modules = [
+        # SMB Automount for NAS shares (Power profile only)
+        # On-demand mounting via autofs - mounts when accessed, unmounts when idle
+        ./darwin/smb-automount.nix
+
         # rsync Backup to NAS (Power profile only)
         # Automated backup of configured folders to TerraMaster NAS
         ./darwin/rsync-backup.nix

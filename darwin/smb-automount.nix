@@ -47,59 +47,50 @@ in {
 
   # /etc/auto_master - main autofs configuration
   # The /- entry with auto_smb uses direct map (mount points specified in auto_smb)
-  environment.etc."auto_master" = {
-    text = ''
-      #
-      # Automounter master map
-      # Managed by nix-darwin - changes will be overwritten on rebuild
-      #
-      +auto_master		# Use directory service
-      /home			auto_home	-nobrowse,hidefromfinder
-      /Network/Servers	-fstab
-      /-			-static
-      /-			auto_smb	-nosuid,noowners
-    '';
-    mode = "0644";
-  };
+  environment.etc."auto_master".text = ''
+    #
+    # Automounter master map
+    # Managed by nix-darwin - changes will be overwritten on rebuild
+    #
+    +auto_master		# Use directory service
+    /home			auto_home	-nobrowse,hidefromfinder
+    /Network/Servers	-fstab
+    /-			-static
+    /-			auto_smb	-nosuid,noowners
+  '';
 
   # /etc/auto_smb - SMB share definitions
   # Credentials are looked up from macOS Keychain automatically
-  environment.etc."auto_smb" = {
-    text = ''
-      #
-      # SMB automount configuration for NAS shares
-      # Managed by nix-darwin - changes will be overwritten on rebuild
-      #
-      # NAS: ${nasConfig.host} (${nasConfig.hostname})
-      # User: ${nasConfig.username}
-      # Shares: ${lib.concatStringsSep ", " nasConfig.shares}
-      #
-      # Credentials are stored in macOS Keychain (not in this file)
-      # To add/update credentials:
-      #   security add-internet-password -a "${nasConfig.username}" -s "${nasConfig.host}" \
-      #     -D "network password" -r "smb " -w "YOUR_PASSWORD" -U -T ""
-      #
-      ${autoSmbEntries}
-    '';
-    mode = "0644";
-  };
+  environment.etc."auto_smb".text = ''
+    #
+    # SMB automount configuration for NAS shares
+    # Managed by nix-darwin - changes will be overwritten on rebuild
+    #
+    # NAS: ${nasConfig.host} (${nasConfig.hostname})
+    # User: ${nasConfig.username}
+    # Shares: ${lib.concatStringsSep ", " nasConfig.shares}
+    #
+    # Credentials are stored in macOS Keychain (not in this file)
+    # To add/update credentials:
+    #   security add-internet-password -a "${nasConfig.username}" -s "${nasConfig.host}" \
+    #     -D "network password" -r "smb " -w "YOUR_PASSWORD" -U -T ""
+    #
+    ${autoSmbEntries}
+  '';
 
   # /etc/synthetic.conf - create mount point directories at root level
   # Required for macOS Catalina+ due to read-only system volume
   # Creates symlinks: /Volumes/share -> /System/Volumes/Data/Volumes/share
   # NOTE: Changes require reboot to take effect
-  environment.etc."synthetic.conf" = {
-    text = ''
-      #
-      # Synthetic filesystem entries
-      # Managed by nix-darwin - changes will be overwritten on rebuild
-      # NOTE: Reboot required for changes to take effect
-      #
-      # NAS mount points for autofs
-      ${syntheticEntries}
-    '';
-    mode = "0644";
-  };
+  environment.etc."synthetic.conf".text = ''
+    #
+    # Synthetic filesystem entries
+    # Managed by nix-darwin - changes will be overwritten on rebuild
+    # NOTE: Reboot required for changes to take effect
+    #
+    # NAS mount points for autofs
+    ${syntheticEntries}
+  '';
 
   # ===========================================================================
   # ACTIVATION SCRIPTS

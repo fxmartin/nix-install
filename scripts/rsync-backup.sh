@@ -312,7 +312,7 @@ run_backup_job() {
     fi
 
     # Run rsync with retry logic
-    local max_retries="${RSYNC_MAX_RETRIES:-3}"
+    local max_retries="${RSYNC_MAX_RETRIES:-5}"
     local retry_delay="${RSYNC_RETRY_DELAY:-30}"
     local attempt=1
     local rsync_start

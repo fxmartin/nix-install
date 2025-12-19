@@ -1,18 +1,19 @@
 # ABOUTME: SMB automount configuration for NAS shares via autofs
 # ABOUTME: Creates on-demand mounting - shares mount when accessed, unmount when idle
-# ABOUTME: Credentials stored in macOS Keychain (not in config files)
+# ABOUTME: Password read from ~/.config/smb-nas/password at activation time
 #
 # IMPORTANT: This module does NOT touch /etc/synthetic.conf
 # That file is managed by nix-darwin for the Nix store mount point.
 # SMB mounts go directly to /Volumes/ which already exists on macOS.
 #
-# SETUP: Run once after first rebuild to store credentials in Keychain:
-#   security add-internet-password -a "USERNAME" -s "NAS_HOST" -D "network password" \
-#     -r "smb " -w "YOUR_PASSWORD" -U -T ""
+# SETUP (one-time):
+#   1. Create password file (not tracked in git):
+#      mkdir -p ~/.config/smb-nas
+#      echo "YOUR_NAS_PASSWORD" > ~/.config/smb-nas/password
+#      chmod 600 ~/.config/smb-nas/password
 #
-# Example for this config:
-#   security add-internet-password -a "fxmartin" -s "192.168.68.58" -D "network password" \
-#     -r "smb " -w "YOUR_NAS_PASSWORD" -U -T ""
+#   2. Run rebuild to apply configuration
+#
 {
   config,
   pkgs,
@@ -31,12 +32,8 @@
     ];
   };
 
-  # Generate auto_smb entries for each share (direct map format)
-  # Format: /Volumes/share<TAB>options<TAB>://user@host/share
-  # Using direct map (/-) means we specify full mount paths here
-  autoSmbEntries = lib.concatMapStringsSep "\n" (share:
-    "/Volumes/${share}\t-fstype=smbfs,soft,nodev,nosuid\t://${nasConfig.username}@${nasConfig.host}/${share}"
-  ) nasConfig.shares;
+  # Password file location (not in git, user must create manually)
+  passwordFile = "/Users/${userConfig.username}/.config/smb-nas/password";
 
 in {
   # ===========================================================================
@@ -50,6 +47,9 @@ in {
   # NOTE: We do NOT manage /etc/synthetic.conf here.
   # nix-darwin handles it automatically for the Nix store.
   # SMB mounts use /Volumes/ which is a standard macOS directory.
+  #
+  # Password is read from ${passwordFile} and embedded in auto_smb
+  # (URL-encoded). The auto_smb file is chmod 600 (root-only readable).
 
   system.activationScripts.postActivation.text = lib.mkAfter ''
     # ========================================================================
@@ -73,26 +73,51 @@ in {
 AUTO_MASTER_EOF
     chmod 644 /etc/auto_master
 
-    # --- /etc/auto_smb ---
-    # Direct map format: full paths to mount points
-    echo "  Writing /etc/auto_smb..."
-    cat > /etc/auto_smb << 'AUTO_SMB_EOF'
+    # --- Read password and generate /etc/auto_smb ---
+    PASSWORD_FILE="${passwordFile}"
+    if [[ -f "$PASSWORD_FILE" ]]; then
+      # Read password and URL-encode special characters
+      RAW_PASSWORD=$(cat "$PASSWORD_FILE" | tr -d '\n')
+      # URL-encode: @ → %40, : → %3A, / → %2F, # → %23, ? → %3F, & → %26
+      ENCODED_PASSWORD=$(echo "$RAW_PASSWORD" | sed -e 's/@/%40/g' -e 's/:/%3A/g' -e 's/\//%2F/g' -e 's/#/%23/g' -e 's/?/%3F/g' -e 's/&/%26/g')
+
+      echo "  Writing /etc/auto_smb (with credentials)..."
+      cat > /etc/auto_smb << AUTO_SMB_EOF
 #
 # SMB automount configuration for NAS shares
 # Managed by nix-darwin - changes will be overwritten on rebuild
+# Password from: $PASSWORD_FILE
 #
-# NAS: ${nasConfig.host} (${nasConfig.hostname})
-# User: ${nasConfig.username}
-# Shares: ${lib.concatStringsSep ", " nasConfig.shares}
-#
-# Credentials are stored in macOS Keychain (not in this file)
-# To add/update credentials:
-#   security add-internet-password -a "${nasConfig.username}" -s "${nasConfig.host}" \
-#     -D "network password" -r "smb " -w "YOUR_PASSWORD" -U -T ""
-#
-${autoSmbEntries}
+${lib.concatMapStringsSep "\n" (share:
+  "/Volumes/${share}\t-fstype=smbfs,soft,nodev,nosuid\t://${nasConfig.username}:\$ENCODED_PASSWORD@${nasConfig.host}/${share}"
+) nasConfig.shares}
 AUTO_SMB_EOF
-    chmod 644 /etc/auto_smb
+      chmod 600 /etc/auto_smb
+      echo "  auto_smb configured with credentials (chmod 600)"
+    else
+      echo ""
+      echo "  WARNING: Password file not found: $PASSWORD_FILE"
+      echo "  SMB automount will NOT work without credentials."
+      echo ""
+      echo "  Create the password file (one-time setup):"
+      echo "    mkdir -p ~/.config/smb-nas"
+      echo "    echo 'YOUR_NAS_PASSWORD' > ~/.config/smb-nas/password"
+      echo "    chmod 600 ~/.config/smb-nas/password"
+      echo ""
+
+      # Write auto_smb without password (won't work but shows config)
+      cat > /etc/auto_smb << 'AUTO_SMB_EOF'
+#
+# SMB automount configuration for NAS shares
+# WARNING: No password configured - mounts will fail!
+# Create ~/.config/smb-nas/password and run rebuild
+#
+${lib.concatMapStringsSep "\n" (share:
+  "/Volumes/${share}\t-fstype=smbfs,soft,nodev,nosuid\t://${nasConfig.username}@${nasConfig.host}/${share}"
+) nasConfig.shares}
+AUTO_SMB_EOF
+      chmod 644 /etc/auto_smb
+    fi
 
     # --- Reload autofs ---
     echo "  Reloading autofs..."
@@ -102,23 +127,9 @@ AUTO_SMB_EOF
       echo "  Note: autofs reload completed (may need first access to trigger mount)"
     fi
 
-    # --- Check keychain credentials ---
-    echo "  Checking Keychain credentials..."
-    if security find-internet-password -s "${nasConfig.host}" -a "${nasConfig.username}" >/dev/null 2>&1; then
-      echo "  Keychain: credentials found for ${nasConfig.username}@${nasConfig.host}"
-    else
-      echo ""
-      echo "  WARNING: No Keychain credentials found for NAS!"
-      echo "  Run this command to add credentials (one-time setup):"
-      echo ""
-      echo "    security add-internet-password -a \"${nasConfig.username}\" -s \"${nasConfig.host}\" \\"
-      echo "      -D \"network password\" -r \"smb \" -w \"YOUR_NAS_PASSWORD\" -U -T \"\""
-      echo ""
-    fi
-
     echo "SMB automount configuration complete"
     echo "  Shares: ${lib.concatStringsSep ", " (map (s: "/Volumes/${s}") nasConfig.shares)}"
-    echo "  Access shares to trigger mount: ls /Volumes/Photos"
+    echo "  Test with: ls /Volumes/Photos"
   '';
 
   # ===========================================================================

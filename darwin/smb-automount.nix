@@ -29,14 +29,15 @@
 
   # Generate auto_smb entries for each share
   # Format: /Volumes/share -fstype=smbfs,soft,noowners,nosuid ://user@host/share
-  autoSmbEntries = lib.concatMapStringsSep "\\n" (share:
-    "/Volumes/${share}\\t-fstype=smbfs,soft,noowners,nosuid,rw\\t://${nasConfig.username}@${nasConfig.host}/${share}"
+  autoSmbEntries = lib.concatMapStringsSep "\n" (share:
+    "/Volumes/${share}\t-fstype=smbfs,soft,noowners,nosuid,rw\t://${nasConfig.username}@${nasConfig.host}/${share}"
   ) nasConfig.shares;
 
   # Generate synthetic.conf entries to create mount points
-  # Format: dirname\tSystem/Volumes/Data/Volumes/dirname
-  syntheticEntries = lib.concatMapStringsSep "\\n" (share:
-    "${share}\\tSystem/Volumes/Data/Volumes/${share}"
+  # Format: dirname<TAB>System/Volumes/Data/Volumes/dirname
+  # CRITICAL: The 'nix' entry MUST always be first - required for Nix store mount
+  syntheticEntries = "nix\n" + lib.concatMapStringsSep "\n" (share:
+    "${share}\tSystem/Volumes/Data/Volumes/${share}"
   ) nasConfig.shares;
 
 in {
@@ -91,12 +92,14 @@ AUTO_SMB_EOF
 
     # --- /etc/synthetic.conf ---
     # Only update if content is different (requires reboot to take effect)
+    # CRITICAL: The 'nix' entry MUST be included - required for Nix store APFS volume
     SYNTHETIC_CONTENT="#
 # Synthetic filesystem entries
 # Managed by nix-darwin - changes will be overwritten on rebuild
 # NOTE: Reboot required for changes to take effect
 #
-# NAS mount points for autofs
+# CRITICAL: 'nix' entry required for Nix store mount point
+# NAS mount points for autofs follow below
 ${syntheticEntries}"
 
     if [[ ! -f /etc/synthetic.conf ]] || [[ "$(cat /etc/synthetic.conf 2>/dev/null)" != "$SYNTHETIC_CONTENT" ]]; then

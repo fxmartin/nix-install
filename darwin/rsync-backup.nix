@@ -42,6 +42,12 @@
     DEFAULT_SHARE="${rsyncConfig.defaultShare or "backup"}"
     SMB_USERNAME="${rsyncConfig.smbUsername or userConfig.username}"
 
+    # Rsync daemon mode (fast - native rsync protocol on port 873)
+    # Set to "true" to use rsync:// protocol instead of SMB mount
+    USE_RSYNC_DAEMON="${if rsyncConfig.useRsyncDaemon or false then "true" else "false"}"
+    RSYNC_USERNAME="${rsyncConfig.rsyncUsername or "rsync-user"}"
+    RSYNC_PASSWORD_FILE="${rsyncConfig.rsyncPasswordFile or "~/.config/rsync-backup/rsync.secret"}"
+
     # Notification settings
     NOTIFY_ON_FAILURE="${
       if rsyncConfig.notifyOnFailure

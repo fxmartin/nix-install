@@ -8,6 +8,17 @@
   nasHost = "192.168.68.58";  # nas-lux (local network)
   defaultShare = "Photos";    # Default share if job doesn't specify one
 
+  # ==========================================================================
+  # RSYNC DAEMON MODE (Recommended - much faster than SMB)
+  # ==========================================================================
+  # Uses native rsync protocol (port 873) instead of SMB mount
+  # Benefits: checksum on server, no SMB overhead, 2-5x faster
+  useRsyncDaemon = true;
+  rsyncUsername = "rsync-user";
+  # Password file path (created manually, chmod 600)
+  # Contains just the password, no username
+  rsyncPasswordFile = "~/.config/rsync-backup/rsync.secret";
+
   # Default schedule: Daily at 2 AM
   # Uses launchd StartCalendarInterval format
   # Jobs can override with their own schedule
@@ -19,7 +30,7 @@
   # Email notifications via msmtp
   notifyOnFailure = true;
 
-  # Username for SMB mount (uses macOS Keychain for password)
+  # Username for SMB mount (fallback if rsync daemon disabled)
   smbUsername = "fxmartin";
 
   # Backup jobs - add/remove as needed

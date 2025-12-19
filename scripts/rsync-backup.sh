@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # ABOUTME: Multi-job rsync backup script for TerraMaster NAS
 # ABOUTME: Reads job configuration from ~/.config/rsync-backup/jobs.conf
+# ABOUTME: Supports rsync daemon (fast) or SMB mount (fallback) modes
 # ABOUTME: Supports multiple source/destination pairs with per-job shares and excludes
 
 set -euo pipefail
@@ -229,31 +230,15 @@ run_backup_job() {
 
     print_header "Backup Job: ${job_name}"
     print_status "info" "Source: ~/${source_path}"
-    print_status "info" "Share: ${share_name}"
-    print_status "info" "Destination: /Volumes/${share_name}/${dest_path}"
-
-    # Mount the share for this job
-    if ! mount_share "${share_name}"; then
-        print_status "error" "Cannot mount share '${share_name}' for job '${job_name}'"
-        return 1
-    fi
+    print_status "info" "Module: ${share_name}"
 
     local source_full="${HOME}/${source_path}"
-    local dest_full="/Volumes/${share_name}"
-    [[ -n "${dest_path}" ]] && dest_full="${dest_full}/${dest_path}"
+    local dest_full=""
 
     # Validate source exists
     if [[ ! -e "${source_full}" ]]; then
         print_status "error" "Source does not exist: ${source_full}"
         return 1
-    fi
-
-    # Create destination directory if needed
-    if [[ -n "${dest_path}" ]] && [[ ! -d "${dest_full}" ]]; then
-        mkdir -p "${dest_full}" 2>/dev/null || {
-            print_status "error" "Cannot create destination directory: ${dest_full}"
-            return 1
-        }
     fi
 
     # Build exclude arguments
@@ -266,18 +251,73 @@ run_backup_job() {
         print_status "info" "Excludes: ${excludes_csv}"
     fi
 
+    # Determine rsync mode and build destination
+    local rsync_args=()
+    local password_args=()
+
+    if [[ "${USE_RSYNC_DAEMON:-false}" == "true" ]]; then
+        # RSYNC DAEMON MODE (fast - native rsync protocol)
+        dest_full="rsync://${RSYNC_USERNAME}@${NAS_HOST}/${share_name}/"
+        [[ -n "${dest_path}" ]] && dest_full="rsync://${RSYNC_USERNAME}@${NAS_HOST}/${share_name}/${dest_path}/"
+        print_status "info" "Mode: rsync daemon (fast)"
+        print_status "info" "Destination: ${dest_full}"
+
+        # Password file for authentication
+        local password_file="${RSYNC_PASSWORD_FILE:-}"
+        password_file="${password_file/#\~/$HOME}"  # Expand tilde
+        if [[ -n "${password_file}" ]] && [[ -f "${password_file}" ]]; then
+            password_args=(--password-file="${password_file}")
+        else
+            print_status "error" "Password file not found: ${password_file}"
+            print_status "info" "Create it with: echo 'your_password' > ~/.config/rsync-backup/rsync.secret && chmod 600 ~/.config/rsync-backup/rsync.secret"
+            return 1
+        fi
+
+        # Optimized flags for rsync daemon on LAN
+        # -a: archive mode (preserves permissions, timestamps, etc.)
+        # -v: verbose
+        # --progress: show progress
+        # --whole-file: skip delta algorithm (faster on LAN)
+        # --partial: keep partial files for resume
+        # NO -z: compression wastes CPU on fast LAN
+        # NO --delete: archive mode keeps deleted files on NAS
+        rsync_args=(-av --progress --whole-file --partial)
+    else
+        # SMB MOUNT MODE (fallback - slower but simpler)
+        print_status "info" "Mode: SMB mount (fallback)"
+        print_status "info" "Destination: /Volumes/${share_name}/${dest_path}"
+
+        # Mount the share for this job
+        if ! mount_share "${share_name}"; then
+            print_status "error" "Cannot mount share '${share_name}' for job '${job_name}'"
+            return 1
+        fi
+
+        dest_full="/Volumes/${share_name}"
+        [[ -n "${dest_path}" ]] && dest_full="${dest_full}/${dest_path}"
+
+        # Create destination directory if needed
+        if [[ -n "${dest_path}" ]] && [[ ! -d "${dest_full}" ]]; then
+            mkdir -p "${dest_full}" 2>/dev/null || {
+                print_status "error" "Cannot create destination directory: ${dest_full}"
+                return 1
+            }
+        fi
+
+        # Optimized flags for SMB mount on LAN
+        # --whole-file: delta algorithm over SMB is very slow
+        # --inplace: reduce disk I/O
+        rsync_args=(-av --progress --whole-file --partial --inplace)
+        dest_full="${dest_full}/"
+    fi
+
     # Run rsync
-    # -a: archive mode (preserves permissions, timestamps, etc.)
-    # -v: verbose
-    # -z: compress during transfer
-    # --progress: show progress
-    # NO --delete: archive mode keeps deleted files on NAS
     print_status "info" "Starting rsync..."
 
     local rsync_start
     rsync_start=$(date +%s)
 
-    if rsync -avz --progress "${exclude_args[@]}" "${source_full}/" "${dest_full}/" 2>&1 | tee -a "${LOG_FILE}"; then
+    if rsync "${rsync_args[@]}" "${password_args[@]}" "${exclude_args[@]}" "${source_full}/" "${dest_full}" 2>&1 | tee -a "${LOG_FILE}"; then
         local rsync_end
         rsync_end=$(date +%s)
         local duration=$((rsync_end - rsync_start))

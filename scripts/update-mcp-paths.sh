@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ABOUTME: Updates MCP server paths in Claude Code config files after nix rebuild
-# ABOUTME: Finds current Nix store paths and updates ~/.claude.json and ~/.config/claude/config.json
+# ABOUTME: Finds current Nix store paths for Context7 and Sequential Thinking servers
 
 set -euo pipefail
 
@@ -66,9 +66,8 @@ main() {
     echo ""
 
     # Find current paths
-    local context7_path github_path sequential_path
+    local context7_path sequential_path
     context7_path=$(find_mcp_path "context7-mcp" "context7-mcp")
-    github_path=$(find_mcp_path "github-mcp-server" "github-mcp-server")
     sequential_path=$(find_mcp_path "mcp-server-sequential-thinking" "mcp-server-sequential-thinking")
 
     # Verify all paths found
@@ -78,13 +77,6 @@ main() {
         log_info "context7: ${context7_path}"
     else
         log_error "context7-mcp not found in Nix store"
-        all_found=false
-    fi
-
-    if [[ -n "${github_path}" ]]; then
-        log_info "github: ${github_path}"
-    else
-        log_error "github-mcp-server not found in Nix store"
         all_found=false
     fi
 
@@ -112,9 +104,6 @@ main() {
             update_json_path "${claude_json}" "context7" "${context7_path}"
             log_info "Updated context7 in ~/.claude.json"
 
-            update_json_path "${claude_json}" "github" "${github_path}"
-            log_info "Updated github in ~/.claude.json"
-
             update_json_path "${claude_json}" "sequential-thinking" "${sequential_path}"
             log_info "Updated sequential-thinking in ~/.claude.json"
         else
@@ -133,9 +122,6 @@ main() {
 
         update_json_path "${config_json}" "context7" "${context7_path}"
         log_info "Updated context7 in config.json"
-
-        update_json_path "${config_json}" "github" "${github_path}"
-        log_info "Updated github in config.json"
 
         update_json_path "${config_json}" "sequential-thinking" "${sequential_path}"
         log_info "Updated sequential-thinking in config.json"

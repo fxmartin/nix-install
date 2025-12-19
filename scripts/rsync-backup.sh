@@ -311,22 +311,40 @@ run_backup_job() {
         dest_full="${dest_full}/"
     fi
 
-    # Run rsync
-    print_status "info" "Starting rsync..."
-
+    # Run rsync with retry logic
+    local max_retries="${RSYNC_MAX_RETRIES:-3}"
+    local retry_delay="${RSYNC_RETRY_DELAY:-30}"
+    local attempt=1
     local rsync_start
+    local rsync_end
+    local duration
+
     rsync_start=$(date +%s)
 
-    if rsync "${rsync_args[@]}" "${password_args[@]}" "${exclude_args[@]}" "${source_full}/" "${dest_full}" 2>&1 | tee -a "${LOG_FILE}"; then
-        local rsync_end
-        rsync_end=$(date +%s)
-        local duration=$((rsync_end - rsync_start))
-        print_status "ok" "Backup completed in ${duration}s"
-        return 0
-    else
-        print_status "error" "Backup failed for ${job_name}"
-        return 1
-    fi
+    while [[ ${attempt} -le ${max_retries} ]]; do
+        if [[ ${attempt} -gt 1 ]]; then
+            print_status "warn" "Retry attempt ${attempt}/${max_retries} (waiting ${retry_delay}s)..."
+            sleep "${retry_delay}"
+        else
+            print_status "info" "Starting rsync..."
+        fi
+
+        if rsync "${rsync_args[@]}" "${password_args[@]}" "${exclude_args[@]}" "${source_full}/" "${dest_full}" 2>&1 | tee -a "${LOG_FILE}"; then
+            rsync_end=$(date +%s)
+            duration=$((rsync_end - rsync_start))
+            print_status "ok" "Backup completed in ${duration}s"
+            [[ ${attempt} -gt 1 ]] && print_status "info" "Succeeded on attempt ${attempt}"
+            return 0
+        else
+            print_status "error" "rsync failed (attempt ${attempt}/${max_retries})"
+            ((attempt++))
+        fi
+    done
+
+    rsync_end=$(date +%s)
+    duration=$((rsync_end - rsync_start))
+    print_status "error" "Backup failed for ${job_name} after ${max_retries} attempts (${duration}s)"
+    return 1
 }
 
 # =============================================================================

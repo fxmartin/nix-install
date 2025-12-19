@@ -2,6 +2,10 @@
 # ABOUTME: Creates on-demand mounting - shares mount when accessed, unmount when idle
 # ABOUTME: Credentials stored in macOS Keychain (not in config files)
 #
+# IMPORTANT: This module does NOT touch /etc/synthetic.conf
+# That file is managed by nix-darwin for the Nix store mount point.
+# SMB mounts go directly to /Volumes/ which already exists on macOS.
+#
 # SETUP: Run once after first rebuild to store credentials in Keychain:
 #   security add-internet-password -a "USERNAME" -s "NAS_HOST" -D "network password" \
 #     -r "smb " -w "YOUR_PASSWORD" -U -T ""
@@ -27,17 +31,11 @@
     ];
   };
 
-  # Generate auto_smb entries for each share
-  # Format: /Volumes/share -fstype=smbfs,soft,noowners,nosuid ://user@host/share
+  # Generate auto_smb entries for each share (direct map format)
+  # Format: /Volumes/share<TAB>options<TAB>://user@host/share
+  # Using direct map (/-) means we specify full mount paths here
   autoSmbEntries = lib.concatMapStringsSep "\n" (share:
-    "/Volumes/${share}\t-fstype=smbfs,soft,noowners,nosuid,rw\t://${nasConfig.username}@${nasConfig.host}/${share}"
-  ) nasConfig.shares;
-
-  # Generate synthetic.conf entries to create mount points
-  # Format: dirname<TAB>System/Volumes/Data/Volumes/dirname
-  # CRITICAL: The 'nix' entry MUST always be first - required for Nix store mount
-  syntheticEntries = "nix\n" + lib.concatMapStringsSep "\n" (share:
-    "${share}\tSystem/Volumes/Data/Volumes/${share}"
+    "/Volumes/${share}\t-fstype=smbfs,soft,nodev,nosuid\t://${nasConfig.username}@${nasConfig.host}/${share}"
   ) nasConfig.shares;
 
 in {
@@ -48,6 +46,10 @@ in {
   # 1. environment.etc tries to stat/chmod files before creating them
   # 2. This causes failures when files don't exist yet
   # 3. Activation scripts give us full control over file creation
+  #
+  # NOTE: We do NOT manage /etc/synthetic.conf here.
+  # nix-darwin handles it automatically for the Nix store.
+  # SMB mounts use /Volumes/ which is a standard macOS directory.
 
   system.activationScripts.postActivation.text = lib.mkAfter ''
     # ========================================================================
@@ -56,6 +58,7 @@ in {
     echo "Configuring SMB automount for NAS shares..."
 
     # --- /etc/auto_master ---
+    # Uses direct map (/-) so auto_smb can specify full mount paths
     echo "  Writing /etc/auto_master..."
     cat > /etc/auto_master << 'AUTO_MASTER_EOF'
 #
@@ -66,11 +69,12 @@ in {
 /home			auto_home	-nobrowse,hidefromfinder
 /Network/Servers	-fstab
 /-			-static
-/-			auto_smb	-nosuid,noowners
+/-			auto_smb	-nosuid,nodev
 AUTO_MASTER_EOF
     chmod 644 /etc/auto_master
 
     # --- /etc/auto_smb ---
+    # Direct map format: full paths to mount points
     echo "  Writing /etc/auto_smb..."
     cat > /etc/auto_smb << 'AUTO_SMB_EOF'
 #
@@ -90,42 +94,12 @@ ${autoSmbEntries}
 AUTO_SMB_EOF
     chmod 644 /etc/auto_smb
 
-    # --- /etc/synthetic.conf ---
-    # Only update if content is different (requires reboot to take effect)
-    # CRITICAL: The 'nix' entry MUST be included - required for Nix store APFS volume
-    SYNTHETIC_CONTENT="#
-# Synthetic filesystem entries
-# Managed by nix-darwin - changes will be overwritten on rebuild
-# NOTE: Reboot required for changes to take effect
-#
-# CRITICAL: 'nix' entry required for Nix store mount point
-# NAS mount points for autofs follow below
-${syntheticEntries}"
-
-    if [[ ! -f /etc/synthetic.conf ]] || [[ "$(cat /etc/synthetic.conf 2>/dev/null)" != "$SYNTHETIC_CONTENT" ]]; then
-      echo "  Writing /etc/synthetic.conf..."
-      echo "$SYNTHETIC_CONTENT" > /etc/synthetic.conf
-      chmod 644 /etc/synthetic.conf
-      echo "  NOTE: Reboot required for synthetic.conf changes to take effect"
-    else
-      echo "  /etc/synthetic.conf unchanged"
-    fi
-
-    # --- Create mount point directories ---
-    echo "  Creating mount point directories..."
-    ${lib.concatMapStringsSep "\n" (share: ''
-    if [[ ! -d "/System/Volumes/Data/Volumes/${share}" ]]; then
-      mkdir -p "/System/Volumes/Data/Volumes/${share}" 2>/dev/null || true
-      echo "    Created: /Volumes/${share}"
-    fi
-    '') nasConfig.shares}
-
     # --- Reload autofs ---
     echo "  Reloading autofs..."
-    if automount -cv 2>&1 | grep -v "^$" | head -3; then
-      echo "  autofs reloaded"
+    if automount -vc 2>&1 | grep -v "^$" | head -5; then
+      echo "  autofs reloaded successfully"
     else
-      echo "  Warning: automount reload may require reboot"
+      echo "  Note: autofs reload completed (may need first access to trigger mount)"
     fi
 
     # --- Check keychain credentials ---
@@ -144,6 +118,7 @@ ${syntheticEntries}"
 
     echo "SMB automount configuration complete"
     echo "  Shares: ${lib.concatStringsSep ", " (map (s: "/Volumes/${s}") nasConfig.shares)}"
+    echo "  Access shares to trigger mount: ls /Volumes/Photos"
   '';
 
   # ===========================================================================

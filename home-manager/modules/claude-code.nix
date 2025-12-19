@@ -1,4 +1,4 @@
-# ABOUTME: Claude Code CLI configuration with MCP servers (Context7, GitHub, Sequential Thinking)
+# ABOUTME: Claude Code CLI configuration with MCP servers (Context7, Sequential Thinking)
 # ABOUTME: Symlinks ~/.claude/ directory to repo for bidirectional sync (REQ-NFR-008 compliant)
 {
   config,
@@ -17,15 +17,6 @@
         enable = true;
       };
 
-      # GitHub MCP server - Requires GITHUB_PERSONAL_ACCESS_TOKEN
-      # NOTE: The env variable name MUST be GITHUB_PERSONAL_ACCESS_TOKEN (not GITHUB_TOKEN)
-      # The mcp-servers-nix mkConfig function doesn't support envFile parameter,
-      # so we'll need to manually manage the config.json file with the token.
-      # This is documented in the activation script below.
-      github = {
-        enable = true;
-      };
-
       # Sequential Thinking MCP server - No authentication required
       sequential-thinking = {
         enable = true;
@@ -34,7 +25,7 @@
   };
 in {
   # Claude Code CLI and MCP Servers Configuration
-  # Story 02.2-006: Install Claude Code CLI with Context7, GitHub, and Sequential Thinking MCP servers
+  # Story 02.2-006: Install Claude Code CLI with Context7 and Sequential Thinking MCP servers
   #
   # Installation:
   # - Claude Code CLI: Via Nix (claude-code-nix flake input, installed in darwin/configuration.nix)
@@ -68,10 +59,6 @@ in {
   #
   # MCP Servers Configuration:
   # - Context7: No authentication required
-  # - GitHub: Requires GITHUB_PERSONAL_ACCESS_TOKEN (user must manually add to config.json)
-  #   NOTE: mcp-servers-nix mkConfig doesn't support env variables in the generated config,
-  #   so the token must be manually added to ~/.config/claude/config.json after generation.
-  #   Template file created at ~/.config/claude/github-token.env for reference.
   # - Sequential Thinking: No authentication required
   #
   # All MCP servers use Nix-installed binaries (managed by mkConfig, not npx/npm)
@@ -164,78 +151,16 @@ in {
     fi
 
     # MCP configuration handling
-    # NOTE: We DON'T create a symlink to the Nix-generated config because:
-    # 1. mcp-servers-nix mkConfig doesn't support env variables in the generated config
-    # 2. Users need to manually add GITHUB_PERSONAL_ACCESS_TOKEN to config.json
-    # 3. Manual config.json must persist across rebuilds (not get overwritten)
-    #
-    # Strategy: Only create config.json if it doesn't exist (preserve manual edits)
+    # Strategy: Always update config.json with the Nix-generated config
     CLAUDE_CONFIG_JSON="$CLAUDE_CONFIG_DIR/config.json"
 
-    if [ ! -f "$CLAUDE_CONFIG_JSON" ]; then
-      # First-time setup: Copy Nix-generated template
-      $DRY_RUN_CMD cp "${mcpConfig}" "$CLAUDE_CONFIG_JSON"
-      echo "✓ Created initial MCP config: $CLAUDE_CONFIG_JSON"
-      echo "⚠️  GitHub MCP server requires manual token configuration"
-    else
-      echo "✓ Existing MCP config preserved: $CLAUDE_CONFIG_JSON"
-      echo "  (Manual token configuration retained)"
-    fi
-
-    # Create GitHub token envFile template if it doesn't exist
-    GITHUB_TOKEN_FILE="$CLAUDE_CONFIG_DIR/github-token.env"
-    if [ ! -f "$GITHUB_TOKEN_FILE" ]; then
-      $DRY_RUN_CMD cat > "$GITHUB_TOKEN_FILE" <<'EOF'
-# GitHub Personal Access Token for Claude Code MCP Server
-# Replace the placeholder below with your actual GitHub token
-#
-# To create a token:
-# 1. Visit: https://github.com/settings/tokens
-# 2. Click "Generate new token" → "Generate new token (classic)"
-# 3. Name: "Claude Code MCP Server"
-# 4. Scopes: ✓ repo, ✓ read:org, ✓ read:user
-# 5. Click "Generate token" and copy it
-#
-# Then replace REPLACE_WITH_YOUR_TOKEN below:
-# IMPORTANT: Variable name MUST be GITHUB_PERSONAL_ACCESS_TOKEN (not GITHUB_TOKEN)
-GITHUB_PERSONAL_ACCESS_TOKEN=REPLACE_WITH_YOUR_TOKEN
-EOF
-
-      echo "✓ Created GitHub token template: $GITHUB_TOKEN_FILE"
-      echo ""
-      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-      echo "📝 IMPORTANT: Configure GitHub MCP Server"
-      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-      echo ""
-      echo "1. Create GitHub Personal Access Token:"
-      echo "   → Visit: https://github.com/settings/tokens"
-      echo "   → Click 'Generate new token' → 'Generate new token (classic)'"
-      echo "   → Name: 'Claude Code MCP Server'"
-      echo "   → Scopes: ✓ repo, ✓ read:org, ✓ read:user"
-      echo "   → Click 'Generate token' and copy the token"
-      echo ""
-      echo "2. Add token to config.json:"
-      echo "   → Edit: $CLAUDE_CONFIG_JSON"
-      echo "   → Find the 'github' section"
-      echo "   → Add to 'env' object:"
-      echo "     \"GITHUB_PERSONAL_ACCESS_TOKEN\": \"ghp_your_token_here\""
-      echo "   → Save the file"
-      echo ""
-      echo "3. Verify MCP servers:"
-      echo "   → Run: claude mcp list"
-      echo "   → All three servers should show '✓ Connected'"
-      echo ""
-      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-      echo ""
-    else
-      echo "✓ GitHub token envFile already exists: $GITHUB_TOKEN_FILE"
-    fi
+    $DRY_RUN_CMD cp "${mcpConfig}" "$CLAUDE_CONFIG_JSON"
+    echo "✓ Updated MCP config: $CLAUDE_CONFIG_JSON"
 
     echo ""
     echo "✓ Claude Code CLI and MCP servers configured successfully"
     echo "  - Claude Code CLI: $(command -v claude || echo 'not found in PATH')"
     echo "  - MCP Config: $CLAUDE_CONFIG_JSON"
-    echo "  - GitHub Token Reference: $GITHUB_TOKEN_FILE"
     echo ""
     echo "To verify MCP servers: claude mcp list"
   '';

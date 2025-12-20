@@ -9,6 +9,7 @@ Sensitive files are stored locally in `~/.config/calibre-secrets/`:
 ```
 ~/.config/calibre-secrets/
 ├── dedrm.json                    # Kindle serial, Adobe DRM keys
+├── bookfusion.json               # BookFusion API key
 └── DeACSM/
     └── account/
         ├── activation.xml        # Adobe account activation
@@ -32,12 +33,20 @@ cp config/calibre/plugins/dedrm.json.template ~/.config/calibre-secrets/dedrm.js
 chmod 600 ~/.config/calibre-secrets/dedrm.json
 ```
 
-### 3. Adobe DRM (optional)
+### 3. BookFusion (optional)
+If using BookFusion to sync ebooks:
+```bash
+# Copy from existing Calibre installation
+cp ~/Library/Preferences/calibre/plugins/bookfusion.json ~/.config/calibre-secrets/
+chmod 600 ~/.config/calibre-secrets/bookfusion.json
+```
+
+### 4. Adobe DRM (optional)
 If using DeACSM for Adobe DRM, copy your account files:
 - Export from existing Calibre installation, or
 - Set up DeACSM plugin in Calibre and copy the generated files
 
-### 4. Run rebuild
+### 5. Run rebuild
 ```bash
 rebuild
 ```
@@ -52,6 +61,6 @@ The activation script will merge secrets into the deployed Calibre config.
 
 ## Security Notes
 
-- Never commit `dedrm.json` or `DeACSM/account/` to git
-- These files contain DRM keys tied to your accounts
+- Never commit `dedrm.json`, `bookfusion.json`, or `DeACSM/account/` to git
+- These files contain DRM keys and API keys tied to your accounts
 - The `.gitignore` excludes these paths automatically

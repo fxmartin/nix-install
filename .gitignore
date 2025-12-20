@@ -10,7 +10,8 @@ tests/test_helper/bats-assert/
 # User config backup (generated during bootstrap)
 user-config.nix.backup
 
-# Calibre secrets (contain Kindle serial, Adobe credentials)
+# Calibre secrets (contain Kindle serial, Adobe credentials, API keys)
 # Store locally in ~/.config/calibre-secrets/ instead
 config/calibre/plugins/dedrm.json
+config/calibre/plugins/bookfusion.json
 config/calibre/plugins/DeACSM/account/

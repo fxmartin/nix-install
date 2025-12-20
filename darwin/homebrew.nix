@@ -68,6 +68,7 @@
       # Note: Perplexity moved to Mac App Store (masApps) - no Homebrew cask available
       "ollama-app" # Ollama Desktop - Local LLM runner with GUI and CLI (Story 02.1-002)
                    # Note: Renamed from "ollama" to "ollama-app" in Homebrew
+      "lm-studio" # LM Studio - Discover, download, and run local LLMs with GUI
 
       # Development Environment Applications (Story 02.2-001, 02.2-005)
       # Auto-update disable: Managed via Home Manager settings.json

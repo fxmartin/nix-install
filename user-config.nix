@@ -15,7 +15,7 @@
   installProfile = "power";  # "standard" or "power"
 
   # Mac App Store apps (requires App Store sign-in)
-  enableMasApps = false;  # Set to true if signed into App Store
+  enableMasApps = true;  # Mac App Store apps enabled
 
   # Directory Configuration
   directories = {

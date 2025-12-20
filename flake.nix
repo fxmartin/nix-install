@@ -146,6 +146,10 @@
       # Maintenance LaunchAgents (Epic-06: Features 06.1, 06.2)
       # Automated garbage collection and store optimization
       ./darwin/maintenance.nix
+
+      # Calibre ebook configuration (DeDRM, KFX plugins)
+      # Deploys pre-configured plugins from config/calibre/
+      ./darwin/calibre.nix
     ];
 
     # Helper function to create darwin configuration

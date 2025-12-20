@@ -153,6 +153,57 @@ Calibre is a powerful ebook management suite with comprehensive features:
 
 ---
 
+### Calibre DeDRM & KFX Plugins
+
+**Status**: Pre-configured in nix-install repo, deployed automatically on rebuild.
+
+**Purpose**: Remove DRM from legally purchased ebooks to enable format conversion and backup.
+
+**Legal Note**: DRM removal is for personal backup of legally purchased content only.
+
+**Plugins Included** (deployed from `config/calibre/`):
+- **DeDRM** - Kindle/Adobe DRM removal (Kindle Oasis serial pre-configured)
+- **KFX Input/Output** - Modern Kindle KFX format support
+- **DeACSM** - Adobe Digital Editions DRM support
+- **BookFusion** - Library sync plugin
+
+**Configuration Locations**:
+- Repository: `config/calibre/`
+- System: `~/Library/Preferences/calibre/`
+
+**How It Works**:
+On each `rebuild`, the activation script copies plugins and settings from the repo to the system Calibre config directory. This ensures consistent configuration across reinstalls.
+
+**Importing DRM Books from Kindle**:
+1. Connect Kindle Oasis via USB
+2. In Calibre, click **Add books**
+3. Navigate to Kindle: `/Volumes/Kindle/documents/`
+4. Select `.azw` or `.azw3` files
+5. DRM automatically removed on import
+6. Convert to EPUB if desired: Right-click → Convert books
+
+**Backing Up Config Changes**:
+If you modify Calibre settings or plugins, backup to the repo:
+```bash
+# Copy plugins and settings back to repo
+cp -r ~/Library/Preferences/calibre/plugins ~/Documents/nix-install/config/calibre/
+cp ~/Library/Preferences/calibre/global.py.json ~/Documents/nix-install/config/calibre/
+
+# Commit changes
+cd ~/Documents/nix-install
+git add config/calibre
+git commit -m "chore: update Calibre config"
+git push
+```
+
+**Troubleshooting**:
+- **"DRM removal failed"**: Verify Kindle serial in `config/calibre/plugins/dedrm.json`
+- **Kindle not showing as drive**: Try different USB cable, restart Kindle
+- **KFX format issues**: Ensure KFX Input plugin is loaded (Preferences → Plugins)
+- **Plugins not appearing**: Run `rebuild` to deploy config, then restart Calibre
+
+---
+
 
 ## Kindle
 

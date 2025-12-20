@@ -176,6 +176,7 @@
       "Kindle" = 302584613;       # Ebook reader
       "Marked 2" = 890031187;     # Markdown preview
       "WhatsApp" = 310633997;     # Messaging app
+      "reMarkable desktop" = 1276493162;  # reMarkable tablet sync and screen share
     };
   };
 

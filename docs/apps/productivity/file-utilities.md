@@ -168,7 +168,8 @@ Calibre is a powerful ebook management suite with comprehensive features:
 - **BookFusion** - Library sync plugin
 
 **Configuration Locations**:
-- Repository: `config/calibre/`
+- Repository: `config/calibre/` (plugins, non-sensitive settings)
+- Secrets: `~/.config/calibre-secrets/` (Kindle serial, Adobe keys - NOT in git)
 - System: `~/Library/Preferences/calibre/`
 
 **How It Works**:
@@ -183,21 +184,28 @@ On each `rebuild`, the activation script copies plugins and settings from the re
 6. Convert to EPUB if desired: Right-click → Convert books
 
 **Backing Up Config Changes**:
-If you modify Calibre settings or plugins, backup to the repo:
+If you modify Calibre settings or plugins:
 ```bash
-# Copy plugins and settings back to repo
-cp -r ~/Library/Preferences/calibre/plugins ~/Documents/nix-install/config/calibre/
+# Copy non-sensitive files to repo
 cp ~/Library/Preferences/calibre/global.py.json ~/Documents/nix-install/config/calibre/
+cp ~/Library/Preferences/calibre/plugins/*.zip ~/Documents/nix-install/config/calibre/plugins/
 
-# Commit changes
+# Copy secrets to local secrets directory (NOT in git)
+cp ~/Library/Preferences/calibre/plugins/dedrm.json ~/.config/calibre-secrets/
+cp -r ~/Library/Preferences/calibre/plugins/DeACSM/account ~/.config/calibre-secrets/DeACSM/
+
+# Commit non-sensitive changes only
 cd ~/Documents/nix-install
 git add config/calibre
 git commit -m "chore: update Calibre config"
 git push
 ```
 
+**Initial Secrets Setup** (new machine):
+See `config/calibre/SECRETS.md` for setting up secrets on a fresh install.
+
 **Troubleshooting**:
-- **"DRM removal failed"**: Verify Kindle serial in `config/calibre/plugins/dedrm.json`
+- **"DRM removal failed"**: Verify Kindle serial in `~/.config/calibre-secrets/dedrm.json`
 - **Kindle not showing as drive**: Try different USB cable, restart Kindle
 - **KFX format issues**: Ensure KFX Input plugin is loaded (Preferences → Plugins)
 - **Plugins not appearing**: Run `rebuild` to deploy config, then restart Calibre

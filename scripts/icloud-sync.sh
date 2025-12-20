@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ABOUTME: Multi-job iCloud sync script for work folders
+# ABOUTME: Multi-job iCloud sync script for local folder synchronization
 # ABOUTME: Reads job configuration from ~/.config/icloud-sync/config.conf
 # ABOUTME: Scheduled via LaunchAgent, configured in darwin/icloud-sync.nix
 
@@ -15,7 +15,7 @@ SCRIPT_VERSION="2.0.0"
 CONFIG_FILE="${HOME}/.config/icloud-sync/config.conf"
 
 # Logging
-LOG_FILE="/tmp/icloud-sync-proposals.log"
+LOG_FILE="/tmp/icloud-sync.log"
 
 # Color codes
 RED='\033[0;31m'

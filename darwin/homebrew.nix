@@ -126,7 +126,7 @@
       # License: Requires active NordVPN subscription (NO free tier)
       # Permissions: Network Extension permission required on first VPN connection
       "nordvpn" # NordVPN - VPN privacy and security service (subscription required)
-      "tailscale" # Tailscale - Zero-config mesh VPN built on WireGuard
+      "tailscale-app" # Tailscale - Zero-config mesh VPN built on WireGuard
 
       # Network Firewall (Story 02.7-001)
       # Auto-update disable: Preferences → Advanced → Uncheck "Automatically check for updates"

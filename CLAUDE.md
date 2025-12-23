@@ -27,7 +27,7 @@ This repository implements an automated, declarative MacBook configuration syste
 
 2. **Power Profile** (MacBook Pro M3 Max target):
    - All Standard apps + Parallels Desktop
-   - 4 Ollama models (`gpt-oss:20b`, `qwen2.5-coder:32b`, `llama3.1:70b`, `deepseek-r1:32b`)
+   - 2 Ollama models (`gpt-oss:20b`, `ministral-3:14b`)
    - ~120GB disk usage
 
 ### Package Management Strategy (Priority Order)

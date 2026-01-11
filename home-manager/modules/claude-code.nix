@@ -18,8 +18,11 @@
       };
 
       # Sequential Thinking MCP server - No authentication required
+      # FIXME: Temporarily disabled due to upstream build failure
+      # See: https://github.com/natsukium/mcp-servers-nix/issues/XXX
+      # Error: Cannot find name 'process' - missing @types/node in build
       sequential-thinking = {
-        enable = true;
+        enable = false;
       };
     };
   };

@@ -268,6 +268,9 @@
       # All updates controlled via `rebuild` command only (REQ-APP-010)
       HOMEBREW_NO_AUTO_UPDATE = "1";
 
+      # Suppress podman-compose warning logs
+      PODMAN_COMPOSE_WARNING_LOGS = "false";
+
       # Default editor for git commits, crontab, etc.
       # --wait flag keeps terminal attached until editor closes
       EDITOR = "zed --wait";

@@ -107,6 +107,9 @@
     nodePackages.typescript-language-server  # TypeScript/JavaScript language server
     nodePackages.vscode-langservers-extracted  # HTML, CSS, JSON, ESLint language servers
     nodePackages.prettier                    # Code formatter for JS/TS/HTML/CSS/JSON
+    nodePackages.eslint                      # JavaScript/TypeScript linter
+    nodePackages.stylelint                   # CSS/SCSS/Less linter
+    nodePackages.htmlhint                    # HTML linter
 
     # YAML (for docker-compose, podman-compose, CI configs)
     yaml-language-server  # YAML language server with schema support
@@ -116,6 +119,12 @@
 
     # Markdown
     marksman            # Markdown language server with wiki-links support
+
+    # DevOps & Config Linters
+    hadolint            # Dockerfile/Containerfile linter (best practices)
+    yamllint            # YAML linter (syntax and style)
+    markdownlint-cli    # Markdown linter (style consistency)
+    actionlint          # GitHub Actions workflow linter
   ];
 
   # Application Management & System Configuration

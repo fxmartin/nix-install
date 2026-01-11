@@ -9,6 +9,13 @@
 }:
 
 {
+  # Podman containers.conf - suppress compose provider warning
+  # This disables the "Executing external compose provider" message
+  xdg.configFile."containers/containers.conf".text = ''
+    [engine]
+    compose_warning_logs = false
+  '';
+
   # Podman Container Development Environment Configuration (Feature 04.8)
   # Provides Docker-compatible container development experience with Podman
   #

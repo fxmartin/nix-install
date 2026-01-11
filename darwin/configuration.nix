@@ -240,24 +240,60 @@
 
   # Custom hosts for easy name resolution
   # Includes Tailscale IPs, public IPs, and local network IPs
-  environment.etc.hosts.text = ''
-    ##
-    # Host Database
-    ##
-    127.0.0.1       localhost
-    255.255.255.255 broadcasthost
-    ::1             localhost
+  #
+  # IMPORTANT: knownSha256Hashes explained
+  # ======================================
+  # nix-darwin refuses to overwrite /etc/hosts if its content doesn't match a known hash.
+  # This prevents accidental data loss but causes "Unexpected files in /etc" errors.
+  #
+  # The knownSha256Hashes list tells nix-darwin which file contents are safe to overwrite:
+  # - First hash: The output of THIS config (required for re-activation after reboot)
+  # - Other hashes: Default macOS hosts files (for fresh installs)
+  #
+  # If you modify the 'text' block below, you MUST update the first hash:
+  #   1. Run: darwin-rebuild switch --flake .#power (will fail if hash changed)
+  #   2. Run: sudo mv /etc/hosts /etc/hosts.before-nix-darwin
+  #   3. Run: darwin-rebuild switch --flake .#power (succeeds, creates new file)
+  #   4. Run: cat /etc/hosts | shasum -a 256
+  #   5. Replace the first hash in knownSha256Hashes with the new hash
+  #   6. Commit the change
+  #
+  # See: docs/troubleshooting.md section 1.1 for more details
+  # See: https://github.com/LnL7/nix-darwin/issues/149
+  environment.etc.hosts = {
+    text = ''
+      ##
+      # Host Database
+      ##
+      127.0.0.1       localhost
+      255.255.255.255 broadcasthost
+      ::1             localhost
 
-    # Tailscale IPs (accessible when Tailscale is connected)
-    100.92.56.127  dev.ts dev-server.ts
-    100.98.9.111   nas.ts nas-luxembourg.ts
+      # Tailscale IPs (accessible when Tailscale is connected)
+      100.92.56.127  dev.ts dev-server.ts
+      100.98.9.111   nas.ts nas-luxembourg.ts
 
-    # Public IPs (accessible from anywhere via internet)
-    46.224.44.190  dev dev-server dev-public
+      # Public IPs (accessible from anywhere via internet)
+      46.224.44.190  dev dev-server dev-public
 
-    # Local network IPs (accessible only on local network)
-    192.168.68.58  nas-lux nas-local
-  '';
+      # Local network IPs (accessible only on local network)
+      192.168.68.58  nas-lux nas-local
+    '';
+
+    # Known SHA256 hashes of /etc/hosts files that are safe to overwrite
+    # This prevents "Unexpected files in /etc, aborting activation" errors
+    knownSha256Hashes = [
+      # nix-darwin managed hosts (this config's output) - required for re-activation
+      # UPDATE THIS HASH if you change the 'text' block above!
+      "11de5c726f376240c78682814efe4e14a9c096d27e8ed34ec6e86f63c3e34c56"
+      # Default macOS hosts (with header comments, tabs)
+      "c7dd0e2ed261ce76d76f852596c5b54026b9a894fa481381ffd399b556c0e2da"
+      # Default macOS hosts (with header comments, spaces)
+      "a645b69e7445ece3a9313b09f3d19e247eb4a20aadb8cf41cbdac470db08a8dc"
+      # Minimal hosts (no comments)
+      "d6d72f8fc83a8334319cd03c53b9af97ce873b8f2970611279e642e1967dc4d7"
+    ];
+  };
 
   # System Configuration Validation
   assertions = [

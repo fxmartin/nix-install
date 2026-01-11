@@ -1,115 +1,77 @@
 # ABOUTME: Claude Code CLI post-installation configuration guide
 # ABOUTME: Covers CLI setup, project configuration, multi-agent workflows, and integration with development tools
 
-### Claude Code CLI with MCP Servers (Context7, GitHub, Sequential Thinking)
+### Claude Code CLI with MCP Servers (Context7, Playwright, Sequential Thinking)
 
 **Status**: Installed via Nix (Story 02.2-006)
 - Claude Code CLI: `claude-code-nix` flake input
-- MCP Servers: `mcp-servers-nix` flake input (Context7, GitHub, Sequential Thinking)
+- MCP Servers: `mcp-servers-nix` flake input (Context7, Playwright, Sequential Thinking)
 - All packages installed to `darwin/configuration.nix` systemPackages
 - Configuration managed by Home Manager (`home-manager/modules/claude-code.nix`)
 - **REQ-NFR-008 Compliant**: Bidirectional sync via repository symlinks
 
-**Purpose**: AI-assisted development with Claude Code CLI and Model Context Protocol (MCP) servers for enhanced context awareness, repository integration, and structured reasoning capabilities.
+**Purpose**: AI-assisted development with Claude Code CLI and Model Context Protocol (MCP) servers for enhanced context awareness, browser automation, and structured reasoning capabilities.
 
 **What is MCP?**:
 Model Context Protocol (MCP) allows Claude Code to access external data sources and tools:
-- **Context7 MCP**: Provides enhanced context awareness across your development environment
-- **GitHub MCP**: Integrates with GitHub repositories for code search, PR reviews, and issue tracking
+- **Context7 MCP**: Provides library documentation and code examples lookup
+- **Playwright MCP**: Browser automation for web testing, scraping, and UI interaction
 - **Sequential Thinking MCP**: Enables structured, step-by-step reasoning for complex problems
 
 #### Installation Details
 
 **Packages Installed**:
 - `claude` (Claude Code CLI) - AI-assisted development tool
-- `mcp-server-context7` - Context awareness server
-- `mcp-server-github` - GitHub integration server
+- `mcp-server-context7` - Library documentation server
+- `mcp-server-playwright` - Browser automation server
 - `mcp-server-sequential-thinking` - Structured reasoning server
 
 **All packages installed via Nix** (no Node.js or npm dependencies):
 ```bash
 # Verify installations
 claude --version
-mcp-server-context7 --version
-mcp-server-github --version
-mcp-server-sequential-thinking --version
+claude mcp list
 ```
 
 **Configuration Files** (REQ-NFR-008 compliant bidirectional sync):
 - `~/.claude/CLAUDE.md` → symlinked to `$REPO/config/claude/CLAUDE.md`
 - `~/.claude/agents/` → symlinked to `$REPO/config/claude/agents/`
 - `~/.claude/commands/` → symlinked to `$REPO/config/claude/commands/`
-- `~/.config/claude/config.json` → MCP server configuration (created by Home Manager)
+
+**MCP Server Configuration** (dual-location for Claude Desktop AND Claude Code CLI):
+- `~/.config/claude/config.json` → Claude Desktop MCP config
+- `~/.claude.json` → Claude Code CLI MCP config (merged into existing settings)
+
+> **Important**: Claude Desktop and Claude Code CLI read MCP servers from **different locations**.
+> The nix-darwin activation script writes to both locations to ensure MCP servers work everywhere.
 
 Changes in repository instantly appear in Claude Code (bidirectional sync).
 
-#### Required Post-Install Configuration
+#### Post-Install Verification
 
-**CRITICAL**: GitHub MCP server requires a GitHub Personal Access Token.
+**No manual configuration required!** All MCP servers are automatically configured by nix-darwin.
 
-**Step 1: Create GitHub Personal Access Token**
-
-1. Visit https://github.com/settings/tokens
-2. Click **"Generate new token"** → **"Generate new token (classic)"**
-3. Token settings:
-   - **Name**: `Claude Code MCP Server`
-   - **Expiration**: Choose expiration (90 days recommended)
-   - **Scopes** (check these boxes):
-     - ✅ `repo` (Full control of private repositories)
-     - ✅ `read:org` (Read org and team membership)
-     - ✅ `read:user` (Read user profile data)
-4. Click **"Generate token"**
-5. **Copy the token immediately** (you won't see it again!)
-
-**Step 2: Add Token to Claude Code Configuration**
-
-Edit the MCP configuration file:
-```bash
-# Open config file in your editor
-code ~/.config/claude/config.json
-# or
-zed ~/.config/claude/config.json
-```
-
-Replace `REPLACE_WITH_YOUR_GITHUB_TOKEN` with your actual token:
-```json
-{
-  "mcpServers": {
-    "context7": {
-      "command": "mcp-server-context7",
-      "args": [],
-      "enabled": true
-    },
-    "github": {
-      "command": "mcp-server-github",
-      "args": [],
-      "env": {
-        "GITHUB_TOKEN": "ghp_YourActualTokenHere123456789"
-      },
-      "enabled": true
-    },
-    "sequential-thinking": {
-      "command": "mcp-server-sequential-thinking",
-      "args": [],
-      "enabled": true
-    }
-  }
-}
-```
-
-Save the file.
-
-**Step 3: Verify MCP Servers**
-
+**Verify MCP Servers**:
 ```bash
 # List configured MCP servers
 claude mcp list
 
 # Expected output:
-# ✓ context7 (enabled)
-# ✓ github (enabled)
-# ✓ sequential-thinking (enabled)
+# context7: ... - ✓ Connected
+# playwright: ... - ✓ Connected
+# sequential-thinking: ... - ✓ Connected
 ```
+
+**Check Configuration Files**:
+```bash
+# Claude Desktop config
+cat ~/.config/claude/config.json | jq .
+
+# Claude Code CLI config (mcpServers key)
+cat ~/.claude.json | jq '.mcpServers'
+```
+
+Both should show context7, playwright, and any other enabled MCP servers.
 
 #### Usage Examples
 
@@ -127,21 +89,21 @@ claude src/
 
 **Example Queries with MCP Servers**:
 
-**Context7 MCP** (Enhanced context awareness):
+**Context7 MCP** (Library documentation lookup):
 ```bash
 claude
-> What are the main components of this project?
-> Analyze the architecture of the codebase
-> Find all API endpoints in the project
+> Look up the React hooks documentation
+> Show me examples of using FastAPI with SQLAlchemy
+> What's the latest Next.js routing API?
 ```
 
-**GitHub MCP** (Repository integration):
+**Playwright MCP** (Browser automation):
 ```bash
 claude
-> Show me open pull requests in this repository
-> What issues are labeled as "bug"?
-> Search for implementations of authentication in organization repos
-> Summarize recent commits to main branch
+> Navigate to https://example.com and take a screenshot
+> Fill out the login form and submit it
+> Scrape the product list from this e-commerce page
+> Test the checkout flow end-to-end
 ```
 
 **Sequential Thinking MCP** (Structured reasoning):
@@ -155,8 +117,8 @@ claude
 **Combined MCP Usage**:
 ```bash
 claude
-> Using GitHub MCP, find similar authentication implementations,
-  then use Sequential Thinking to design our implementation step-by-step
+> Use Context7 to look up the Playwright testing patterns,
+  then use Sequential Thinking to design our test strategy step-by-step
 ```
 
 #### Configuration Customization
@@ -196,13 +158,13 @@ claude --version
 # Expected: Claude Code CLI version X.X.X
 ```
 
-**Check MCP Server Installations**:
+**Verify MCP Servers Connected**:
 ```bash
-which mcp-server-context7
-which mcp-server-github
-which mcp-server-sequential-thinking
-
-# All should show /nix/store/... paths
+claude mcp list
+# Expected:
+# context7: ... - ✓ Connected
+# playwright: ... - ✓ Connected
+# sequential-thinking: ... - ✓ Connected
 ```
 
 **Verify Configuration Symlinks** (REQ-NFR-008):
@@ -214,22 +176,15 @@ ls -la ~/.claude/
 # lrwxr-xr-x commands -> /path/to/nix-install/config/claude/commands/
 ```
 
-**Verify MCP Config Created**:
+**Verify MCP Configs Created** (both locations):
 ```bash
-cat ~/.config/claude/config.json
-# Should show JSON with three MCP servers configured
-```
+# Claude Desktop config
+cat ~/.config/claude/config.json | jq .mcpServers
+# Should show context7, playwright
 
-**Test MCP Servers**:
-```bash
-# Test Context7 MCP
-mcp-server-context7 --version
-
-# Test GitHub MCP (requires token configured)
-# Will be tested when running claude CLI
-
-# Test Sequential Thinking MCP
-mcp-server-sequential-thinking --version
+# Claude Code CLI config
+cat ~/.claude.json | jq '.mcpServers'
+# Should show context7, playwright, and any manually-added servers
 ```
 
 #### Troubleshooting
@@ -247,23 +202,30 @@ echo $PATH | grep nix
 # Should include /nix/var/nix/profiles/default/bin or similar
 ```
 
-**Issue**: GitHub MCP server not working
-**Solution**:
-1. Verify token configured: `cat ~/.config/claude/config.json | grep GITHUB_TOKEN`
-2. Check token not placeholder: Should be `ghp_...`, not `REPLACE_WITH_YOUR_GITHUB_TOKEN`
-3. Verify token scopes at https://github.com/settings/tokens
-4. Test token: `curl -H "Authorization: token YOUR_TOKEN" https://api.github.com/user`
-5. Restart Claude Code session after token update
-
-**Issue**: MCP servers show as disabled
+**Issue**: MCP server not showing in `claude mcp list`
+**Cause**: Claude Code CLI reads from `~/.claude.json`, not `~/.config/claude/config.json`
 **Solution**:
 ```bash
-# Edit config.json and ensure "enabled": true for all servers
-code ~/.config/claude/config.json
+# Check if server is in CLI config
+cat ~/.claude.json | jq '.mcpServers'
 
-# Check for syntax errors
-cat ~/.config/claude/config.json | jq .
-# Should parse successfully without errors
+# If missing, rebuild to trigger activation script
+darwin-rebuild switch --flake ~/nix-install#power
+
+# Or manually add using claude CLI
+claude mcp add-json -s user <server-name> '<json-config>'
+```
+
+**Issue**: MCP servers work in CLI but not Claude Desktop (or vice versa)
+**Cause**: Two separate config files for different applications
+**Solution**:
+```bash
+# Check both configs
+cat ~/.config/claude/config.json | jq .   # Claude Desktop
+cat ~/.claude.json | jq '.mcpServers'     # Claude Code CLI
+
+# Rebuild to sync both
+darwin-rebuild switch --flake ~/nix-install#power
 ```
 
 **Issue**: Configuration changes not appearing in Claude Code
@@ -280,38 +242,50 @@ darwin-rebuild switch --flake ~/nix-install#standard  # or #power
 # Wrong: ~/.claude/CLAUDE.md -> /nix/store/.../CLAUDE.md
 ```
 
-**Issue**: Want to update MCP server configuration
+**Issue**: Want to add a new MCP server manually
 **Solution**:
 ```bash
-# Edit config.json directly (NOT managed by Nix)
-code ~/.config/claude/config.json
+# Add to Claude Code CLI (user scope, persists across rebuilds)
+claude mcp add-json -s user my-server '{"command": "/path/to/server", "args": []}'
 
-# Add new MCP server, change settings, etc.
-# File is NOT overwritten by darwin-rebuild (preserves user customizations)
+# Verify
+claude mcp list
+
+# Note: Manually-added servers are preserved during rebuilds
+# Nix-managed servers are merged with existing ones
 ```
 
 #### Security Considerations
 
-**GitHub Token Storage**:
-- Token stored in `~/.config/claude/config.json` (plain text)
-- File has user-only permissions (600)
-- **DO NOT** commit config.json to public repositories
-- Consider using environment variables for shared configurations:
-  ```json
-  "env": {
-    "GITHUB_TOKEN": "${GITHUB_TOKEN}"
-  }
-  ```
-  Then export in shell: `export GITHUB_TOKEN=ghp_...`
+**MCP Configuration Files**:
+- `~/.config/claude/config.json` - Claude Desktop config (user-only permissions)
+- `~/.claude.json` - Claude Code CLI config (contains other settings too)
+- Both files are NOT committed to the repository
+- Nix manages server paths, not secrets
 
-**Token Rotation**:
-- Rotate tokens every 90 days (set expiration when creating)
-- Revoke old tokens at https://github.com/settings/tokens
-- Update config.json with new token
+**Adding MCP Servers with Secrets**:
+If you need to add an MCP server that requires authentication:
+```bash
+# Add with environment variable
+claude mcp add-json -s user my-auth-server '{
+  "command": "/path/to/server",
+  "env": {"API_KEY": "your-secret-key"}
+}'
 
-**Least Privilege**:
-- Only grant scopes needed: `repo`, `read:org`, `read:user`
-- Don't grant `admin:org`, `delete_repo`, or other destructive scopes
+# Or use environment variable reference
+claude mcp add-json -s user my-auth-server '{
+  "command": "/path/to/server",
+  "env": {"API_KEY": "${MY_API_KEY}"}
+}'
+# Then export in shell: export MY_API_KEY=your-secret-key
+```
+
+**File Permissions**:
+```bash
+# Verify config files are user-only readable
+ls -la ~/.config/claude/config.json  # Should be 600 or 644
+ls -la ~/.claude.json                # Should be 600
+```
 
 #### Update Philosophy
 
@@ -340,17 +314,15 @@ mcp-server-sequential-thinking --version
 #### Testing Checklist
 
 - [ ] Claude Code CLI installed and `claude --version` works
-- [ ] All three MCP server binaries installed and on PATH
 - [ ] `~/.claude/CLAUDE.md` symlinked to repository (bidirectional sync)
 - [ ] `~/.claude/agents/` symlinked to repository
 - [ ] `~/.claude/commands/` symlinked to repository
-- [ ] `~/.config/claude/config.json` created with three MCP servers
-- [ ] GitHub Personal Access Token created with correct scopes
-- [ ] Token added to config.json (replaces placeholder)
-- [ ] `claude mcp list` shows all three servers as enabled
+- [ ] `~/.config/claude/config.json` created (Claude Desktop)
+- [ ] `~/.claude.json` has mcpServers key (Claude Code CLI)
+- [ ] `claude mcp list` shows all servers as connected
 - [ ] Can start Claude Code CLI with `claude` command
-- [ ] Context7 MCP responds to context queries
-- [ ] GitHub MCP can query repositories (token configured)
+- [ ] Context7 MCP responds to documentation queries
+- [ ] Playwright MCP can navigate and interact with web pages
 - [ ] Sequential Thinking MCP enables structured reasoning
 - [ ] Configuration changes in repo appear in `~/.claude/` (bidirectional sync)
 - [ ] Symlinks point to working directory, NOT /nix/store
@@ -359,10 +331,9 @@ mcp-server-sequential-thinking --version
 
 - Claude Code CLI: https://github.com/anthropics/claude-code
 - MCP Specification: https://modelcontextprotocol.io/
-- Context7 MCP: https://github.com/natsukium/mcp-servers-nix (community maintained)
-- GitHub MCP: https://github.com/natsukium/mcp-servers-nix (community maintained)
-- Sequential Thinking MCP: https://github.com/natsukium/mcp-servers-nix (community maintained)
-- GitHub Token Management: https://github.com/settings/tokens
+- MCP Servers Nix: https://github.com/natsukium/mcp-servers-nix (community maintained)
+- Context7: https://context7.com/
+- Playwright MCP: https://github.com/anthropics/anthropic-quickstarts/tree/main/mcp-servers/playwright
 
 ---
 

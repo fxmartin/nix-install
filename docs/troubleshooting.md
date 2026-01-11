@@ -26,7 +26,52 @@ Common issues and their solutions. Each issue follows the format: **Symptom** â†
 
 ## 1. Build Failures
 
-### 1.1 "error: attribute 'X' missing"
+### 1.1 "Unexpected files in /etc, aborting activation" (/etc/hosts)
+
+**Symptom**: Build fails with error about unexpected content in /etc/hosts.
+
+```
+error: Unexpected files in /etc, aborting activation
+The following files have unrecognized content and would be overwritten:
+
+  /etc/hosts
+
+Please check there is nothing critical in these files, rename them by adding .before-nix-darwin to the end, and then try again.
+```
+
+**Cause**: The `/etc/hosts` file was modified outside of nix-darwin (e.g., by macOS, another tool, or manually), and nix-darwin doesn't recognize the content hash.
+
+**Solution**:
+
+**Option 1 (Quick fix)**: Rename the file and rebuild:
+```bash
+sudo mv /etc/hosts /etc/hosts.before-nix-darwin
+sudo darwin-rebuild switch --flake .#power
+```
+
+**Option 2 (Permanent fix)**: Add the file's hash to `knownSha256Hashes` in the nix config:
+```bash
+# Get the hash of the current hosts file
+cat /etc/hosts | shasum -a 256
+
+# Add this hash to darwin/configuration.nix:
+# environment.etc.hosts.knownSha256Hashes = [
+#   "your-hash-here"
+#   ...existing hashes...
+# ];
+```
+
+**How we prevent this**: The `darwin/configuration.nix` includes `knownSha256Hashes` with:
+- Hash of the nix-darwin managed hosts file (for re-activation)
+- Hashes of default macOS hosts file variations (for fresh installs)
+
+This allows nix-darwin to safely overwrite these known files without erroring.
+
+**Note**: If you change the hosts file content in `configuration.nix`, you'll need to update the first hash in `knownSha256Hashes` to match the new content (run `cat /etc/hosts | shasum -a 256` after a successful rebuild).
+
+---
+
+### 1.2 "error: attribute 'X' missing"
 
 **Symptom**: Build fails with error about missing attribute or undefined variable.
 
@@ -938,6 +983,7 @@ All times are in your **local timezone**.
 |-------|---------------------|
 | Any problem | `health-check` |
 | Build failures | `darwin-rebuild switch --flake .#standard --show-trace` |
+| /etc/hosts conflict | `sudo mv /etc/hosts /etc/hosts.before-nix-darwin` then rebuild |
 | Need to undo update | `darwin-rebuild --rollback` |
 | Disk space issues | `gc` then `cleanup` |
 | SSH not working | `ssh -T git@github.com` |
@@ -945,6 +991,7 @@ All times are in your **local timezone**.
 | Shell broken | `source ~/.zshrc` |
 | App broken | `brew reinstall --cask <app>` |
 | LaunchAgent failing | `launchctl list \| grep org.nixos` then check logs |
+| MCP servers not showing | `claude mcp list` then check `~/.claude.json` |
 
 ---
 

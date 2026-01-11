@@ -1,5 +1,6 @@
-# ABOUTME: Claude Code CLI configuration with MCP servers (Context7, Sequential Thinking)
+# ABOUTME: Claude Code CLI configuration with MCP servers (Context7, Sequential Thinking, Playwright)
 # ABOUTME: Symlinks ~/.claude/ directory to repo for bidirectional sync (REQ-NFR-008 compliant)
+# ABOUTME: Writes MCP config to BOTH ~/.config/claude/config.json (Desktop) AND ~/.claude.json (CLI)
 {
   config,
   pkgs,
@@ -24,8 +25,17 @@
       sequential-thinking = {
         enable = false;
       };
+
+      # Playwright MCP server - Browser automation for web testing and scraping
+      # No authentication required
+      playwright = {
+        enable = true;
+      };
     };
   };
+
+  # jq is needed for JSON manipulation in the activation script
+  jq = pkgs.jq;
 in {
   # Claude Code CLI and MCP Servers Configuration
   # Story 02.2-006: Install Claude Code CLI with Context7 and Sequential Thinking MCP servers
@@ -54,7 +64,9 @@ in {
   #    - ~/.claude/CLAUDE.md → $REPO/config/claude/CLAUDE.md
   #    - ~/.claude/agents/ → $REPO/config/claude/agents/
   #    - ~/.claude/commands/ → $REPO/config/claude/commands/
-  # 4. Creates ~/.config/claude/config.json → Nix-generated MCP config
+  # 4. Creates MCP configs for BOTH Claude Desktop AND Claude Code CLI:
+  #    - ~/.config/claude/config.json → Claude Desktop (full mcpServers object)
+  #    - ~/.claude.json → Claude Code CLI (merges mcpServers into existing config)
   # 5. Bidirectional sync:
   #    - Changes in repo (git pull) → Instantly apply to Claude Code
   #    - Custom agents/commands version controlled
@@ -62,7 +74,8 @@ in {
   #
   # MCP Servers Configuration:
   # - Context7: No authentication required
-  # - Sequential Thinking: No authentication required
+  # - Sequential Thinking: No authentication required (currently disabled)
+  # - Playwright: No authentication required - browser automation
   #
   # All MCP servers use Nix-installed binaries (managed by mkConfig, not npx/npm)
 
@@ -146,24 +159,56 @@ in {
       echo "  Claude Code configuration will not be linked to repository"
     fi
 
-    # Create ~/.config/claude directory for MCP config
+    # Create ~/.config/claude directory for MCP config (Claude Desktop)
     CLAUDE_CONFIG_DIR="${config.home.homeDirectory}/.config/claude"
     if [ ! -d "$CLAUDE_CONFIG_DIR" ]; then
       $DRY_RUN_CMD mkdir -p "$CLAUDE_CONFIG_DIR"
-      echo "Created Claude Code MCP config directory: $CLAUDE_CONFIG_DIR"
+      echo "Created Claude Desktop MCP config directory: $CLAUDE_CONFIG_DIR"
     fi
 
-    # MCP configuration handling
-    # Strategy: Always update config.json with the Nix-generated config
-    CLAUDE_CONFIG_JSON="$CLAUDE_CONFIG_DIR/config.json"
+    # ============================================================
+    # MCP Configuration for Claude Desktop
+    # ============================================================
+    # Claude Desktop reads MCP servers from ~/.config/claude/config.json
+    CLAUDE_DESKTOP_CONFIG="$CLAUDE_CONFIG_DIR/config.json"
+    $DRY_RUN_CMD cp "${mcpConfig}" "$CLAUDE_DESKTOP_CONFIG"
+    echo "✓ Updated Claude Desktop MCP config: $CLAUDE_DESKTOP_CONFIG"
 
-    $DRY_RUN_CMD cp "${mcpConfig}" "$CLAUDE_CONFIG_JSON"
-    echo "✓ Updated MCP config: $CLAUDE_CONFIG_JSON"
+    # ============================================================
+    # MCP Configuration for Claude Code CLI
+    # ============================================================
+    # Claude Code CLI reads MCP servers from ~/.claude.json (mcpServers key)
+    # We need to merge our MCP servers into the existing config without
+    # destroying other settings (numStartups, projects, etc.)
+    CLAUDE_CLI_CONFIG="${config.home.homeDirectory}/.claude.json"
+    NIX_MCP_CONFIG="${mcpConfig}"
+
+    if [ -f "$CLAUDE_CLI_CONFIG" ]; then
+      # Extract mcpServers from the Nix-generated config and merge into existing ~/.claude.json
+      # The Nix config has format: {"mcpServers": {...}}
+      # We need to merge that into the existing ~/.claude.json's mcpServers key
+      $DRY_RUN_CMD ${jq}/bin/jq -s '
+        # $existing is .[0] (current ~/.claude.json)
+        # $new is .[1] (Nix-generated config with mcpServers)
+        .[0] as $existing |
+        .[1].mcpServers as $newServers |
+        # Merge: existing config + new mcpServers (new servers override existing ones with same name)
+        $existing * {mcpServers: (($existing.mcpServers // {}) * $newServers)}
+      ' "$CLAUDE_CLI_CONFIG" "$NIX_MCP_CONFIG" > "$CLAUDE_CLI_CONFIG.tmp" \
+        && $DRY_RUN_CMD mv "$CLAUDE_CLI_CONFIG.tmp" "$CLAUDE_CLI_CONFIG"
+      echo "✓ Merged MCP servers into Claude Code CLI config: $CLAUDE_CLI_CONFIG"
+    else
+      # No existing config - create new one with just mcpServers
+      # Extract mcpServers and create a minimal config
+      $DRY_RUN_CMD ${jq}/bin/jq '{mcpServers: .mcpServers}' "$NIX_MCP_CONFIG" > "$CLAUDE_CLI_CONFIG"
+      echo "✓ Created Claude Code CLI config: $CLAUDE_CLI_CONFIG"
+    fi
 
     echo ""
     echo "✓ Claude Code CLI and MCP servers configured successfully"
     echo "  - Claude Code CLI: $(command -v claude || echo 'not found in PATH')"
-    echo "  - MCP Config: $CLAUDE_CONFIG_JSON"
+    echo "  - Claude Desktop config: $CLAUDE_DESKTOP_CONFIG"
+    echo "  - Claude Code CLI config: $CLAUDE_CLI_CONFIG"
     echo ""
     echo "To verify MCP servers: claude mcp list"
   '';

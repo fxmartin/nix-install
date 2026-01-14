@@ -20,7 +20,7 @@
 
       # Sequential Thinking MCP server - No authentication required
       # FIXME: Temporarily disabled due to upstream build failure
-      # See: https://github.com/natsukium/mcp-servers-nix/issues/XXX
+      # Fix pending in PR #276 (Node.js 22 pinning): https://github.com/natsukium/mcp-servers-nix/pull/276
       # Error: Cannot find name 'process' - missing @types/node in build
       sequential-thinking = {
         enable = false;

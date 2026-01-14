@@ -17,6 +17,7 @@ Model Context Protocol (MCP) allows Claude Code to access external data sources 
 - **Context7 MCP**: Provides library documentation and code examples lookup
 - **Playwright MCP**: Browser automation for web testing, scraping, and UI interaction
 - **Sequential Thinking MCP**: Enables structured, step-by-step reasoning for complex problems
+  - ⚠️ **Currently disabled** due to upstream build issue; fix pending in [PR #276](https://github.com/natsukium/mcp-servers-nix/pull/276) (Node.js 22 pinning)
 
 #### Installation Details
 
@@ -59,7 +60,7 @@ claude mcp list
 # Expected output:
 # context7: ... - ✓ Connected
 # playwright: ... - ✓ Connected
-# sequential-thinking: ... - ✓ Connected
+# sequential-thinking: ... - ✓ Connected (currently disabled, pending PR #276)
 ```
 
 **Check Configuration Files**:
@@ -164,7 +165,7 @@ claude mcp list
 # Expected:
 # context7: ... - ✓ Connected
 # playwright: ... - ✓ Connected
-# sequential-thinking: ... - ✓ Connected
+# Note: sequential-thinking currently disabled (pending PR #276)
 ```
 
 **Verify Configuration Symlinks** (REQ-NFR-008):
@@ -323,7 +324,7 @@ mcp-server-sequential-thinking --version
 - [ ] Can start Claude Code CLI with `claude` command
 - [ ] Context7 MCP responds to documentation queries
 - [ ] Playwright MCP can navigate and interact with web pages
-- [ ] Sequential Thinking MCP enables structured reasoning
+- [ ] Sequential Thinking MCP enables structured reasoning (pending [PR #276](https://github.com/natsukium/mcp-servers-nix/pull/276))
 - [ ] Configuration changes in repo appear in `~/.claude/` (bidirectional sync)
 - [ ] Symlinks point to working directory, NOT /nix/store
 

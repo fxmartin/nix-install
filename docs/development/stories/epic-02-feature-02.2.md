@@ -760,7 +760,7 @@
 - [x] MCP servers configured in ~/.config/claude/config.json with Nix binary paths
 - [ ] Context7 MCP server functional (test with `mcp-server-context7 --version`) ⚠️ VM testing pending
 - [ ] GitHub MCP server functional (with token configured) ⚠️ VM testing pending
-- [ ] Sequential Thinking MCP server functional (test with `mcp-server-sequential-thinking --version`) ⚠️ VM testing pending
+- [ ] Sequential Thinking MCP server functional ⚠️ Disabled pending [PR #276](https://github.com/natsukium/mcp-servers-nix/pull/276)
 - [x] **REQ-NFR-008**: Repository symlinks verified:
   - [x] `~/.claude/CLAUDE.md` → `$REPO/config/claude/CLAUDE.md` (bidirectional)
   - [x] `~/.claude/agents/` → `$REPO/config/claude/agents/`

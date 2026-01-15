@@ -60,7 +60,7 @@ curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh 
    - 1Password, Dropbox, NordVPN (sign in)
    - iStat Menus, Parallels (enter license key)
    - Zoom, Webex (sign in)
-5. **Install Office 365** manually if needed (not in Homebrew)
+   - Office 365 (Microsoft account sign-in)
 
 ---
 

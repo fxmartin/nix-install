@@ -64,6 +64,64 @@ download_nix_installer() {
     return 0
 }
 
+# Clean up leftover backup files from previous Nix installation attempts
+#
+# The Nix installer backs up shell profile files before modifying them.
+# If installation fails midway, these backup files remain and block
+# subsequent installation attempts with "backup-before-nix already exists" errors.
+#
+# This function restores the backup files to their original locations,
+# allowing the Nix installer to proceed cleanly.
+#
+# Files handled:
+#   - /etc/bashrc.backup-before-nix → /etc/bashrc
+#   - /etc/bash.bashrc.backup-before-nix → /etc/bash.bashrc
+#   - /etc/zshrc.backup-before-nix → /etc/zshrc
+#   - /etc/zprofile.backup-before-nix → /etc/zprofile
+#
+# Requires sudo for /etc file operations.
+#
+# Returns:
+#   0 - Always (cleanup is best-effort, non-critical)
+cleanup_nix_backup_files() {
+    log_info "Checking for leftover Nix backup files from previous installs..."
+
+    local backup_files=(
+        "/etc/bashrc.backup-before-nix"
+        "/etc/bash.bashrc.backup-before-nix"
+        "/etc/zshrc.backup-before-nix"
+        "/etc/zprofile.backup-before-nix"
+    )
+
+    local cleaned=0
+
+    for backup_file in "${backup_files[@]}"; do
+        if [[ -f "${backup_file}" ]]; then
+            # Extract original filename by removing .backup-before-nix suffix
+            local original_file="${backup_file%.backup-before-nix}"
+
+            log_info "  Found: ${backup_file}"
+
+            # Restore backup to original location
+            if sudo mv "${backup_file}" "${original_file}" 2>/dev/null; then
+                log_info "  ✓ Restored: ${original_file}"
+                ((cleaned++))
+            else
+                log_warn "  ⚠ Could not restore ${backup_file} (non-critical)"
+            fi
+        fi
+    done
+
+    if [[ ${cleaned} -gt 0 ]]; then
+        log_success "Cleaned up ${cleaned} leftover backup file(s)"
+    else
+        log_info "No leftover backup files found"
+    fi
+
+    echo ""
+    return 0
+}
+
 # Install Nix using multi-user installation method
 #
 # Runs the official Nix installer with --daemon flag for multi-user setup.
@@ -80,6 +138,9 @@ download_nix_installer() {
 #   1 - Installation failed
 install_nix_multi_user() {
     local installer_path="/tmp/nix-installer.sh"
+
+    # Clean up any leftover backup files from previous failed installs
+    cleanup_nix_backup_files
 
     log_info "Installing Nix package manager (multi-user mode)..."
     log_warn "This requires sudo access and will prompt for your password"

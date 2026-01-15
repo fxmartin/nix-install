@@ -162,19 +162,17 @@ in {
 
     # Create ~/.config/claude directory for MCP config (Claude Desktop)
     CLAUDE_CONFIG_DIR="${config.home.homeDirectory}/.config/claude"
+
+    # Always ensure we can write to this directory (fixes permission issues from failed runs)
+    # Remove and recreate if it exists but we can't write to it
+    if [ -d "$CLAUDE_CONFIG_DIR" ] && ! [ -w "$CLAUDE_CONFIG_DIR" ]; then
+      echo "Fixing permissions on $CLAUDE_CONFIG_DIR (not writable)"
+      $DRY_RUN_CMD sudo rm -rf "$CLAUDE_CONFIG_DIR"
+    fi
+
     if [ ! -d "$CLAUDE_CONFIG_DIR" ]; then
       $DRY_RUN_CMD mkdir -p "$CLAUDE_CONFIG_DIR"
       echo "Created Claude Desktop MCP config directory: $CLAUDE_CONFIG_DIR"
-    fi
-
-    # Always ensure proper ownership of config directory (fixes issues from failed runs)
-    # This directory can end up root-owned if darwin-rebuild fails partway through
-    if [ -d "$CLAUDE_CONFIG_DIR" ]; then
-      CURRENT_OWNER=$(stat -f '%u' "$CLAUDE_CONFIG_DIR" 2>/dev/null || echo "unknown")
-      if [ "$CURRENT_OWNER" != "$(id -u)" ]; then
-        echo "Fixing ownership of $CLAUDE_CONFIG_DIR (owned by uid $CURRENT_OWNER, should be $(id -u))"
-        $DRY_RUN_CMD sudo chown -R "$(id -u):$(id -g)" "$CLAUDE_CONFIG_DIR" 2>/dev/null || true
-      fi
     fi
 
     # ============================================================
@@ -186,7 +184,7 @@ in {
     # Remove existing file if we can't write to it (handles root-owned files)
     if [ -f "$CLAUDE_DESKTOP_CONFIG" ] && ! [ -w "$CLAUDE_DESKTOP_CONFIG" ]; then
       echo "Removing unwritable config file: $CLAUDE_DESKTOP_CONFIG"
-      $DRY_RUN_CMD sudo rm -f "$CLAUDE_DESKTOP_CONFIG" 2>/dev/null || true
+      $DRY_RUN_CMD sudo rm -f "$CLAUDE_DESKTOP_CONFIG"
     fi
 
     $DRY_RUN_CMD cp "${mcpConfig}" "$CLAUDE_DESKTOP_CONFIG"

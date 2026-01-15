@@ -20,11 +20,8 @@
       };
 
       # Sequential Thinking MCP server - No authentication required
-      # FIXME: Temporarily disabled due to upstream build failure
-      # Fix pending in PR #276 (Node.js 22 pinning): https://github.com/natsukium/mcp-servers-nix/pull/276
-      # Error: Cannot find name 'process' - missing @types/node in build
       sequential-thinking = {
-        enable = false;
+        enable = true;
       };
 
       # Playwright MCP server - Browser automation for web testing and scraping

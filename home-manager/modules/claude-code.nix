@@ -165,9 +165,10 @@ in {
 
     # Always ensure we can write to this directory (fixes permission issues from failed runs)
     # Remove and recreate if it exists but we can't write to it
+    # Note: Use full path to sudo since it may not be in PATH during activation
     if [ -d "$CLAUDE_CONFIG_DIR" ] && ! [ -w "$CLAUDE_CONFIG_DIR" ]; then
       echo "Fixing permissions on $CLAUDE_CONFIG_DIR (not writable)"
-      $DRY_RUN_CMD sudo rm -rf "$CLAUDE_CONFIG_DIR"
+      $DRY_RUN_CMD /usr/bin/sudo rm -rf "$CLAUDE_CONFIG_DIR"
     fi
 
     if [ ! -d "$CLAUDE_CONFIG_DIR" ]; then
@@ -184,7 +185,7 @@ in {
     # Remove existing file if we can't write to it (handles root-owned files)
     if [ -f "$CLAUDE_DESKTOP_CONFIG" ] && ! [ -w "$CLAUDE_DESKTOP_CONFIG" ]; then
       echo "Removing unwritable config file: $CLAUDE_DESKTOP_CONFIG"
-      $DRY_RUN_CMD sudo rm -f "$CLAUDE_DESKTOP_CONFIG"
+      $DRY_RUN_CMD /usr/bin/sudo rm -f "$CLAUDE_DESKTOP_CONFIG"
     fi
 
     $DRY_RUN_CMD cp "${mcpConfig}" "$CLAUDE_DESKTOP_CONFIG"

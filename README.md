@@ -157,28 +157,36 @@ Rollback is instant — no re-downloading, just switches symlinks.
 ### Applications (50+ apps)
 
 **AI & LLM Tools**:
-- Claude Desktop, ChatGPT, Perplexity
+- Claude Desktop, Claude Code CLI, ChatGPT, Perplexity
 - Ollama with models (1 for Standard, 4 for Power)
+- LM Studio (local LLM GUI)
 
 **Development**:
-- Zed Editor, VSCode (with auto dark mode)
+- Zed Editor (GPU-accelerated, Catppuccin themed)
 - Ghostty terminal (Catppuccin themed)
-- Python 3.12 + uv + ruff + mypy
-- Podman (rootless containers)
-- Git + Git LFS
+- Python 3.12 + uv + ruff + black + mypy + pylint
+- Podman + Podman Desktop (rootless containers)
+- Git + Git LFS + GitHub CLI
 - Node.js (for npx/npm tooling)
+- Language servers (pyright, typescript, bash, yaml, etc.)
 
-**Browsers**: Arc, Brave
+**Browsers**: Brave
 
 **Productivity**:
 - Raycast (launcher)
-- 1Password (password manager)
+- 1Password + 1Password for Safari
 - Dropbox (cloud storage)
-- Calibre, Kindle, Marked 2
+- Calibre, Kindle, Marked 2, Keka
+- Office 365 (Word, Excel, PowerPoint, Outlook, OneNote, Teams)
+- reMarkable desktop
 
 **Communication**: WhatsApp, Zoom, Webex
 
-**System**: iStat Menus, OnyX, f.lux, btop, gotop
+**Media**: VLC
+
+**Security**: NordVPN, Tailscale, Little Snitch
+
+**System**: iStat Menus, OnyX, f.lux, btop, gotop, macmon
 
 **Power Profile Only**: Parallels Desktop, additional Ollama models
 
@@ -192,10 +200,11 @@ Rollback is instant — no re-downloading, just switches symlinks.
 
 ### Shell Environment
 
-- **Zsh** with Oh My Zsh (git plugin, autosuggestions, syntax highlighting)
-- **Starship** prompt with Nerd Font icons
-- **FZF** fuzzy finder (Ctrl+R history, Ctrl+T files)
-- **Modern CLI**: ripgrep, bat, eza, zoxide, httpie, tldr
+- **Zsh** with Oh My Zsh (git plugin) + zsh-autosuggestions + syntax highlighting
+- **Starship** prompt with Nerd Font icons (replaces Oh My Zsh themes)
+- **FZF** fuzzy finder (Ctrl+R history, Ctrl+T files, Alt+C directories)
+- **Zoxide** for smart directory jumping (frecency-based `z` command)
+- **Modern CLI**: ripgrep, bat, eza, fd, httpie, tldr, mosh
 
 ### Theming
 

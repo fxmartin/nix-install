@@ -236,7 +236,7 @@ in {
     if [ ! -d "$GSD_COMMANDS_DIR" ]; then
       echo ""
       echo "Installing Get Shit Done (GSD) for Claude Code..."
-      if command -v npx &> /dev/null; then
+      if [ -x "${pkgs.nodejs}/bin/npx" ]; then
         # Use --global flag for non-interactive install to ~/.claude/
         $DRY_RUN_CMD ${pkgs.nodejs}/bin/npx get-shit-done-cc --global 2>&1 || {
           echo "⚠️  GSD installation failed - you can install manually with: npx get-shit-done-cc"

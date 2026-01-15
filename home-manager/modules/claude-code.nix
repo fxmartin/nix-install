@@ -1,4 +1,5 @@
-# ABOUTME: Claude Code CLI configuration with MCP servers (Context7, Sequential Thinking, Playwright)
+# ABOUTME: Claude Code CLI configuration with MCP servers (Context7, Playwright, Sequential Thinking)
+# ABOUTME: Includes Get Shit Done (GSD) meta-prompting system installation
 # ABOUTME: Symlinks ~/.claude/ directory to repo for bidirectional sync (REQ-NFR-008 compliant)
 # ABOUTME: Writes MCP config to BOTH ~/.config/claude/config.json (Desktop) AND ~/.claude.json (CLI)
 {
@@ -211,6 +212,31 @@ in {
     echo "  - Claude Code CLI config: $CLAUDE_CLI_CONFIG"
     echo ""
     echo "To verify MCP servers: claude mcp list"
+
+    # Install Get Shit Done (GSD) - meta-prompting system for Claude Code
+    # https://github.com/glittercowboy/get-shit-done
+    # Only install if not already present (idempotent)
+    GSD_COMMANDS_DIR="$CLAUDE_DIR/commands/gsd"
+    if [ ! -d "$GSD_COMMANDS_DIR" ]; then
+      echo ""
+      echo "Installing Get Shit Done (GSD) for Claude Code..."
+      if command -v npx &> /dev/null; then
+        # Use --global flag for non-interactive install to ~/.claude/
+        $DRY_RUN_CMD ${pkgs.nodejs}/bin/npx get-shit-done-cc --global 2>&1 || {
+          echo "⚠️  GSD installation failed - you can install manually with: npx get-shit-done-cc"
+        }
+        if [ -d "$GSD_COMMANDS_DIR" ]; then
+          echo "✓ Get Shit Done (GSD) installed successfully"
+          echo "  - Commands: $GSD_COMMANDS_DIR"
+          echo "  - Usage: /gsd:help in Claude Code"
+        fi
+      else
+        echo "⚠️  npx not found - skipping GSD installation"
+        echo "  Install manually with: npx get-shit-done-cc"
+      fi
+    else
+      echo "✓ Get Shit Done (GSD) already installed: $GSD_COMMANDS_DIR"
+    fi
   '';
 
   # No additional packages needed - Claude Code CLI installed via darwin/configuration.nix

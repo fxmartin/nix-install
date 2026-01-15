@@ -166,6 +166,7 @@ Rollback is instant — no re-downloading, just switches symlinks.
 - Python 3.12 + uv + ruff + mypy
 - Podman (rootless containers)
 - Git + Git LFS
+- Node.js (for npx/npm tooling)
 
 **Browsers**: Arc, Brave
 
@@ -327,6 +328,24 @@ NEXT STEPS
 
 **Priority categories**: Security (HIGH) → Breaking Changes (HIGH) → New Features (MEDIUM) → Notable Updates (LOW)
 
+### Get Shit Done (GSD)
+
+The system includes **[Get Shit Done](https://github.com/glittercowboy/get-shit-done)** — a meta-prompting and context engineering system for Claude Code that solves context degradation in long sessions.
+
+**Key GSD commands** (run in Claude Code):
+```bash
+/gsd:new-project          # Start new project with context gathering
+/gsd:create-roadmap       # Generate phased roadmap from requirements
+/gsd:plan-phase 1         # Create atomic task plans for phase
+/gsd:execute-phase 1      # Execute with parallel subagents (walk away automation)
+/gsd:progress             # Check current status and next steps
+/gsd:help                 # Full command reference
+```
+
+**Why it works**: Each task runs in a fresh subagent context (200k tokens), preventing the quality degradation that happens as Claude fills its context window. Atomic git commits per task enable precise rollback.
+
+**Update GSD**: `npx get-shit-done-cc@latest`
+
 ---
 
 ## Project Structure
@@ -348,7 +367,7 @@ nix-install/
 │   ├── zed.nix / vscode.nix  # Editor configs
 │   ├── python.nix            # Python + uv + ruff
 │   ├── podman.nix            # Container development
-│   └── claude-code.nix       # Claude Code CLI + MCP servers
+│   └── claude-code.nix       # Claude Code CLI + MCP servers + GSD
 ├── scripts/                  # Maintenance & monitoring
 │   ├── health-check.sh       # System health validation
 │   ├── release-monitor.sh    # AI-powered update checker

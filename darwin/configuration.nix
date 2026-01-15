@@ -103,7 +103,7 @@
     shellcheck          # Shell script static analysis (used by bash-language-server)
 
     # Web Development (React.js / TypeScript / JavaScript)
-    nodejs                                   # Node.js runtime with npm
+    nodejs                                   # Node.js runtime (required for npx, npm, GSD)
     nodePackages.typescript-language-server  # TypeScript/JavaScript language server
     nodePackages.vscode-langservers-extracted  # HTML, CSS, JSON, ESLint language servers
     nodePackages.prettier                    # Code formatter for JS/TS/HTML/CSS/JSON

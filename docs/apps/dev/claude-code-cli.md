@@ -1,11 +1,12 @@
 # ABOUTME: Claude Code CLI post-installation configuration guide
-# ABOUTME: Covers CLI setup, project configuration, multi-agent workflows, and integration with development tools
+# ABOUTME: Covers CLI setup, MCP servers, GSD meta-prompting, and integration with development tools
 
-### Claude Code CLI with MCP Servers (Context7, Playwright, Sequential Thinking)
+### Claude Code CLI with MCP Servers + Get Shit Done (GSD)
 
 **Status**: Installed via Nix (Story 02.2-006)
 - Claude Code CLI: `claude-code-nix` flake input
 - MCP Servers: `mcp-servers-nix` flake input (Context7, Playwright, Sequential Thinking)
+- Get Shit Done (GSD): Auto-installed via `npx get-shit-done-cc --global`
 - All packages installed to `darwin/configuration.nix` systemPackages
 - Configuration managed by Home Manager (`home-manager/modules/claude-code.nix`)
 - **REQ-NFR-008 Compliant**: Bidirectional sync via repository symlinks
@@ -327,10 +328,58 @@ mcp-server-sequential-thinking --version
 - [ ] Sequential Thinking MCP enables structured reasoning (pending [PR #276](https://github.com/natsukium/mcp-servers-nix/pull/276))
 - [ ] Configuration changes in repo appear in `~/.claude/` (bidirectional sync)
 - [ ] Symlinks point to working directory, NOT /nix/store
+- [ ] Get Shit Done (GSD) installed at `~/.claude/commands/gsd/`
+- [ ] `/gsd:help` command works in Claude Code
+
+#### Get Shit Done (GSD) Meta-Prompting System
+
+**What is GSD?**
+[Get Shit Done](https://github.com/glittercowboy/get-shit-done) is a meta-prompting and context engineering system for Claude Code that solves context degradation in long sessions. It provides spec-driven development workflows with parallel subagent execution.
+
+**Installation**:
+- Installed automatically during darwin-rebuild via `npx get-shit-done-cc --global`
+- Location: `~/.claude/commands/gsd/`
+- Requires Node.js (installed via Nix)
+
+**Key Commands**:
+```bash
+/gsd:new-project          # Start new project with context gathering
+/gsd:research-project     # Research domain ecosystem (optional)
+/gsd:define-requirements  # Scope v1/v2/out-of-scope
+/gsd:create-roadmap       # Generate phased roadmap
+/gsd:plan-phase 1         # Create atomic task plans for phase
+/gsd:execute-phase 1      # Execute with parallel subagents
+/gsd:progress             # Check current status and next steps
+/gsd:pause-work           # Create handoff file when stopping
+/gsd:resume-work          # Restore context from previous session
+/gsd:help                 # Full command reference
+```
+
+**Why GSD Works**:
+- Each task runs in a fresh subagent context (200k tokens)
+- Prevents quality degradation as context fills
+- Atomic git commits per task enable precise rollback
+- Plans run in parallel when no dependencies exist
+
+**Updating GSD**:
+```bash
+# Update to latest version
+npx get-shit-done-cc@latest
+
+# Check current version
+/gsd:whats-new
+```
+
+**Recommended Usage**:
+```bash
+# Start Claude Code with skip permissions for frictionless automation
+claude --dangerously-skip-permissions
+```
 
 #### Resources
 
 - Claude Code CLI: https://github.com/anthropics/claude-code
+- Get Shit Done (GSD): https://github.com/glittercowboy/get-shit-done
 - MCP Specification: https://modelcontextprotocol.io/
 - MCP Servers Nix: https://github.com/natsukium/mcp-servers-nix (community maintained)
 - Context7: https://context7.com/

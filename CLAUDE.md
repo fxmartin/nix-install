@@ -62,6 +62,16 @@ The bootstrap system uses a modular architecture:
 - **FZF** integration (Ctrl+R history, Ctrl+T files, Alt+C directories)
 - **Ghostty** terminal with config from `config/config.ghostty`
 
+### Claude Code + Get Shit Done (GSD)
+
+The system includes **[Get Shit Done](https://github.com/glittercowboy/get-shit-done)** for spec-driven development:
+- **Installation**: Automatic via `npx get-shit-done-cc --global` during darwin-rebuild
+- **Location**: `~/.claude/commands/gsd/`
+- **Key commands**: `/gsd:new-project`, `/gsd:create-roadmap`, `/gsd:plan-phase`, `/gsd:execute-phase`
+- **Update**: `npx get-shit-done-cc@latest`
+
+GSD solves context degradation by running each task in fresh subagent contexts (200k tokens each).
+
 ### Update Control Philosophy
 
 **Critical**: All app updates ONLY via `rebuild` or `update` commands:
@@ -101,7 +111,7 @@ nix-install/
 │   ├── zed.nix / vscode.nix  # Editor configs
 │   ├── python.nix            # Python + uv + ruff
 │   ├── podman.nix            # Container development
-│   └── claude-code.nix       # Claude Code CLI + MCP servers
+│   └── claude-code.nix       # Claude Code CLI + MCP servers + GSD
 ├── scripts/                  # Build and maintenance scripts
 │   ├── build-bootstrap.sh    # Build bootstrap-dist.sh from modules
 │   ├── health-check.sh       # System health validation

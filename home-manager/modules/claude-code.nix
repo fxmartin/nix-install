@@ -167,11 +167,24 @@ in {
       echo "Created Claude Desktop MCP config directory: $CLAUDE_CONFIG_DIR"
     fi
 
+    # Fix ownership if directory was created by root in a previous run
+    if [ -d "$CLAUDE_CONFIG_DIR" ] && [ "$(stat -f '%u' "$CLAUDE_CONFIG_DIR" 2>/dev/null)" = "0" ]; then
+      echo "Fixing ownership of $CLAUDE_CONFIG_DIR (was owned by root)"
+      $DRY_RUN_CMD sudo chown -R "$(id -u):$(id -g)" "$CLAUDE_CONFIG_DIR"
+    fi
+
     # ============================================================
     # MCP Configuration for Claude Desktop
     # ============================================================
     # Claude Desktop reads MCP servers from ~/.config/claude/config.json
     CLAUDE_DESKTOP_CONFIG="$CLAUDE_CONFIG_DIR/config.json"
+
+    # Remove existing file if owned by root (permission fix for failed previous runs)
+    if [ -f "$CLAUDE_DESKTOP_CONFIG" ] && [ "$(stat -f '%u' "$CLAUDE_DESKTOP_CONFIG" 2>/dev/null)" = "0" ]; then
+      echo "Removing root-owned config file: $CLAUDE_DESKTOP_CONFIG"
+      $DRY_RUN_CMD sudo rm -f "$CLAUDE_DESKTOP_CONFIG"
+    fi
+
     $DRY_RUN_CMD cp "${mcpConfig}" "$CLAUDE_DESKTOP_CONFIG"
     echo "✓ Updated Claude Desktop MCP config: $CLAUDE_DESKTOP_CONFIG"
 

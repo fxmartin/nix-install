@@ -8,6 +8,7 @@
   claude-code-nix,
   mcp-servers-nix,
   system,
+  isPowerProfile,
   ...
 }: {
   # Nix package manager settings
@@ -169,10 +170,11 @@
       # NOTE: Must use postActivation (a hardcoded name that nix-darwin runs)
       # Custom activation script names are NOT executed automatically
       # See: https://github.com/nix-darwin/nix-darwin/issues/663
-      postActivation.text = lib.mkAfter ''
+      postActivation.text = lib.mkAfter (lib.optionalString isPowerProfile ''
         # ========================================================================
-        # MAINTENANCE SCRIPTS SYNC
+        # MAINTENANCE SCRIPTS SYNC (Power Profile Only)
         # ========================================================================
+        # These scripts are for NAS backup and advanced maintenance features
         echo "Syncing maintenance scripts to ~/.local/bin..."
         SCRIPTS_SRC="/Users/${userConfig.username}/${userConfig.directories.dotfiles}/scripts"
         SCRIPTS_DST="/Users/${userConfig.username}/.local/bin"
@@ -210,7 +212,7 @@
         echo "✓ Maintenance scripts synced to $SCRIPTS_DST"
 
         # ========================================================================
-        # OSXPHOTOS INSTALLATION (for Photo Export to NAS)
+        # OSXPHOTOS INSTALLATION (Power Profile Only - for Photo Export to NAS)
         # ========================================================================
         # osxphotos requires pyobjc frameworks that aren't in nixpkgs
         # Using uv (which IS Nix-managed) ensures reproducible installation
@@ -220,7 +222,7 @@
         else
           echo "⚠ osxphotos installation failed (may need manual: uv tool install osxphotos)"
         fi
-      '';
+      '');
     };
 
     # macOS System Preferences

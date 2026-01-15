@@ -8,7 +8,7 @@ This repository implements an automated, declarative MacBook configuration syste
 
 **Status**: ✅ **v1.0.0 Released** - All 7 epics complete, ~78 hours development effort
 
-**Target User**: FX manages 3 MacBooks (1x MacBook Pro M3 Max, 2x MacBook Air) with periodic reinstalls. Split usage between Office 365 work and weekend Python development.
+**Target User**: FX manages 4 MacBooks (1x MacBook Pro M3 Max, 1x MacBook Pro M1 2021, 2x MacBook Air) with periodic reinstalls. Split usage between Office 365 work and weekend Python development.
 
 **Key Philosophy**:
 - **Declarative**: Configuration IS the documentation (no drift)

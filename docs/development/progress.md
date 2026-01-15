@@ -26,6 +26,7 @@
 
 | Date | Milestone |
 |------|-----------|
+| 2026-01-15 | 🎉 **MacBook Pro M1 (2021) Deployed** - Standard profile, second machine running |
 | 2025-12-07 | 🎉 **Epic-01 Complete** - Story 01.1-004 Modular Bootstrap Architecture implemented |
 | 2025-12-07 | 🎉 **v1.0.0 Released** - MacBook Pro M3 Max running Power profile |
 | 2025-12-06 | Epic-07 Documentation Complete |
@@ -55,7 +56,7 @@
 
 | Metric | Value |
 |--------|-------|
-| Total commits | 430 |
+| Total commits | 517 |
 | GitHub issues | 60 (50 closed) |
 | Active development days | 18 |
 | Project timespan | 2025-11-08 to 2025-12-07 |

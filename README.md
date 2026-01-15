@@ -1,8 +1,8 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.4% Complete (122/124 stories) | **Version**: 1.0.0 | **🎉 MacBook Pro M3 Max Running!**
+> **Status**: 98.4% Complete (122/124 stories) | **Version**: 1.0.0 | **🎉 2 MacBooks Running!**
 
-**Three MacBooks. One config. Zero drift.**
+**Four MacBooks. One config. Zero drift.**
 
 I got tired of my machines slowly becoming strangers — different tools here, tweaked settings there, no idea what I changed six months ago. So I built this.
 

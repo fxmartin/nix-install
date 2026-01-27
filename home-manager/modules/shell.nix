@@ -95,6 +95,10 @@
       # Checks Homebrew, nixpkgs, nix-darwin, Ollama for updates and creates GitHub issues
       release-monitor = "bash ${dotfilesPath}/scripts/release-monitor.sh";
 
+      # Update Get Shit Done (GSD) meta-prompting system for Claude Code
+      # Fetches latest version from npm and updates the repo (then commit the changes)
+      update-gsd = "cd ~/.claude/commands && rm -rf gsd && npx get-shit-done-cc@latest --global && cd -";
+
       # =============================================================================
       # GENERAL SHELL ALIASES (Story 04.5-002)
       # =============================================================================

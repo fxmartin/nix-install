@@ -173,6 +173,7 @@
     #   mas install 890031187   # Marked 2
     #   mas install 310633997   # WhatsApp
     masApps = lib.mkIf (userConfig.enableMasApps or false) {
+      "1Password for Safari" = 1569813296;  # Safari password manager extension
       "Perplexity" = 6714467650;  # AI search assistant
       "Kindle" = 302584613;       # Ebook reader
       "Marked 2" = 890031187;     # Markdown preview

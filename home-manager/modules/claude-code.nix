@@ -1,4 +1,5 @@
-# ABOUTME: Claude Code CLI configuration with MCP servers (Context7, Sequential Thinking, Playwright)
+# ABOUTME: Claude Code CLI configuration with MCP servers (Context7, Playwright, Sequential Thinking)
+# ABOUTME: Includes Get Shit Done (GSD) meta-prompting system installation
 # ABOUTME: Symlinks ~/.claude/ directory to repo for bidirectional sync (REQ-NFR-008 compliant)
 # ABOUTME: Writes MCP config to BOTH ~/.config/claude/config.json (Desktop) AND ~/.claude.json (CLI)
 {
@@ -19,11 +20,8 @@
       };
 
       # Sequential Thinking MCP server - No authentication required
-      # FIXME: Temporarily disabled due to upstream build failure
-      # See: https://github.com/natsukium/mcp-servers-nix/issues/XXX
-      # Error: Cannot find name 'process' - missing @types/node in build
       sequential-thinking = {
-        enable = false;
+        enable = true;
       };
 
       # Playwright MCP server - Browser automation for web testing and scraping
@@ -161,6 +159,15 @@ in {
 
     # Create ~/.config/claude directory for MCP config (Claude Desktop)
     CLAUDE_CONFIG_DIR="${config.home.homeDirectory}/.config/claude"
+
+    # Always ensure we can write to this directory (fixes permission issues from failed runs)
+    # Remove and recreate if it exists but we can't write to it
+    # Note: Use full path to sudo since it may not be in PATH during activation
+    if [ -d "$CLAUDE_CONFIG_DIR" ] && ! [ -w "$CLAUDE_CONFIG_DIR" ]; then
+      echo "Fixing permissions on $CLAUDE_CONFIG_DIR (not writable)"
+      $DRY_RUN_CMD /usr/bin/sudo rm -rf "$CLAUDE_CONFIG_DIR"
+    fi
+
     if [ ! -d "$CLAUDE_CONFIG_DIR" ]; then
       $DRY_RUN_CMD mkdir -p "$CLAUDE_CONFIG_DIR"
       echo "Created Claude Desktop MCP config directory: $CLAUDE_CONFIG_DIR"
@@ -171,6 +178,13 @@ in {
     # ============================================================
     # Claude Desktop reads MCP servers from ~/.config/claude/config.json
     CLAUDE_DESKTOP_CONFIG="$CLAUDE_CONFIG_DIR/config.json"
+
+    # Remove existing file if we can't write to it (handles root-owned files)
+    if [ -f "$CLAUDE_DESKTOP_CONFIG" ] && ! [ -w "$CLAUDE_DESKTOP_CONFIG" ]; then
+      echo "Removing unwritable config file: $CLAUDE_DESKTOP_CONFIG"
+      $DRY_RUN_CMD /usr/bin/sudo rm -f "$CLAUDE_DESKTOP_CONFIG"
+    fi
+
     $DRY_RUN_CMD cp "${mcpConfig}" "$CLAUDE_DESKTOP_CONFIG"
     echo "✓ Updated Claude Desktop MCP config: $CLAUDE_DESKTOP_CONFIG"
 
@@ -211,6 +225,31 @@ in {
     echo "  - Claude Code CLI config: $CLAUDE_CLI_CONFIG"
     echo ""
     echo "To verify MCP servers: claude mcp list"
+
+    # Install Get Shit Done (GSD) - meta-prompting system for Claude Code
+    # https://github.com/glittercowboy/get-shit-done
+    # Only install if not already present (idempotent)
+    GSD_COMMANDS_DIR="$CLAUDE_DIR/commands/gsd"
+    if [ ! -d "$GSD_COMMANDS_DIR" ]; then
+      echo ""
+      echo "Installing Get Shit Done (GSD) for Claude Code..."
+      if [ -x "${pkgs.nodejs}/bin/npx" ]; then
+        # Use --global flag for non-interactive install to ~/.claude/
+        $DRY_RUN_CMD ${pkgs.nodejs}/bin/npx get-shit-done-cc --global 2>&1 || {
+          echo "⚠️  GSD installation failed - you can install manually with: npx get-shit-done-cc"
+        }
+        if [ -d "$GSD_COMMANDS_DIR" ]; then
+          echo "✓ Get Shit Done (GSD) installed successfully"
+          echo "  - Commands: $GSD_COMMANDS_DIR"
+          echo "  - Usage: /gsd:help in Claude Code"
+        fi
+      else
+        echo "⚠️  npx not found - skipping GSD installation"
+        echo "  Install manually with: npx get-shit-done-cc"
+      fi
+    else
+      echo "✓ Get Shit Done (GSD) already installed: $GSD_COMMANDS_DIR"
+    fi
   '';
 
   # No additional packages needed - Claude Code CLI installed via darwin/configuration.nix

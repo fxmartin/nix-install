@@ -1,8 +1,8 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.4% Complete (122/124 stories) | **Version**: 1.0.0 | **🎉 MacBook Pro M3 Max Running!**
+> **Status**: 98.4% Complete (122/124 stories) | **Version**: 1.0.0 | **🎉 2 MacBooks Running!**
 
-**Three MacBooks. One config. Zero drift.**
+**Four MacBooks. One config. Zero drift.**
 
 I got tired of my machines slowly becoming strangers — different tools here, tweaked settings there, no idea what I changed six months ago. So I built this.
 
@@ -60,7 +60,7 @@ curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh 
    - 1Password, Dropbox, NordVPN (sign in)
    - iStat Menus, Parallels (enter license key)
    - Zoom, Webex (sign in)
-5. **Install Office 365** manually if needed (not in Homebrew)
+   - Office 365 (Microsoft account sign-in)
 
 ---
 
@@ -157,27 +157,36 @@ Rollback is instant — no re-downloading, just switches symlinks.
 ### Applications (50+ apps)
 
 **AI & LLM Tools**:
-- Claude Desktop, ChatGPT, Perplexity
+- Claude Desktop, Claude Code CLI, ChatGPT, Perplexity
 - Ollama with models (1 for Standard, 4 for Power)
+- LM Studio (local LLM GUI)
 
 **Development**:
-- Zed Editor, VSCode (with auto dark mode)
+- Zed Editor (GPU-accelerated, Catppuccin themed)
 - Ghostty terminal (Catppuccin themed)
-- Python 3.12 + uv + ruff + mypy
-- Podman (rootless containers)
-- Git + Git LFS
+- Python 3.12 + uv + ruff + black + mypy + pylint
+- Podman + Podman Desktop (rootless containers)
+- Git + Git LFS + GitHub CLI
+- Node.js (for npx/npm tooling)
+- Language servers (pyright, typescript, bash, yaml, etc.)
 
-**Browsers**: Arc, Brave
+**Browsers**: Brave
 
 **Productivity**:
 - Raycast (launcher)
-- 1Password (password manager)
+- 1Password + 1Password for Safari
 - Dropbox (cloud storage)
-- Calibre, Kindle, Marked 2
+- Calibre, Kindle, Marked 2, Keka
+- Office 365 (Word, Excel, PowerPoint, Outlook, OneNote, Teams)
+- reMarkable desktop
 
 **Communication**: WhatsApp, Zoom, Webex
 
-**System**: iStat Menus, OnyX, f.lux, btop, gotop
+**Media**: VLC
+
+**Security**: NordVPN, Tailscale, Little Snitch
+
+**System**: iStat Menus, OnyX, f.lux, btop, gotop, macmon
 
 **Power Profile Only**: Parallels Desktop, additional Ollama models
 
@@ -191,10 +200,11 @@ Rollback is instant — no re-downloading, just switches symlinks.
 
 ### Shell Environment
 
-- **Zsh** with Oh My Zsh (git plugin, autosuggestions, syntax highlighting)
-- **Starship** prompt with Nerd Font icons
-- **FZF** fuzzy finder (Ctrl+R history, Ctrl+T files)
-- **Modern CLI**: ripgrep, bat, eza, zoxide, httpie, tldr
+- **Zsh** with Oh My Zsh (git plugin) + zsh-autosuggestions + syntax highlighting
+- **Starship** prompt with Nerd Font icons (replaces Oh My Zsh themes)
+- **FZF** fuzzy finder (Ctrl+R history, Ctrl+T files, Alt+C directories)
+- **Zoxide** for smart directory jumping (frecency-based `z` command)
+- **Modern CLI**: ripgrep, bat, eza, fd, httpie, tldr, mosh
 
 ### Theming
 
@@ -327,6 +337,24 @@ NEXT STEPS
 
 **Priority categories**: Security (HIGH) → Breaking Changes (HIGH) → New Features (MEDIUM) → Notable Updates (LOW)
 
+### Get Shit Done (GSD)
+
+The system includes **[Get Shit Done](https://github.com/glittercowboy/get-shit-done)** — a meta-prompting and context engineering system for Claude Code that solves context degradation in long sessions.
+
+**Key GSD commands** (run in Claude Code):
+```bash
+/gsd:new-project          # Start new project with context gathering
+/gsd:create-roadmap       # Generate phased roadmap from requirements
+/gsd:plan-phase 1         # Create atomic task plans for phase
+/gsd:execute-phase 1      # Execute with parallel subagents (walk away automation)
+/gsd:progress             # Check current status and next steps
+/gsd:help                 # Full command reference
+```
+
+**Why it works**: Each task runs in a fresh subagent context (200k tokens), preventing the quality degradation that happens as Claude fills its context window. Atomic git commits per task enable precise rollback.
+
+**Update GSD**: `npx get-shit-done-cc@latest`
+
 ---
 
 ## Project Structure
@@ -348,7 +376,7 @@ nix-install/
 │   ├── zed.nix / vscode.nix  # Editor configs
 │   ├── python.nix            # Python + uv + ruff
 │   ├── podman.nix            # Container development
-│   └── claude-code.nix       # Claude Code CLI + MCP servers
+│   └── claude-code.nix       # Claude Code CLI + MCP servers + GSD
 ├── scripts/                  # Maintenance & monitoring
 │   ├── health-check.sh       # System health validation
 │   ├── release-monitor.sh    # AI-powered update checker

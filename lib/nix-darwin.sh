@@ -70,6 +70,11 @@ fetch_flake_from_github() {
         "macos-defaults.nix"
         "stylix.nix"
         "maintenance.nix"
+        "calibre.nix"
+        # Power profile only (downloaded for both but only used by power)
+        "smb-automount.nix"
+        "rsync-backup.nix"
+        "icloud-sync.nix"
     )
 
     for file in "${darwin_files[@]}"; do
@@ -396,6 +401,10 @@ fetch_flake_from_github() {
     log_info "  • darwin/macos-defaults.nix"
     log_info "  • darwin/stylix.nix"
     log_info "  • darwin/maintenance.nix"
+    log_info "  • darwin/calibre.nix"
+    log_info "  • darwin/smb-automount.nix"
+    log_info "  • darwin/rsync-backup.nix"
+    log_info "  • darwin/icloud-sync.nix"
     log_info "  • home-manager/home.nix"
     log_info "  • home-manager/modules/shell.nix"
     log_info "  • home-manager/modules/github.nix"

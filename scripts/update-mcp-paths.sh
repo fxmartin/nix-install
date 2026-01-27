@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # ABOUTME: Updates MCP server paths in Claude Code config files after nix rebuild
 # ABOUTME: Finds current Nix store paths for Context7 and Sequential Thinking servers
+# NOTE: Sequential Thinking is currently disabled pending PR #276 (Node.js 22 pinning)
+# See: https://github.com/natsukium/mcp-servers-nix/pull/276
 
 set -euo pipefail
 
@@ -83,8 +85,8 @@ main() {
     if [[ -n "${sequential_path}" ]]; then
         log_info "sequential-thinking: ${sequential_path}"
     else
-        log_error "mcp-server-sequential-thinking not found in Nix store"
-        all_found=false
+        # Sequential Thinking is currently disabled pending PR #276
+        log_warn "sequential-thinking not found (disabled pending PR #276)"
     fi
 
     if [[ "${all_found}" != "true" ]]; then
@@ -104,8 +106,10 @@ main() {
             update_json_path "${claude_json}" "context7" "${context7_path}"
             log_info "Updated context7 in ~/.claude.json"
 
-            update_json_path "${claude_json}" "sequential-thinking" "${sequential_path}"
-            log_info "Updated sequential-thinking in ~/.claude.json"
+            if [[ -n "${sequential_path}" ]]; then
+                update_json_path "${claude_json}" "sequential-thinking" "${sequential_path}"
+                log_info "Updated sequential-thinking in ~/.claude.json"
+            fi
         else
             log_warn "No mcpServers section in ~/.claude.json - skipping"
         fi
@@ -123,8 +127,10 @@ main() {
         update_json_path "${config_json}" "context7" "${context7_path}"
         log_info "Updated context7 in config.json"
 
-        update_json_path "${config_json}" "sequential-thinking" "${sequential_path}"
-        log_info "Updated sequential-thinking in config.json"
+        if [[ -n "${sequential_path}" ]]; then
+            update_json_path "${config_json}" "sequential-thinking" "${sequential_path}"
+            log_info "Updated sequential-thinking in config.json"
+        fi
     else
         log_warn "${HOME}/.config/claude/config.json not found"
     fi

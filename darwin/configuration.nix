@@ -119,7 +119,8 @@
     taplo               # TOML language server and formatter
 
     # Markdown
-    marksman            # Markdown language server with wiki-links support
+    # marksman          # DISABLED: Requires .NET which requires Swift build (broken in current nixpkgs)
+                        # Re-enable when nixpkgs Swift build is fixed
 
     # DevOps & Config Linters
     hadolint            # Dockerfile/Containerfile linter (best practices)

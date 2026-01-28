@@ -219,6 +219,65 @@ export_photos() {
 }
 
 # =============================================================================
+# ICLOUD FILE PREPARATION
+# =============================================================================
+
+# Ensure all iCloud files are downloaded before backup
+# This prevents mmap "Resource deadlock avoided" errors during rsync
+ensure_icloud_downloaded() {
+    local source_path="$1"
+
+    # Check if this is an iCloud Drive path
+    if [[ "${source_path}" != *"Mobile Documents/com~apple~CloudDocs"* ]]; then
+        return 0
+    fi
+
+    print_status "info" "Preparing iCloud files for backup..."
+
+    # Count and download any .icloud placeholder files
+    local placeholder_count
+    placeholder_count=$(find "${source_path}" -name "*.icloud" 2>/dev/null | wc -l | tr -d ' ')
+
+    if [[ "${placeholder_count}" -gt 0 ]]; then
+        print_status "info" "Found ${placeholder_count} placeholder files, downloading..."
+        find "${source_path}" -name "*.icloud" -print0 2>/dev/null | while IFS= read -r -d '' placeholder; do
+            # Extract the real filename (remove .icloud extension and leading dot)
+            local real_file
+            real_file=$(dirname "${placeholder}")/$(basename "${placeholder}" .icloud | sed 's/^\.//')
+            brctl download "${real_file}" 2>/dev/null || true
+        done
+        print_status "ok" "iCloud placeholder downloads initiated"
+    fi
+
+    # Also force-download any files that might be in evicted state
+    # brctl download works on regular files too - it ensures they're fully local
+    print_status "info" "Ensuring all files are fully downloaded (this may take a while)..."
+    local file_count=0
+    local error_count=0
+
+    # Process files in batches to avoid overwhelming the system
+    while IFS= read -r -d '' file; do
+        if brctl download "${file}" 2>/dev/null; then
+            ((file_count++)) || true
+        else
+            ((error_count++)) || true
+        fi
+        # Progress indicator every 1000 files
+        if (( file_count % 1000 == 0 )) && (( file_count > 0 )); then
+            print_status "info" "Processed ${file_count} files..."
+        fi
+    done < <(find "${source_path}" -type f -print0 2>/dev/null)
+
+    if [[ ${error_count} -gt 0 ]]; then
+        print_status "warn" "Could not download ${error_count} files (may already be local)"
+    fi
+    print_status "ok" "iCloud preparation complete: ${file_count} files processed"
+
+    # Give iCloud a moment to settle after downloads
+    sleep 5
+}
+
+# =============================================================================
 # BACKUP EXECUTION
 # =============================================================================
 
@@ -240,6 +299,9 @@ run_backup_job() {
         print_status "error" "Source does not exist: ${source_full}"
         return 1
     fi
+
+    # Ensure iCloud files are fully downloaded before backup
+    ensure_icloud_downloaded "${source_full}"
 
     # Build exclude arguments
     local exclude_args=()

@@ -122,6 +122,10 @@
       "zoom"  # Zoom - Video conferencing and meetings (Story 02.5-002)
       "webex" # Cisco Webex - Enterprise video conferencing (Story 02.5-002)
 
+      # Messaging (Story 02.5-001)
+      # Auto-update disable: Settings → Advanced → Uncheck "Automatic updates"
+      "telegram" # Telegram - Cross-platform messaging with cloud sync
+
       # Security & VPN (Story 02.7-001)
       # Auto-update: Check Preferences → Settings → Advanced during VM testing (may not be user-configurable)
       # License: Requires active NordVPN subscription (NO free tier)

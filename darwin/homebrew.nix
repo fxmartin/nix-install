@@ -44,6 +44,10 @@
       # Podman Desktop (GUI app) needs to find podman CLI in standard PATH
       "podman"          # Podman container engine (Docker alternative)
       "podman-compose"  # Docker Compose alternative for Podman
+
+      # System Monitoring (Apple Silicon)
+      # Note: Not available in nixpkgs, Homebrew formula only
+      "mactop"          # Real-time Apple Silicon CPU/GPU/ANE monitor (TUI)
     ];
 
     # GUI Applications (Casks)

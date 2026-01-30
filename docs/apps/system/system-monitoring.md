@@ -1,20 +1,25 @@
 # ABOUTME: System monitoring tools post-installation configuration guide
-# ABOUTME: Covers gotop (CLI monitor), macmon (CLI system info), and iStat Menus (menubar monitor)
+# ABOUTME: Covers mactop, gotop, macmon, and iStat Menus for comprehensive system monitoring
 
 # System Monitoring Tools
 
-This guide covers three system monitoring tools installed for different use cases:
+This guide covers four system monitoring tools installed for different use cases:
 
+- **mactop**: Apple Silicon monitor with CPU/GPU/ANE metrics (TUI - Homebrew)
 - **gotop**: Interactive CLI system monitor (TUI - Terminal User Interface)
 - **macmon**: macOS system monitoring CLI tool (hardware specs, sensors)
 - **iStat Menus**: Professional menubar system monitoring (licensed app)
 
-**Philosophy**: System monitoring is essential for performance optimization, troubleshooting, and resource management. gotop provides interactive terminal monitoring, macmon offers CLI system inspection, and iStat Menus delivers always-visible menubar metrics.
+**Philosophy**: System monitoring is essential for performance optimization, troubleshooting, and resource management. mactop provides Apple Silicon-specific metrics, gotop provides interactive terminal monitoring, macmon offers CLI system inspection, and iStat Menus delivers always-visible menubar metrics.
 
 ---
 
 ## Table of Contents
 
+- [mactop](#mactop)
+  - [Features](#mactop-features)
+  - [Usage](#mactop-usage)
+  - [Testing Checklist](#mactop-testing-checklist)
 - [gotop](#gotop)
   - [Features](#gotop-features)
   - [Usage](#gotop-usage)
@@ -32,6 +37,192 @@ This guide covers three system monitoring tools installed for different use case
   - [Configuration Tips](#istat-menus-configuration-tips)
   - [Testing Checklist](#istat-menus-testing-checklist)
   - [Troubleshooting](#istat-menus-troubleshooting)
+
+---
+
+## mactop
+
+### mactop
+
+**Status**: Installed via Homebrew brew `mactop`
+
+**Purpose**: Real-time Apple Silicon monitor "top" designed to display CPU, GPU, and ANE (Apple Neural Engine) metrics specific to Apple Silicon chips. Shows E-Cores and P-Cores usage, power consumption, GPU frequency, temperatures, and other Apple Silicon-specific metrics.
+
+**Installation**: Homebrew formula (not available in nixpkgs)
+
+**Auto-Update**: No mechanism requiring disable (Homebrew-controlled only, updates via `darwin-rebuild switch`)
+
+**No License Required**: Free and open source (MIT license)
+
+**Apple Silicon Only**: Requires arm64 architecture (M1, M2, M3 chips)
+
+---
+
+### mactop Features
+
+mactop provides comprehensive Apple Silicon monitoring in a terminal interface:
+
+**CPU Monitoring**:
+- **E-Cores**: Efficiency cores usage and frequency
+- **P-Cores**: Performance cores usage and frequency
+- **Per-core breakdown**: Individual core utilization
+- **CPU power consumption**: Real-time wattage
+
+**GPU Monitoring**:
+- **GPU usage percentage**: Real-time GPU utilization
+- **GPU frequency**: Current GPU clock speed
+- **GPU power consumption**: Real-time wattage
+
+**Apple Neural Engine (ANE)**:
+- **ANE usage**: Neural Engine utilization percentage
+- **ANE power**: Power consumption by ANE
+
+**System Metrics**:
+- **Temperature readings**: CPU and GPU temperatures
+- **Total power consumption**: System-wide power draw
+- **Memory bandwidth**: Unified memory utilization
+
+**Process Management**:
+- **Process list**: Top CPU/GPU consuming processes
+- **Kill processes**: Terminate processes directly (F9)
+- **Process filter**: Search processes by name (/)
+
+**Output Formats**:
+- **Interactive TUI**: Default terminal interface
+- **Headless mode**: JSON output for scripting
+- **Multiple formats**: JSON, YAML, XML, CSV, TOON
+
+---
+
+### mactop Usage
+
+**Basic Launch**:
+```bash
+# Launch mactop with default settings
+mactop
+
+# Launch with specific refresh rate (milliseconds)
+mactop --interval 1000
+
+# Launch in headless mode (JSON output)
+mactop --headless
+
+# Output in specific format
+mactop --headless --format json
+mactop --headless --format yaml
+mactop --headless --format csv
+```
+
+**Keybindings** (while running):
+- **q**: Quit mactop
+- **/**: Filter processes by name
+- **F9**: Kill selected process (with confirmation)
+- **↑/↓**: Navigate process list
+- **j/k**: Vim-style navigation
+- **Tab**: Cycle between sections
+
+**Common Use Cases**:
+
+**1. Monitor Apple Silicon Performance**:
+```bash
+# Launch mactop to see Apple Silicon metrics
+mactop
+
+# Watch for:
+# - E-Core vs P-Core balance (efficiency vs performance)
+# - GPU utilization during graphics tasks
+# - ANE usage during ML workloads
+# - Power consumption under load
+```
+
+**2. Debug Performance Issues**:
+```bash
+# Launch during performance problems
+mactop
+
+# Identify:
+# - CPU cores hitting thermal throttling
+# - GPU bottlenecks in graphics apps
+# - High power consumption causing battery drain
+# - Processes overusing resources
+```
+
+**3. Monitor Power Consumption**:
+```bash
+# Check power usage on battery
+mactop
+
+# Useful for:
+# - Identifying power-hungry processes
+# - Optimizing battery life
+# - Understanding workload impact on power
+```
+
+**4. Script Integration**:
+```bash
+# Output JSON for scripting
+mactop --headless --format json > metrics.json
+
+# Parse with jq
+mactop --headless --format json | jq '.cpu.power'
+
+# Log metrics over time
+while true; do
+    mactop --headless --format json >> power-log.json
+    sleep 60
+done
+```
+
+**5. Compare E-Cores vs P-Cores**:
+```bash
+# Launch mactop during workload
+mactop
+
+# Observe:
+# - Light tasks: E-Cores active, P-Cores idle
+# - Heavy tasks: P-Cores ramp up
+# - Background tasks: E-Cores preferred
+# - macOS scheduler efficiency
+```
+
+---
+
+### mactop Testing Checklist
+
+**Installation Verification** (3 tests):
+- [ ] Run `which mactop` - should show `/opt/homebrew/bin/mactop`
+- [ ] Run `mactop --version` - should show version number
+- [ ] Run `mactop --help` - should show usage help
+
+**Basic Functionality** (8 tests):
+- [ ] Launch mactop: `mactop` - should show TUI with Apple Silicon metrics
+- [ ] Verify CPU section shows E-Cores and P-Cores usage
+- [ ] Verify GPU section shows GPU utilization percentage
+- [ ] Verify power consumption displays (CPU, GPU, total)
+- [ ] Verify temperature readings appear
+- [ ] Verify process list shows running processes
+- [ ] Press 'q' to quit - should exit cleanly
+- [ ] Verify terminal returns to normal after quit
+
+**Interactive Features** (5 tests):
+- [ ] Navigate process list with arrow keys - selection moves
+- [ ] Press '/' to filter processes - filter prompt appears
+- [ ] Press 'F9' on process - kill confirmation appears
+- [ ] Vim navigation (j/k) works for process list
+- [ ] Tab cycles between UI sections
+
+**Headless Mode** (3 tests):
+- [ ] Run `mactop --headless --format json` - outputs valid JSON
+- [ ] Run `mactop --headless --format yaml` - outputs valid YAML
+- [ ] Run `mactop --headless --format csv` - outputs valid CSV
+
+**Apple Silicon Specific** (4 tests):
+- [ ] E-Cores and P-Cores show separate metrics
+- [ ] ANE (Apple Neural Engine) usage displays
+- [ ] Unified memory bandwidth appears
+- [ ] GPU frequency displays current clock speed
+
+**Story Status**: Implementation Complete - Testing Pending
 
 ---
 
@@ -1002,6 +1193,7 @@ darwin-rebuild switch --flake ~/nix-install#power
 
 | Tool | Installation | License | Auto-Update | Purpose |
 |------|-------------|---------|-------------|---------|
+| **mactop** | Homebrew brew | Free (MIT) | Homebrew-controlled | Apple Silicon CPU/GPU/ANE monitor (TUI) |
 | **gotop** | Nix package | Free (MIT) | Nix-controlled | Interactive CLI system monitor (TUI) |
 | **macmon** | Nix package | Free (MIT) | Nix-controlled | CLI system info and sensor readings |
 | **iStat Menus** | Homebrew cask | **$11.99 USD** (14-day trial) | **MUST DISABLE** (Preferences → General → Updates) | Professional menubar system monitoring |
@@ -1009,6 +1201,15 @@ darwin-rebuild switch --flake ~/nix-install#power
 ---
 
 ## Use Case Recommendations
+
+**When to Use mactop**:
+- Apple Silicon-specific metrics (E-Cores, P-Cores, ANE)
+- GPU monitoring on Apple Silicon Macs
+- Power consumption analysis (CPU, GPU, total wattage)
+- Performance tuning for M1/M2/M3 workloads
+- Understanding macOS scheduler behavior (E-Core vs P-Core allocation)
+- ML/AI workload monitoring (ANE usage)
+- Battery optimization (identify power-hungry processes)
 
 **When to Use gotop**:
 - Real-time system monitoring in terminal
@@ -1037,18 +1238,21 @@ darwin-rebuild switch --flake ~/nix-install#power
 
 ## Story Tracking
 
-**Story**: 02.4-006 - System Monitoring (gotop, iStat Menus, macmon)
+**Story**: 02.4-006 - System Monitoring (mactop, gotop, iStat Menus, macmon)
 **Status**: Implementation Complete - VM Testing Pending
 **Implementation Date**: 2025-01-16
+**Updated**: 2025-01-30 - Added mactop
 
 **Changes Made**:
 - darwin/configuration.nix: Added gotop and macmon to systemPackages (Story 02.4-006)
 - darwin/homebrew.nix: Added istat-menus Homebrew cask with license note (Story 02.4-006)
-- docs/apps/system/system-monitoring.md: Created comprehensive system monitoring documentation (525 lines)
+- darwin/homebrew.nix: Added mactop Homebrew brew for Apple Silicon monitoring (2025-01-30)
+- docs/apps/system/system-monitoring.md: Created comprehensive system monitoring documentation
 - docs/licensed-apps.md: Added iStat Menus section to Productivity & System Apps (Story 02.4-006)
 - docs/development/stories/epic-02-feature-02.4.md: Updated story progress (Story 02.4-006)
 
 **Key Decisions**:
+- mactop via Homebrew (not available in nixpkgs, Apple Silicon-specific)
 - gotop and macmon via Nix (CLI tools, system-wide availability)
 - iStat Menus via Homebrew (GUI app, official distribution)
 - Comprehensive auto-update disable documentation for iStat Menus (CRITICAL requirement)
@@ -1056,6 +1260,7 @@ darwin-rebuild switch --flake ~/nix-install#power
 - Use case recommendations for each tool (when to use which tool)
 
 **VM Testing Required**:
+- Verify mactop launches and displays Apple Silicon metrics (E-Cores, P-Cores, GPU, ANE)
 - Verify gotop launches and displays system metrics
 - Verify macmon outputs system information
 - Verify iStat Menus installs, launches, and trial activation works

@@ -251,7 +251,7 @@
           # Power profile specific settings (to be expanded in Epic-02)
           # - Parallels Desktop enabled (isPowerProfile = true)
           # - Full app set
-          # - Ollama models (gpt-oss:20b, ministral-3:14b)
+          # - Ollama models (llava:34b, gpt-oss:20b, phi4:14b)
 
           # Story 02.1-004: Automatically pull 2 Ollama models for Power profile
           # Use postActivation - one of the hardcoded script names that nix-darwin actually runs
@@ -277,10 +277,11 @@
                 done
               fi
 
-              # Define models to pull (2 models, ~21GB total)
+              # Define models to pull (3 models, ~41GB total)
               MODELS=(
+                "llava:34b"            # ~20GB - Multimodal vision-language model
                 "gpt-oss:20b"          # ~12GB - General purpose LLM
-                "ministral-3:14b"      # ~9GB - Edge-optimized, vision & multilingual (Apache 2.0) - Requires Ollama 0.13.1+
+                "phi4:14b"             # ~9GB - Microsoft Phi-4 reasoning model
               )
 
               # Pull each model sequentially with progress tracking

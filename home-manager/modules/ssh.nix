@@ -81,6 +81,34 @@
         identityFile = "~/.ssh/id_ed25519";
       };
 
+      # Nyx server via Tailscale
+      "nyx" = {
+        hostname = "100.115.38.12";  # Tailscale IP
+        user = "fx";
+        identityFile = "~/.ssh/id_nyx";
+      };
+
+      # Nyx server root access
+      "nyx-root" = {
+        hostname = "100.115.38.12";
+        user = "root";
+        identityFile = "~/.ssh/id_nyx";
+      };
+
+      # Nyx DR server via Tailscale
+      "nyx-dr" = {
+        hostname = "100.112.184.36";
+        user = "fx";
+        identityFile = "~/.ssh/id_nyx-dr";
+      };
+
+      # Nyx DR root access
+      "nyx-dr-root" = {
+        hostname = "100.112.184.36";
+        user = "root";
+        identityFile = "~/.ssh/id_nyx-dr";
+      };
+
       # Generic SSH settings for all hosts
       "*" = {
         # Add keys to SSH agent automatically (moved from deprecated top-level option)

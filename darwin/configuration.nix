@@ -122,6 +122,9 @@
     # marksman          # DISABLED: Requires .NET which requires Swift build (broken in current nixpkgs)
                         # Re-enable when nixpkgs Swift build is fixed
 
+    # Cloud CLI Tools
+    hcloud              # Hetzner Cloud CLI for managing servers, networks, volumes, etc.
+
     # DevOps & Config Linters
     hadolint            # Dockerfile/Containerfile linter (best practices)
     yamllint            # YAML linter (syntax and style)

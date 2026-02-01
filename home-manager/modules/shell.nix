@@ -364,10 +364,15 @@
             *) host="$arg"; break ;;
           esac
         done
-        __set_env_bg "$host"
+        # Only change background in interactive terminal with function available
+        if [[ -t 1 ]] && type __set_env_bg &>/dev/null; then
+          __set_env_bg "$host"
+        fi
         command ssh "$@"
         local exit_code=$?
-        __reset_env_bg
+        if [[ -t 1 ]] && type __reset_env_bg &>/dev/null; then
+          __reset_env_bg
+        fi
         return $exit_code
       }
 
@@ -382,10 +387,15 @@
             *) host="$arg"; break ;;
           esac
         done
-        __set_env_bg "$host"
+        # Only change background in interactive terminal with function available
+        if [[ -t 1 ]] && type __set_env_bg &>/dev/null; then
+          __set_env_bg "$host"
+        fi
         command mosh "$@"
         local exit_code=$?
-        __reset_env_bg
+        if [[ -t 1 ]] && type __reset_env_bg &>/dev/null; then
+          __reset_env_bg
+        fi
         return $exit_code
       }
 

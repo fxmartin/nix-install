@@ -298,5 +298,38 @@ in {
         KeepAlive = false;
       };
     };
+
+    # =========================================================================
+    # OLLAMA SERVER (Network-accessible via Tailscale)
+    # =========================================================================
+    # Starts Ollama server at login bound to all interfaces (0.0.0.0)
+    # Allows access via Tailscale from other devices on the mesh network
+    # Security: OLLAMA_ORIGINS restricts API access to Tailscale IPs only (100.x.x.x)
+    ollama-serve = {
+      serviceConfig = {
+        ProgramArguments = [
+          "/opt/homebrew/bin/ollama"
+          "serve"
+        ];
+
+        # Start at login and keep running
+        RunAtLoad = true;
+        KeepAlive = true;
+
+        # Logging configuration
+        StandardOutPath = "/tmp/ollama-serve.log";
+        StandardErrorPath = "/tmp/ollama-serve.err";
+
+        # Environment - bind to all interfaces for Tailscale access
+        EnvironmentVariables = {
+          # Bind to all interfaces (required for Tailscale access)
+          OLLAMA_HOST = "0.0.0.0";
+          # Restrict API access to localhost and Tailscale IPs only (100.64.0.0/10 CGNAT range)
+          OLLAMA_ORIGINS = "http://localhost,http://127.0.0.1,http://100.*";
+          HOME = "/Users/${userConfig.username}";
+          PATH = "/opt/homebrew/bin:/run/current-system/sw/bin:/usr/bin:/bin";
+        };
+      };
+    };
   };
 }

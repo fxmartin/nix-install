@@ -72,5 +72,20 @@
         ".~lock.*"
       ];
     }
+    {
+      # Calibre ebook library backup - stored in iCloud Drive
+      name = "calibre";
+      source = "Library/Mobile Documents/com~apple~CloudDocs/Documents/02. Library/Calibre Library";
+      share = "calibre";                  # Dedicated NAS share for ebook library
+      destination = "";                   # Root of share
+      schedule = "daily";                 # Run daily at 2 AM
+      excludes = [
+        ".DS_Store"
+        "*.lock"             # Calibre lock files during operation
+        ".calnotes"          # Calibre internal cache
+        "*.tmp"              # Temporary files
+        ".#*"                # Editor swap files
+      ];
+    }
   ];
 }

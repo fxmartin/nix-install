@@ -29,6 +29,7 @@
     shares = [
       "Photos"                   # Photo backup share
       "icloud"                   # iCloud Drive backup share
+      "calibre"                  # Calibre ebook library backup share
     ];
   };
 

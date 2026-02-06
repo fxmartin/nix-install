@@ -23,8 +23,8 @@
 }: let
   # NAS configuration - centralized for easy modification
   nasConfig = {
-    host = "192.168.68.58";      # NAS IP (use IP instead of hostname for reliability)
-    hostname = "TNAS.local";     # mDNS hostname (backup)
+    host = "tnas.local";         # NAS hostname (mDNS)
+    hostname = "tnas.local";     # mDNS hostname
     username = "fxmartin";       # SMB username
     shares = [
       "Photos"                   # Photo backup share

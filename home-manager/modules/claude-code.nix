@@ -26,8 +26,12 @@
 
       # Playwright MCP server - Browser automation for web testing and scraping
       # No authentication required
+      # Note: Uses Brave Browser (Chromium-based) installed via Homebrew
+      # - Chrome: marked insecure in nixpkgs (updater broken)
+      # - Chromium: not available on aarch64-darwin in nixpkgs
       playwright = {
         enable = true;
+        executable = "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser";
       };
     };
   };
@@ -72,8 +76,8 @@ in {
   #
   # MCP Servers Configuration:
   # - Context7: No authentication required
-  # - Sequential Thinking: No authentication required (currently disabled)
-  # - Playwright: No authentication required - browser automation
+  # - Sequential Thinking: No authentication required
+  # - Playwright: No authentication required (uses Chromium, not Chrome)
   #
   # All MCP servers use Nix-installed binaries (managed by mkConfig, not npx/npm)
 

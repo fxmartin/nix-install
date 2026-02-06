@@ -53,7 +53,7 @@
 
       # NAS Luxembourg (TerraMaster) - Local network
       "nas-lux" = {
-        hostname = "192.168.68.58";
+        hostname = "tnas.local";
         user = "fxmartin";
         port = 2222;
         identityFile = "~/.ssh/id_nas_luxembourg";

@@ -274,36 +274,33 @@ fi
 # ---------------------------------------------------------------------------
 # Check 10: LaunchAgents status
 # ---------------------------------------------------------------------------
-echo "Checking maintenance LaunchAgents..."
+echo "Checking LaunchAgents..."
 # Capture launchctl output once (avoids pipefail issues with repeated calls)
 LAUNCHCTL_OUTPUT=$(launchctl list 2>/dev/null || true)
 
-if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.nix-gc"; then
-    print_status "ok" "nix-gc LaunchAgent loaded"
-else
-    print_status "warn" "nix-gc LaunchAgent not loaded"
-    echo "    → Run: darwin-rebuild switch"
-fi
+# Common LaunchAgents (all profiles)
+COMMON_AGENTS=("nix-gc" "nix-optimize" "weekly-digest" "disk-cleanup" "ollama-serve" "health-api" "release-monitor")
 
-if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.nix-optimize"; then
-    print_status "ok" "nix-optimize LaunchAgent loaded"
-else
-    print_status "warn" "nix-optimize LaunchAgent not loaded"
-    echo "    → Run: darwin-rebuild switch"
-fi
+for agent in "${COMMON_AGENTS[@]}"; do
+    if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.${agent}"; then
+        print_status "ok" "${agent} LaunchAgent loaded"
+    else
+        print_status "warn" "${agent} LaunchAgent not loaded"
+        echo "    → Run: darwin-rebuild switch"
+    fi
+done
 
-if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.weekly-digest"; then
-    print_status "ok" "weekly-digest LaunchAgent loaded"
-else
-    print_status "warn" "weekly-digest LaunchAgent not loaded"
-    echo "    → Run: darwin-rebuild switch"
-fi
-
-if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.disk-cleanup"; then
-    print_status "ok" "disk-cleanup LaunchAgent loaded (monthly)"
-else
-    print_status "warn" "disk-cleanup LaunchAgent not loaded"
-    echo "    → Run: darwin-rebuild switch"
+# Power-profile LaunchAgents (detected by presence of TTS server agent)
+if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.qwen3tts.server"; then
+    POWER_AGENTS=("rsync-backup-daily" "rsync-backup-weekly-sunday" "rsync-backup-weekly-wednesday" "icloud-sync")
+    for agent in "${POWER_AGENTS[@]}"; do
+        if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.${agent}"; then
+            print_status "ok" "${agent} LaunchAgent loaded"
+        else
+            print_status "warn" "${agent} LaunchAgent not loaded"
+            echo "    → Run: darwin-rebuild switch"
+        fi
+    done
 fi
 
 # ---------------------------------------------------------------------------

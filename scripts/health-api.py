@@ -204,9 +204,15 @@ def check_podman() -> dict:
     return {"status": "ok", "machine": running, "images": image_count}
 
 
-def check_launch_agents(launchctl_output: str) -> dict:
+def check_launch_agents(launchctl_output: str, profile: str) -> dict:
+    # Common agents (all profiles)
     expected = ["nix-gc", "nix-optimize", "weekly-digest", "disk-cleanup",
-                "ollama-serve", "health-api"]
+                "ollama-serve", "health-api", "release-monitor"]
+    # Power-only agents
+    if profile == "power":
+        expected += ["rsync-backup-daily", "rsync-backup-weekly-sunday",
+                     "rsync-backup-weekly-wednesday", "icloud-sync"]
+
     loaded = []
     missing = []
     for agent in expected:
@@ -214,7 +220,19 @@ def check_launch_agents(launchctl_output: str) -> dict:
             loaded.append(agent)
         else:
             missing.append(agent)
-    return {"loaded": loaded, "missing": missing}
+
+    # Power-only non-nixos agents (different label prefix)
+    power_services = []
+    if profile == "power":
+        for label in ["com.qwen3tts.server", "com.whisper-stt.server"]:
+            if label in launchctl_output:
+                loaded.append(label)
+            else:
+                missing.append(label)
+            power_services.append(label)
+
+    status = "ok" if not missing else "warn"
+    return {"status": status, "loaded": loaded, "missing": missing}
 
 
 def get_cache_size(path: str) -> str:
@@ -264,7 +282,7 @@ def build_health_response() -> dict:
         "ollama": check_ollama(profile),
         "tts_server": check_tts_server(launchctl_output),
         "stt_server": check_stt_server(launchctl_output),
-        "launch_agents": check_launch_agents(launchctl_output),
+        "launch_agents": check_launch_agents(launchctl_output, profile),
     }
 
     return {

@@ -35,10 +35,10 @@
       # Prevent restart loops (10 second cooldown)
       ThrottleInterval = 10;
 
-      # Environment (includes /opt/homebrew/bin for ffmpeg)
+      # Environment (includes Nix system path for ffmpeg, Homebrew for other tools)
       EnvironmentVariables = {
         HOME = "/Users/${userConfig.username}";
-        PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin";
+        PATH = "/run/current-system/sw/bin:/etc/profiles/per-user/${userConfig.username}/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin";
       };
     };
   };

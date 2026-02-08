@@ -125,6 +125,9 @@
     # Cloud CLI Tools
     hcloud              # Hetzner Cloud CLI for managing servers, networks, volumes, etc.
 
+    # Media Processing
+    ffmpeg              # Audio/video processing (required by mlx-whisper STT server)
+
     # DevOps & Config Linters
     hadolint            # Dockerfile/Containerfile linter (best practices)
     yamllint            # YAML linter (syntax and style)

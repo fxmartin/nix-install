@@ -503,6 +503,48 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Check 15: System metrics (Apple Silicon vitals via health-api /metrics)
+# ---------------------------------------------------------------------------
+echo "Checking system metrics..."
+METRICS_JSON=$(curl -s --connect-timeout 3 --max-time 5 http://localhost:7780/metrics 2>/dev/null || true)
+if [[ -n "${METRICS_JSON}" ]]; then
+    METRICS_SUMMARY=$(echo "${METRICS_JSON}" | python3 -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    if 'status' in d and d['status'] == 'error':
+        print(f'error:{d.get(\"detail\", \"unknown\")}')
+    else:
+        cpu = d['cpu']['usage_percent']
+        gpu = d['gpu']['usage_percent']
+        mem_used = d['memory']['used_gb']
+        mem_total = d['memory']['total_gb']
+        thermal = d['thermal']['state']
+        total_w = d['power']['total_watts']
+        print(f'ok:CPU {cpu}% | GPU {gpu}% | Mem {mem_used:.0f}/{mem_total:.0f}GB | {total_w:.0f}W | Thermal: {thermal}')
+except:
+    print('parse_error')
+" 2>/dev/null || echo "parse_error")
+
+    case "${METRICS_SUMMARY}" in
+        ok:*)
+            VITALS="${METRICS_SUMMARY#ok:}"
+            print_status "ok" "System vitals: ${VITALS}"
+            ;;
+        error:*)
+            DETAIL="${METRICS_SUMMARY#error:}"
+            print_status "warn" "System metrics unavailable: ${DETAIL}"
+            ;;
+        *)
+            print_status "warn" "System metrics: could not parse response"
+            ;;
+    esac
+else
+    print_status "info" "System metrics: health-api not responding on port 7780"
+    echo "    → Run: launchctl start org.nixos.health-api"
+fi
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 echo ""

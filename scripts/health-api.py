@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 # ABOUTME: Lightweight HTTP health check API server using stdlib only
-# ABOUTME: Exposes /health (full diagnostics) and /ping (liveness) on port 7780
+# ABOUTME: Exposes /health (diagnostics), /metrics (Apple Silicon stats), and /ping on port 7780
 
 import json
 import subprocess
 import os
 import socket
 import hmac
+import time
 from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
@@ -276,6 +277,123 @@ def build_health_response() -> dict:
     }
 
 
+# ---------------------------------------------------------------------------
+# System Metrics via mactop (Apple Silicon monitoring)
+# ---------------------------------------------------------------------------
+_metrics_cache: dict = {}
+_metrics_cache_time: float = 0.0
+METRICS_CACHE_TTL = 2  # seconds
+
+
+def get_system_metrics() -> dict:
+    """Return Apple Silicon metrics from mactop (CPU, GPU, memory, thermal, power).
+
+    Calls `mactop --headless --format json --count 1` and reshapes the output
+    into a clean API response.  Results are cached for METRICS_CACHE_TTL seconds.
+    """
+    global _metrics_cache, _metrics_cache_time  # noqa: PLW0603
+    now = time.monotonic()
+    if _metrics_cache and (now - _metrics_cache_time) < METRICS_CACHE_TTL:
+        return _metrics_cache
+
+    mactop_bin = "/opt/homebrew/bin/mactop"
+    if not os.path.isfile(mactop_bin):
+        return {"status": "error", "detail": "mactop not installed"}
+
+    try:
+        result = subprocess.run(
+            [mactop_bin, "--headless", "--format", "json", "--count", "1"],
+            capture_output=True, text=True, timeout=5,
+        )
+        if result.returncode != 0 or not result.stdout.strip():
+            return {"status": "error", "detail": f"mactop failed: {result.stderr.strip()[:200]}"}
+    except subprocess.TimeoutExpired:
+        return {"status": "error", "detail": "mactop timed out (5s)"}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)[:200]}
+
+    try:
+        raw = json.loads(result.stdout)
+        # mactop returns a JSON array; take first sample
+        sample = raw[0] if isinstance(raw, list) else raw
+    except (json.JSONDecodeError, IndexError) as e:
+        return {"status": "error", "detail": f"mactop JSON parse error: {e}"}
+
+    mem = sample.get("memory", {})
+    soc = sample.get("soc_metrics", {})
+    nd = sample.get("net_disk", {})
+    si = sample.get("system_info", {})
+
+    total_bytes = mem.get("total", 0)
+    used_bytes = mem.get("used", 0)
+    available_bytes = mem.get("available", 0)
+
+    response = {
+        "timestamp": sample.get("timestamp", datetime.now(timezone.utc).astimezone().isoformat()),
+        "system": {
+            "name": si.get("name", "Unknown"),
+            "cores": si.get("core_count", 0),
+            "e_cores": si.get("e_core_count", 0),
+            "p_cores": si.get("p_core_count", 0),
+            "gpu_cores": si.get("gpu_core_count", 0),
+        },
+        "cpu": {
+            "usage_percent": round(sample.get("cpu_usage", 0), 1),
+            "e_cluster": {
+                "active_percent": round(soc.get("e_cluster_active", 0), 1),
+                "freq_mhz": soc.get("e_cluster_freq_mhz", 0),
+            },
+            "p_cluster": {
+                "active_percent": round(soc.get("p_cluster_active", 0), 1),
+                "freq_mhz": soc.get("p_cluster_freq_mhz", 0),
+            },
+            "per_core": [round(c, 1) for c in sample.get("core_usages", [])],
+        },
+        "gpu": {
+            "usage_percent": round(sample.get("gpu_usage", 0), 1),
+            "freq_mhz": soc.get("gpu_freq_mhz", 0),
+            "power_watts": round(soc.get("gpu_power", 0), 1),
+        },
+        "memory": {
+            "total_gb": round(total_bytes / (1024 ** 3), 1),
+            "used_gb": round(used_bytes / (1024 ** 3), 1),
+            "available_gb": round(available_bytes / (1024 ** 3), 1),
+            "swap_total_gb": round(mem.get("swap_total", 0) / (1024 ** 3), 1),
+            "swap_used_gb": round(mem.get("swap_used", 0) / (1024 ** 3), 1),
+        },
+        "power": {
+            "cpu_watts": round(soc.get("cpu_power", 0), 1),
+            "gpu_watts": round(soc.get("gpu_power", 0), 1),
+            "ane_watts": round(soc.get("ane_power", 0), 1),
+            "dram_watts": round(soc.get("dram_power", 0), 1),
+            "system_watts": round(soc.get("system_power", 0), 1),
+            "total_watts": round(soc.get("total_power", 0), 1),
+        },
+        "thermal": {
+            "cpu_temp_c": round(soc.get("cpu_temp", 0), 1),
+            "gpu_temp_c": round(soc.get("gpu_temp", 0), 1),
+            "soc_temp_c": round(soc.get("soc_temp", 0), 1),
+            "state": sample.get("thermal_state", "Unknown"),
+        },
+        "network": {
+            "in_bytes_per_sec": round(nd.get("in_bytes_per_sec", 0)),
+            "out_bytes_per_sec": round(nd.get("out_bytes_per_sec", 0)),
+            "in_packets_per_sec": round(nd.get("in_packets_per_sec", 0)),
+            "out_packets_per_sec": round(nd.get("out_packets_per_sec", 0)),
+        },
+        "disk": {
+            "read_kbytes_per_sec": round(nd.get("read_kbytes_per_sec", 0)),
+            "write_kbytes_per_sec": round(nd.get("write_kbytes_per_sec", 0)),
+            "read_ops_per_sec": round(nd.get("read_ops_per_sec", 0)),
+            "write_ops_per_sec": round(nd.get("write_ops_per_sec", 0)),
+        },
+    }
+
+    _metrics_cache = response
+    _metrics_cache_time = now
+    return response
+
+
 # Optional bearer token authentication
 # Set HEALTH_API_TOKEN environment variable to require authentication.
 # When set, all requests except /ping must include: Authorization: Bearer <token>
@@ -303,8 +421,12 @@ class HealthHandler(BaseHTTPRequestHandler):
             if not self._check_auth():
                 return
             self._respond(200, build_health_response())
+        elif self.path == "/metrics":
+            if not self._check_auth():
+                return
+            self._respond(200, get_system_metrics())
         else:
-            self._respond(404, {"error": "Not found. Use /health or /ping"})
+            self._respond(404, {"error": "Not found. Use /health, /metrics, or /ping"})
 
     def _respond(self, code: int, body: dict):
         payload = json.dumps(body, indent=2).encode()

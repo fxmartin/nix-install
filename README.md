@@ -75,6 +75,7 @@ After installation, manage your system with these aliases:
 | `gc` | Garbage collection (delete old generations) |
 | `cleanup` | Full cleanup (GC + store optimization) |
 | `health-check` | System health report |
+| `curl localhost:7780/metrics` | Apple Silicon metrics (CPU, GPU, memory, thermal) |
 | `brew-upgrade` | Update Homebrew packages |
 | `release-monitor` | Run AI-powered update checker |
 

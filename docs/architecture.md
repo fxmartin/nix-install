@@ -125,10 +125,17 @@ bootstrap-dist.sh (standalone, built from lib/*.sh)
                               │
                     ┌──────────────────┐
                     │  health-api.py   │ ← HTTP JSON API (port 7780)
-                    │  (Python, JSON)  │   Accessible via Tailscale
-                    └──────────────────┘
+                    │  (Python, JSON)  │   /health, /metrics, /ping
+                    └──────────────────┘   Accessible via Tailscale
                               │
-                    Checks performed:
+                    Endpoints:
+                    ├── /health  — Full system diagnostics
+                    ├── /metrics — Apple Silicon stats (via mactop)
+                    │   └── CPU, GPU, memory, thermal, power,
+                    │       network, disk I/O
+                    └── /ping    — Liveness check
+                              │
+                    Health checks performed:
                     ├── Nix daemon
                     ├── Homebrew
                     ├── Disk space (Finder metric)

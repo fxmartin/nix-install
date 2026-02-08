@@ -13,7 +13,7 @@ in {
   # HEALTH API SERVER LAUNCHAGENT
   # ===========================================================================
   # Starts a lightweight Python HTTP server at login on port 7780
-  # Endpoints: /health (full diagnostics JSON), /ping (liveness probe)
+  # Endpoints: /health (diagnostics), /metrics (Apple Silicon stats), /ping (liveness)
   # Accessible via localhost and Tailscale (0.0.0.0 binding)
   # Zero dependencies - uses Python 3.12 stdlib http.server
 
@@ -39,7 +39,7 @@ in {
       # Environment
       EnvironmentVariables = {
         HOME = "/Users/${userConfig.username}";
-        PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/opt/homebrew/bin:/run/current-system/sw/bin:/usr/bin:/bin";
+        PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/opt/homebrew/bin:/run/current-system/sw/bin:/usr/bin:/usr/sbin:/bin";
       };
     };
   };

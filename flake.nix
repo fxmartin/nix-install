@@ -147,6 +147,10 @@
       # Automated garbage collection and store optimization
       ./darwin/maintenance.nix
 
+      # Health API Server (HTTP JSON endpoint on port 7780)
+      # Accessible via Tailscale for remote health monitoring
+      ./darwin/health-api.nix
+
       # Calibre ebook configuration (DeDRM, KFX plugins)
       # Deploys pre-configured plugins from config/calibre/
       ./darwin/calibre.nix

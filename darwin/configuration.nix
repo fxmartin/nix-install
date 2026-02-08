@@ -174,7 +174,38 @@
       # NOTE: Must use postActivation (a hardcoded name that nix-darwin runs)
       # Custom activation script names are NOT executed automatically
       # See: https://github.com/nix-darwin/nix-darwin/issues/663
-      postActivation.text = lib.mkAfter (lib.optionalString isPowerProfile ''
+      postActivation.text = lib.mkAfter (''
+        # ========================================================================
+        # COMMON SCRIPTS SYNC (Both Profiles)
+        # ========================================================================
+        # Scripts needed by LaunchAgents that run on all machines
+        echo "Syncing common scripts to ~/.local/bin..."
+        SCRIPTS_SRC="/Users/${userConfig.username}/${userConfig.directories.dotfiles}/scripts"
+        SCRIPTS_DST="/Users/${userConfig.username}/.local/bin"
+
+        # Create destination directory if it doesn't exist
+        mkdir -p "$SCRIPTS_DST"
+
+        # Scripts used by LaunchAgents on all profiles
+        COMMON_SCRIPTS=(
+          "health-api.py"
+          "health-check.sh"
+        )
+
+        for script in "''${COMMON_SCRIPTS[@]}"; do
+          if [[ -f "$SCRIPTS_SRC/$script" ]]; then
+            cp "$SCRIPTS_SRC/$script" "$SCRIPTS_DST/$script"
+            chmod 755 "$SCRIPTS_DST/$script"
+            chown ${userConfig.username}:staff "$SCRIPTS_DST/$script"
+            echo "  ✓ Synced $script"
+          else
+            echo "  ⚠ Script not found: $script"
+          fi
+        done
+
+        chown -R ${userConfig.username}:staff "$SCRIPTS_DST"
+        echo "✓ Common scripts synced to $SCRIPTS_DST"
+      '' + lib.optionalString isPowerProfile ''
         # ========================================================================
         # MAINTENANCE SCRIPTS SYNC (Power Profile Only)
         # ========================================================================
@@ -183,15 +214,11 @@
         SCRIPTS_SRC="/Users/${userConfig.username}/${userConfig.directories.dotfiles}/scripts"
         SCRIPTS_DST="/Users/${userConfig.username}/.local/bin"
 
-        # Create destination directory if it doesn't exist
-        mkdir -p "$SCRIPTS_DST"
-
         # List of scripts used by LaunchAgents
         # NOTE: rsync-backup.sh is handled separately in darwin/rsync-backup.nix
         SCRIPTS=(
           "weekly-maintenance-digest.sh"
           "release-monitor.sh"
-          "health-check.sh"
           "disk-cleanup.sh"
           "send-notification.sh"
           "fetch-release-notes.sh"

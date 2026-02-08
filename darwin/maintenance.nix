@@ -305,11 +305,24 @@ in {
     # Starts Ollama server at login bound to all interfaces (0.0.0.0)
     # Allows access via Tailscale from other devices on the mesh network
     # Security: OLLAMA_ORIGINS restricts API access to Tailscale IPs only (100.x.x.x)
+    #
+    # NOTE: Uses a bash wrapper to kill any existing Ollama process first.
+    # The Ollama GUI app (Homebrew cask) can start its own server bound to
+    # 127.0.0.1 at boot, which blocks this service from binding to 0.0.0.0.
+    # The pkill ensures this service always wins the race.
     ollama-serve = {
       serviceConfig = {
         ProgramArguments = [
-          "/opt/homebrew/bin/ollama"
-          "serve"
+          "/bin/bash"
+          "-c"
+          ''
+            # Kill any existing Ollama server (e.g., GUI app) that may be bound to localhost only
+            /usr/bin/pkill -f "ollama serve" 2>/dev/null || true
+            /usr/bin/pkill -x ollama 2>/dev/null || true
+            sleep 2
+            # Start Ollama bound to all interfaces via OLLAMA_HOST env var
+            exec /opt/homebrew/bin/ollama serve
+          ''
         ];
 
         # Start at login and keep running
@@ -324,12 +337,19 @@ in {
         EnvironmentVariables = {
           # Bind to all interfaces (required for Tailscale access)
           OLLAMA_HOST = "0.0.0.0";
-          # Restrict API access to localhost and Tailscale IPs only (100.64.0.0/10 CGNAT range)
-          OLLAMA_ORIGINS = "http://localhost:*,http://127.0.0.1:*,http://100.*:*";
+          # Restrict API access to localhost and Tailscale IPs (100.x.x.x CGNAT range)
+          # NOTE: Only one * per origin pattern (gin-contrib/cors limitation in Ollama 0.15+)
+          OLLAMA_ORIGINS = "http://localhost:*,http://127.0.0.1:*,http://100.*";
           HOME = "/Users/${userConfig.username}";
           PATH = "/opt/homebrew/bin:/run/current-system/sw/bin:/usr/bin:/bin";
         };
       };
     };
   };
+
+  # Global environment variables for Ollama
+  # Ensures any manually started Ollama server (e.g., `ollama serve` from terminal)
+  # also binds to all interfaces for Tailscale accessibility
+  environment.variables.OLLAMA_HOST = "0.0.0.0";
+  environment.variables.OLLAMA_ORIGINS = "http://localhost:*,http://127.0.0.1:*,http://100.*";
 }

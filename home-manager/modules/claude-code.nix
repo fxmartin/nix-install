@@ -7,6 +7,7 @@
   pkgs,
   lib,
   userConfig,
+  findRepoRoot,
   mcp-servers-nix,
   ...
 }: let
@@ -83,18 +84,8 @@ in {
 
   # Activation script to set up Claude Code configuration and symlink files to repo
   home.activation.claudeCodeSetup = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    # Dynamically find repo location (works with any NIX_INSTALL_DIR)
-    # Search for nix-install repo by looking for flake.nix + config/claude directory
-    # Priority: ~/.config/nix-install (new default) > ~/nix-install > ~/Documents/nix-install (legacy)
-    REPO_ROOT=""
-    for candidate in "${config.home.homeDirectory}/.config/nix-install" \
-                     "${config.home.homeDirectory}/nix-install" \
-                     "${config.home.homeDirectory}/Documents/nix-install"; do
-      if [ -f "$candidate/flake.nix" ] && [ -d "$candidate/config/claude" ]; then
-        REPO_ROOT="$candidate"
-        break
-      fi
-    done
+    # Find nix-install repo root (shared helper from flake.nix extraSpecialArgs)
+    ${findRepoRoot config.home.homeDirectory}
 
     # Create ~/.claude directory
     CLAUDE_DIR="${config.home.homeDirectory}/.claude"

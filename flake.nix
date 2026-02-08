@@ -118,6 +118,21 @@
               hostname
               ;
             inherit mcp-servers-nix;  # Pass MCP servers flake to Home Manager
+            # Shared bash snippet to find the nix-install repo root directory
+            # Used by ghostty.nix, zed.nix, claude-code.nix activation scripts
+            # Consistent search order: ~/.config/nix-install > ~/nix-install > ~/Documents/nix-install
+            # Sets REPO_ROOT variable; empty string if not found
+            findRepoRoot = homeDir: ''
+              REPO_ROOT=""
+              for candidate in "${homeDir}/.config/nix-install" \
+                               "${homeDir}/nix-install" \
+                               "${homeDir}/Documents/nix-install"; do
+                if [ -f "$candidate/flake.nix" ]; then
+                  REPO_ROOT="$candidate"
+                  break
+                fi
+              done
+            '';
           };
           users.${validatedConfig.username} = {lib, ...}: {
             imports = [./home-manager/home.nix];

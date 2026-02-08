@@ -192,8 +192,8 @@ copy_user_config_to_repo() {
     # The file remains in git's index (required by Nix flakes) but local changes are ignored
     log_info "Marking user-config.nix as skip-worktree..."
     if ! (cd "${REPO_CLONE_DIR}" && git update-index --skip-worktree user-config.nix); then
-        log_warning "Could not set skip-worktree on user-config.nix"
-        log_warning "Your personal config may appear in git status - do NOT commit it"
+        log_warn "Could not set skip-worktree on user-config.nix"
+        log_warn "Your personal config may appear in git status - do NOT commit it"
     else
         log_success "✓ User configuration protected from accidental commits"
     fi

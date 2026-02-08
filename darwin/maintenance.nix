@@ -17,6 +17,34 @@
   # NOTE: Only one * per origin pattern (gin-contrib/cors limitation in Ollama 0.15+)
   ollamaHost = "0.0.0.0";
   ollamaOrigins = "http://localhost:*,http://127.0.0.1:*,http://100.*";
+
+  # Standard PATH for scheduled LaunchAgents (includes per-user Nix profile)
+  agentPath = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
+  agentHome = "/Users/${userConfig.username}";
+
+  # Helper to create a scheduled LaunchAgent with consistent defaults
+  # Reduces boilerplate across all maintenance agents
+  mkScheduledAgent = {
+    command,                        # Bash command to execute
+    schedule,                       # StartCalendarInterval attrset (e.g., { Hour = 3; Minute = 0; })
+    name,                           # Agent name (used for log file paths)
+    env ? {},                       # Extra environment variables (merged with PATH/HOME defaults)
+    runAtLoad ? false,              # Start immediately at login
+    keepAlive ? false,              # Restart if process exits
+  }: {
+    serviceConfig = {
+      ProgramArguments = [ "/bin/bash" "-c" command ];
+      StartCalendarInterval = [ schedule ];
+      StandardOutPath = "/tmp/${name}.log";
+      StandardErrorPath = "/tmp/${name}.err";
+      EnvironmentVariables = {
+        PATH = agentPath;
+        HOME = agentHome;
+      } // env;
+      RunAtLoad = runAtLoad;
+      KeepAlive = keepAlive;
+    };
+  };
 in {
   # =============================================================================
   # MAINTENANCE LAUNCHAGENTS (Epic-06: Maintenance & Monitoring)
@@ -33,53 +61,24 @@ in {
     # =========================================================================
     # Runs daily at 3:00 AM to remove generations older than 30 days
     # Keeps recent generations for rollback capability
-    nix-gc = {
-      serviceConfig = {
-        # Command to execute
-        # Uses --delete-older-than 30d to keep recent generations for rollback
-        ProgramArguments = [
-          "/bin/bash"
-          "-c"
-          ''
-            echo "=== Nix Garbage Collection ===" >> /tmp/nix-gc.log
-            echo "Started at: $(date)" >> /tmp/nix-gc.log
-            echo "Removing generations older than 30 days..." >> /tmp/nix-gc.log
+    nix-gc = mkScheduledAgent {
+      name = "nix-gc";
+      schedule = { Hour = 3; Minute = 0; };
+      command = ''
+        echo "=== Nix Garbage Collection ===" >> /tmp/nix-gc.log
+        echo "Started at: $(date)" >> /tmp/nix-gc.log
+        echo "Removing generations older than 30 days..." >> /tmp/nix-gc.log
 
-            # Run garbage collection
-            if /run/current-system/sw/bin/nix-collect-garbage --delete-older-than 30d >> /tmp/nix-gc.log 2>&1; then
-              echo "✓ Garbage collection completed successfully" >> /tmp/nix-gc.log
-            else
-              echo "✗ Garbage collection failed with exit code $?" >> /tmp/nix-gc.log
-              exit 1
-            fi
+        if /run/current-system/sw/bin/nix-collect-garbage --delete-older-than 30d >> /tmp/nix-gc.log 2>&1; then
+          echo "✓ Garbage collection completed successfully" >> /tmp/nix-gc.log
+        else
+          echo "✗ Garbage collection failed with exit code $?" >> /tmp/nix-gc.log
+          exit 1
+        fi
 
-            echo "Completed at: $(date)" >> /tmp/nix-gc.log
-            echo "---" >> /tmp/nix-gc.log
-          ''
-        ];
-
-        # Schedule: Daily at 3:00 AM
-        StartCalendarInterval = [
-          {
-            Hour = 3;
-            Minute = 0;
-          }
-        ];
-
-        # Logging configuration
-        StandardOutPath = "/tmp/nix-gc.log";
-        StandardErrorPath = "/tmp/nix-gc.err";
-
-        # Environment - include per-user profile for consistency with other agents
-        EnvironmentVariables = {
-          PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
-          HOME = "/Users/${userConfig.username}";
-        };
-
-        # Don't restart on failure - wait for next scheduled run
-        RunAtLoad = false;
-        KeepAlive = false;
-      };
+        echo "Completed at: $(date)" >> /tmp/nix-gc.log
+        echo "---" >> /tmp/nix-gc.log
+      '';
     };
 
     # =========================================================================
@@ -87,53 +86,24 @@ in {
     # =========================================================================
     # Runs daily at 3:30 AM (after GC) to deduplicate store via hard-linking
     # Saves disk space by linking identical files
-    nix-optimize = {
-      serviceConfig = {
-        # Command to execute
-        # Runs after GC to optimize the now-cleaned store
-        ProgramArguments = [
-          "/bin/bash"
-          "-c"
-          ''
-            echo "=== Nix Store Optimization ===" >> /tmp/nix-optimize.log
-            echo "Started at: $(date)" >> /tmp/nix-optimize.log
-            echo "Hard-linking identical files in store..." >> /tmp/nix-optimize.log
+    nix-optimize = mkScheduledAgent {
+      name = "nix-optimize";
+      schedule = { Hour = 3; Minute = 30; };
+      command = ''
+        echo "=== Nix Store Optimization ===" >> /tmp/nix-optimize.log
+        echo "Started at: $(date)" >> /tmp/nix-optimize.log
+        echo "Hard-linking identical files in store..." >> /tmp/nix-optimize.log
 
-            # Run store optimization
-            if /run/current-system/sw/bin/nix-store --optimize >> /tmp/nix-optimize.log 2>&1; then
-              echo "✓ Store optimization completed successfully" >> /tmp/nix-optimize.log
-            else
-              echo "✗ Store optimization failed with exit code $?" >> /tmp/nix-optimize.log
-              exit 1
-            fi
+        if /run/current-system/sw/bin/nix-store --optimize >> /tmp/nix-optimize.log 2>&1; then
+          echo "✓ Store optimization completed successfully" >> /tmp/nix-optimize.log
+        else
+          echo "✗ Store optimization failed with exit code $?" >> /tmp/nix-optimize.log
+          exit 1
+        fi
 
-            echo "Completed at: $(date)" >> /tmp/nix-optimize.log
-            echo "---" >> /tmp/nix-optimize.log
-          ''
-        ];
-
-        # Schedule: Daily at 3:30 AM (30 minutes after GC)
-        StartCalendarInterval = [
-          {
-            Hour = 3;
-            Minute = 30;
-          }
-        ];
-
-        # Logging configuration
-        StandardOutPath = "/tmp/nix-optimize.log";
-        StandardErrorPath = "/tmp/nix-optimize.err";
-
-        # Environment - include per-user profile for consistency with other agents
-        EnvironmentVariables = {
-          PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
-          HOME = "/Users/${userConfig.username}";
-        };
-
-        # Don't restart on failure - wait for next scheduled run
-        RunAtLoad = false;
-        KeepAlive = false;
-      };
+        echo "Completed at: $(date)" >> /tmp/nix-optimize.log
+        echo "---" >> /tmp/nix-optimize.log
+      '';
     };
 
     # =========================================================================
@@ -141,54 +111,19 @@ in {
     # =========================================================================
     # Runs weekly on Sunday at 8:00 AM to send maintenance summary email
     # Aggregates GC/optimization stats and system health metrics
-    weekly-digest = {
-      serviceConfig = {
-        # Command to execute weekly digest script
-        ProgramArguments = [
-          "/bin/bash"
-          "-c"
-          ''
-            # Set notification email from user config
-            export NOTIFICATION_EMAIL="${userConfig.notificationEmail}"
-            export PATH="/run/current-system/sw/bin:/usr/bin:/bin:$PATH"
-            export HOME="/Users/${userConfig.username}"
-
-            # Run weekly digest script from ~/.local/bin (TCC-safe location)
-            SCRIPT="${scriptsDir}/weekly-maintenance-digest.sh"
-            if [[ -x "$SCRIPT" ]]; then
-              "$SCRIPT" "${userConfig.notificationEmail}"
-            else
-              echo "Weekly digest script not found: $SCRIPT" >> /tmp/weekly-digest.err
-              exit 1
-            fi
-          ''
-        ];
-
-        # Schedule: Sunday at 8:00 AM
-        # Weekday: 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-        StartCalendarInterval = [
-          {
-            Weekday = 0;
-            Hour = 8;
-            Minute = 0;
-          }
-        ];
-
-        # Logging configuration
-        StandardOutPath = "/tmp/weekly-digest.log";
-        StandardErrorPath = "/tmp/weekly-digest.err";
-
-        # Environment - must include per-user Nix profile for msmtp
-        EnvironmentVariables = {
-          PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
-          HOME = "/Users/${userConfig.username}";
-          NOTIFICATION_EMAIL = userConfig.notificationEmail;
-        };
-
-        # Don't restart on failure - wait for next scheduled run
-        RunAtLoad = false;
-        KeepAlive = false;
-      };
+    weekly-digest = mkScheduledAgent {
+      name = "weekly-digest";
+      schedule = { Weekday = 0; Hour = 8; Minute = 0; };
+      env = { NOTIFICATION_EMAIL = userConfig.notificationEmail; };
+      command = ''
+        SCRIPT="${scriptsDir}/weekly-maintenance-digest.sh"
+        if [[ -x "$SCRIPT" ]]; then
+          "$SCRIPT" "${userConfig.notificationEmail}"
+        else
+          echo "Weekly digest script not found: $SCRIPT" >> /tmp/weekly-digest.err
+          exit 1
+        fi
+      '';
     };
 
     # =========================================================================
@@ -197,54 +132,19 @@ in {
     # Runs weekly on Monday at 7:00 AM to check for upstream updates
     # Fetches Homebrew, Nix, nix-darwin, and Ollama releases
     # Analyzes with Claude CLI and creates GitHub issues for actionable items
-    release-monitor = {
-      serviceConfig = {
-        # Command to execute release monitor script
-        ProgramArguments = [
-          "/bin/bash"
-          "-c"
-          ''
-            # Set environment
-            export NOTIFICATION_EMAIL="${userConfig.notificationEmail}"
-            export PATH="/run/current-system/sw/bin:/usr/bin:/bin:$PATH"
-            export HOME="/Users/${userConfig.username}"
-
-            # Run release monitor script from ~/.local/bin (TCC-safe location)
-            SCRIPT="${scriptsDir}/release-monitor.sh"
-            if [[ -x "$SCRIPT" ]]; then
-              "$SCRIPT"
-            else
-              echo "Release monitor script not found: $SCRIPT" >> /tmp/release-monitor.err
-              exit 1
-            fi
-          ''
-        ];
-
-        # Schedule: Monday at 7:00 AM
-        # Weekday: 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-        StartCalendarInterval = [
-          {
-            Weekday = 1;
-            Hour = 7;
-            Minute = 0;
-          }
-        ];
-
-        # Logging configuration
-        StandardOutPath = "/tmp/release-monitor.log";
-        StandardErrorPath = "/tmp/release-monitor.err";
-
-        # Environment - must include per-user Nix profile for msmtp and other tools
-        EnvironmentVariables = {
-          PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
-          HOME = "/Users/${userConfig.username}";
-          NOTIFICATION_EMAIL = userConfig.notificationEmail;
-        };
-
-        # Don't restart on failure - wait for next scheduled run
-        RunAtLoad = false;
-        KeepAlive = false;
-      };
+    release-monitor = mkScheduledAgent {
+      name = "release-monitor";
+      schedule = { Weekday = 1; Hour = 7; Minute = 0; };
+      env = { NOTIFICATION_EMAIL = userConfig.notificationEmail; };
+      command = ''
+        SCRIPT="${scriptsDir}/release-monitor.sh"
+        if [[ -x "$SCRIPT" ]]; then
+          "$SCRIPT"
+        else
+          echo "Release monitor script not found: $SCRIPT" >> /tmp/release-monitor.err
+          exit 1
+        fi
+      '';
     };
 
     # =========================================================================
@@ -253,56 +153,22 @@ in {
     # Runs monthly on the 1st at 4:00 AM to clean development caches
     # Cleans uv, Homebrew, npm, pip, node-gyp, and Podman/Docker caches
     # Sends email report to NOTIFICATION_EMAIL after cleanup
-    disk-cleanup = {
-      serviceConfig = {
-        # Command to execute disk cleanup script
-        ProgramArguments = [
-          "/bin/bash"
-          "-c"
-          ''
-            # Set environment
-            export NOTIFICATION_EMAIL="${userConfig.notificationEmail}"
-            export SCRIPTS_DIR="${scriptsDir}"
-            export PATH="/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin:$PATH"
-            export HOME="/Users/${userConfig.username}"
-
-            # Run disk cleanup script from ~/.local/bin (TCC-safe location)
-            SCRIPT="${scriptsDir}/disk-cleanup.sh"
-            if [[ -x "$SCRIPT" ]]; then
-              "$SCRIPT"
-            else
-              echo "Disk cleanup script not found: $SCRIPT" >> /tmp/disk-cleanup.err
-              exit 1
-            fi
-          ''
-        ];
-
-        # Schedule: 1st of every month at 4:00 AM
-        # Day: 1 = 1st day of month
-        StartCalendarInterval = [
-          {
-            Day = 1;
-            Hour = 4;
-            Minute = 0;
-          }
-        ];
-
-        # Logging configuration
-        StandardOutPath = "/tmp/disk-cleanup.log";
-        StandardErrorPath = "/tmp/disk-cleanup.err";
-
-        # Environment - must include per-user Nix profile for msmtp and other tools
-        EnvironmentVariables = {
-          PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
-          HOME = "/Users/${userConfig.username}";
-          NOTIFICATION_EMAIL = userConfig.notificationEmail;
-          SCRIPTS_DIR = scriptsDir;
-        };
-
-        # Don't restart on failure - wait for next scheduled run
-        RunAtLoad = false;
-        KeepAlive = false;
+    disk-cleanup = mkScheduledAgent {
+      name = "disk-cleanup";
+      schedule = { Day = 1; Hour = 4; Minute = 0; };
+      env = {
+        NOTIFICATION_EMAIL = userConfig.notificationEmail;
+        SCRIPTS_DIR = scriptsDir;
       };
+      command = ''
+        SCRIPT="${scriptsDir}/disk-cleanup.sh"
+        if [[ -x "$SCRIPT" ]]; then
+          "$SCRIPT"
+        else
+          echo "Disk cleanup script not found: $SCRIPT" >> /tmp/disk-cleanup.err
+          exit 1
+        fi
+      '';
     };
 
     # =========================================================================
@@ -316,37 +182,25 @@ in {
     # The Ollama GUI app (Homebrew cask) can start its own server bound to
     # 127.0.0.1 at boot, which blocks this service from binding to 0.0.0.0.
     # The pkill ensures this service always wins the race.
-    ollama-serve = {
-      serviceConfig = {
-        ProgramArguments = [
-          "/bin/bash"
-          "-c"
-          ''
-            # Kill any existing Ollama server (e.g., GUI app) that may be bound to localhost only
-            /usr/bin/pkill -f "ollama serve" 2>/dev/null || true
-            /usr/bin/pkill -x ollama 2>/dev/null || true
-            sleep 2
-            # Start Ollama bound to all interfaces via OLLAMA_HOST env var
-            exec /opt/homebrew/bin/ollama serve
-          ''
-        ];
-
-        # Start at login and keep running
-        RunAtLoad = true;
-        KeepAlive = true;
-
-        # Logging configuration
-        StandardOutPath = "/tmp/ollama-serve.log";
-        StandardErrorPath = "/tmp/ollama-serve.err";
-
-        # Environment - bind to all interfaces for Tailscale access
-        EnvironmentVariables = {
-          OLLAMA_HOST = ollamaHost;
-          OLLAMA_ORIGINS = ollamaOrigins;
-          HOME = "/Users/${userConfig.username}";
-          PATH = "/opt/homebrew/bin:/run/current-system/sw/bin:/usr/bin:/bin";
-        };
+    ollama-serve = mkScheduledAgent {
+      name = "ollama-serve";
+      # Schedule unused for KeepAlive services but required by mkScheduledAgent
+      schedule = { Hour = 0; Minute = 0; };
+      runAtLoad = true;
+      keepAlive = true;
+      env = {
+        OLLAMA_HOST = ollamaHost;
+        OLLAMA_ORIGINS = ollamaOrigins;
+        PATH = "/opt/homebrew/bin:/run/current-system/sw/bin:/usr/bin:/bin";
       };
+      command = ''
+        # Kill any existing Ollama server (e.g., GUI app) that may be bound to localhost only
+        /usr/bin/pkill -f "ollama serve" 2>/dev/null || true
+        /usr/bin/pkill -x ollama 2>/dev/null || true
+        sleep 2
+        # Start Ollama bound to all interfaces via OLLAMA_HOST env var
+        exec /opt/homebrew/bin/ollama serve
+      '';
     };
   };
 

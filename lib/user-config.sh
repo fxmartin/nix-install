@@ -443,7 +443,7 @@ generate_user_config() {
     local template_file="user-config.template.nix"
     if [[ ! -f "${template_file}" ]]; then
         log_warn "Template file not found locally, downloading from GitHub..."
-        local template_url="https://raw.githubusercontent.com/fxmartin/nix-install/main/${template_file}"
+        local template_url="${GITHUB_RAW_URL}/${GITHUB_BRANCH}/${template_file}"
         if ! curl -fsSL "${template_url}" -o "${template_file}"; then
             log_error "Failed to download template file from: ${template_url}"
             log_error "Please check your internet connection and try again."

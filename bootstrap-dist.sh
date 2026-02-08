@@ -62,11 +62,25 @@ readonly BOOTSTRAP_VERSION="1.0.0"
 readonly MIN_MACOS_VERSION=14
 
 # Work directory for bootstrap operations
-readonly WORK_DIR="/tmp/nix-bootstrap"
+# Use mktemp for unique temp dirs to avoid race conditions between concurrent runs
+# Falls back to /tmp/nix-bootstrap if mktemp fails
+if [[ -z "${_NIX_BOOTSTRAP_WORK_DIR:-}" ]]; then
+    _NIX_BOOTSTRAP_WORK_DIR=$(mktemp -d "/tmp/nix-bootstrap.XXXXXX" 2>/dev/null || echo "/tmp/nix-bootstrap")
+    mkdir -p "${_NIX_BOOTSTRAP_WORK_DIR}"
+fi
+readonly WORK_DIR="${_NIX_BOOTSTRAP_WORK_DIR}"
 readonly USER_CONFIG_FILE="${WORK_DIR}/user-config.nix"
 
-# Bootstrap temp directory (used by multiple phases)
-readonly BOOTSTRAP_TEMP_DIR="/tmp/nix-bootstrap"
+# Bootstrap temp directory (alias for WORK_DIR — used by multiple phases)
+readonly BOOTSTRAP_TEMP_DIR="${WORK_DIR}"
+
+# Repository URLs — centralized for fork portability
+# Override via environment variables before running bootstrap
+readonly GITHUB_OWNER="${NIX_INSTALL_OWNER:-fxmartin}"
+readonly GITHUB_REPO_NAME="${NIX_INSTALL_REPO:-nix-install}"
+readonly GITHUB_BRANCH="${NIX_INSTALL_BRANCH:-main}"
+readonly GITHUB_RAW_URL="https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO_NAME}"
+readonly GITHUB_SSH_URL="git@github.com:${GITHUB_OWNER}/${GITHUB_REPO_NAME}.git"
 
 # Repository clone directory (configurable via NIX_INSTALL_DIR environment variable)
 # Default: ~/.config/nix-install
@@ -820,7 +834,7 @@ generate_user_config() {
     local template_file="user-config.template.nix"
     if [[ ! -f "${template_file}" ]]; then
         log_warn "Template file not found locally, downloading from GitHub..."
-        local template_url="https://raw.githubusercontent.com/fxmartin/nix-install/main/${template_file}"
+        local template_url="${GITHUB_RAW_URL}/${GITHUB_BRANCH}/${template_file}"
         if ! curl -fsSL "${template_url}" -o "${template_file}"; then
             log_error "Failed to download template file from: ${template_url}"
             log_error "Please check your internet connection and try again."
@@ -1893,13 +1907,11 @@ configure_nix_phase() {
 # Arguments: None (uses $WORK_DIR environment variable)
 # Returns: 0 on success, 1 on failure (CRITICAL - exits on failure)
 fetch_flake_from_github() {
-    local github_repo="https://raw.githubusercontent.com/fxmartin/nix-install"
-    local github_branch="main"
-    local base_url="${github_repo}/${github_branch}"
+    local base_url="${GITHUB_RAW_URL}/${GITHUB_BRANCH}"
 
     log_info "Fetching flake configuration from GitHub..."
-    log_info "Repository: ${github_repo}"
-    log_info "Branch: ${github_branch}"
+    log_info "Repository: ${GITHUB_OWNER}/${GITHUB_REPO_NAME}"
+    log_info "Branch: ${GITHUB_BRANCH}"
     echo ""
 
     # Create directory structure
@@ -3253,14 +3265,20 @@ start_ssh_agent_and_add_key() {
         )
 
         local found_socket=""
+        # Enable nullglob so unmatched patterns expand to nothing (not literal string)
+        local _old_nullglob
+        _old_nullglob=$(shopt -p nullglob 2>/dev/null || true)
+        shopt -s nullglob
         for socket_pattern in "${potential_sockets[@]}"; do
             # shellcheck disable=SC2206
             local sockets=($socket_pattern)
-            if [[ -S "${sockets[0]}" ]]; then
+            if [[ ${#sockets[@]} -gt 0 ]] && [[ -S "${sockets[0]}" ]]; then
                 found_socket="${sockets[0]}"
                 break
             fi
         done
+        # Restore previous nullglob state
+        eval "${_old_nullglob:-shopt -u nullglob}"
 
         if [[ -n "${found_socket}" ]]; then
             export SSH_AUTH_SOCK="${found_socket}"
@@ -3661,8 +3679,16 @@ authenticate_github_cli() {
     # --hostname github.com: Authenticate to GitHub (not enterprise)
     # --git-protocol ssh: Use SSH for git operations (not HTTPS)
     # --web: Use browser-based OAuth flow (auto-opens browser)
-    if ! gh auth login --hostname github.com --git-protocol ssh --web; then
-        log_error "GitHub CLI authentication failed"
+    # Timeout after 5 minutes to avoid blocking forever if browser flow stalls
+    log_info "Starting GitHub OAuth flow (5 minute timeout)..."
+    if ! timeout 300 gh auth login --hostname github.com --git-protocol ssh --web; then
+        local exit_code=$?
+        if [[ ${exit_code} -eq 124 ]]; then
+            log_error "GitHub CLI authentication timed out after 5 minutes"
+            log_error "The browser OAuth flow did not complete in time."
+        else
+            log_error "GitHub CLI authentication failed"
+        fi
         log_error ""
         log_error "Troubleshooting:"
         log_error "1. Check internet connection"
@@ -4193,7 +4219,7 @@ remove_existing_repo_directory() {
 # Default location: ~/.config/nix-install (configurable via NIX_INSTALL_DIR)
 # Returns: 0 on success, exits script on failure
 clone_repository() {
-    local repo_url="git@github.com:fxmartin/nix-install.git"
+    local repo_url="${GITHUB_SSH_URL}"
 
     log_info "Cloning repository from GitHub..."
     log_info "URL: ${repo_url}"
@@ -4201,8 +4227,11 @@ clone_repository() {
     echo ""
 
     # Check available disk space (require at least 500MB)
+    # Use the parent directory of REPO_CLONE_DIR (not hardcoded ~/Documents)
+    local clone_parent
+    clone_parent="$(dirname "${REPO_CLONE_DIR}")"
     local available_space
-    available_space=$(df -k "${HOME}/Documents" | awk 'NR==2 {print $4}')
+    available_space=$(df -k "${clone_parent}" | awk 'NR==2 {print $4}')
     local required_space=512000  # 500MB in KB
 
     if [[ "${available_space}" -lt "${required_space}" ]]; then

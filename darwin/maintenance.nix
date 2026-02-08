@@ -43,6 +43,7 @@
       } // env;
       RunAtLoad = runAtLoad;
       KeepAlive = keepAlive;
+      Umask = 77;  # 0077 — restrict log/output files to owner only
     };
   };
 in {

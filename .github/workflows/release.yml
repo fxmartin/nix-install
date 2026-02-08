@@ -1,0 +1,114 @@
+# ABOUTME: GitHub Actions workflow for automated releases on version tags
+# ABOUTME: Creates GitHub Release with bootstrap-dist.sh and auto-generated notes
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for release notes generation
+
+      - name: Validate tag format
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          if ! echo "$TAG" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$'; then
+            echo "::error::Invalid tag format: $TAG (expected vX.Y.Z or vX.Y.Z-suffix)"
+            exit 1
+          fi
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+
+      - name: Verify bootstrap-dist.sh exists
+        run: |
+          if [ ! -f bootstrap-dist.sh ]; then
+            echo "::error::bootstrap-dist.sh not found — run scripts/build-bootstrap.sh first"
+            exit 1
+          fi
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          # Get previous tag
+          PREV_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]' | sed -n '2p')
+          if [ -z "$PREV_TAG" ]; then
+            RANGE="HEAD"
+          else
+            RANGE="${PREV_TAG}..HEAD"
+          fi
+
+          # Group commits by type
+          {
+            echo "## What's Changed"
+            echo ""
+
+            # Features
+            FEATS=$(git log "$RANGE" --oneline --grep="^feat" --format="- %s" 2>/dev/null || true)
+            if [ -n "$FEATS" ]; then
+              echo "### New Features"
+              echo "$FEATS"
+              echo ""
+            fi
+
+            # Fixes
+            FIXES=$(git log "$RANGE" --oneline --grep="^fix" --format="- %s" 2>/dev/null || true)
+            if [ -n "$FIXES" ]; then
+              echo "### Bug Fixes"
+              echo "$FIXES"
+              echo ""
+            fi
+
+            # Refactors
+            REFACTORS=$(git log "$RANGE" --oneline --grep="^refactor" --format="- %s" 2>/dev/null || true)
+            if [ -n "$REFACTORS" ]; then
+              echo "### Refactoring"
+              echo "$REFACTORS"
+              echo ""
+            fi
+
+            # Security
+            SECURITY=$(git log "$RANGE" --oneline --grep="^security" --format="- %s" 2>/dev/null || true)
+            if [ -n "$SECURITY" ]; then
+              echo "### Security"
+              echo "$SECURITY"
+              echo ""
+            fi
+
+            # Performance
+            PERF=$(git log "$RANGE" --oneline --grep="^perf" --format="- %s" 2>/dev/null || true)
+            if [ -n "$PERF" ]; then
+              echo "### Performance"
+              echo "$PERF"
+              echo ""
+            fi
+
+            echo "---"
+            echo ""
+            echo "### Quick Install"
+            echo '```bash'
+            echo "curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/${TAG}/setup.sh | bash"
+            echo '```'
+          } > release_notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release_notes.md
+          files: bootstrap-dist.sh
+          generate_release_notes: false
+          draft: false
+          prerelease: ${{ contains(github.ref, '-') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

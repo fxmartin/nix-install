@@ -7,6 +7,8 @@ set -euo pipefail
 # =============================================================================
 # CONFIGURATION
 # =============================================================================
+# NOTE: These thresholds are shared with scripts/health-api.py (HTTP API).
+# If you change a value here, update health-api.py to match.
 
 # Color codes for output
 RED='\033[0;31m'
@@ -16,11 +18,16 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Version
-HEALTH_CHECK_VERSION="1.0.0"
+HEALTH_CHECK_VERSION="1.1.0"
 
-# Thresholds
-GENERATION_WARNING_THRESHOLD=50
-DISK_WARNING_GB=20
+# Shared thresholds (keep in sync with health-api.py)
+GENERATION_WARNING_THRESHOLD=50  # Warn if more than N system generations
+DISK_WARNING_GB=20               # Warn if less than N GB free
+CACHE_WARNING_KB=1048576         # 1 GB — warn if any single cache exceeds this
+
+# Expected Ollama models per profile (keep in sync with flake.nix ollamaModels)
+# Power: llava:34b, ministral-3:14b, phi4:14b, nomic-embed-text
+# Standard: ministral-3:14b, nomic-embed-text
 
 # =============================================================================
 # HELPER FUNCTIONS
@@ -177,8 +184,12 @@ fi
 # ---------------------------------------------------------------------------
 echo "Checking Nix store..."
 if [[ -d /nix/store ]]; then
-    STORE_SIZE=$(du -sh /nix/store 2>/dev/null | cut -f1)
-    print_status "info" "Nix store size: ${STORE_SIZE}"
+    STORE_SIZE=$(timeout 30 du -sh /nix/store 2>/dev/null | cut -f1)
+    if [[ -n "${STORE_SIZE}" ]]; then
+        print_status "info" "Nix store size: ${STORE_SIZE}"
+    else
+        print_status "info" "Nix store size: (timed out after 30s)"
+    fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -190,18 +201,17 @@ echo "Checking development caches..."
 get_cache_kb() {
     local path="${1}"
     if [[ -d "${path}" ]]; then
-        du -sk "${path}" 2>/dev/null | cut -f1
+        timeout 15 du -sk "${path}" 2>/dev/null | cut -f1 || echo "0"
     else
         echo "0"
     fi
 }
 
-# Cache size threshold (1GB = 1048576 KB)
-CACHE_WARNING_KB=1048576
+# Cache size threshold (uses shared CACHE_WARNING_KB from config section above)
 
 # Check each cache
 UV_CACHE_KB=$(get_cache_kb ~/.cache/uv)
-UV_CACHE_SIZE=$(du -sh ~/.cache/uv 2>/dev/null | cut -f1 || echo "0B")
+UV_CACHE_SIZE=$(timeout 15 du -sh ~/.cache/uv 2>/dev/null | cut -f1 || echo "0B")
 if [[ ${UV_CACHE_KB} -gt ${CACHE_WARNING_KB} ]]; then
     print_status "warn" "uv cache: ${UV_CACHE_SIZE} (large!)"
 else
@@ -209,7 +219,7 @@ else
 fi
 
 BREW_CACHE_KB=$(get_cache_kb ~/Library/Caches/Homebrew)
-BREW_CACHE_SIZE=$(du -sh ~/Library/Caches/Homebrew 2>/dev/null | cut -f1 || echo "0B")
+BREW_CACHE_SIZE=$(timeout 15 du -sh ~/Library/Caches/Homebrew 2>/dev/null | cut -f1 || echo "0B")
 if [[ ${BREW_CACHE_KB} -gt ${CACHE_WARNING_KB} ]]; then
     print_status "warn" "Homebrew cache: ${BREW_CACHE_SIZE} (large!)"
 else
@@ -217,7 +227,7 @@ else
 fi
 
 NPM_CACHE_KB=$(get_cache_kb ~/.npm)
-NPM_CACHE_SIZE=$(du -sh ~/.npm 2>/dev/null | cut -f1 || echo "0B")
+NPM_CACHE_SIZE=$(timeout 15 du -sh ~/.npm 2>/dev/null | cut -f1 || echo "0B")
 if [[ ${NPM_CACHE_KB} -gt ${CACHE_WARNING_KB} ]]; then
     print_status "warn" "npm cache: ${NPM_CACHE_SIZE} (large!)"
 else
@@ -297,7 +307,43 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Check 11: Qwen3-TTS server (Power profile only)
+# Check 11: Podman container runtime
+# ---------------------------------------------------------------------------
+echo "Checking Podman..."
+if command -v podman &> /dev/null; then
+    # Check Podman machine status
+    PODMAN_MACHINES=$(podman machine list --format '{{.Name}} {{.Running}}' 2>/dev/null || true)
+    if [[ -n "${PODMAN_MACHINES}" ]]; then
+        RUNNING_MACHINE=$(echo "${PODMAN_MACHINES}" | /usr/bin/grep -i "true" | head -1 | awk '{print $1}')
+        if [[ -n "${RUNNING_MACHINE}" ]]; then
+            print_status "ok" "Podman machine running: ${RUNNING_MACHINE}"
+        else
+            print_status "info" "Podman machine not running (start with: pmstart)"
+        fi
+    else
+        print_status "info" "No Podman machines configured"
+    fi
+
+    # Image count (only if machine is running)
+    if [[ -n "${RUNNING_MACHINE:-}" ]]; then
+        IMAGE_COUNT=$(podman images --format '{{.ID}}' 2>/dev/null | wc -l | tr -d ' ')
+        print_status "info" "Podman images: ${IMAGE_COUNT}"
+
+        # Disk usage (reclaimable space)
+        PODMAN_DF=$(podman system df 2>/dev/null || true)
+        if [[ -n "${PODMAN_DF}" ]]; then
+            RECLAIMABLE=$(echo "${PODMAN_DF}" | /usr/bin/grep -i "Local Volumes\|Images" | awk '{for(i=1;i<=NF;i++) if($i ~ /\(/) print $i $(i+1)}' | head -1)
+            if [[ -n "${RECLAIMABLE}" ]]; then
+                print_status "info" "Podman reclaimable: ${RECLAIMABLE}"
+            fi
+        fi
+    fi
+else
+    print_status "info" "Podman not installed (container check skipped)"
+fi
+
+# ---------------------------------------------------------------------------
+# Check 12: Qwen3-TTS server (Power profile only)
 # ---------------------------------------------------------------------------
 if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.qwen3tts.server"; then
     echo "Checking Qwen3-TTS server..."
@@ -347,7 +393,7 @@ except:
 fi
 
 # ---------------------------------------------------------------------------
-# Check 12: Ollama models
+# Check 13: Ollama models
 # ---------------------------------------------------------------------------
 if command -v ollama &> /dev/null; then
     echo "Checking Ollama models..."
@@ -394,8 +440,12 @@ if command -v ollama &> /dev/null; then
         # Show total disk usage
         OLLAMA_DIR="${HOME}/.ollama/models"
         if [[ -d "${OLLAMA_DIR}" ]]; then
-            OLLAMA_SIZE=$(du -sh "${OLLAMA_DIR}" 2>/dev/null | cut -f1)
-            print_status "info" "Ollama models disk usage: ${OLLAMA_SIZE}"
+            OLLAMA_SIZE=$(timeout 30 du -sh "${OLLAMA_DIR}" 2>/dev/null | cut -f1)
+            if [[ -n "${OLLAMA_SIZE}" ]]; then
+                print_status "info" "Ollama models disk usage: ${OLLAMA_SIZE}"
+            else
+                print_status "info" "Ollama models disk usage: (timed out after 30s)"
+            fi
         fi
     fi
 else

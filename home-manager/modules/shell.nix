@@ -67,6 +67,9 @@
       # Quick rebuild (auto-detect profile)
       rebuild = "bash ${dotfilesPath}/scripts/update-system.sh rebuild";
 
+      # Dry-run rebuild — build without switching (preview what would change)
+      rebuild-dry = "bash ${dotfilesPath}/scripts/update-system.sh dry";
+
       # Update flake.lock and rebuild (convenience alias)
       update = "bash ${dotfilesPath}/scripts/update-system.sh update";
 

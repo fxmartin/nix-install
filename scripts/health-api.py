@@ -6,13 +6,22 @@ import json
 import subprocess
 import os
 import socket
+import hmac
 from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
+# NOTE: These thresholds are shared with scripts/health-check.sh (CLI).
+# If you change a value here, update health-check.sh to match.
 PORT = 7780
-GENERATION_WARNING_THRESHOLD = 50
-DISK_WARNING_GB = 20
-CACHE_WARNING_KB = 1_048_576  # 1 GB
+GENERATION_WARNING_THRESHOLD = 50   # Warn if more than N system generations
+DISK_WARNING_GB = 20                # Warn if less than N GB free
+CACHE_WARNING_KB = 1_048_576        # 1 GB — warn if any single cache exceeds this
+
+# Expected Ollama models per profile (keep in sync with flake.nix ollamaModels)
+OLLAMA_MODELS = {
+    "power": ["llava:34b", "ministral-3:14b", "phi4:14b", "nomic-embed-text"],
+    "standard": ["ministral-3:14b", "nomic-embed-text"],
+}
 
 
 def run(cmd: str, timeout: int = 10) -> str:
@@ -111,8 +120,8 @@ def check_generations() -> dict:
 
 def check_nix_store() -> dict:
     # du -sh /nix/store can take 30+ seconds on large stores
-    size = run("du -sh /nix/store 2>/dev/null | cut -f1", timeout=60)
-    return {"size": size or "unknown"}
+    size = run("du -sh /nix/store 2>/dev/null | cut -f1", timeout=30)
+    return {"size": size or "timed out"}
 
 
 def detect_profile(launchctl_output: str) -> str:
@@ -128,10 +137,7 @@ def check_ollama(profile: str) -> dict:
         return {"status": "warn", "models": [], "missing": [], "detail": "Ollama daemon not running"}
 
     ollama_list = run("ollama list 2>/dev/null")
-    if profile == "power":
-        expected = ["llava:34b", "ministral-3:14b", "phi4:14b", "nomic-embed-text"]
-    else:
-        expected = ["ministral-3:14b", "nomic-embed-text"]
+    expected = OLLAMA_MODELS.get(profile, OLLAMA_MODELS["standard"])
 
     installed = []
     missing = []
@@ -160,6 +166,25 @@ def check_tts_server(launchctl_output: str) -> dict:
         return {"status": "error", "detail": "TTS server not responding"}
     except Exception:
         return {"status": "error", "detail": "TTS server unreachable"}
+
+
+def check_podman() -> dict:
+    if not run("command -v podman"):
+        return {"status": "skipped", "detail": "Podman not installed"}
+    machines = run("podman machine list --format '{{.Name}} {{.Running}}' 2>/dev/null")
+    if not machines:
+        return {"status": "ok", "machine": None, "images": 0, "detail": "No machines configured"}
+    running = None
+    for line in machines.strip().splitlines():
+        parts = line.split()
+        if len(parts) >= 2 and parts[1].lower() == "true":
+            running = parts[0]
+            break
+    if not running:
+        return {"status": "ok", "machine": None, "images": 0, "detail": "Machine not running"}
+    images_output = run("podman images --format '{{.ID}}' 2>/dev/null")
+    image_count = len(images_output.splitlines()) if images_output else 0
+    return {"status": "ok", "machine": running, "images": image_count}
 
 
 def check_launch_agents(launchctl_output: str) -> dict:
@@ -218,6 +243,7 @@ def build_health_response() -> dict:
         "firewall": check_firewall(),
         "generations": check_generations(),
         "nix_store": check_nix_store(),
+        "podman": check_podman(),
         "ollama": check_ollama(profile),
         "tts_server": check_tts_server(launchctl_output),
         "launch_agents": check_launch_agents(launchctl_output),
@@ -233,11 +259,32 @@ def build_health_response() -> dict:
     }
 
 
+# Optional bearer token authentication
+# Set HEALTH_API_TOKEN environment variable to require authentication.
+# When set, all requests except /ping must include: Authorization: Bearer <token>
+# When unset, all endpoints are open (backwards compatible).
+HEALTH_API_TOKEN = os.environ.get("HEALTH_API_TOKEN", "")
+
+
 class HealthHandler(BaseHTTPRequestHandler):
+    def _check_auth(self) -> bool:
+        """Return True if request is authorized. Sends 401 and returns False otherwise."""
+        if not HEALTH_API_TOKEN:
+            return True  # No token configured — open access
+        auth_header = self.headers.get("Authorization", "")
+        if auth_header.startswith("Bearer "):
+            token = auth_header[7:]
+            if hmac.compare_digest(token, HEALTH_API_TOKEN):
+                return True
+        self._respond(401, {"error": "Unauthorized. Set Authorization: Bearer <token>"})
+        return False
+
     def do_GET(self):
         if self.path == "/ping":
             self._respond(200, {"status": "ok"})
         elif self.path == "/health":
+            if not self._check_auth():
+                return
             self._respond(200, build_health_response())
         else:
             self._respond(404, {"error": "Not found. Use /health or /ping"})

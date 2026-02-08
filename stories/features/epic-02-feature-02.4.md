@@ -158,7 +158,7 @@
 **Files Modified**:
 - darwin/homebrew.nix (added raycast cask)
 - docs/apps/productivity/raycast.md: Raycast section created (split from app-post-install-configuration.md + table of contents + story tracking)
-- docs/development/stories/epic-02-feature-02.4.md (this file - implementation details)
+- stories/features/epic-02-feature-02.4.md (this file - implementation details)
 
 **Testing Notes**:
 - Configuration is syntactically correct (Nix syntax validated)
@@ -359,7 +359,7 @@
 **Files Modified**:
 - darwin/homebrew.nix (added 1password cask)
 - docs/apps/productivity/1password.md: 1Password section created (split from app-post-install-configuration.md + table of contents + story tracking)
-- docs/development/stories/epic-02-feature-02.4.md (this file - implementation details)
+- stories/features/epic-02-feature-02.4.md (this file - implementation details)
 
 **Testing Notes**:
 - Configuration is syntactically correct (Nix syntax validated)
@@ -631,7 +631,7 @@
 **Files Modified**:
 - darwin/homebrew.nix (added calibre, keka casks + Kindle, Marked 2 masApps)
 - docs/apps/README.md: File Utilities section with all 4 apps created (split from app-post-install-configuration.md + table of contents + story tracking)
-- docs/development/stories/epic-02-feature-02.4.md (this file - implementation details)
+- stories/features/epic-02-feature-02.4.md (this file - implementation details)
 
 **Testing Notes**:
 - Configuration is syntactically correct (Nix syntax validated)
@@ -935,7 +935,7 @@
    - Free alternatives (gotop, macmon, Activity Monitor)
    - Updated Summary Table with iStat Menus entry
 
-5. **Story Progress** (docs/development/stories/epic-02-feature-02.4.md):
+5. **Story Progress** (stories/features/epic-02-feature-02.4.md):
    - Marked Story 02.4-006 definition of done items as complete
    - Added implementation details section
    - VM testing pending
@@ -1057,7 +1057,7 @@
 - darwin/homebrew.nix (added istat-menus cask)
 - docs/apps/system/system-monitoring.md (created, 525 lines)
 - docs/licensed-apps.md (added iStat Menus section + Summary Table update)
-- docs/development/stories/epic-02-feature-02.4.md (this file - implementation details)
+- stories/features/epic-02-feature-02.4.md (this file - implementation details)
 
 **Testing Notes**:
 - Configuration is syntactically correct (Nix syntax validated)

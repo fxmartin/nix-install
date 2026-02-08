@@ -25,38 +25,38 @@
 ## Features in This Epic
 
 
-> **Note**: Detailed story implementations have been moved to feature-specific files in `docs/development/stories/` for better maintainability. See links below.
+> **Note**: Detailed story implementations have been moved to feature-specific files in `stories/features/` for better maintainability. See links below.
 
 ### Feature 06.1: Automated Garbage Collection
 **Feature Description**: Implement automated Nix store garbage collection
 **Story Count**: 4 | **Story Points**: 19 | **Priority**: High | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-06-feature-06.1.md)**
+👉 **[View detailed implementation](features/epic-06-feature-06.1.md)**
 
 ### Feature 06.2: Store Optimization
 **Feature Description**: Implement Nix store optimization and deduplication
 **Story Count**: 3 | **Story Points**: 11 | **Priority**: Medium | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-06-feature-06.2.md)**
+👉 **[View detailed implementation](features/epic-06-feature-06.2.md)**
 
 ### Feature 06.3: System Monitoring Tools
 **Feature Description**: Install and configure system monitoring tools (gotop, macmon)
 **Story Count**: 4 | **Story Points**: 16 | **Priority**: Medium | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-06-feature-06.3.md)**
+👉 **[View detailed implementation](features/epic-06-feature-06.3.md)**
 
 ### Feature 06.4: Health Check Command
 **Feature Description**: Create health check command for system validation
 **Story Count**: 2 | **Story Points**: 8 | **Priority**: Medium | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-06-feature-06.4.md)**
+👉 **[View detailed implementation](features/epic-06-feature-06.4.md)**
 
 ### Feature 06.5: Email Notification System
 **Feature Description**: Email notifications for maintenance failures and weekly digest summaries
 **Story Count**: 3 | **Story Points**: 16 | **Priority**: Should Have (P1) | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-06-feature-06.5.md)**
+👉 **[View detailed implementation](features/epic-06-feature-06.5.md)**
 
 ### Feature 06.6: Release Monitoring & Improvement Suggestions ✅ COMPLETE
 **Feature Description**: Automated weekly monitoring of Homebrew, Nix/nix-darwin, and Ollama releases using Claude CLI for analysis, with GitHub issue creation for actionable items and email summary reports
 **Story Count**: 5 | **Story Points**: 26 | **Priority**: Should Have (P1) | **Complexity**: Medium
 **Status**: ✅ Complete (2025-12-06) - All scripts tested, deduplication bug fixed, email working
-👉 **[View detailed implementation](../docs/development/stories/epic-06-feature-06.6.md)**
+👉 **[View detailed implementation](features/epic-06-feature-06.6.md)**
 
 ## Epic Dependencies
 

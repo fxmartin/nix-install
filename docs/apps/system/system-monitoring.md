@@ -1249,7 +1249,7 @@ darwin-rebuild switch --flake ~/nix-install#power
 - darwin/homebrew.nix: Added mactop Homebrew brew for Apple Silicon monitoring (2025-01-30)
 - docs/apps/system/system-monitoring.md: Created comprehensive system monitoring documentation
 - docs/licensed-apps.md: Added iStat Menus section to Productivity & System Apps (Story 02.4-006)
-- docs/development/stories/epic-02-feature-02.4.md: Updated story progress (Story 02.4-006)
+- stories/features/epic-02-feature-02.4.md: Updated story progress (Story 02.4-006)
 
 **Key Decisions**:
 - mactop via Homebrew (not available in nixpkgs, Apple Silicon-specific)

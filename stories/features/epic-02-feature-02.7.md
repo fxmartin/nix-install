@@ -225,7 +225,7 @@
 - docs/apps/security/nordvpn.md (created, ~900 lines - comprehensive VPN guide)
 - docs/licensed-apps.md (added VPN & Security Apps section + NordVPN details)
 - docs/apps/README.md (added Security & VPN section + updated file organization)
-- docs/development/stories/epic-02-feature-02.7.md (this file - implementation details)
+- stories/features/epic-02-feature-02.7.md (this file - implementation details)
 
 **Research Items for VM Testing**:
 1. **Auto-update setting location** (CRITICAL):

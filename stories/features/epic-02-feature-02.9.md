@@ -214,7 +214,7 @@
 - docs/apps/productivity/office-365.md (created, ~700 lines)
 - docs/licensed-apps.md (added Office & Productivity Suites section, marked legacy manual install)
 - docs/apps/README.md (updated index and file count)
-- docs/development/stories/epic-02-feature-02.9.md (this file - implementation details)
+- stories/features/epic-02-feature-02.9.md (this file - implementation details)
 
 **Story Status**: 🔄 Implementation Complete - VM Testing Pending
 

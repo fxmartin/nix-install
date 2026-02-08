@@ -85,7 +85,7 @@
    - Included troubleshooting guide (QR code issues, sync problems, call failures)
    - Added 14-item testing checklist
 
-3. **docs/development/stories/epic-02-feature-02.5.md**:
+3. **stories/features/epic-02-feature-02.5.md**:
    - Added implementation details section with date and summary
    - Created VM testing checklist (20 items)
 
@@ -238,7 +238,7 @@
    - Added summary table comparing all licensed apps
    - Added next steps and troubleshooting resources
 
-4. **docs/development/stories/epic-02-feature-02.5.md**:
+4. **stories/features/epic-02-feature-02.5.md**:
    - Added implementation details section with date and summary
    - Created VM testing checklist (28 items covering both apps)
 

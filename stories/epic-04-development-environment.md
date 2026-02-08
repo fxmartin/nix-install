@@ -22,52 +22,52 @@
 ## Features in This Epic
 
 
-> **Note**: Detailed story implementations have been moved to feature-specific files in `docs/development/stories/` for better maintainability. See links below.
+> **Note**: Detailed story implementations have been moved to feature-specific files in `stories/features/` for better maintainability. See links below.
 
 ### Feature 04.1: Zsh and Oh My Zsh Configuration
 **Feature Description**: Configure Zsh with Oh My Zsh framework and plugins
 **Story Count**: 3 | **Story Points**: 17 | **Priority**: High | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-04-feature-04.1.md)**
+👉 **[View detailed implementation](features/epic-04-feature-04.1.md)**
 
 ### Feature 04.2: Starship Prompt Configuration
 **Feature Description**: Configure Starship cross-shell prompt
 **Story Count**: 1 | **Story Points**: 3 | **Priority**: Medium | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-04-feature-04.2.md)**
+👉 **[View detailed implementation](features/epic-04-feature-04.2.md)**
 
 ### Feature 04.3: FZF Fuzzy Finder Integration
 **Feature Description**: Integrate FZF for command history, file search, and directory navigation
 **Story Count**: 1 | **Story Points**: 3 | **Priority**: Medium | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-04-feature-04.3.md)**
+👉 **[View detailed implementation](features/epic-04-feature-04.3.md)**
 
 ### Feature 04.4: Ghostty Terminal Configuration
 **Feature Description**: Configure Ghostty terminal emulator with Catppuccin theme
 **Story Count**: 1 | **Story Points**: 3 | **Priority**: High | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-04-feature-04.4.md)**
+👉 **[View detailed implementation](features/epic-04-feature-04.4.md)**
 
 ### Feature 04.5: Shell Aliases and Functions
 **Feature Description**: Configure shell aliases, custom functions, and modern CLI tool replacements (ripgrep, bat, fd, eza, zoxide, httpie, tldr)
 **Story Count**: 3 | **Story Points**: 18 | **Priority**: High | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-04-feature-04.5.md)**
+👉 **[View detailed implementation](features/epic-04-feature-04.5.md)**
 
 ### Feature 04.6: Git Configuration
 **Feature Description**: Configure Git with FX's identity, aliases, and preferences
 **Story Count**: 4 | **Story Points**: 17 | **Priority**: High | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-04-feature-04.6.md)**
+👉 **[View detailed implementation](features/epic-04-feature-04.6.md)**
 
 ### Feature 04.7: Python Development Environment
 **Feature Description**: Configure Python 3.12 and uv package manager
 **Story Count**: 2 | **Story Points**: 8 | **Priority**: High | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-04-feature-04.7.md)**
+👉 **[View detailed implementation](features/epic-04-feature-04.7.md)**
 
 ### Feature 04.8: Container Development Environment
 **Feature Description**: Configure Podman container environment
 **Story Count**: 2 | **Story Points**: 8 | **Priority**: High | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-04-feature-04.8.md)**
+👉 **[View detailed implementation](features/epic-04-feature-04.8.md)**
 
 ### Feature 04.9: Editor Configuration
 **Feature Description**: Configure editors (Zed, VSCode) via Home Manager
 **Story Count**: 2 | **Story Points**: 8 | **Priority**: Medium | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-04-feature-04.9.md)**
+👉 **[View detailed implementation](features/epic-04-feature-04.9.md)**
 
 ## Epic Dependencies
 

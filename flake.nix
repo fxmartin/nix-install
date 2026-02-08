@@ -178,47 +178,58 @@
           # Standard profile specific settings (to be expanded in Epic-02)
           # - No Parallels Desktop (isPowerProfile = false)
           # - Minimal app set
-          # - Single Ollama model (gpt-oss:20b)
+          # - Ollama models: gpt-oss:20b + nomic-embed-text
 
-          # Story 02.1-003: Automatically pull gpt-oss:20b Ollama model
+          # Story 02.1-003: Automatically pull Ollama models for Standard profile
           # Use postActivation - one of the hardcoded script names that nix-darwin actually runs
           # Custom script names like 'pullOllamaModel' are NOT executed
           # See: https://github.com/nix-darwin/nix-darwin/issues/663
           system.activationScripts.postActivation.text = lib.mkAfter ''
             # Check if Ollama CLI is available (installed by Homebrew)
             if [ -x /opt/homebrew/bin/ollama ]; then
-              echo "Checking Ollama model: gpt-oss:20b..."
+              echo "Checking Ollama models for Standard profile..."
 
-              # Check if model already exists (idempotent)
-              if ! /opt/homebrew/bin/ollama list 2>/dev/null | grep -q "gpt-oss:20b"; then
-                echo "Pulling Ollama model: gpt-oss:20b (~12GB, this may take several minutes)..."
+              # Check if Ollama daemon is running, start if needed
+              if ! pgrep -q ollama; then
+                echo "Starting Ollama daemon..."
+                /opt/homebrew/bin/ollama serve > /dev/null 2>&1 &
 
-                # Check if Ollama daemon is running, start if needed
-                if ! pgrep -q ollama; then
-                  echo "Starting Ollama daemon..."
-                  /opt/homebrew/bin/ollama serve > /dev/null 2>&1 &
-
-                  # Wait for daemon to be ready (up to 10 seconds)
-                  for _ in {1..10}; do
-                    if /opt/homebrew/bin/ollama list > /dev/null 2>&1; then
-                      echo "✓ Ollama daemon ready"
-                      break
-                    fi
-                    sleep 1
-                  done
-                fi
-
-                # Pull model (requires network and running daemon)
-                if /opt/homebrew/bin/ollama pull gpt-oss:20b 2>&1; then
-                  echo "✓ Successfully pulled Ollama model: gpt-oss:20b"
-                else
-                  echo "⚠️  Warning: Failed to pull Ollama model gpt-oss:20b"
-                  echo "   This may be due to network issues or Ollama daemon not starting."
-                  echo "   You can manually pull the model later with: ollama pull gpt-oss:20b"
-                fi
-              else
-                echo "✓ Ollama model gpt-oss:20b already installed"
+                # Wait for daemon to be ready (up to 10 seconds)
+                for _ in {1..10}; do
+                  if /opt/homebrew/bin/ollama list > /dev/null 2>&1; then
+                    echo "✓ Ollama daemon ready"
+                    break
+                  fi
+                  sleep 1
+                done
               fi
+
+              # Define models to pull (2 models, ~12.3GB total)
+              MODELS=(
+                "gpt-oss:20b"          # ~12GB - General purpose LLM
+                "nomic-embed-text"     # ~274MB - Text embeddings model
+              )
+
+              # Pull each model sequentially with progress tracking
+              for model in "''${MODELS[@]}"; do
+                # Check if model already exists (idempotent)
+                if ! /opt/homebrew/bin/ollama list 2>/dev/null | grep -q "$model"; then
+                  echo "Pulling Ollama model: $model (this may take several minutes)..."
+
+                  # Pull model (requires network and running daemon)
+                  if /opt/homebrew/bin/ollama pull "$model" 2>&1; then
+                    echo "✓ Successfully pulled Ollama model: $model"
+                  else
+                    echo "⚠️  Warning: Failed to pull Ollama model $model"
+                    echo "   This may be due to network issues or Ollama daemon not starting."
+                    echo "   You can manually pull the model later with: ollama pull $model"
+                  fi
+                else
+                  echo "✓ Ollama model $model already installed"
+                fi
+              done
+
+              echo "✓ Ollama model check complete for Standard profile"
             else
               echo "⚠️  Warning: Ollama CLI not found at /opt/homebrew/bin/ollama"
               echo "   Model pull will be skipped. Install Ollama first."
@@ -277,11 +288,12 @@
                 done
               fi
 
-              # Define models to pull (3 models, ~41GB total)
+              # Define models to pull (4 models, ~41.3GB total)
               MODELS=(
                 "llava:34b"            # ~20GB - Multimodal vision-language model
                 "gpt-oss:20b"          # ~12GB - General purpose LLM
                 "phi4:14b"             # ~9GB - Microsoft Phi-4 reasoning model
+                "nomic-embed-text"     # ~274MB - Text embeddings model
               )
 
               # Pull each model sequentially with progress tracking

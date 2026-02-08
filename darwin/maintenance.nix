@@ -325,7 +325,7 @@ in {
           # Bind to all interfaces (required for Tailscale access)
           OLLAMA_HOST = "0.0.0.0";
           # Restrict API access to localhost and Tailscale IPs only (100.64.0.0/10 CGNAT range)
-          OLLAMA_ORIGINS = "http://localhost,http://127.0.0.1,http://100.*";
+          OLLAMA_ORIGINS = "http://localhost:*,http://127.0.0.1:*,http://100.*:*";
           HOME = "/Users/${userConfig.username}";
           PATH = "/opt/homebrew/bin:/run/current-system/sw/bin:/usr/bin:/bin";
         };

@@ -258,6 +258,10 @@
         # Mirrors proposals folder to iCloud Drive daily at 12:30 PM
         ./darwin/icloud-sync.nix
 
+        # Qwen3-TTS Server (Power profile only)
+        # FastAPI/uvicorn TTS service on port 8765
+        ./darwin/tts-serve.nix
+
         ({lib, ...}: {
           # Power profile specific settings (to be expanded in Epic-02)
           # - Parallels Desktop enabled (isPowerProfile = true)

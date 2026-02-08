@@ -47,8 +47,9 @@ echo "Command: ${COMMAND}" >> "${LOG_FILE}"
 echo "" >> "${LOG_FILE}"
 
 # Execute the command (disable errexit temporarily to capture exit code)
+# Use /bin/sh -c instead of eval to avoid shell injection risks
 set +e
-eval "${COMMAND}" >> "${LOG_FILE}" 2>> "${ERR_FILE}"
+/bin/sh -c "${COMMAND}" >> "${LOG_FILE}" 2>> "${ERR_FILE}"
 EXIT_CODE=$?
 set -e
 

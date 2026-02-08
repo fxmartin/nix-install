@@ -11,6 +11,12 @@
   # Scripts are installed to ~/.local/bin to avoid macOS TCC (Transparency, Consent, Control)
   # restrictions that block LaunchAgents from accessing ~/Documents
   scriptsDir = "/Users/${userConfig.username}/.local/bin";
+
+  # Ollama network config (used in both LaunchAgent and global environment)
+  # Bind to all interfaces for Tailscale access; restrict origins to localhost + Tailscale CGNAT
+  # NOTE: Only one * per origin pattern (gin-contrib/cors limitation in Ollama 0.15+)
+  ollamaHost = "0.0.0.0";
+  ollamaOrigins = "http://localhost:*,http://127.0.0.1:*,http://100.*";
 in {
   # =============================================================================
   # MAINTENANCE LAUNCHAGENTS (Epic-06: Maintenance & Monitoring)
@@ -335,11 +341,8 @@ in {
 
         # Environment - bind to all interfaces for Tailscale access
         EnvironmentVariables = {
-          # Bind to all interfaces (required for Tailscale access)
-          OLLAMA_HOST = "0.0.0.0";
-          # Restrict API access to localhost and Tailscale IPs (100.x.x.x CGNAT range)
-          # NOTE: Only one * per origin pattern (gin-contrib/cors limitation in Ollama 0.15+)
-          OLLAMA_ORIGINS = "http://localhost:*,http://127.0.0.1:*,http://100.*";
+          OLLAMA_HOST = ollamaHost;
+          OLLAMA_ORIGINS = ollamaOrigins;
           HOME = "/Users/${userConfig.username}";
           PATH = "/opt/homebrew/bin:/run/current-system/sw/bin:/usr/bin:/bin";
         };
@@ -350,6 +353,6 @@ in {
   # Global environment variables for Ollama
   # Ensures any manually started Ollama server (e.g., `ollama serve` from terminal)
   # also binds to all interfaces for Tailscale accessibility
-  environment.variables.OLLAMA_HOST = "0.0.0.0";
-  environment.variables.OLLAMA_ORIGINS = "http://localhost:*,http://127.0.0.1:*,http://100.*";
+  environment.variables.OLLAMA_HOST = ollamaHost;
+  environment.variables.OLLAMA_ORIGINS = ollamaOrigins;
 }

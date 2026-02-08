@@ -25,7 +25,7 @@
   nasConfig = {
     host = "tnas.local";         # NAS hostname (mDNS)
     hostname = "tnas.local";     # mDNS hostname
-    username = "fxmartin";       # SMB username
+    username = userConfig.username;  # SMB username (from user-config.nix)
     shares = [
       "Photos"                   # Photo backup share
       "icloud"                   # iCloud Drive backup share

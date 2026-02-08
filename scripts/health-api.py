@@ -16,10 +16,14 @@ CACHE_WARNING_KB = 1_048_576  # 1 GB
 
 
 def run(cmd: str, timeout: int = 10) -> str:
-    """Run a shell command and return stdout, empty string on failure."""
+    """Run a command and return stdout, empty string on failure.
+
+    Uses shell=False via /bin/sh -c for safety — no shell metacharacter injection.
+    """
     try:
         result = subprocess.run(
-            cmd, shell=True, capture_output=True, text=True, timeout=timeout
+            ["/bin/sh", "-c", cmd],
+            capture_output=True, text=True, timeout=timeout,
         )
         return result.stdout.strip()
     except Exception:

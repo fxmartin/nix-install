@@ -21,13 +21,13 @@ This repository implements an automated, declarative MacBook configuration syste
 ### Two-Tier Installation Profiles
 
 1. **Standard Profile** (MacBook Air targets):
-   - Core apps, single Ollama model (`gpt-oss:20b`)
+   - Core apps, Ollama models (`ministral-3:14b`, `nomic-embed-text`)
    - No virtualization
    - ~35GB disk usage
 
 2. **Power Profile** (MacBook Pro M3 Max target):
    - All Standard apps + Parallels Desktop
-   - 2 Ollama models (`gpt-oss:20b`, `ministral-3:14b`)
+   - 4 Ollama models (`llava:34b`, `ministral-3:14b`, `phi4:14b`, `nomic-embed-text`)
    - ~120GB disk usage
 
 ### Package Management Strategy (Priority Order)

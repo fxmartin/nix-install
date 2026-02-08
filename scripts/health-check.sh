@@ -275,6 +275,56 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Check 11: Qwen3-TTS server (Power profile only)
+# ---------------------------------------------------------------------------
+if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.qwen3tts.server"; then
+    echo "Checking Qwen3-TTS server..."
+    print_status "ok" "qwen3-tts LaunchAgent loaded"
+
+    # Check if the server responds on localhost:8765
+    TTS_HEALTH=$(curl -s --connect-timeout 5 --max-time 10 http://localhost:8765/health 2>/dev/null || true)
+    if [[ -n "${TTS_HEALTH}" ]]; then
+        # Parse model statuses using python (available via nix)
+        TTS_STATUS=$(echo "${TTS_HEALTH}" | python3 -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    models = d.get('models', {})
+    ok = sum(1 for m in models.values() if m.get('status') == 'ok')
+    total = len(models)
+    failed = [n for n, m in models.items() if m.get('status') != 'ok']
+    if ok == total:
+        print(f'ok:{ok}')
+    else:
+        print(f'degraded:{ok}/{total}:' + ','.join(failed))
+except:
+    print('parse_error')
+" 2>/dev/null || echo "parse_error")
+
+        case "${TTS_STATUS}" in
+            ok:*)
+                MODEL_COUNT="${TTS_STATUS#ok:}"
+                print_status "ok" "Qwen3-TTS server healthy (${MODEL_COUNT} models loaded)"
+                ;;
+            degraded:*)
+                INFO="${TTS_STATUS#degraded:}"
+                COUNTS="${INFO%%:*}"
+                FAILED="${INFO#*:}"
+                print_status "warn" "Qwen3-TTS server degraded (${COUNTS} models ok, failed: ${FAILED})"
+                echo "    → Run: launchctl stop com.qwen3tts.server && launchctl start com.qwen3tts.server"
+                ;;
+            *)
+                print_status "warn" "Qwen3-TTS server responded but health parse failed"
+                ;;
+        esac
+    else
+        print_status "error" "Qwen3-TTS server not responding on localhost:8765"
+        echo "    → Run: launchctl start com.qwen3tts.server"
+        echo "    → Logs: /tmp/qwen3-tts-serve.err"
+    fi
+fi
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 echo ""

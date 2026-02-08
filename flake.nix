@@ -178,7 +178,7 @@
           # Standard profile specific settings (to be expanded in Epic-02)
           # - No Parallels Desktop (isPowerProfile = false)
           # - Minimal app set
-          # - Ollama models: gpt-oss:20b + nomic-embed-text
+          # - Ollama models: ministral-3:14b + nomic-embed-text
 
           # Story 02.1-003: Automatically pull Ollama models for Standard profile
           # Use postActivation - one of the hardcoded script names that nix-darwin actually runs
@@ -204,9 +204,9 @@
                 done
               fi
 
-              # Define models to pull (2 models, ~12.3GB total)
+              # Define models to pull (2 models, ~9.3GB total)
               MODELS=(
-                "gpt-oss:20b"          # ~12GB - General purpose LLM
+                "ministral-3:14b"      # ~9GB - Mistral multilingual reasoning model
                 "nomic-embed-text"     # ~274MB - Text embeddings model
               )
 
@@ -266,7 +266,7 @@
           # Power profile specific settings (to be expanded in Epic-02)
           # - Parallels Desktop enabled (isPowerProfile = true)
           # - Full app set
-          # - Ollama models (llava:34b, gpt-oss:20b, phi4:14b)
+          # - Ollama models (llava:34b, ministral-3:14b, phi4:14b, nomic-embed-text)
 
           # Story 02.1-004: Automatically pull 2 Ollama models for Power profile
           # Use postActivation - one of the hardcoded script names that nix-darwin actually runs
@@ -292,10 +292,10 @@
                 done
               fi
 
-              # Define models to pull (4 models, ~41.3GB total)
+              # Define models to pull (4 models, ~38.3GB total)
               MODELS=(
                 "llava:34b"            # ~20GB - Multimodal vision-language model
-                "gpt-oss:20b"          # ~12GB - General purpose LLM
+                "ministral-3:14b"      # ~9GB - Mistral multilingual reasoning model
                 "phi4:14b"             # ~9GB - Microsoft Phi-4 reasoning model
                 "nomic-embed-text"     # ~274MB - Text embeddings model
               )

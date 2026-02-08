@@ -325,6 +325,62 @@ except:
 fi
 
 # ---------------------------------------------------------------------------
+# Check 12: Ollama models
+# ---------------------------------------------------------------------------
+if command -v ollama &> /dev/null; then
+    echo "Checking Ollama models..."
+
+    # Check if Ollama daemon is running
+    if ! pgrep -q ollama; then
+        print_status "warn" "Ollama daemon not running"
+        echo "    → Run: ollama serve"
+    else
+        print_status "ok" "Ollama daemon running"
+
+        # Get installed models
+        OLLAMA_LIST=$(ollama list 2>/dev/null || true)
+
+        # Determine expected models based on profile
+        # Power profile has the qwen3tts LaunchAgent; Standard does not
+        if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.qwen3tts.server"; then
+            EXPECTED_MODELS=("llava:34b" "ministral-3:14b" "phi4:14b" "nomic-embed-text")
+            PROFILE="Power"
+        else
+            EXPECTED_MODELS=("ministral-3:14b" "nomic-embed-text")
+            PROFILE="Standard"
+        fi
+
+        MISSING=0
+        for model in "${EXPECTED_MODELS[@]}"; do
+            # Match on model name prefix (ollama list shows full tags like "llava:34b")
+            MODEL_BASE="${model%%:*}"
+            if echo "${OLLAMA_LIST}" | /usr/bin/grep -q "${MODEL_BASE}"; then
+                print_status "ok" "Ollama model: ${model}"
+            else
+                print_status "error" "Ollama model missing: ${model}"
+                echo "    → Run: ollama pull ${model}"
+                MISSING=$((MISSING + 1))
+            fi
+        done
+
+        if [[ ${MISSING} -eq 0 ]]; then
+            print_status "ok" "All ${#EXPECTED_MODELS[@]} expected models installed (${PROFILE} profile)"
+        else
+            print_status "warn" "${MISSING} model(s) missing for ${PROFILE} profile"
+        fi
+
+        # Show total disk usage
+        OLLAMA_DIR="${HOME}/.ollama/models"
+        if [[ -d "${OLLAMA_DIR}" ]]; then
+            OLLAMA_SIZE=$(du -sh "${OLLAMA_DIR}" 2>/dev/null | cut -f1)
+            print_status "info" "Ollama models disk usage: ${OLLAMA_SIZE}"
+        fi
+    fi
+else
+    print_status "info" "Ollama not installed (model check skipped)"
+fi
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 echo ""

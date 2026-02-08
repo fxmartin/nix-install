@@ -160,6 +160,7 @@ Rollback is instant — no re-downloading, just switches symlinks.
 - Claude Desktop, Claude Code CLI, ChatGPT, Perplexity
 - Ollama with models (1 for Standard, 4 for Power)
 - LM Studio (local LLM GUI)
+- [Qwen3-TTS](./docs/apps/ai/qwen3-tts.md) local text-to-speech server on port 8765 (Power only)
 
 **Development**:
 - Zed Editor (GPU-accelerated, Catppuccin themed)
@@ -188,7 +189,7 @@ Rollback is instant — no re-downloading, just switches symlinks.
 
 **System**: iStat Menus, OnyX, f.lux, btop, gotop, macmon
 
-**Power Profile Only**: Parallels Desktop, additional Ollama models
+**Power Profile Only**: Parallels Desktop, additional Ollama models, Qwen3-TTS server
 
 ### System Configuration
 

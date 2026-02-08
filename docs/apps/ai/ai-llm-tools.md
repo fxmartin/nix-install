@@ -1,5 +1,5 @@
 # ABOUTME: AI and LLM desktop applications configuration guide
-# ABOUTME: Covers Claude Desktop, ChatGPT Desktop, Perplexity, and Ollama Desktop
+# ABOUTME: Covers Claude Desktop, ChatGPT Desktop, Perplexity, Ollama Desktop, and Qwen3-TTS
 
 # AI & LLM Tools
 
@@ -194,6 +194,18 @@ ollama run llama2 "Hello, world!"
 - No account/sign-in required
 - Runs models locally on your Mac
 - Storage: Stories 02.1-003 and 02.1-004 will pull specific models automatically
+
+---
+
+## Qwen3-TTS Server (Power Profile Only)
+
+**Status**: Managed via nix-darwin LaunchAgent — **Power profile only**
+
+A local text-to-speech FastAPI server running on port 8765, started automatically at login. Accessible via localhost and Tailscale.
+
+For full documentation (prerequisites, setup, troubleshooting), see the dedicated guide:
+
+- **[Qwen3-TTS Server Guide](qwen3-tts.md)**
 
 ---
 

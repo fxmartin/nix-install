@@ -22,12 +22,14 @@ This directory contains step-by-step configuration guides for applications insta
 Desktop applications for AI-powered assistance and local language models.
 
 - [AI & LLM Tools Overview](ai/ai-llm-tools.md) - Claude Desktop, ChatGPT Desktop, Perplexity, Ollama Desktop
+- [Qwen3-TTS Server](ai/qwen3-tts.md) - Local TTS server on port 8765 (Power profile only)
 
 **Individual Apps Covered**:
 - Claude Desktop (Homebrew cask)
 - ChatGPT Desktop (Homebrew cask)
 - Perplexity (Mac App Store)
 - Ollama Desktop (Homebrew cask)
+- Qwen3-TTS Server (LaunchAgent, Power profile only)
 
 ---
 
@@ -125,7 +127,8 @@ docs/apps/
 ├── README.md                           # This file - Master index
 ├── mac-app-store-requirements.md       # Prerequisites for mas installations
 ├── ai/
-│   └── ai-llm-tools.md                 # 4 AI tools (Claude, ChatGPT, Perplexity, Ollama)
+│   ├── ai-llm-tools.md                 # 4 AI tools (Claude, ChatGPT, Perplexity, Ollama)
+│   └── qwen3-tts.md                    # Qwen3-TTS server (Power profile only)
 ├── dev/
 │   ├── zed-editor.md                   # Zed configuration
 │   ├── vscode.md                       # VSCode configuration

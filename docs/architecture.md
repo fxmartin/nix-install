@@ -36,13 +36,13 @@ flake.nix
               ▼             ▼                  ▼
      commonModules    standard-only      power-only
               │                          │
-    ┌─────────┼──────────┐     ┌────────┼────────┐
-    │         │          │     │        │        │
-    ▼         ▼          ▼     ▼        ▼        ▼
- darwin/   darwin/    darwin/ darwin/  darwin/  darwin/
- config    homebrew   macos   smb-    rsync-   tts-
- .nix      .nix       def.   auto    backup   serve
-                      nix    mount    .nix     .nix
+    ┌─────────┼──────────┐     ┌────────┼────────┼────────┐
+    │         │          │     │        │        │        │
+    ▼         ▼          ▼     ▼        ▼        ▼        ▼
+ darwin/   darwin/    darwin/ darwin/  darwin/  darwin/  darwin/
+ config    homebrew   macos   smb-    rsync-   tts-     stt-
+ .nix      .nix       def.   auto    backup   serve    serve
+                      nix    mount    .nix     .nix     .nix
     │         │
     │         ├── darwin/maintenance.nix ──── mkScheduledAgent
     │         │   ├── nix-gc           (6 LaunchAgents)
@@ -138,6 +138,7 @@ bootstrap-dist.sh (standalone, built from lib/*.sh)
                     ├── Podman machine/images
                     ├── Ollama models (profile-aware)
                     ├── TTS server (Power only)
+                    ├── STT server (Power only)
                     ├── LaunchAgents
                     └── Dev caches (uv, npm, Homebrew)
 ```
@@ -153,3 +154,4 @@ bootstrap-dist.sh (standalone, built from lib/*.sh)
 | NAS mounts | No | SMB automount |
 | Backups | No | rsync to NAS, iCloud sync |
 | TTS server | No | Qwen3-TTS on port 8765 |
+| STT server | No | Whisper STT on port 8766 |

@@ -168,6 +168,22 @@ def check_tts_server(launchctl_output: str) -> dict:
         return {"status": "error", "detail": "TTS server unreachable"}
 
 
+def check_stt_server(launchctl_output: str) -> dict:
+    if "com.whisper-stt.server" not in launchctl_output:
+        return {"status": "skipped", "detail": "Not a Power profile"}
+    try:
+        result = subprocess.run(
+            ["curl", "-s", "--connect-timeout", "3", "--max-time", "5",
+             "http://localhost:8766/health"],
+            capture_output=True, text=True, timeout=10
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return {"status": "ok", "detail": "STT server responding"}
+        return {"status": "error", "detail": "STT server not responding"}
+    except Exception:
+        return {"status": "error", "detail": "STT server unreachable"}
+
+
 def check_podman() -> dict:
     if not run("command -v podman"):
         return {"status": "skipped", "detail": "Podman not installed"}
@@ -246,6 +262,7 @@ def build_health_response() -> dict:
         "podman": check_podman(),
         "ollama": check_ollama(profile),
         "tts_server": check_tts_server(launchctl_output),
+        "stt_server": check_stt_server(launchctl_output),
         "launch_agents": check_launch_agents(launchctl_output),
     }
 

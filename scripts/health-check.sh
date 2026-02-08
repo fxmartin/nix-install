@@ -393,7 +393,57 @@ except:
 fi
 
 # ---------------------------------------------------------------------------
-# Check 13: Ollama models
+# Check 13: Whisper STT server (Power profile only)
+# ---------------------------------------------------------------------------
+if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.whisper-stt.server"; then
+    echo "Checking Whisper STT server..."
+    print_status "ok" "whisper-stt LaunchAgent loaded"
+
+    # Check if the server responds on localhost:8766
+    STT_HEALTH=$(curl -s --connect-timeout 5 --max-time 10 http://localhost:8766/health 2>/dev/null || true)
+    if [[ -n "${STT_HEALTH}" ]]; then
+        # Parse model status using python (available via nix)
+        STT_STATUS=$(echo "${STT_HEALTH}" | python3 -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    models = d.get('models', {})
+    ok = sum(1 for m in models.values() if m.get('status') == 'ok')
+    total = len(models)
+    failed = [n for n, m in models.items() if m.get('status') != 'ok']
+    if ok == total:
+        print(f'ok:{ok}')
+    else:
+        print(f'degraded:{ok}/{total}:' + ','.join(failed))
+except:
+    print('parse_error')
+" 2>/dev/null || echo "parse_error")
+
+        case "${STT_STATUS}" in
+            ok:*)
+                MODEL_COUNT="${STT_STATUS#ok:}"
+                print_status "ok" "Whisper STT server healthy (${MODEL_COUNT} models loaded)"
+                ;;
+            degraded:*)
+                INFO="${STT_STATUS#degraded:}"
+                COUNTS="${INFO%%:*}"
+                FAILED="${INFO#*:}"
+                print_status "warn" "Whisper STT server degraded (${COUNTS} models ok, failed: ${FAILED})"
+                echo "    → Run: launchctl stop com.whisper-stt.server && launchctl start com.whisper-stt.server"
+                ;;
+            *)
+                print_status "warn" "Whisper STT server responded but health parse failed"
+                ;;
+        esac
+    else
+        print_status "error" "Whisper STT server not responding on localhost:8766"
+        echo "    → Run: launchctl start com.whisper-stt.server"
+        echo "    → Logs: /tmp/whisper-stt-serve.err"
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# Check 14: Ollama models
 # ---------------------------------------------------------------------------
 if command -v ollama &> /dev/null; then
     echo "Checking Ollama models..."

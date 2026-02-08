@@ -302,6 +302,10 @@
         # FastAPI/uvicorn TTS service on port 8765
         ./darwin/tts-serve.nix
 
+        # Whisper STT Server (Power profile only)
+        # FastAPI/uvicorn STT service on port 8766
+        ./darwin/stt-serve.nix
+
         ({lib, ...}: {
           # Power profile specific settings
           # - Parallels Desktop enabled (isPowerProfile = true)

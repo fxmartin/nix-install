@@ -209,6 +209,20 @@ For full documentation (prerequisites, setup, troubleshooting), see the dedicate
 
 ---
 
+## Whisper STT Server (Power Profile Only)
+
+**Status**: Managed via nix-darwin LaunchAgent — **Power profile only**
+
+A local speech-to-text FastAPI server running on port 8766 using **mlx-whisper** (Apple MLX framework, 2-3x faster than whisper.cpp on M3 Max). Started automatically at login. Accessible via localhost and Tailscale.
+
+Exposes an OpenAI-compatible `/v1/audio/transcriptions` endpoint for audio file transcription using the `large-v3-turbo` model.
+
+For full documentation (prerequisites, setup, troubleshooting), see the dedicated guide:
+
+- **[Whisper STT Server Guide](whisper-stt.md)**
+
+---
+
 ## Related Documentation
 
 - [Main Apps Index](../README.md)

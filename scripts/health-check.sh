@@ -79,26 +79,48 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Check 3: Disk space on /nix
+# Check 3: Disk space (using Finder-equivalent metric)
 # ---------------------------------------------------------------------------
 echo "Checking disk space..."
-if [[ -d /nix ]]; then
-    # Get available space in GB
-    DISK_FREE_KB=$(df -k /nix | tail -1 | awk '{print $4}')
-    DISK_FREE_GB=$((DISK_FREE_KB / 1024 / 1024))
-    DISK_FREE_HUMAN=$(df -h /nix | tail -1 | awk '{print $4}')
+# Use NSURL volumeAvailableCapacityForImportantUsage (same as Finder)
+# This includes purgeable space that macOS reclaims automatically
+# Falls back to df if swift fails
+DISK_SWIFT=$(swift -e '
+import Foundation
+let url = URL(fileURLWithPath: "/")
+let v = try url.resourceValues(forKeys: [.volumeTotalCapacityKey, .volumeAvailableCapacityForImportantUsageKey])
+if let t = v.volumeTotalCapacity, let a = v.volumeAvailableCapacityForImportantUsage {
+    print("\(t / 1073741824) \(a / 1073741824)")
+}
+' 2>/dev/null || true)
+
+if [[ -n "${DISK_SWIFT}" ]]; then
+    DISK_TOTAL_GB=$(echo "${DISK_SWIFT}" | awk '{print $1}')
+    DISK_FREE_GB=$(echo "${DISK_SWIFT}" | awk '{print $2}')
 
     if [[ ${DISK_FREE_GB} -lt ${DISK_WARNING_GB} ]]; then
-        print_status "warn" "Disk free on /nix: ${DISK_FREE_HUMAN} (low space!)"
+        print_status "warn" "Disk available: ${DISK_FREE_GB}GB / ${DISK_TOTAL_GB}GB (low space!)"
         echo "    → Run: gc  # to remove old generations"
     else
-        print_status "info" "Disk free on /nix: ${DISK_FREE_HUMAN}"
+        print_status "info" "Disk available: ${DISK_FREE_GB}GB / ${DISK_TOTAL_GB}GB (includes purgeable)"
+    fi
+elif [[ -d /nix ]]; then
+    # Fallback to df (reports raw free, not purgeable-inclusive)
+    DISK_FREE_KB=$(df -k / | tail -1 | awk '{print $4}')
+    DISK_FREE_GB=$((DISK_FREE_KB / 1024 / 1024))
+    DISK_FREE_HUMAN=$(df -h / | tail -1 | awk '{print $4}')
+
+    if [[ ${DISK_FREE_GB} -lt ${DISK_WARNING_GB} ]]; then
+        print_status "warn" "Disk free: ${DISK_FREE_HUMAN} (low space!)"
+        echo "    → Run: gc  # to remove old generations"
+    else
+        print_status "info" "Disk free: ${DISK_FREE_HUMAN}"
     fi
 else
     print_status "error" "/nix directory not found"
 fi
 
-# Home directory space
+# Home directory space (also using Finder metric if available)
 HOME_FREE=$(df -h ~ | tail -1 | awk '{print $4}')
 print_status "info" "Disk free on ~: ${HOME_FREE}"
 

@@ -41,7 +41,32 @@ def check_homebrew() -> dict:
 
 
 def check_disk() -> dict:
-    line = run("df -k /nix | tail -1")
+    # Use NSURL volumeAvailableCapacityForImportantUsage (same metric as Finder)
+    # This includes purgeable space that macOS reclaims automatically
+    swift_src = (
+        'import Foundation\n'
+        'let url = URL(fileURLWithPath: "/")\n'
+        'let v = try url.resourceValues(forKeys: '
+        '[.volumeTotalCapacityKey, .volumeAvailableCapacityForImportantUsageKey])\n'
+        'if let t = v.volumeTotalCapacity, '
+        'let a = v.volumeAvailableCapacityForImportantUsage '
+        '{ print("\\(t) \\(a)") }\n'
+    )
+    try:
+        result = subprocess.run(
+            ["/usr/bin/swift", "-e", swift_src],
+            capture_output=True, text=True, timeout=15
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            parts = result.stdout.strip().split()
+            total_gb = int(parts[0]) // (1024 ** 3)
+            free_gb = int(parts[1]) // (1024 ** 3)
+            status = "warn" if free_gb < DISK_WARNING_GB else "ok"
+            return {"status": status, "free_gb": free_gb, "total_gb": total_gb}
+    except Exception:
+        pass
+    # Fallback to df (reports raw free, not purgeable-inclusive)
+    line = run("df -k / | tail -1")
     if not line:
         return {"status": "error", "free_gb": 0, "total_gb": 0}
     parts = line.split()

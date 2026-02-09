@@ -306,6 +306,10 @@
         # FastAPI/uvicorn STT service on port 8766
         ./darwin/stt-serve.nix
 
+        # Audiobook API Server (Power profile only)
+        # ePub/PDF to audiobook conversion on port 8767
+        ./darwin/audiobook-api.nix
+
         ({lib, ...}: {
           # Power profile specific settings
           # - Parallels Desktop enabled (isPowerProfile = true)

@@ -57,6 +57,7 @@
         editor = "vim";                # Default editor for commit messages
         autocrlf = "input";            # LF line endings (macOS/Linux style)
         whitespace = "trailing-space,space-before-tab";
+        hooksPath = "~/.config/git/hooks";  # Global hooks managed by Home Manager
       };
 
       # Pull behavior
@@ -137,6 +138,33 @@
       "dist/"
       "build/"
     ];
+  };
+
+  # Global pre-commit hook for secret detection via gitleaks
+  # Installed to ~/.config/git/hooks/ and activated by core.hooksPath above
+  home.file.".config/git/hooks/pre-commit" = {
+    executable = true;
+    text = ''
+#!/usr/bin/env bash
+# Pre-commit hook: secret detection via gitleaks
+# Managed by Home Manager — do not edit manually
+
+if ! command -v gitleaks &>/dev/null; then
+  echo "Warning: gitleaks not found, skipping secret scan"
+  exit 0
+fi
+
+gitleaks protect --staged --verbose --redact
+exit_code=$?
+
+if [ $exit_code -ne 0 ]; then
+  echo ""
+  echo "gitleaks: secrets detected in staged changes"
+  echo "To fix: remove the secret and add to .gitleaks.toml if false positive"
+  echo ""
+  exit 1
+fi
+    '';
   };
 
   # Post-installation verification message

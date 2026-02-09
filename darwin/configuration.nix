@@ -133,6 +133,7 @@
     yamllint            # YAML linter (syntax and style)
     markdownlint-cli    # Markdown linter (style consistency)
     actionlint          # GitHub Actions workflow linter
+    gitleaks            # Secret detection in git repos (pre-commit + CI)
   ];
 
   # Application Management & System Configuration

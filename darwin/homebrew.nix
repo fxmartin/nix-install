@@ -48,6 +48,10 @@
       # System Monitoring (Apple Silicon)
       # Note: Not available in nixpkgs, Homebrew formula only
       "mactop"          # Real-time Apple Silicon CPU/GPU/ANE monitor (TUI)
+
+      # Media Tools
+      # Note: yt-dlp broken in nixpkgs (curl-impersonate AppleIDN check fails on macOS 15.3)
+      "yt-dlp"          # YouTube/video downloader (active fork of youtube-dl)
     ];
 
     # GUI Applications (Casks)

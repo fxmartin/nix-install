@@ -440,7 +440,53 @@ except:
 fi
 
 # ---------------------------------------------------------------------------
-# Check 14: Ollama models
+# Check 14: Audiobook API server (Power profile only)
+# ---------------------------------------------------------------------------
+if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.audiobook-api.server"; then
+    echo "Checking Audiobook API server..."
+    print_status "ok" "audiobook-api LaunchAgent loaded"
+
+    # Check if the server responds on localhost:8767
+    AUDIOBOOK_HEALTH=$(curl -s --connect-timeout 5 --max-time 10 http://localhost:8767/health 2>/dev/null || true)
+    if [[ -n "${AUDIOBOOK_HEALTH}" ]]; then
+        AUDIOBOOK_STATUS=$(echo "${AUDIOBOOK_HEALTH}" | python3 -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    status = d.get('status', 'unknown')
+    tts = d.get('tts_server', {}).get('status', 'unknown')
+    if status == 'ok' and tts == 'ok':
+        print('ok')
+    elif tts != 'ok':
+        print(f'degraded:tts_{tts}')
+    else:
+        print(f'degraded:{status}')
+except:
+    print('parse_error')
+" 2>/dev/null || echo "parse_error")
+
+        case "${AUDIOBOOK_STATUS}" in
+            ok)
+                print_status "ok" "Audiobook API server healthy (TTS connected)"
+                ;;
+            degraded:*)
+                DETAIL="${AUDIOBOOK_STATUS#degraded:}"
+                print_status "warn" "Audiobook API server degraded (${DETAIL})"
+                echo "    → Run: launchctl stop com.audiobook-api.server && launchctl start com.audiobook-api.server"
+                ;;
+            *)
+                print_status "warn" "Audiobook API server responded but health parse failed"
+                ;;
+        esac
+    else
+        print_status "error" "Audiobook API server not responding on localhost:8767"
+        echo "    → Run: launchctl start com.audiobook-api.server"
+        echo "    → Logs: /tmp/audiobook-api-serve.err"
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# Check 15: Ollama models
 # ---------------------------------------------------------------------------
 if command -v ollama &> /dev/null; then
     echo "Checking Ollama models..."

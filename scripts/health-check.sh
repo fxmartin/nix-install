@@ -184,7 +184,7 @@ fi
 # ---------------------------------------------------------------------------
 echo "Checking Nix store..."
 if [[ -d /nix/store ]]; then
-    STORE_SIZE=$(timeout 30 du -sh /nix/store 2>/dev/null | cut -f1)
+    STORE_SIZE=$(du -sh /nix/store 2>/dev/null | cut -f1 || true)
     if [[ -n "${STORE_SIZE}" ]]; then
         print_status "info" "Nix store size: ${STORE_SIZE}"
     else
@@ -201,17 +201,18 @@ echo "Checking development caches..."
 get_cache_kb() {
     local path="${1}"
     if [[ -d "${path}" ]]; then
-        timeout 15 du -sk "${path}" 2>/dev/null | cut -f1 || echo "0"
+        du -sk "${path}" 2>/dev/null | cut -f1 || echo "0"
     else
         echo "0"
     fi
+    return 0
 }
 
 # Cache size threshold (uses shared CACHE_WARNING_KB from config section above)
 
 # Check each cache
 UV_CACHE_KB=$(get_cache_kb ~/.cache/uv)
-UV_CACHE_SIZE=$(timeout 15 du -sh ~/.cache/uv 2>/dev/null | cut -f1 || echo "0B")
+UV_CACHE_SIZE=$(du -sh ~/.cache/uv 2>/dev/null | cut -f1 || echo "0B")
 if [[ ${UV_CACHE_KB} -gt ${CACHE_WARNING_KB} ]]; then
     print_status "warn" "uv cache: ${UV_CACHE_SIZE} (large!)"
 else
@@ -219,7 +220,7 @@ else
 fi
 
 BREW_CACHE_KB=$(get_cache_kb ~/Library/Caches/Homebrew)
-BREW_CACHE_SIZE=$(timeout 15 du -sh ~/Library/Caches/Homebrew 2>/dev/null | cut -f1 || echo "0B")
+BREW_CACHE_SIZE=$(du -sh ~/Library/Caches/Homebrew 2>/dev/null | cut -f1 || echo "0B")
 if [[ ${BREW_CACHE_KB} -gt ${CACHE_WARNING_KB} ]]; then
     print_status "warn" "Homebrew cache: ${BREW_CACHE_SIZE} (large!)"
 else
@@ -227,7 +228,7 @@ else
 fi
 
 NPM_CACHE_KB=$(get_cache_kb ~/.npm)
-NPM_CACHE_SIZE=$(timeout 15 du -sh ~/.npm 2>/dev/null | cut -f1 || echo "0B")
+NPM_CACHE_SIZE=$(du -sh ~/.npm 2>/dev/null | cut -f1 || echo "0B")
 if [[ ${NPM_CACHE_KB} -gt ${CACHE_WARNING_KB} ]]; then
     print_status "warn" "npm cache: ${NPM_CACHE_SIZE} (large!)"
 else
@@ -533,7 +534,7 @@ if command -v ollama &> /dev/null; then
         # Show total disk usage
         OLLAMA_DIR="${HOME}/.ollama/models"
         if [[ -d "${OLLAMA_DIR}" ]]; then
-            OLLAMA_SIZE=$(timeout 30 du -sh "${OLLAMA_DIR}" 2>/dev/null | cut -f1)
+            OLLAMA_SIZE=$(du -sh "${OLLAMA_DIR}" 2>/dev/null | cut -f1 || true)
             if [[ -n "${OLLAMA_SIZE}" ]]; then
                 print_status "info" "Ollama models disk usage: ${OLLAMA_SIZE}"
             else

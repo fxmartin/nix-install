@@ -39,7 +39,7 @@
       # Environment
       EnvironmentVariables = {
         HOME = "/Users/${userConfig.username}";
-        PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin";
+        PATH = "/run/current-system/sw/bin:/etc/profiles/per-user/${userConfig.username}/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin";
       };
     };
   };

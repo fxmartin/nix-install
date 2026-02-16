@@ -223,7 +223,7 @@ def check_podman() -> dict:
 def check_launch_agents(launchctl_output: str, profile: str) -> dict:
     # Common agents (all profiles)
     expected = ["nix-gc", "nix-optimize", "weekly-digest", "disk-cleanup",
-                "ollama-serve", "health-api", "release-monitor"]
+                "ollama-serve", "health-api", "release-monitor", "beszel-agent"]
     # Power-only agents
     if profile == "power":
         expected += ["rsync-backup-daily", "rsync-backup-weekly-sunday",

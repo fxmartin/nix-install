@@ -280,7 +280,7 @@ echo "Checking LaunchAgents..."
 LAUNCHCTL_OUTPUT=$(launchctl list 2>/dev/null || true)
 
 # Common LaunchAgents (all profiles)
-COMMON_AGENTS=("nix-gc" "nix-optimize" "weekly-digest" "disk-cleanup" "ollama-serve" "health-api" "release-monitor")
+COMMON_AGENTS=("nix-gc" "nix-optimize" "weekly-digest" "disk-cleanup" "ollama-serve" "health-api" "release-monitor" "beszel-agent")
 
 for agent in "${COMMON_AGENTS[@]}"; do
     if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.${agent}"; then

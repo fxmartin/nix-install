@@ -103,6 +103,8 @@ nix-install/
 │   ├── homebrew.nix          # Casks, brews, Mac App Store
 │   ├── macos-defaults.nix    # Finder, Dock, trackpad, security
 │   ├── maintenance.nix       # GC, optimization, LaunchAgents
+│   ├── monitoring.nix        # Beszel agent LaunchAgent (port 45876)
+│   ├── health-api.nix        # Health API HTTP server (port 7780)
 │   └── stylix.nix            # Catppuccin theming
 ├── home-manager/modules/     # User-level dotfiles
 │   ├── shell.nix             # Zsh + Oh My Zsh + Starship + FZF

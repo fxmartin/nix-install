@@ -134,6 +134,7 @@
 
       # Messaging (Story 02.5-001)
       # Auto-update disable: Settings → Advanced → Uncheck "Automatic updates"
+      "slack"    # Slack - Team communication and collaboration platform
       "telegram" # Telegram - Cross-platform messaging with cloud sync
 
       # Security & VPN (Story 02.7-001)

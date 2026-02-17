@@ -244,6 +244,10 @@
       # Calibre ebook configuration (DeDRM, KFX plugins)
       # Deploys pre-configured plugins from config/calibre/
       ./darwin/calibre.nix
+
+      # Open WebUI (Podman container on port 3000)
+      # Web chat interface for Ollama models, accessible via Tailscale
+      ./darwin/open-webui.nix
     ];
 
     # Helper function to create darwin configuration

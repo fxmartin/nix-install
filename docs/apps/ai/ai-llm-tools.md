@@ -1,5 +1,5 @@
 # ABOUTME: AI and LLM desktop applications configuration guide
-# ABOUTME: Covers Claude Desktop, ChatGPT Desktop, Perplexity, Ollama Desktop, and Qwen3-TTS
+# ABOUTME: Covers Claude Desktop, ChatGPT Desktop, Perplexity, Ollama (CLI), Open WebUI, and Qwen3-TTS
 
 # AI & LLM Tools
 
@@ -114,86 +114,96 @@
 
 ---
 
-## Ollama Desktop
+## Ollama (CLI + LaunchAgent)
 
-**Status**: Installed via Homebrew cask `ollama-app` (Story 02.1-002)
+**Status**: Installed via Homebrew formula `ollama` (in Nix system PATH) — **CLI only, no GUI app**
 
-**⚠️ CRITICAL - FRESH MACHINE REQUIREMENT** (Issue #25):
+The Ollama GUI app (`ollama-app` cask) has been removed to eliminate the port conflict where two Ollama servers competed for port 11434. The nix-darwin LaunchAgent `ollama-serve` (defined in `darwin/maintenance.nix`) now runs Ollama bound to `0.0.0.0:11434` for Tailscale access.
 
-On **brand new Macs**, Ollama requires **manual first launch** before the daemon and CLI will work properly.
-
-**Symptoms of Fresh Machine**:
-- Activation scripts fail to pull Ollama models during darwin-rebuild
-- `ollama list` prompts for Gatekeeper validation
-- `ollama pull` commands fail silently or return errors
-- Ollama daemon cannot start programmatically
-
-**Solution - Manual First Launch**:
-1. Launch **Ollama Desktop** from Applications folder (or Spotlight)
-2. Approve macOS Gatekeeper dialog when prompted
-3. Wait for menubar icon to appear (llama icon)
-4. Verify daemon is running: `ollama list` (should return empty list or models)
-5. **Then** re-run `darwin-rebuild switch` to pull models automatically
-
-**Why This Happens**:
-- Fresh macOS requires first launch of GUI apps to approve Gatekeeper
-- Activation scripts cannot interact with GUI security prompts
-- Once manually launched, daemon can start automatically in future
-- This is a macOS security limitation, not a nix-darwin bug
-
-**Models Requiring This Workaround**:
-- Standard Profile: `gpt-oss:20b` (Story 02.1-003)
-- Power Profile: `gpt-oss:20b`, `qwen2.5-coder:32b`, `llama3.1:70b`, `deepseek-r1:32b` (Story 02.1-004)
-
-**Future Enhancement**: Consider using home-manager `services.ollama` with launchd (merged Jan 2025) for declarative daemon management. See Issue #25 for details.
-
-**First Launch**:
-1. Launch Ollama Desktop from Spotlight or Raycast
-2. Menubar icon appears (llama icon in top-right)
-3. Click menubar icon to access model management
-4. No sign-in required (runs locally)
+**Daemon Management**:
+- Managed by nix-darwin LaunchAgent `ollama-serve` (starts at login)
+- Bound to `0.0.0.0:11434` (accessible via Tailscale)
+- OLLAMA_ORIGINS restricts API access to localhost and Tailscale IPs (100.x.x.x)
+- The LaunchAgent kills any existing Ollama process before starting to avoid conflicts
 
 **CLI Verification**:
 ```bash
 # Verify Ollama CLI is available
 ollama --version
 
-# Test with small model (optional)
-ollama run llama2 "Hello, world!"
+# List installed models
+ollama list
+
+# Test API access
+curl http://localhost:11434/api/version
 ```
 
-**Auto-Update Configuration**:
-- **Current Status**: ⚠️ **Requires Manual Check**
-- **Steps to Disable** (if available):
-  1. Click Ollama menubar icon
-  2. Look for **Preferences** or **Settings**
-  3. Check for **Updates** or **General** section
-  4. Disable automatic update checking if option exists
-  5. Document actual steps after first VM test
-
-**Daemon Management**:
-- Ollama daemon runs automatically when desktop app launches
-- Check daemon status: `ollama list` (lists installed models)
-- Daemon starts on login automatically
-
 **Model Storage**:
-- Models stored in: `~/Library/Application Support/Ollama`
+- Models stored in: `~/.ollama/models`
 - Can be large (12GB-70GB per model)
-- Storage location managed by Ollama automatically
+- Models are pulled automatically during `darwin-rebuild` via activation scripts
+
+**Web Interface**: Use **Open WebUI** (see below) for a browser-based chat interface.
+
+---
+
+## Open WebUI (Podman Container)
+
+**Status**: Managed via nix-darwin LaunchAgent — **Both profiles**
+
+A web-based chat interface for Ollama models, running as a Podman container. Started automatically at login. Accessible at `http://localhost:3000` and via Tailscale.
+
+**Configuration** (`darwin/open-webui.nix`):
+- **Container image**: `ghcr.io/open-webui/open-webui:main`
+- **Port**: `3000` (host) → `8080` (container)
+- **Ollama connection**: `http://host.containers.internal:11434`
+- **Data persistence**: `open-webui` named Podman volume
+- **Auth**: Disabled (`WEBUI_AUTH=false`) — single-user setup
+
+**First Launch**:
+1. Ensure Podman machine is running: `podman machine start`
+2. Wait for the LaunchAgent to pull the image and start the container
+3. Browse to `http://localhost:3000`
+4. No sign-in required (auth disabled)
+
+**Remote Access via Tailscale**:
+- `http://<tailscale-ip>:3000` — Open WebUI chat interface
+- `http://<tailscale-ip>:11434` — Ollama API (direct)
+
+**Logs**:
+```bash
+# View container logs
+tail -f /tmp/open-webui.log
+tail -f /tmp/open-webui.err
+
+# Check container status
+podman ps -a --filter name=open-webui
+```
+
+**Manual Container Management**:
+```bash
+# Stop Open WebUI
+podman stop open-webui
+
+# Start Open WebUI manually
+podman start open-webui
+
+# Restart with latest image
+podman stop open-webui && podman rm open-webui
+podman pull ghcr.io/open-webui/open-webui:main
+podman run --name open-webui --rm -p 3000:8080 \
+  -v open-webui:/app/backend/data \
+  -e OLLAMA_BASE_URL=http://host.containers.internal:11434 \
+  -e WEBUI_AUTH=false \
+  ghcr.io/open-webui/open-webui:main
+```
 
 **Testing**:
-- [ ] Launch Ollama Desktop successfully
-- [ ] Menubar icon appears
-- [ ] `ollama --version` works in terminal
-- [ ] Can pull a test model: `ollama pull llama2`
-- [ ] Can run model: `ollama run llama2 "test"`
-- [ ] GUI shows model list
-- [ ] Check for auto-update setting in preferences
-
-**Notes**:
-- No account/sign-in required
-- Runs models locally on your Mac
-- Storage: Stories 02.1-003 and 02.1-004 will pull specific models automatically
+- [ ] Container starts automatically after login
+- [ ] `http://localhost:3000` loads the chat interface
+- [ ] Can select and chat with Ollama models
+- [ ] Accessible via Tailscale: `http://<tailscale-ip>:3000`
+- [ ] Data persists across container restarts (named volume)
 
 ---
 

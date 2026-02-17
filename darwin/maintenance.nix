@@ -180,9 +180,8 @@ in {
     # Security: OLLAMA_ORIGINS restricts API access to Tailscale IPs only (100.x.x.x)
     #
     # NOTE: Uses a bash wrapper to kill any existing Ollama process first.
-    # The Ollama GUI app (Homebrew cask) can start its own server bound to
-    # 127.0.0.1 at boot, which blocks this service from binding to 0.0.0.0.
-    # The pkill ensures this service always wins the race.
+    # Safety measure in case another Ollama instance is running (e.g., manually started).
+    # The pkill ensures this LaunchAgent always owns the 0.0.0.0 binding.
     ollama-serve = mkScheduledAgent {
       name = "ollama-serve";
       # Schedule unused for KeepAlive services but required by mkScheduledAgent
@@ -195,7 +194,7 @@ in {
         PATH = "/opt/homebrew/bin:/run/current-system/sw/bin:/usr/bin:/bin";
       };
       command = ''
-        # Kill any existing Ollama server (e.g., GUI app) that may be bound to localhost only
+        # Kill any existing Ollama server that may be bound to localhost only
         /usr/bin/pkill -f "ollama serve" 2>/dev/null || true
         /usr/bin/pkill -x ollama 2>/dev/null || true
         sleep 2

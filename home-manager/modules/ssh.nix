@@ -67,18 +67,11 @@
         identityFile = "~/.ssh/id_nas_luxembourg";
       };
 
-      # Dev Server via Tailscale
-      "dev.ts" = {
-        hostname = "100.92.56.127";  # Tailscale IP
-        user = "fxmartin";
-        identityFile = "~/.ssh/id_ed25519";
-      };
-
-      # Dev Server via Public IP (Hetzner)
-      "dev" = {
-        hostname = "46.224.44.190";  # Hetzner public IP
-        user = "fxmartin";
-        identityFile = "~/.ssh/id_ed25519";
+      # Dev Server via Public IP (Hetzner Helsinki)
+      "dev dev-server" = {
+        hostname = "46.62.232.199";  # Hetzner public IP (hel1)
+        user = "fx";
+        identityFile = "~/.ssh/id_devserver";
       };
 
       # Nyx server via Tailscale

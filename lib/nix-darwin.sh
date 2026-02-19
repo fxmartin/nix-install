@@ -15,13 +15,11 @@ readonly _NIX_DARWIN_SH_LOADED=1
 # Arguments: None (uses $WORK_DIR environment variable)
 # Returns: 0 on success, 1 on failure (CRITICAL - exits on failure)
 fetch_flake_from_github() {
-    local github_repo="https://raw.githubusercontent.com/fxmartin/nix-install"
-    local github_branch="main"
-    local base_url="${github_repo}/${github_branch}"
+    local base_url="${GITHUB_RAW_URL}/${GITHUB_BRANCH}"
 
     log_info "Fetching flake configuration from GitHub..."
-    log_info "Repository: ${github_repo}"
-    log_info "Branch: ${github_branch}"
+    log_info "Repository: ${GITHUB_OWNER}/${GITHUB_REPO_NAME}"
+    log_info "Branch: ${GITHUB_BRANCH}"
     echo ""
 
     # Create directory structure

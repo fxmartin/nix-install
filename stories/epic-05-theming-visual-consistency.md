@@ -21,27 +21,27 @@
 ## Features in This Epic
 
 
-> **Note**: Detailed story implementations have been moved to feature-specific files in `docs/development/stories/` for better maintainability. See links below.
+> **Note**: Detailed story implementations have been moved to feature-specific files in `stories/features/` for better maintainability. See links below.
 
 ### Feature 05.1: Stylix System Configuration
 **Feature Description**: Configure Stylix for system-wide theming with Catppuccin
 **Story Count**: 3 | **Story Points**: 13 | **Priority**: High | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-05-feature-05.1.md)**
+👉 **[View detailed implementation](features/epic-05-feature-05.1.md)**
 
 ### Feature 05.2: Font Configuration
 **Feature Description**: Configure JetBrains Mono Nerd Font system-wide
 **Story Count**: 2 | **Story Points**: 8 | **Priority**: High | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-05-feature-05.2.md)**
+👉 **[View detailed implementation](features/epic-05-feature-05.2.md)**
 
 ### Feature 05.3: Application-Specific Theming
 **Feature Description**: Configure app-specific theming for Ghostty and Zed
 **Story Count**: 3 | **Story Points**: 11 | **Priority**: High | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-05-feature-05.3.md)**
+👉 **[View detailed implementation](features/epic-05-feature-05.3.md)**
 
 ### Feature 05.4: Theme Verification and Testing
 **Feature Description**: Verify theme consistency across all applications
 **Story Count**: 1 | **Story Points**: 3 | **Priority**: Medium | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-05-feature-05.4.md)**
+👉 **[View detailed implementation](features/epic-05-feature-05.4.md)**
 
 ## Epic Dependencies
 

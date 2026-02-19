@@ -23,11 +23,25 @@ readonly BOOTSTRAP_VERSION="1.0.0"
 readonly MIN_MACOS_VERSION=14
 
 # Work directory for bootstrap operations
-readonly WORK_DIR="/tmp/nix-bootstrap"
+# Use mktemp for unique temp dirs to avoid race conditions between concurrent runs
+# Falls back to /tmp/nix-bootstrap if mktemp fails
+if [[ -z "${_NIX_BOOTSTRAP_WORK_DIR:-}" ]]; then
+    _NIX_BOOTSTRAP_WORK_DIR=$(mktemp -d "/tmp/nix-bootstrap.XXXXXX" 2>/dev/null || echo "/tmp/nix-bootstrap")
+    mkdir -p "${_NIX_BOOTSTRAP_WORK_DIR}"
+fi
+readonly WORK_DIR="${_NIX_BOOTSTRAP_WORK_DIR}"
 readonly USER_CONFIG_FILE="${WORK_DIR}/user-config.nix"
 
-# Bootstrap temp directory (used by multiple phases)
-readonly BOOTSTRAP_TEMP_DIR="/tmp/nix-bootstrap"
+# Bootstrap temp directory (alias for WORK_DIR — used by multiple phases)
+readonly BOOTSTRAP_TEMP_DIR="${WORK_DIR}"
+
+# Repository URLs — centralized for fork portability
+# Override via environment variables before running bootstrap
+readonly GITHUB_OWNER="${NIX_INSTALL_OWNER:-fxmartin}"
+readonly GITHUB_REPO_NAME="${NIX_INSTALL_REPO:-nix-install}"
+readonly GITHUB_BRANCH="${NIX_INSTALL_BRANCH:-main}"
+readonly GITHUB_RAW_URL="https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO_NAME}"
+readonly GITHUB_SSH_URL="git@github.com:${GITHUB_OWNER}/${GITHUB_REPO_NAME}.git"
 
 # Repository clone directory (configurable via NIX_INSTALL_DIR environment variable)
 # Default: ~/.config/nix-install

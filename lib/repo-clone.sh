@@ -109,7 +109,7 @@ remove_existing_repo_directory() {
 # Default location: ~/.config/nix-install (configurable via NIX_INSTALL_DIR)
 # Returns: 0 on success, exits script on failure
 clone_repository() {
-    local repo_url="git@github.com:fxmartin/nix-install.git"
+    local repo_url="${GITHUB_SSH_URL}"
 
     log_info "Cloning repository from GitHub..."
     log_info "URL: ${repo_url}"
@@ -117,8 +117,11 @@ clone_repository() {
     echo ""
 
     # Check available disk space (require at least 500MB)
+    # Use the parent directory of REPO_CLONE_DIR (not hardcoded ~/Documents)
+    local clone_parent
+    clone_parent="$(dirname "${REPO_CLONE_DIR}")"
     local available_space
-    available_space=$(df -k "${HOME}/Documents" | awk 'NR==2 {print $4}')
+    available_space=$(df -k "${clone_parent}" | awk 'NR==2 {print $4}')
     local required_space=512000  # 500MB in KB
 
     if [[ "${available_space}" -lt "${required_space}" ]]; then
@@ -192,8 +195,8 @@ copy_user_config_to_repo() {
     # The file remains in git's index (required by Nix flakes) but local changes are ignored
     log_info "Marking user-config.nix as skip-worktree..."
     if ! (cd "${REPO_CLONE_DIR}" && git update-index --skip-worktree user-config.nix); then
-        log_warning "Could not set skip-worktree on user-config.nix"
-        log_warning "Your personal config may appear in git status - do NOT commit it"
+        log_warn "Could not set skip-worktree on user-config.nix"
+        log_warn "Your personal config may appear in git status - do NOT commit it"
     else
         log_success "✓ User configuration protected from accidental commits"
     fi

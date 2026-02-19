@@ -7,6 +7,7 @@
   pkgs,
   lib,
   userConfig,
+  findRepoRoot,
   mcp-servers-nix,
   ...
 }: let
@@ -26,8 +27,12 @@
 
       # Playwright MCP server - Browser automation for web testing and scraping
       # No authentication required
+      # Note: Uses Brave Browser (Chromium-based) installed via Homebrew
+      # - Chrome: marked insecure in nixpkgs (updater broken)
+      # - Chromium: not available on aarch64-darwin in nixpkgs
       playwright = {
         enable = true;
+        executable = "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser";
       };
     };
   };
@@ -72,25 +77,15 @@ in {
   #
   # MCP Servers Configuration:
   # - Context7: No authentication required
-  # - Sequential Thinking: No authentication required (currently disabled)
-  # - Playwright: No authentication required - browser automation
+  # - Sequential Thinking: No authentication required
+  # - Playwright: No authentication required (uses Chromium, not Chrome)
   #
   # All MCP servers use Nix-installed binaries (managed by mkConfig, not npx/npm)
 
   # Activation script to set up Claude Code configuration and symlink files to repo
   home.activation.claudeCodeSetup = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    # Dynamically find repo location (works with any NIX_INSTALL_DIR)
-    # Search for nix-install repo by looking for flake.nix + config/claude directory
-    # Priority: ~/.config/nix-install (new default) > ~/nix-install > ~/Documents/nix-install (legacy)
-    REPO_ROOT=""
-    for candidate in "${config.home.homeDirectory}/.config/nix-install" \
-                     "${config.home.homeDirectory}/nix-install" \
-                     "${config.home.homeDirectory}/Documents/nix-install"; do
-      if [ -f "$candidate/flake.nix" ] && [ -d "$candidate/config/claude" ]; then
-        REPO_ROOT="$candidate"
-        break
-      fi
-    done
+    # Find nix-install repo root (shared helper from flake.nix extraSpecialArgs)
+    ${findRepoRoot config.home.homeDirectory}
 
     # Create ~/.claude directory
     CLAUDE_DIR="${config.home.homeDirectory}/.claude"

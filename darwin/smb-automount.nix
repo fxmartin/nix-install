@@ -23,12 +23,13 @@
 }: let
   # NAS configuration - centralized for easy modification
   nasConfig = {
-    host = "192.168.68.58";      # NAS IP (use IP instead of hostname for reliability)
-    hostname = "TNAS.local";     # mDNS hostname (backup)
-    username = "fxmartin";       # SMB username
+    host = "tnas.local";         # NAS hostname (mDNS)
+    hostname = "tnas.local";     # mDNS hostname
+    username = userConfig.username;  # SMB username (from user-config.nix)
     shares = [
       "Photos"                   # Photo backup share
       "icloud"                   # iCloud Drive backup share
+      "calibre"                  # Calibre ebook library backup share
     ];
   };
 

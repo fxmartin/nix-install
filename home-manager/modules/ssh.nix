@@ -53,7 +53,7 @@
 
       # NAS Luxembourg (TerraMaster) - Local network
       "nas-lux" = {
-        hostname = "192.168.68.58";
+        hostname = "tnas.local";
         user = "fxmartin";
         port = 2222;
         identityFile = "~/.ssh/id_nas_luxembourg";
@@ -67,18 +67,39 @@
         identityFile = "~/.ssh/id_nas_luxembourg";
       };
 
-      # Dev Server via Tailscale
-      "dev.ts" = {
-        hostname = "100.92.56.127";  # Tailscale IP
-        user = "fxmartin";
-        identityFile = "~/.ssh/id_ed25519";
+      # Dev Server via Public IP (Hetzner Helsinki)
+      "dev dev-server" = {
+        hostname = "46.62.232.199";  # Hetzner public IP (hel1)
+        user = "fx";
+        identityFile = "~/.ssh/id_devserver";
       };
 
-      # Dev Server via Public IP (Hetzner)
-      "dev" = {
-        hostname = "46.224.44.190";  # Hetzner public IP
-        user = "fxmartin";
-        identityFile = "~/.ssh/id_ed25519";
+      # Nyx server via Tailscale
+      "nyx" = {
+        hostname = "100.115.38.12";  # Tailscale IP
+        user = "fx";
+        identityFile = "~/.ssh/id_nyx";
+      };
+
+      # Nyx server root access
+      "nyx-root" = {
+        hostname = "100.115.38.12";
+        user = "root";
+        identityFile = "~/.ssh/id_nyx";
+      };
+
+      # Nyx DR server via Tailscale
+      "nyx-dr" = {
+        hostname = "100.112.184.36";
+        user = "fx";
+        identityFile = "~/.ssh/id_nyx-dr";
+      };
+
+      # Nyx DR root access
+      "nyx-dr-root" = {
+        hostname = "100.112.184.36";
+        user = "root";
+        identityFile = "~/.ssh/id_nyx-dr";
       };
 
       # Generic SSH settings for all hosts

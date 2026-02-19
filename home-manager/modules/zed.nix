@@ -5,6 +5,7 @@
   pkgs,
   lib,
   userConfig,
+  findRepoRoot,
   ...
 }: {
   # Zed Editor Configuration
@@ -41,17 +42,8 @@
     ZED_CONFIG_DIR="$HOME/.config/zed"
     ZED_SETTINGS="$ZED_CONFIG_DIR/settings.json"
 
-    # Dynamically find repo location (works with any NIX_INSTALL_DIR)
-    # Search for nix-install repo by looking for flake.nix
-    REPO_ROOT=""
-    for candidate in "${config.home.homeDirectory}/.config/nix-install" \
-                     "${config.home.homeDirectory}/nix-install" \
-                     "${config.home.homeDirectory}/Documents/nix-install"; do
-      if [ -f "$candidate/flake.nix" ]; then
-        REPO_ROOT="$candidate"
-        break
-      fi
-    done
+    # Find nix-install repo root (shared helper from flake.nix extraSpecialArgs)
+    ${findRepoRoot config.home.homeDirectory}
 
     # Fallback to ~/.config/nix-install (standard install location)
     if [ -z "$REPO_ROOT" ]; then

@@ -1,0 +1,29 @@
+# ABOUTME: GitHub Actions workflow for Markdown link validation on PRs
+# ABOUTME: Catches broken links in documentation before they reach main branch
+
+name: Docs Lint
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '**.md'
+  workflow_dispatch:
+
+jobs:
+  markdown-link-check:
+    name: Check Markdown Links
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Markdown links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'no'
+          config-file: '.github/markdown-link-check-config.json'
+          folder-path: '.'
+          file-extension: '.md'

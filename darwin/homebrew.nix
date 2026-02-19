@@ -39,11 +39,22 @@
       "gh"  # GitHub CLI - Required for automated SSH key upload in bootstrap
       "mas" # Mac App Store CLI - Required for masApps installations (Issue #25)
 
+      # AI & LLM Tools
+      "ollama"          # Ollama CLI - Local LLM server (replaces ollama-app cask)
+
       # Container Tools (Story 02.2-005)
       # Note: Installed via Homebrew instead of Nix for better GUI integration
       # Podman Desktop (GUI app) needs to find podman CLI in standard PATH
       "podman"          # Podman container engine (Docker alternative)
       "podman-compose"  # Docker Compose alternative for Podman
+
+      # System Monitoring (Apple Silicon)
+      # Note: Not available in nixpkgs, Homebrew formula only
+      "mactop"          # Real-time Apple Silicon CPU/GPU/ANE monitor (TUI)
+
+      # Media Tools
+      # Note: yt-dlp broken in nixpkgs (curl-impersonate AppleIDN check fails on macOS 15.3)
+      "yt-dlp"          # YouTube/video downloader (active fork of youtube-dl)
     ];
 
     # GUI Applications (Casks)
@@ -66,8 +77,6 @@
       "claude" # Claude Desktop - Anthropic's AI assistant
       "chatgpt" # ChatGPT Desktop - OpenAI's conversational AI
       # Note: Perplexity moved to Mac App Store (masApps) - no Homebrew cask available
-      "ollama-app" # Ollama Desktop - Local LLM runner with GUI and CLI (Story 02.1-002)
-                   # Note: Renamed from "ollama" to "ollama-app" in Homebrew
       "lm-studio" # LM Studio - Discover, download, and run local LLMs with GUI
 
       # Development Environment Applications (Story 02.2-001, 02.2-005)
@@ -83,6 +92,7 @@
       # Browsers (Story 02.3-001, 02.3-002)
       # Auto-update disable: Updates managed by Homebrew (no in-app setting available)
       "brave-browser" # Brave Browser - Privacy-focused browser with built-in ad/tracker blocking
+      "arc"           # Arc Browser - Modern workspace browser with Spaces and vertical sidebar
 
       # Productivity & Utilities (Story 02.4-001, 02.4-002, 02.4-004)
       # Auto-update disable: Raycast/1Password (Preferences → Advanced), Dropbox (Preferences → Account → Disable automatic updates)
@@ -122,6 +132,11 @@
       "zoom"  # Zoom - Video conferencing and meetings (Story 02.5-002)
       "webex" # Cisco Webex - Enterprise video conferencing (Story 02.5-002)
 
+      # Messaging (Story 02.5-001)
+      # Auto-update disable: Settings → Advanced → Uncheck "Automatic updates"
+      "slack"    # Slack - Team communication and collaboration platform
+      "telegram" # Telegram - Cross-platform messaging with cloud sync
+
       # Security & VPN (Story 02.7-001)
       # Auto-update: Check Preferences → Settings → Advanced during VM testing (may not be user-configurable)
       # License: Requires active NordVPN subscription (NO free tier)
@@ -160,7 +175,6 @@
     global = {
       autoUpdate = false; # CRITICAL: Match onActivation setting
       brewfile = true;
-      lockfiles = true;
     };
 
     # Mac App Store apps

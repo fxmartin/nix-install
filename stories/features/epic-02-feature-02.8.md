@@ -419,7 +419,7 @@ During VM testing on 2025-01-16, discovered that **Parallels Desktop installatio
 - `docs/apps/virtualization/parallels-desktop.md` (created, ~1,300 lines): Comprehensive Parallels Desktop guide
 - `docs/licensed-apps.md` (lines 744-863, 876): Added Virtualization & Development Tools section, summary table entry
 - `docs/apps/README.md` (lines 112-119, 156-157, 187-189): Added Virtualization section, file organization update, notes update
-- `docs/development/stories/epic-02-feature-02.8.md` (this file): Implementation details
+- `stories/features/epic-02-feature-02.8.md` (this file): Implementation details
 
 **Story Status**: ✅ Complete (VM Tested 2025-01-16)
 

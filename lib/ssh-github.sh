@@ -277,14 +277,20 @@ start_ssh_agent_and_add_key() {
         )
 
         local found_socket=""
+        # Enable nullglob so unmatched patterns expand to nothing (not literal string)
+        local _old_nullglob
+        _old_nullglob=$(shopt -p nullglob 2>/dev/null || true)
+        shopt -s nullglob
         for socket_pattern in "${potential_sockets[@]}"; do
             # shellcheck disable=SC2206
             local sockets=($socket_pattern)
-            if [[ -S "${sockets[0]}" ]]; then
+            if [[ ${#sockets[@]} -gt 0 ]] && [[ -S "${sockets[0]}" ]]; then
                 found_socket="${sockets[0]}"
                 break
             fi
         done
+        # Restore previous nullglob state
+        eval "${_old_nullglob:-shopt -u nullglob}"
 
         if [[ -n "${found_socket}" ]]; then
             export SSH_AUTH_SOCK="${found_socket}"
@@ -685,8 +691,16 @@ authenticate_github_cli() {
     # --hostname github.com: Authenticate to GitHub (not enterprise)
     # --git-protocol ssh: Use SSH for git operations (not HTTPS)
     # --web: Use browser-based OAuth flow (auto-opens browser)
-    if ! gh auth login --hostname github.com --git-protocol ssh --web; then
-        log_error "GitHub CLI authentication failed"
+    # Timeout after 5 minutes to avoid blocking forever if browser flow stalls
+    log_info "Starting GitHub OAuth flow (5 minute timeout)..."
+    if ! timeout 300 gh auth login --hostname github.com --git-protocol ssh --web; then
+        local exit_code=$?
+        if [[ ${exit_code} -eq 124 ]]; then
+            log_error "GitHub CLI authentication timed out after 5 minutes"
+            log_error "The browser OAuth flow did not complete in time."
+        else
+            log_error "GitHub CLI authentication failed"
+        fi
         log_error ""
         log_error "Troubleshooting:"
         log_error "1. Check internet connection"

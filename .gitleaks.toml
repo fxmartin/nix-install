@@ -1,0 +1,12 @@
+# ABOUTME: Gitleaks configuration for nix-install repository
+# ABOUTME: Allowlists known false positives from vendored libraries
+
+[extend]
+  useDefault = true
+
+[allowlist]
+  description = "nix-install global allowlist"
+  paths = [
+    '''config/calibre/plugins/DeACSM/''',
+    '''config/calibre/SECRETS\.md''',
+  ]

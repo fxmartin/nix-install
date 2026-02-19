@@ -75,6 +75,7 @@ After installation, manage your system with these aliases:
 | `gc` | Garbage collection (delete old generations) |
 | `cleanup` | Full cleanup (GC + store optimization) |
 | `health-check` | System health report |
+| `curl localhost:7780/metrics` | Apple Silicon metrics (CPU, GPU, memory, thermal) |
 | `brew-upgrade` | Update Homebrew packages |
 | `release-monitor` | Run AI-powered update checker |
 
@@ -160,6 +161,8 @@ Rollback is instant — no re-downloading, just switches symlinks.
 - Claude Desktop, Claude Code CLI, ChatGPT, Perplexity
 - Ollama with models (1 for Standard, 4 for Power)
 - LM Studio (local LLM GUI)
+- [Qwen3-TTS](./docs/apps/ai/qwen3-tts.md) local text-to-speech server on port 8765 (Power only)
+- [Whisper STT](./docs/apps/ai/whisper-stt.md) local speech-to-text server on port 8766 (Power only)
 
 **Development**:
 - Zed Editor (GPU-accelerated, Catppuccin themed)
@@ -188,7 +191,7 @@ Rollback is instant — no re-downloading, just switches symlinks.
 
 **System**: iStat Menus, OnyX, f.lux, btop, gotop, macmon
 
-**Power Profile Only**: Parallels Desktop, additional Ollama models
+**Power Profile Only**: Parallels Desktop, additional Ollama models, Qwen3-TTS server, Whisper STT server
 
 ### System Configuration
 

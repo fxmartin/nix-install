@@ -21,37 +21,37 @@
 ## Features in This Epic
 
 
-> **Note**: Detailed story implementations have been moved to feature-specific files in `docs/development/stories/` for better maintainability. See links below.
+> **Note**: Detailed story implementations have been moved to feature-specific files in `stories/features/` for better maintainability. See links below.
 
 ### Feature 03.1: Finder Configuration
 **Feature Description**: Configure Finder preferences (sidebar, view options, search defaults)
 **Story Count**: 4 | **Story Points**: 19 | **Priority**: High | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-03-feature-03.1.md)**
+👉 **[View detailed implementation](features/epic-03-feature-03.1.md)**
 
 ### Feature 03.2: Security Configuration
 **Feature Description**: Configure macOS security settings (Gatekeeper, FileVault, Firewall)
 **Story Count**: 4 | **Story Points**: 16 | **Priority**: High | **Complexity**: High
-👉 **[View detailed implementation](../docs/development/stories/epic-03-feature-03.2.md)**
+👉 **[View detailed implementation](features/epic-03-feature-03.2.md)**
 
 ### Feature 03.3: Trackpad and Input Configuration
 **Feature Description**: Configure trackpad gestures and input device preferences
 **Story Count**: 3 | **Story Points**: 11 | **Priority**: Medium | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-03-feature-03.3.md)**
+👉 **[View detailed implementation](features/epic-03-feature-03.3.md)**
 
 ### Feature 03.4: Display and Appearance
 **Feature Description**: Configure display settings and menu bar
 **Story Count**: 3 | **Story Points**: 11 | **Priority**: Medium | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-03-feature-03.4.md)**
+👉 **[View detailed implementation](features/epic-03-feature-03.4.md)**
 
 ### Feature 03.5: Keyboard and Text Input
 **Feature Description**: Configure keyboard shortcuts and text input preferences
 **Story Count**: 2 | **Story Points**: 8 | **Priority**: Low | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-03-feature-03.5.md)**
+👉 **[View detailed implementation](features/epic-03-feature-03.5.md)**
 
 ### Feature 03.6: Dock Configuration
 **Feature Description**: Configure Dock appearance and behavior
 **Story Count**: 1 | **Story Points**: 3 | **Priority**: Medium | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-03-feature-03.6.md)**
+👉 **[View detailed implementation](features/epic-03-feature-03.6.md)**
 
 ## Epic Dependencies
 

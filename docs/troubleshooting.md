@@ -11,6 +11,7 @@ Common issues and their solutions. Each issue follows the format: **Symptom** �
 
 ## Table of Contents
 
+0. [Bootstrap Failures](#0-bootstrap-failures)
 1. [Build Failures](#1-build-failures)
 2. [SSH & GitHub Issues](#2-ssh--github-issues)
 3. [Homebrew Issues](#3-homebrew-issues)
@@ -21,6 +22,77 @@ Common issues and their solutions. Each issue follows the format: **Symptom** �
 8. [System Preferences Issues](#8-system-preferences-issues)
 9. [Rollback If Something Breaks](#9-rollback-if-something-breaks)
 10. [LaunchAgent Issues](#10-launchagent-issues)
+
+---
+
+## 0. Bootstrap Failures
+
+### 0.1 "Nix installation failed" during Phase 4
+
+**Symptom**: Bootstrap exits with error during Nix multi-user installation.
+
+**Cause**: Existing partial Nix installation or conflicting system state.
+
+**Solution**:
+```bash
+# Uninstall existing Nix if present
+/nix/nix-installer uninstall  # If using Determinate Systems installer
+# Or: see https://nixos.org/manual/nix/stable/#sect-macos-installation
+
+# Retry bootstrap
+curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh | bash
+```
+
+---
+
+### 0.2 Bootstrap hangs at "GitHub CLI authentication"
+
+**Symptom**: Phase 6 opens browser for OAuth but never completes.
+
+**Cause**: Browser didn't open, OAuth flow stalled, or network issues.
+
+**Solution**:
+```bash
+# The bootstrap now has a 5-minute timeout for this step
+# If it times out, manually authenticate:
+gh auth login --hostname github.com --git-protocol ssh --web
+
+# Then re-run bootstrap — it will skip completed phases
+```
+
+---
+
+### 0.3 "Permission denied" during bootstrap on fresh Mac
+
+**Symptom**: Bootstrap fails accessing directories or running commands.
+
+**Cause**: Terminal needs Full Disk Access for Power profile (Parallels).
+
+**Solution**:
+```bash
+# The bootstrap checks for this automatically
+# If it fails, manually grant FDA:
+# System Settings → Privacy & Security → Full Disk Access
+# Add your terminal app → Restart terminal → Re-run bootstrap
+```
+
+---
+
+### 0.4 "user-config.nix not found" after bootstrap
+
+**Symptom**: `rebuild` fails saying user-config.nix is missing.
+
+**Cause**: Bootstrap didn't complete Phase 2, or file wasn't copied.
+
+**Solution**:
+```bash
+# Copy the template and fill in your values
+cp user-config.template.nix user-config.nix
+# Edit with your username, hostname, email, etc.
+
+# Then rebuild
+rebuild
+```
 
 ---
 
@@ -550,14 +622,15 @@ ls ~/Documents/nix-install/home-manager/modules/
 # Check current models
 ollama list
 
-# Re-pull missing models
-ollama pull gpt-oss:20b
+# Re-pull missing models (Standard profile)
+ollama pull ministral-3:14b
+ollama pull nomic-embed-text
 
 # For Power profile, pull all expected models:
-ollama pull gpt-oss:20b
-ollama pull qwen2.5-coder:32b
-ollama pull llama3.1:70b
-ollama pull deepseek-r1:32b
+ollama pull llava:34b
+ollama pull ministral-3:14b
+ollama pull phi4:14b
+ollama pull nomic-embed-text
 
 # Verify
 ollama list

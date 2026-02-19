@@ -220,7 +220,7 @@ All criteria from Story 01.1-004 met:
 ## References
 
 - **Analysis Document**: [docs/development/bootstrap-modularization-analysis.md](bootstrap-modularization-analysis.md)
-- **Story**: docs/development/stories/epic-01-bootstrap.md (Story 01.1-004)
+- **Story**: stories/features/epic-01-bootstrap.md (Story 01.1-004)
 - **Original Bootstrap**: bootstrap.sh.monolithic (5,081 lines)
 - **Build Script**: scripts/build-bootstrap.sh
 

@@ -21,27 +21,27 @@
 ## Features in This Epic
 
 
-> **Note**: Detailed story implementations have been moved to feature-specific files in `docs/development/stories/` for better maintainability. See links below.
+> **Note**: Detailed story implementations have been moved to feature-specific files in `stories/features/` for better maintainability. See links below.
 
 ### Feature 07.1: Quick Start Documentation
 **Feature Description**: Create comprehensive quick start guide for new installations
 **Story Count**: 4 | **Story Points**: 19 | **Priority**: High | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-07-feature-07.1.md)**
+👉 **[View detailed implementation](features/epic-07-feature-07.1.md)**
 
 ### Feature 07.2: Licensed App Activation Guide
 **Feature Description**: Document license activation procedures for all licensed software
 **Story Count**: 3 | **Story Points**: 11 | **Priority**: High | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-07-feature-07.2.md)**
+👉 **[View detailed implementation](features/epic-07-feature-07.2.md)**
 
 ### Feature 07.3: Troubleshooting Guide
 **Feature Description**: Create troubleshooting documentation for common issues
 **Story Count**: 4 | **Story Points**: 16 | **Priority**: Medium | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-07-feature-07.3.md)**
+👉 **[View detailed implementation](features/epic-07-feature-07.3.md)**
 
 ### Feature 07.4: Customization Guide
 **Feature Description**: Document how to customize and extend the configuration
 **Story Count**: 2 | **Story Points**: 8 | **Priority**: Medium | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-07-feature-07.4.md)**
+👉 **[View detailed implementation](features/epic-07-feature-07.4.md)**
 
 ## Epic Dependencies
 

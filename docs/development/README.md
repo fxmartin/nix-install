@@ -341,7 +341,7 @@ cat /stories/epic-*.md | grep -A 20 "STORY-ID"
 
 - **Modular Structure**: Epic files split into feature-specific files for better maintainability (44 feature files total)
 - **Epic Overviews**: `/stories/epic-XX-*.md` files provide high-level summaries with links to detailed feature implementations
-- **Feature Details**: `docs/development/stories/epic-XX-feature-XX.X.md` files contain full implementation details, testing results, and lessons learned
+- **Feature Details**: `stories/features/epic-XX-feature-XX.X.md` files contain full implementation details, testing results, and lessons learned
 - **Buffer Size Constraint**: Large epic files (up to 85K) reduced to manageable sizes (5-10K) by extracting features
 - **Single Source of Truth**: This directory structure preserves all development documentation while staying within buffer limits
 - **Master Index**: This README.md provides navigation and quick reference across all files

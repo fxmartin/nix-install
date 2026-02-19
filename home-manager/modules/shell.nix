@@ -67,6 +67,9 @@
       # Quick rebuild (auto-detect profile)
       rebuild = "bash ${dotfilesPath}/scripts/update-system.sh rebuild";
 
+      # Dry-run rebuild — build without switching (preview what would change)
+      rebuild-dry = "bash ${dotfilesPath}/scripts/update-system.sh dry";
+
       # Update flake.lock and rebuild (convenience alias)
       update = "bash ${dotfilesPath}/scripts/update-system.sh update";
 
@@ -298,41 +301,22 @@
       # =============================================================================
       # SSH/MOSH ENVIRONMENT-AWARE WRAPPERS
       # =============================================================================
-      # Changes terminal background color based on environment type (dev/test/prod)
-      # Uses OSC 11 escape sequences - each Ghostty split maintains its own state
-      # Colors are subtle Catppuccin Mocha variations
-
-      # Default Catppuccin Mocha base: #1e1e2e
-      # Dev (blue-tinted):    #1e1e3a - subtle blue for development
-      # Test/Staging (green): #1e2e2e - subtle green for staging
-      # Prod (red-tinted):    #2e1e1e - subtle red warning for production
+      # Detects environment type (dev/test/prod) and shows banner
+      # Background color changes disabled - only banners are shown
 
       __set_env_bg() {
         local host="$1"
-        local env_label=""
         case "$host" in
           *prod*)
-            # Production - red-tinted background (warning)
-            printf '\e]11;#2e1e1e\e\\'
-            env_label="🔴 PROD"
             export __REMOTE_ENV="prod"
             ;;
           *test*)
-            # Staging/Test - green-tinted background
-            printf '\e]11;#1e2e2e\e\\'
-            env_label="🟢 TEST"
             export __REMOTE_ENV="test"
             ;;
           *dev*)
-            # Development - blue-tinted background
-            printf '\e]11;#1e1e3a\e\\'
-            env_label="🔵 DEV"
             export __REMOTE_ENV="dev"
             ;;
           *)
-            # Other hosts - slight purple tint
-            printf '\e]11;#241e2e\e\\'
-            env_label="🟣 REMOTE"
             export __REMOTE_ENV="remote"
             ;;
         esac
@@ -348,8 +332,6 @@
       }
 
       __reset_env_bg() {
-        # Reset to default Catppuccin Mocha base
-        printf '\e]11;#1e1e2e\e\\'
         unset __REMOTE_ENV
       }
 
@@ -364,10 +346,15 @@
             *) host="$arg"; break ;;
           esac
         done
-        __set_env_bg "$host"
+        # Only change background in interactive terminal with function available
+        if [[ -t 1 ]] && type __set_env_bg &>/dev/null; then
+          __set_env_bg "$host"
+        fi
         command ssh "$@"
         local exit_code=$?
-        __reset_env_bg
+        if [[ -t 1 ]] && type __reset_env_bg &>/dev/null; then
+          __reset_env_bg
+        fi
         return $exit_code
       }
 
@@ -382,10 +369,15 @@
             *) host="$arg"; break ;;
           esac
         done
-        __set_env_bg "$host"
+        # Only change background in interactive terminal with function available
+        if [[ -t 1 ]] && type __set_env_bg &>/dev/null; then
+          __set_env_bg "$host"
+        fi
         command mosh "$@"
         local exit_code=$?
-        __reset_env_bg
+        if [[ -t 1 ]] && type __reset_env_bg &>/dev/null; then
+          __reset_env_bg
+        fi
         return $exit_code
       }
 

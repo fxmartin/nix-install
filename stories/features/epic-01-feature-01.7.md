@@ -46,7 +46,7 @@
    - Detailed validation steps for each scenario
    - Recovery procedures and troubleshooting
 
-4. **docs/development/stories/epic-01-feature-01.7.md** (THIS FILE)
+4. **stories/features/epic-01-feature-01.7.md** (THIS FILE)
    - Implementation documentation
    - Lessons learned
    - Testing results
@@ -549,7 +549,7 @@ readonly REPO_CLONE_DIR="${HOME}/Documents/nix-install"
    - Profile loading validation
    - Symlink verification tests
 
-3. **docs/development/stories/epic-01-feature-01.7.md** (UPDATED)
+3. **stories/features/epic-01-feature-01.7.md** (UPDATED)
    - Added Story 01.7-002 documentation
    - Implementation details
    - Testing strategy

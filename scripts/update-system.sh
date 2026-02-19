@@ -164,6 +164,30 @@ rebuild_system() {
     update_mcp_paths
 }
 
+# Dry-run rebuild (build without switching)
+# Shows what would change without applying
+dry_run_system() {
+    local profile="${1:-}"
+
+    check_user_config || return 1
+
+    if [[ -z "$profile" ]]; then
+        profile=$(detect_profile) || return 1
+    fi
+
+    log_info "Dry-run build with profile: $profile (build only, no switch)"
+
+    cd "$PROJECT_ROOT" || exit 1
+
+    if ! sudo darwin-rebuild build --flake ".#${profile}"; then
+        log_error "Dry-run build failed"
+        return 1
+    fi
+
+    log_success "Dry-run build succeeded — no changes applied"
+    log_info "To apply: rebuild"
+}
+
 # Show usage
 usage() {
     cat <<EOF
@@ -172,6 +196,7 @@ Usage: $(basename "$0") <command> [profile]
 Commands:
     update              Update flake.lock only (no rebuild)
     rebuild [profile]   Rebuild system without updating flake.lock
+    dry [profile]       Build without switching (preview changes)
     full [profile]      Update flake.lock AND rebuild system
 
 Profiles:
@@ -205,6 +230,9 @@ main() {
             ;;
         rebuild)
             rebuild_system "$profile"
+            ;;
+        dry)
+            dry_run_system "$profile"
             ;;
         full)
             update_flake && rebuild_system "$profile"

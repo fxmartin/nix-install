@@ -48,7 +48,7 @@
    - Detailed validation steps for each scenario
    - Profile-specific testing (Standard vs Power)
 
-4. **docs/development/stories/epic-01-feature-01.8.md** (THIS FILE)
+4. **stories/features/epic-01-feature-01.8.md** (THIS FILE)
    - Implementation documentation
    - Lessons learned
    - Testing results

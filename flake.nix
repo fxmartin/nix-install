@@ -94,6 +94,77 @@
     # Allow unfree packages (needed for many GUI apps)
     nixpkgsConfig.config.allowUnfree = true;
 
+    # Ollama model definitions — single source of truth for both profiles
+    # Standard models are included in Power profile via ollamaModels.power
+    ollamaModels = {
+      standard = [
+        { name = "ministral-3:14b"; desc = "Mistral multilingual reasoning model"; size = "~9GB"; }
+        { name = "nomic-embed-text"; desc = "Text embeddings model"; size = "~274MB"; }
+      ];
+      power = [
+        { name = "llava:34b"; desc = "Multimodal vision-language model"; size = "~20GB"; }
+        { name = "ministral-3:14b"; desc = "Mistral multilingual reasoning model"; size = "~9GB"; }
+        { name = "phi4:14b"; desc = "Microsoft Phi-4 reasoning model"; size = "~9GB"; }
+        { name = "nomic-embed-text"; desc = "Text embeddings model"; size = "~274MB"; }
+      ];
+    };
+
+    # Generate Ollama model pull activation script for a given profile
+    mkOllamaModelScript = profileName: models: let
+      modelCount = builtins.length models;
+      modelNames = builtins.map (m: m.name) models;
+      totalSize = builtins.concatStringsSep ", " (builtins.map (m: "${m.name} (${m.size})") models);
+    in ''
+      # Check if Ollama CLI is available (installed by Homebrew)
+      if [ -x /opt/homebrew/bin/ollama ]; then
+        echo "Checking Ollama models for ${profileName} profile..."
+
+        # Check if Ollama daemon is running, start if needed
+        if ! pgrep -q ollama; then
+          echo "Starting Ollama daemon..."
+          /opt/homebrew/bin/ollama serve > /dev/null 2>&1 &
+
+          # Wait for daemon to be ready (up to 10 seconds)
+          for _ in {1..10}; do
+            if /opt/homebrew/bin/ollama list > /dev/null 2>&1; then
+              echo "✓ Ollama daemon ready"
+              break
+            fi
+            sleep 1
+          done
+        fi
+
+        # Define models to pull (${toString modelCount} models: ${totalSize})
+        MODELS=(
+          ${builtins.concatStringsSep "\n          " (builtins.map (m: ''"${m.name}"  # ${m.size} - ${m.desc}'') models)}
+        )
+
+        # Pull each model sequentially with progress tracking
+        for model in "''${MODELS[@]}"; do
+          # Check if model already exists (idempotent)
+          if ! /opt/homebrew/bin/ollama list 2>/dev/null | grep -q "$model"; then
+            echo "Pulling Ollama model: $model (this may take several minutes)..."
+
+            # Pull model (requires network and running daemon)
+            if /opt/homebrew/bin/ollama pull "$model" 2>&1; then
+              echo "✓ Successfully pulled Ollama model: $model"
+            else
+              echo "⚠️  Warning: Failed to pull Ollama model $model"
+              echo "   This may be due to network issues or Ollama daemon not starting."
+              echo "   You can manually pull the model later with: ollama pull $model"
+            fi
+          else
+            echo "✓ Ollama model $model already installed"
+          fi
+        done
+
+        echo "✓ Ollama model check complete for ${profileName} profile"
+      else
+        echo "⚠️  Warning: Ollama CLI not found at /opt/homebrew/bin/ollama"
+        echo "   Model pull will be skipped. Install Ollama first."
+      fi
+    '';
+
     # Common configuration modules shared by both profiles
     commonModules = [
       # Core System Configuration
@@ -118,6 +189,21 @@
               hostname
               ;
             inherit mcp-servers-nix;  # Pass MCP servers flake to Home Manager
+            # Shared bash snippet to find the nix-install repo root directory
+            # Used by ghostty.nix, zed.nix, claude-code.nix activation scripts
+            # Consistent search order: ~/.config/nix-install > ~/nix-install > ~/Documents/nix-install
+            # Sets REPO_ROOT variable; empty string if not found
+            findRepoRoot = homeDir: ''
+              REPO_ROOT=""
+              for candidate in "${homeDir}/.config/nix-install" \
+                               "${homeDir}/nix-install" \
+                               "${homeDir}/Documents/nix-install"; do
+                if [ -f "$candidate/flake.nix" ]; then
+                  REPO_ROOT="$candidate"
+                  break
+                fi
+              done
+            '';
           };
           users.${validatedConfig.username} = {lib, ...}: {
             imports = [./home-manager/home.nix];
@@ -147,9 +233,21 @@
       # Automated garbage collection and store optimization
       ./darwin/maintenance.nix
 
+      # Health API Server (HTTP JSON endpoint on port 7780)
+      # Accessible via Tailscale for remote health monitoring
+      ./darwin/health-api.nix
+
+      # Beszel Monitoring Agent (system resource metrics on port 45876)
+      # Ships CPU, memory, disk, network data to Beszel hub on Nyx
+      ./darwin/monitoring.nix
+
       # Calibre ebook configuration (DeDRM, KFX plugins)
       # Deploys pre-configured plugins from config/calibre/
       ./darwin/calibre.nix
+
+      # Open WebUI (Podman container on port 3000)
+      # Web chat interface for Ollama models, accessible via Tailscale
+      ./darwin/open-webui.nix
     ];
 
     # Helper function to create darwin configuration
@@ -175,55 +273,16 @@
       isPowerProfile = false;
       modules = [
         ({lib, ...}: {
-          # Standard profile specific settings (to be expanded in Epic-02)
+          # Standard profile specific settings
           # - No Parallels Desktop (isPowerProfile = false)
-          # - Minimal app set
-          # - Single Ollama model (gpt-oss:20b)
+          # - Ollama models: defined in ollamaModels.standard
 
-          # Story 02.1-003: Automatically pull gpt-oss:20b Ollama model
+          # Story 02.1-003: Automatically pull Ollama models for Standard profile
           # Use postActivation - one of the hardcoded script names that nix-darwin actually runs
-          # Custom script names like 'pullOllamaModel' are NOT executed
           # See: https://github.com/nix-darwin/nix-darwin/issues/663
-          system.activationScripts.postActivation.text = lib.mkAfter ''
-            # Check if Ollama CLI is available (installed by Homebrew)
-            if [ -x /opt/homebrew/bin/ollama ]; then
-              echo "Checking Ollama model: gpt-oss:20b..."
-
-              # Check if model already exists (idempotent)
-              if ! /opt/homebrew/bin/ollama list 2>/dev/null | grep -q "gpt-oss:20b"; then
-                echo "Pulling Ollama model: gpt-oss:20b (~12GB, this may take several minutes)..."
-
-                # Check if Ollama daemon is running, start if needed
-                if ! pgrep -q ollama; then
-                  echo "Starting Ollama daemon..."
-                  /opt/homebrew/bin/ollama serve > /dev/null 2>&1 &
-
-                  # Wait for daemon to be ready (up to 10 seconds)
-                  for _ in {1..10}; do
-                    if /opt/homebrew/bin/ollama list > /dev/null 2>&1; then
-                      echo "✓ Ollama daemon ready"
-                      break
-                    fi
-                    sleep 1
-                  done
-                fi
-
-                # Pull model (requires network and running daemon)
-                if /opt/homebrew/bin/ollama pull gpt-oss:20b 2>&1; then
-                  echo "✓ Successfully pulled Ollama model: gpt-oss:20b"
-                else
-                  echo "⚠️  Warning: Failed to pull Ollama model gpt-oss:20b"
-                  echo "   This may be due to network issues or Ollama daemon not starting."
-                  echo "   You can manually pull the model later with: ollama pull gpt-oss:20b"
-                fi
-              else
-                echo "✓ Ollama model gpt-oss:20b already installed"
-              fi
-            else
-              echo "⚠️  Warning: Ollama CLI not found at /opt/homebrew/bin/ollama"
-              echo "   Model pull will be skipped. Install Ollama first."
-            fi
-          '';
+          system.activationScripts.postActivation.text = lib.mkAfter (
+            mkOllamaModelScript "Standard" ollamaModels.standard
+          );
         })
       ];
     };
@@ -247,67 +306,29 @@
         # Mirrors proposals folder to iCloud Drive daily at 12:30 PM
         ./darwin/icloud-sync.nix
 
+        # Qwen3-TTS Server (Power profile only)
+        # FastAPI/uvicorn TTS service on port 8765
+        ./darwin/tts-serve.nix
+
+        # Whisper STT Server (Power profile only)
+        # FastAPI/uvicorn STT service on port 8766
+        ./darwin/stt-serve.nix
+
+        # Audiobook API Server (Power profile only)
+        # ePub/PDF to audiobook conversion on port 8767
+        ./darwin/audiobook-api.nix
+
         ({lib, ...}: {
-          # Power profile specific settings (to be expanded in Epic-02)
+          # Power profile specific settings
           # - Parallels Desktop enabled (isPowerProfile = true)
-          # - Full app set
-          # - Ollama models (gpt-oss:20b, ministral-3:14b)
+          # - Ollama models: defined in ollamaModels.power
 
-          # Story 02.1-004: Automatically pull 2 Ollama models for Power profile
+          # Story 02.1-004: Automatically pull Ollama models for Power profile
           # Use postActivation - one of the hardcoded script names that nix-darwin actually runs
-          # Custom script names like 'pullOllamaModels' are NOT executed
           # See: https://github.com/nix-darwin/nix-darwin/issues/663
-          system.activationScripts.postActivation.text = lib.mkAfter ''
-            # Check if Ollama CLI is available (installed by Homebrew)
-            if [ -x /opt/homebrew/bin/ollama ]; then
-              echo "Checking Ollama models for Power profile..."
-
-              # Check if Ollama daemon is running, start if needed
-              if ! pgrep -q ollama; then
-                echo "Starting Ollama daemon..."
-                /opt/homebrew/bin/ollama serve > /dev/null 2>&1 &
-
-                # Wait for daemon to be ready (up to 10 seconds)
-                for _ in {1..10}; do
-                  if /opt/homebrew/bin/ollama list > /dev/null 2>&1; then
-                    echo "✓ Ollama daemon ready"
-                    break
-                  fi
-                  sleep 1
-                done
-              fi
-
-              # Define models to pull (2 models, ~21GB total)
-              MODELS=(
-                "gpt-oss:20b"          # ~12GB - General purpose LLM
-                "ministral-3:14b"      # ~9GB - Edge-optimized, vision & multilingual (Apache 2.0) - Requires Ollama 0.13.1+
-              )
-
-              # Pull each model sequentially with progress tracking
-              for model in "''${MODELS[@]}"; do
-                # Check if model already exists (idempotent)
-                if ! /opt/homebrew/bin/ollama list 2>/dev/null | grep -q "$model"; then
-                  echo "Pulling Ollama model: $model (this may take several minutes)..."
-
-                  # Pull model (requires network and running daemon)
-                  if /opt/homebrew/bin/ollama pull "$model" 2>&1; then
-                    echo "✓ Successfully pulled Ollama model: $model"
-                  else
-                    echo "⚠️  Warning: Failed to pull Ollama model $model"
-                    echo "   This may be due to network issues or Ollama daemon not starting."
-                    echo "   You can manually pull the model later with: ollama pull $model"
-                  fi
-                else
-                  echo "✓ Ollama model $model already installed"
-                fi
-              done
-
-              echo "✓ Ollama model check complete for Power profile"
-            else
-              echo "⚠️  Warning: Ollama CLI not found at /opt/homebrew/bin/ollama"
-              echo "   Model pull will be skipped. Install Ollama first."
-            fi
-          '';
+          system.activationScripts.postActivation.text = lib.mkAfter (
+            mkOllamaModelScript "Power" ollamaModels.power
+          );
         })
       ];
     };

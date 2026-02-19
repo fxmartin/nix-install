@@ -1439,4 +1439,4 @@ By default, Parallels shares these Mac folders with VMs:
 **Related Documentation**:
 - `docs/licensed-apps.md` → Parallels Desktop subscription/license info
 - `docs/REQUIREMENTS.md` → Story 02.8-001 requirements
-- `docs/development/stories/epic-02-feature-02.8.md` → Implementation details
+- `stories/features/epic-02-feature-02.8.md` → Implementation details

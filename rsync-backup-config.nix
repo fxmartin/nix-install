@@ -3,9 +3,8 @@
 # ABOUTME: Changes take effect after running 'rebuild'
 {
   # NAS connection settings
-  # Using IP address instead of TNAS.local for reliable overnight backups
-  # (mDNS/Bonjour may not resolve when Mac wakes from sleep at 2 AM)
-  nasHost = "192.168.68.58";  # nas-lux (local network)
+  # Using mDNS hostname - if overnight backups fail, may need static IP
+  nasHost = "tnas.local";     # NAS hostname (mDNS)
   defaultShare = "Photos";    # Default share if job doesn't specify one
 
   # ==========================================================================
@@ -70,6 +69,21 @@
         "~$*.pptx"
         "*.tmp"
         ".~lock.*"
+      ];
+    }
+    {
+      # Calibre ebook library backup - stored in iCloud Drive
+      name = "calibre";
+      source = "Library/Mobile Documents/com~apple~CloudDocs/Documents/02. Library/Calibre Library";
+      share = "calibre";                  # Dedicated NAS share for ebook library
+      destination = "";                   # Root of share
+      schedule = "daily";                 # Run daily at 2 AM
+      excludes = [
+        ".DS_Store"
+        "*.lock"             # Calibre lock files during operation
+        ".calnotes"          # Calibre internal cache
+        "*.tmp"              # Temporary files
+        ".#*"                # Editor swap files
       ];
     }
   ];

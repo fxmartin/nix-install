@@ -7,6 +7,8 @@ set -euo pipefail
 # =============================================================================
 # CONFIGURATION
 # =============================================================================
+# NOTE: These thresholds are shared with scripts/health-api.py (HTTP API).
+# If you change a value here, update health-api.py to match.
 
 # Color codes for output
 RED='\033[0;31m'
@@ -16,11 +18,16 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Version
-HEALTH_CHECK_VERSION="1.0.0"
+HEALTH_CHECK_VERSION="1.1.0"
 
-# Thresholds
-GENERATION_WARNING_THRESHOLD=50
-DISK_WARNING_GB=20
+# Shared thresholds (keep in sync with health-api.py)
+GENERATION_WARNING_THRESHOLD=50  # Warn if more than N system generations
+DISK_WARNING_GB=20               # Warn if less than N GB free
+CACHE_WARNING_KB=1048576         # 1 GB — warn if any single cache exceeds this
+
+# Expected Ollama models per profile (keep in sync with flake.nix ollamaModels)
+# Power: llava:34b, ministral-3:14b, phi4:14b, nomic-embed-text
+# Standard: ministral-3:14b, nomic-embed-text
 
 # =============================================================================
 # HELPER FUNCTIONS
@@ -79,26 +86,48 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Check 3: Disk space on /nix
+# Check 3: Disk space (using Finder-equivalent metric)
 # ---------------------------------------------------------------------------
 echo "Checking disk space..."
-if [[ -d /nix ]]; then
-    # Get available space in GB
-    DISK_FREE_KB=$(df -k /nix | tail -1 | awk '{print $4}')
-    DISK_FREE_GB=$((DISK_FREE_KB / 1024 / 1024))
-    DISK_FREE_HUMAN=$(df -h /nix | tail -1 | awk '{print $4}')
+# Use NSURL volumeAvailableCapacityForImportantUsage (same as Finder)
+# This includes purgeable space that macOS reclaims automatically
+# Falls back to df if swift fails
+DISK_SWIFT=$(swift -e '
+import Foundation
+let url = URL(fileURLWithPath: "/")
+let v = try url.resourceValues(forKeys: [.volumeTotalCapacityKey, .volumeAvailableCapacityForImportantUsageKey])
+if let t = v.volumeTotalCapacity, let a = v.volumeAvailableCapacityForImportantUsage {
+    print("\(t / 1073741824) \(a / 1073741824)")
+}
+' 2>/dev/null || true)
+
+if [[ -n "${DISK_SWIFT}" ]]; then
+    DISK_TOTAL_GB=$(echo "${DISK_SWIFT}" | awk '{print $1}')
+    DISK_FREE_GB=$(echo "${DISK_SWIFT}" | awk '{print $2}')
 
     if [[ ${DISK_FREE_GB} -lt ${DISK_WARNING_GB} ]]; then
-        print_status "warn" "Disk free on /nix: ${DISK_FREE_HUMAN} (low space!)"
+        print_status "warn" "Disk available: ${DISK_FREE_GB}GB / ${DISK_TOTAL_GB}GB (low space!)"
         echo "    → Run: gc  # to remove old generations"
     else
-        print_status "info" "Disk free on /nix: ${DISK_FREE_HUMAN}"
+        print_status "info" "Disk available: ${DISK_FREE_GB}GB / ${DISK_TOTAL_GB}GB (includes purgeable)"
+    fi
+elif [[ -d /nix ]]; then
+    # Fallback to df (reports raw free, not purgeable-inclusive)
+    DISK_FREE_KB=$(df -k / | tail -1 | awk '{print $4}')
+    DISK_FREE_GB=$((DISK_FREE_KB / 1024 / 1024))
+    DISK_FREE_HUMAN=$(df -h / | tail -1 | awk '{print $4}')
+
+    if [[ ${DISK_FREE_GB} -lt ${DISK_WARNING_GB} ]]; then
+        print_status "warn" "Disk free: ${DISK_FREE_HUMAN} (low space!)"
+        echo "    → Run: gc  # to remove old generations"
+    else
+        print_status "info" "Disk free: ${DISK_FREE_HUMAN}"
     fi
 else
     print_status "error" "/nix directory not found"
 fi
 
-# Home directory space
+# Home directory space (also using Finder metric if available)
 HOME_FREE=$(df -h ~ | tail -1 | awk '{print $4}')
 print_status "info" "Disk free on ~: ${HOME_FREE}"
 
@@ -155,8 +184,12 @@ fi
 # ---------------------------------------------------------------------------
 echo "Checking Nix store..."
 if [[ -d /nix/store ]]; then
-    STORE_SIZE=$(du -sh /nix/store 2>/dev/null | cut -f1)
-    print_status "info" "Nix store size: ${STORE_SIZE}"
+    STORE_SIZE=$(du -sh /nix/store 2>/dev/null | cut -f1 || true)
+    if [[ -n "${STORE_SIZE}" ]]; then
+        print_status "info" "Nix store size: ${STORE_SIZE}"
+    else
+        print_status "info" "Nix store size: (timed out after 30s)"
+    fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -168,14 +201,14 @@ echo "Checking development caches..."
 get_cache_kb() {
     local path="${1}"
     if [[ -d "${path}" ]]; then
-        du -sk "${path}" 2>/dev/null | cut -f1
+        du -sk "${path}" 2>/dev/null | cut -f1 || echo "0"
     else
         echo "0"
     fi
+    return 0
 }
 
-# Cache size threshold (1GB = 1048576 KB)
-CACHE_WARNING_KB=1048576
+# Cache size threshold (uses shared CACHE_WARNING_KB from config section above)
 
 # Check each cache
 UV_CACHE_KB=$(get_cache_kb ~/.cache/uv)
@@ -242,36 +275,317 @@ fi
 # ---------------------------------------------------------------------------
 # Check 10: LaunchAgents status
 # ---------------------------------------------------------------------------
-echo "Checking maintenance LaunchAgents..."
+echo "Checking LaunchAgents..."
 # Capture launchctl output once (avoids pipefail issues with repeated calls)
 LAUNCHCTL_OUTPUT=$(launchctl list 2>/dev/null || true)
 
-if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.nix-gc"; then
-    print_status "ok" "nix-gc LaunchAgent loaded"
-else
-    print_status "warn" "nix-gc LaunchAgent not loaded"
-    echo "    → Run: darwin-rebuild switch"
+# Common LaunchAgents (all profiles)
+COMMON_AGENTS=("nix-gc" "nix-optimize" "weekly-digest" "disk-cleanup" "ollama-serve" "health-api" "release-monitor" "beszel-agent")
+
+for agent in "${COMMON_AGENTS[@]}"; do
+    if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.${agent}"; then
+        print_status "ok" "${agent} LaunchAgent loaded"
+    else
+        print_status "warn" "${agent} LaunchAgent not loaded"
+        echo "    → Run: darwin-rebuild switch"
+    fi
+done
+
+# Power-profile LaunchAgents (detected by presence of TTS server agent)
+if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.qwen3tts.server"; then
+    POWER_AGENTS=("rsync-backup-daily" "rsync-backup-weekly-sunday" "rsync-backup-weekly-wednesday" "icloud-sync")
+    for agent in "${POWER_AGENTS[@]}"; do
+        if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.${agent}"; then
+            print_status "ok" "${agent} LaunchAgent loaded"
+        else
+            print_status "warn" "${agent} LaunchAgent not loaded"
+            echo "    → Run: darwin-rebuild switch"
+        fi
+    done
 fi
 
-if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.nix-optimize"; then
-    print_status "ok" "nix-optimize LaunchAgent loaded"
+# ---------------------------------------------------------------------------
+# Check 11: Podman container runtime
+# ---------------------------------------------------------------------------
+echo "Checking Podman..."
+if command -v podman &> /dev/null; then
+    # Check Podman machine status
+    PODMAN_MACHINES=$(podman machine list --format '{{.Name}} {{.Running}}' 2>/dev/null || true)
+    if [[ -n "${PODMAN_MACHINES}" ]]; then
+        RUNNING_MACHINE=$(echo "${PODMAN_MACHINES}" | /usr/bin/grep -i "true" | head -1 | awk '{print $1}')
+        if [[ -n "${RUNNING_MACHINE}" ]]; then
+            print_status "ok" "Podman machine running: ${RUNNING_MACHINE}"
+        else
+            print_status "info" "Podman machine not running (start with: pmstart)"
+        fi
+    else
+        print_status "info" "No Podman machines configured"
+    fi
+
+    # Image count (only if machine is running)
+    if [[ -n "${RUNNING_MACHINE:-}" ]]; then
+        IMAGE_COUNT=$(podman images --format '{{.ID}}' 2>/dev/null | wc -l | tr -d ' ')
+        print_status "info" "Podman images: ${IMAGE_COUNT}"
+
+        # Disk usage (reclaimable space)
+        PODMAN_DF=$(podman system df 2>/dev/null || true)
+        if [[ -n "${PODMAN_DF}" ]]; then
+            RECLAIMABLE=$(echo "${PODMAN_DF}" | /usr/bin/grep -i "Local Volumes\|Images" | awk '{for(i=1;i<=NF;i++) if($i ~ /\(/) print $i $(i+1)}' | head -1)
+            if [[ -n "${RECLAIMABLE}" ]]; then
+                print_status "info" "Podman reclaimable: ${RECLAIMABLE}"
+            fi
+        fi
+    fi
 else
-    print_status "warn" "nix-optimize LaunchAgent not loaded"
-    echo "    → Run: darwin-rebuild switch"
+    print_status "info" "Podman not installed (container check skipped)"
 fi
 
-if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.weekly-digest"; then
-    print_status "ok" "weekly-digest LaunchAgent loaded"
-else
-    print_status "warn" "weekly-digest LaunchAgent not loaded"
-    echo "    → Run: darwin-rebuild switch"
+# ---------------------------------------------------------------------------
+# Check 12: Qwen3-TTS server (Power profile only)
+# ---------------------------------------------------------------------------
+if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.qwen3tts.server"; then
+    echo "Checking Qwen3-TTS server..."
+    print_status "ok" "qwen3-tts LaunchAgent loaded"
+
+    # Check if the server responds on localhost:8765
+    TTS_HEALTH=$(curl -s --connect-timeout 5 --max-time 10 http://localhost:8765/health 2>/dev/null || true)
+    if [[ -n "${TTS_HEALTH}" ]]; then
+        # Parse model statuses using python (available via nix)
+        TTS_STATUS=$(echo "${TTS_HEALTH}" | python3 -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    models = d.get('models', {})
+    ok = sum(1 for m in models.values() if m.get('status') == 'ok')
+    total = len(models)
+    failed = [n for n, m in models.items() if m.get('status') != 'ok']
+    if ok == total:
+        print(f'ok:{ok}')
+    else:
+        print(f'degraded:{ok}/{total}:' + ','.join(failed))
+except:
+    print('parse_error')
+" 2>/dev/null || echo "parse_error")
+
+        case "${TTS_STATUS}" in
+            ok:*)
+                MODEL_COUNT="${TTS_STATUS#ok:}"
+                print_status "ok" "Qwen3-TTS server healthy (${MODEL_COUNT} models loaded)"
+                ;;
+            degraded:*)
+                INFO="${TTS_STATUS#degraded:}"
+                COUNTS="${INFO%%:*}"
+                FAILED="${INFO#*:}"
+                print_status "warn" "Qwen3-TTS server degraded (${COUNTS} models ok, failed: ${FAILED})"
+                echo "    → Run: launchctl stop com.qwen3tts.server && launchctl start com.qwen3tts.server"
+                ;;
+            *)
+                print_status "warn" "Qwen3-TTS server responded but health parse failed"
+                ;;
+        esac
+    else
+        print_status "error" "Qwen3-TTS server not responding on localhost:8765"
+        echo "    → Run: launchctl start com.qwen3tts.server"
+        echo "    → Logs: /tmp/qwen3-tts-serve.err"
+    fi
 fi
 
-if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.disk-cleanup"; then
-    print_status "ok" "disk-cleanup LaunchAgent loaded (monthly)"
+# ---------------------------------------------------------------------------
+# Check 13: Whisper STT server (Power profile only)
+# ---------------------------------------------------------------------------
+if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.whisper-stt.server"; then
+    echo "Checking Whisper STT server..."
+    print_status "ok" "whisper-stt LaunchAgent loaded"
+
+    # Check if the server responds on localhost:8766
+    STT_HEALTH=$(curl -s --connect-timeout 5 --max-time 10 http://localhost:8766/health 2>/dev/null || true)
+    if [[ -n "${STT_HEALTH}" ]]; then
+        # Parse model status using python (available via nix)
+        STT_STATUS=$(echo "${STT_HEALTH}" | python3 -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    models = d.get('models', {})
+    ok = sum(1 for m in models.values() if m.get('status') == 'ok')
+    total = len(models)
+    failed = [n for n, m in models.items() if m.get('status') != 'ok']
+    if ok == total:
+        print(f'ok:{ok}')
+    else:
+        print(f'degraded:{ok}/{total}:' + ','.join(failed))
+except:
+    print('parse_error')
+" 2>/dev/null || echo "parse_error")
+
+        case "${STT_STATUS}" in
+            ok:*)
+                MODEL_COUNT="${STT_STATUS#ok:}"
+                print_status "ok" "Whisper STT server healthy (${MODEL_COUNT} models loaded)"
+                ;;
+            degraded:*)
+                INFO="${STT_STATUS#degraded:}"
+                COUNTS="${INFO%%:*}"
+                FAILED="${INFO#*:}"
+                print_status "warn" "Whisper STT server degraded (${COUNTS} models ok, failed: ${FAILED})"
+                echo "    → Run: launchctl stop com.whisper-stt.server && launchctl start com.whisper-stt.server"
+                ;;
+            *)
+                print_status "warn" "Whisper STT server responded but health parse failed"
+                ;;
+        esac
+    else
+        print_status "error" "Whisper STT server not responding on localhost:8766"
+        echo "    → Run: launchctl start com.whisper-stt.server"
+        echo "    → Logs: /tmp/whisper-stt-serve.err"
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# Check 14: Audiobook API server (Power profile only)
+# ---------------------------------------------------------------------------
+if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.audiobook-api.server"; then
+    echo "Checking Audiobook API server..."
+    print_status "ok" "audiobook-api LaunchAgent loaded"
+
+    # Check if the server responds on localhost:8767
+    AUDIOBOOK_HEALTH=$(curl -s --connect-timeout 5 --max-time 10 http://localhost:8767/health 2>/dev/null || true)
+    if [[ -n "${AUDIOBOOK_HEALTH}" ]]; then
+        AUDIOBOOK_STATUS=$(echo "${AUDIOBOOK_HEALTH}" | python3 -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    status = d.get('status', 'unknown')
+    tts = d.get('tts_server', {}).get('status', 'unknown')
+    if status == 'ok' and tts == 'ok':
+        print('ok')
+    elif tts != 'ok':
+        print(f'degraded:tts_{tts}')
+    else:
+        print(f'degraded:{status}')
+except:
+    print('parse_error')
+" 2>/dev/null || echo "parse_error")
+
+        case "${AUDIOBOOK_STATUS}" in
+            ok)
+                print_status "ok" "Audiobook API server healthy (TTS connected)"
+                ;;
+            degraded:*)
+                DETAIL="${AUDIOBOOK_STATUS#degraded:}"
+                print_status "warn" "Audiobook API server degraded (${DETAIL})"
+                echo "    → Run: launchctl stop com.audiobook-api.server && launchctl start com.audiobook-api.server"
+                ;;
+            *)
+                print_status "warn" "Audiobook API server responded but health parse failed"
+                ;;
+        esac
+    else
+        print_status "error" "Audiobook API server not responding on localhost:8767"
+        echo "    → Run: launchctl start com.audiobook-api.server"
+        echo "    → Logs: /tmp/audiobook-api-serve.err"
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# Check 15: Ollama models
+# ---------------------------------------------------------------------------
+if command -v ollama &> /dev/null; then
+    echo "Checking Ollama models..."
+
+    # Check if Ollama daemon is running
+    if ! pgrep -q ollama; then
+        print_status "warn" "Ollama daemon not running"
+        echo "    → Run: ollama serve"
+    else
+        print_status "ok" "Ollama daemon running"
+
+        # Get installed models
+        OLLAMA_LIST=$(ollama list 2>/dev/null || true)
+
+        # Determine expected models based on profile
+        # Power profile has the qwen3tts LaunchAgent; Standard does not
+        if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.qwen3tts.server"; then
+            EXPECTED_MODELS=("llava:34b" "ministral-3:14b" "phi4:14b" "nomic-embed-text")
+            PROFILE="Power"
+        else
+            EXPECTED_MODELS=("ministral-3:14b" "nomic-embed-text")
+            PROFILE="Standard"
+        fi
+
+        MISSING=0
+        for model in "${EXPECTED_MODELS[@]}"; do
+            # Match on model name prefix (ollama list shows full tags like "llava:34b")
+            MODEL_BASE="${model%%:*}"
+            if echo "${OLLAMA_LIST}" | /usr/bin/grep -q "${MODEL_BASE}"; then
+                print_status "ok" "Ollama model: ${model}"
+            else
+                print_status "error" "Ollama model missing: ${model}"
+                echo "    → Run: ollama pull ${model}"
+                MISSING=$((MISSING + 1))
+            fi
+        done
+
+        if [[ ${MISSING} -eq 0 ]]; then
+            print_status "ok" "All ${#EXPECTED_MODELS[@]} expected models installed (${PROFILE} profile)"
+        else
+            print_status "warn" "${MISSING} model(s) missing for ${PROFILE} profile"
+        fi
+
+        # Show total disk usage
+        OLLAMA_DIR="${HOME}/.ollama/models"
+        if [[ -d "${OLLAMA_DIR}" ]]; then
+            OLLAMA_SIZE=$(du -sh "${OLLAMA_DIR}" 2>/dev/null | cut -f1 || true)
+            if [[ -n "${OLLAMA_SIZE}" ]]; then
+                print_status "info" "Ollama models disk usage: ${OLLAMA_SIZE}"
+            else
+                print_status "info" "Ollama models disk usage: (timed out after 30s)"
+            fi
+        fi
+    fi
 else
-    print_status "warn" "disk-cleanup LaunchAgent not loaded"
-    echo "    → Run: darwin-rebuild switch"
+    print_status "info" "Ollama not installed (model check skipped)"
+fi
+
+# ---------------------------------------------------------------------------
+# Check 15: System metrics (Apple Silicon vitals via health-api /metrics)
+# ---------------------------------------------------------------------------
+echo "Checking system metrics..."
+METRICS_JSON=$(curl -s --connect-timeout 3 --max-time 5 http://localhost:7780/metrics 2>/dev/null || true)
+if [[ -n "${METRICS_JSON}" ]]; then
+    METRICS_SUMMARY=$(echo "${METRICS_JSON}" | python3 -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    if 'status' in d and d['status'] == 'error':
+        print(f'error:{d.get(\"detail\", \"unknown\")}')
+    else:
+        cpu = d['cpu']['usage_percent']
+        gpu = d['gpu']['usage_percent']
+        mem_used = d['memory']['used_gb']
+        mem_total = d['memory']['total_gb']
+        thermal = d['thermal']['state']
+        total_w = d['power']['total_watts']
+        print(f'ok:CPU {cpu}% | GPU {gpu}% | Mem {mem_used:.0f}/{mem_total:.0f}GB | {total_w:.0f}W | Thermal: {thermal}')
+except:
+    print('parse_error')
+" 2>/dev/null || echo "parse_error")
+
+    case "${METRICS_SUMMARY}" in
+        ok:*)
+            VITALS="${METRICS_SUMMARY#ok:}"
+            print_status "ok" "System vitals: ${VITALS}"
+            ;;
+        error:*)
+            DETAIL="${METRICS_SUMMARY#error:}"
+            print_status "warn" "System metrics unavailable: ${DETAIL}"
+            ;;
+        *)
+            print_status "warn" "System metrics: could not parse response"
+            ;;
+    esac
+else
+    print_status "info" "System metrics: health-api not responding on port 7780"
+    echo "    → Run: launchctl start org.nixos.health-api"
 fi
 
 # ---------------------------------------------------------------------------

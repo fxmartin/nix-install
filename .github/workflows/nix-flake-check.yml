@@ -1,0 +1,62 @@
+# ABOUTME: GitHub Actions workflow to validate Nix flake on PRs and pushes
+# ABOUTME: Catches broken Nix configs before they reach main branch
+
+name: Nix Flake Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'flake.nix'
+      - 'flake.lock'
+      - 'darwin/**'
+      - 'home-manager/**'
+      - '.github/workflows/nix-flake-check.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'flake.nix'
+      - 'flake.lock'
+      - 'darwin/**'
+      - 'home-manager/**'
+      - '.github/workflows/nix-flake-check.yml'
+  workflow_dispatch:
+
+jobs:
+  flake-check:
+    name: Validate Nix Flake
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Create user-config.nix for CI
+        run: |
+          # Create minimal user-config.nix so flake can evaluate
+          cat > user-config.nix << 'EOF'
+          {
+            username = "runner";
+            hostname = "ci-runner";
+            email = "ci@example.com";
+            fullName = "CI Runner";
+            githubUsername = "ci-runner";
+            notificationEmail = "ci@example.com";
+          }
+          EOF
+
+      - name: Validate flake syntax
+        run: nix flake check --no-build 2>&1
+
+      - name: Show flake outputs
+        run: nix flake show 2>&1
+
+      - name: Verify flake.lock is up to date
+        run: |
+          # Ensure flake.lock wasn't accidentally modified without committing
+          if ! git diff --exit-code flake.lock; then
+            echo "::warning::flake.lock has uncommitted changes"
+          fi

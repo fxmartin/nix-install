@@ -25,57 +25,57 @@
 ## Features in This Epic
 
 
-> **Note**: Detailed story implementations have been moved to feature-specific files in `docs/development/stories/` for better maintainability. See links below.
+> **Note**: Detailed story implementations have been moved to feature-specific files in `stories/features/` for better maintainability. See links below.
 
 ### Feature 02.1: AI & LLM Tools Installation ✅ COMPLETE
 **Feature Description**: Install and configure AI/LLM applications and models
 **Story Count**: 4 (4/4 complete) | **Story Points**: 16 (16/16 complete) | **Priority**: High | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-02-feature-02.1.md)**
+👉 **[View detailed implementation](features/epic-02-feature-02.1.md)**
 
 ### Feature 02.2: Development Environment Applications ✅ COMPLETE
 **Feature Description**: Install Zed, VSCode, Ghostty, Python, Podman, and Claude Code CLI with MCP servers
 **Story Count**: 6 (6/6 complete) | **Story Points**: 39 (39/39 complete) | **Priority**: High | **Complexity**: High
-👉 **[View detailed implementation](../docs/development/stories/epic-02-feature-02.2.md)**
+👉 **[View detailed implementation](features/epic-02-feature-02.2.md)**
 
 ### Feature 02.3: Browsers ✅ COMPLETE
 **Feature Description**: Install web browsers (Brave, Arc, Firefox, Safari configuration)
 **Story Count**: 2 (2/2 complete) | **Story Points**: 5 (5/5 complete) | **Priority**: High | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-02-feature-02.3.md)**
+👉 **[View detailed implementation](features/epic-02-feature-02.3.md)**
 
 ### Feature 02.4: Productivity & Utilities 🟡 IN PROGRESS
 **Feature Description**: Install productivity apps (Raycast, Dropbox, 1Password, etc.)
 **Story Count**: 7 (2/7 complete) | **Story Points**: 31 (8/31 complete) | **Priority**: High | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-02-feature-02.4.md)**
+👉 **[View detailed implementation](features/epic-02-feature-02.4.md)**
 
 ### Feature 02.5: Communication Tools
 **Feature Description**: Install communication apps (Zoom, Webex, Slack, Teams, WhatsApp)
 **Story Count**: 1 | **Story Points**: 3 | **Priority**: Medium | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-02-feature-02.5.md)**
+👉 **[View detailed implementation](features/epic-02-feature-02.5.md)**
 
 ### Feature 02.6: Media & Creative Tools
 **Feature Description**: Install media and creative tools (QuickTime, Preview)
 **Story Count**: 1 | **Story Points**: 2 | **Priority**: Medium | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-02-feature-02.6.md)**
+👉 **[View detailed implementation](features/epic-02-feature-02.6.md)**
 
 ### Feature 02.7: Security & VPN
 **Feature Description**: Install security and VPN tools (Proton VPN)
 **Story Count**: 1 | **Story Points**: 3 | **Priority**: Medium | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-02-feature-02.7.md)**
+👉 **[View detailed implementation](features/epic-02-feature-02.7.md)**
 
 ### Feature 02.8: Profile-Specific Applications
 **Feature Description**: Install profile-specific apps (Parallels for Power profile)
 **Story Count**: 1 | **Story Points**: 5 | **Priority**: High | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-02-feature-02.8.md)**
+👉 **[View detailed implementation](features/epic-02-feature-02.8.md)**
 
 ### Feature 02.9: Office 365 (Homebrew Cask Installation)
 **Feature Description**: Install Office 365 via Homebrew Cask with license activation
 **Story Count**: 1 | **Story Points**: 3 | **Priority**: High | **Complexity**: Low
-👉 **[View detailed implementation](../docs/development/stories/epic-02-feature-02.9.md)**
+👉 **[View detailed implementation](features/epic-02-feature-02.9.md)**
 
 ### Feature 02.10: Email Account Configuration
 **Feature Description**: Configure email accounts in macOS Mail.app (5 accounts: 1 Gmail, 4 Gandi.net)
 **Story Count**: 1 | **Story Points**: 5 | **Priority**: High | **Complexity**: Medium
-👉 **[View detailed implementation](../docs/development/stories/epic-02-feature-02.10.md)**
+👉 **[View detailed implementation](features/epic-02-feature-02.10.md)**
 
 ## Epic Dependencies
 

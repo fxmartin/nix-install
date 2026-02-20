@@ -65,7 +65,7 @@ flake.nix
          ├── modules/vscode.nix    (backup editor)
          ├── modules/python.nix    (uv, ruff, mypy)
          ├── modules/podman.nix    (container runtime)
-         ├── modules/claude-code.nix (CLI + MCP servers + GSD)
+         ├── modules/claude-code.nix (CLI + MCP servers)
          └── modules/ssh.nix       (SSH config, known hosts)
 ```
 

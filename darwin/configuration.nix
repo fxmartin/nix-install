@@ -40,6 +40,7 @@
     darwin.cctools
 
     # Core Utilities
+    age
     curl
     wget
     tree

@@ -289,6 +289,9 @@
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
 
+      # SOPS age key file location for secrets decryption
+      SOPS_AGE_KEY_FILE = "$HOME/.config/sops/age/keys.txt";
+
     };
 
     # Shell initialization code (runs after .zshrc setup)

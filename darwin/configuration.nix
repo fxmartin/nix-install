@@ -41,6 +41,7 @@
 
     # Core Utilities
     age
+    sops
     curl
     wget
     tree

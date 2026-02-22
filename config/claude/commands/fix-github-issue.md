@@ -23,8 +23,31 @@
 7. Analyze current test coverage for affected areas
 8. Review recent commits touching the same files (`git log --oneline -n 10 -- $FILES`)
 
+## FIX PLAN (APPROVAL GATE)
+
+Present a structured plan BEFORE writing any code:
+```
+### Proposed Fix
+**Root Cause**: [your diagnosis]
+**Approach**: [strategy in 1-2 sentences]
+
+**Files to Modify**:
+- `path/to/file` — [what changes]
+
+**New Files** (if any):
+- `path/to/new` — [purpose]
+
+**Tests**:
+- [ ] Update existing: [which]
+- [ ] Add new: [describe coverage]
+
+**Risk Assessment**: Low / Medium / High + rationale
+```
+
+**STOP and wait for user approval before proceeding.**
+
 ## DEVELOPMENT PHASE (DEFENSIVE)
-9. **Create feature branch**: `git checkout -b fix/issue-$ISSUE_NUMBER`
+9. **Create feature branch**: `git checkout -b fix/issue-$ISSUE_NUMBER-[short-description]`
 10. **Reproduce the bug first** - create failing test that demonstrates the issue
 11. **Document the fix approach** - comment your strategy before coding
 12. **Implement minimal fix** - smallest change that resolves the issue

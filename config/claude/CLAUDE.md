@@ -138,6 +138,15 @@ project/
 - ALWAYS ask for clarification rather than making assumptions.
 - If you're having trouble with something, it's ok to stop and ask for help. Especially if it's something your human might be better at.
 
+## GitHub Operations — Use `gh` CLI (NOT MCP)
+- **Always use `gh` CLI** for all GitHub operations (issues, PRs, releases, API calls)
+- Do NOT rely on a GitHub MCP server — it has been removed from all environments
+- Common commands:
+  - `gh issue list`, `gh issue create`, `gh issue view <number>`
+  - `gh pr list`, `gh pr create`, `gh pr view <number>`, `gh pr checks`
+  - `gh api repos/{owner}/{repo}/...` for anything not covered by subcommands
+- The `gh` CLI is pre-authenticated and available in all dev shells
+
 ## Reference Materials
 - **TDD Process**: Red → Green → Refactor cycle
 - **Python**: `@~/.claude/docs/python.md`

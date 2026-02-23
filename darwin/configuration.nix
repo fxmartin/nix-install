@@ -93,6 +93,9 @@
     # Remote Access Tools
     mosh                # Mobile shell - persistent SSH alternative with roaming support
 
+    # Network Tools
+    nmap                # Network discovery and security auditing
+
     # Nix Development Tools
     nil                 # Nix language server (simpler, lightweight)
     nixd                # Nix language server (feature-rich, used by Zed extension)

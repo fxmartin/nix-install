@@ -341,9 +341,11 @@ run_backup_job() {
         # --progress: show progress
         # --whole-file: skip delta algorithm (faster on LAN)
         # --partial: keep partial files for resume
+        # --contimeout: connection timeout (seconds)
+        # --timeout: I/O timeout (seconds) - prevents indefinite hangs
         # NO -z: compression wastes CPU on fast LAN
         # NO --delete: archive mode keeps deleted files on NAS
-        rsync_args=(-av --progress --whole-file --partial)
+        rsync_args=(-av --progress --whole-file --partial --contimeout=30 --timeout=120)
     else
         # SMB MOUNT MODE (fallback - slower but simpler)
         print_status "info" "Mode: SMB mount (fallback)"
@@ -369,7 +371,8 @@ run_backup_job() {
         # Optimized flags for SMB mount on LAN
         # --whole-file: delta algorithm over SMB is very slow
         # --inplace: reduce disk I/O
-        rsync_args=(-av --progress --whole-file --partial --inplace)
+        # --timeout: I/O timeout (seconds) - prevents indefinite hangs
+        rsync_args=(-av --progress --whole-file --partial --inplace --timeout=120)
         dest_full="${dest_full}/"
     fi
 
@@ -391,14 +394,18 @@ run_backup_job() {
             print_status "info" "Starting rsync..."
         fi
 
-        if rsync "${rsync_args[@]}" "${password_args[@]}" "${exclude_args[@]}" "${source_full}/" "${dest_full}" 2>&1 | tee -a "${LOG_FILE}"; then
+        # Run rsync and capture its exit code separately (pipe to tee masks it)
+        rsync "${rsync_args[@]}" "${password_args[@]}" "${exclude_args[@]}" "${source_full}/" "${dest_full}" 2>&1 | tee -a "${LOG_FILE}"
+        local rsync_exit="${PIPESTATUS[0]}"
+
+        if [[ ${rsync_exit} -eq 0 ]]; then
             rsync_end=$(date +%s)
             duration=$((rsync_end - rsync_start))
             print_status "ok" "Backup completed in ${duration}s"
             [[ ${attempt} -gt 1 ]] && print_status "info" "Succeeded on attempt ${attempt}"
             return 0
         else
-            print_status "error" "rsync failed (attempt ${attempt}/${max_retries})"
+            print_status "error" "rsync failed (attempt ${attempt}/${max_retries}, exit code ${rsync_exit})"
             ((attempt++))
         fi
     done

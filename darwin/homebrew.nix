@@ -13,7 +13,9 @@
 
     # Homebrew taps (repositories)
     # Epic-02 will add: homebrew/cask-fonts, etc.
-    taps = [];
+    taps = [
+      "human37/open-wispr" # open-wispr - Local private voice dictation using whisper.cpp
+    ];
 
     onActivation = {
       autoUpdate = false; # CRITICAL: Disable auto-updates per REQUIREMENTS.md
@@ -55,6 +57,9 @@
       # Media Tools
       # Note: yt-dlp broken in nixpkgs (curl-impersonate AppleIDN check fails on macOS 15.3)
       "yt-dlp"          # YouTube/video downloader (active fork of youtube-dl)
+
+      # Voice Dictation
+      "open-wispr"      # Local private voice dictation using whisper.cpp + Metal acceleration
     ];
 
     # GUI Applications (Casks)

@@ -96,6 +96,9 @@
     # Network Tools
     nmap                # Network discovery and security auditing
 
+    # File Transfer
+    rsync               # GNU rsync 3.x (fixes iCloud mmap deadlock in macOS openrsync)
+
     # Nix Development Tools
     nil                 # Nix language server (simpler, lightweight)
     nixd                # Nix language server (feature-rich, used by Zed extension)

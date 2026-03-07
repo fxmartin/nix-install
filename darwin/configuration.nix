@@ -217,6 +217,21 @@
 
         chown -R ${userConfig.username}:staff "$SCRIPTS_DST"
         echo "✓ Common scripts synced to $SCRIPTS_DST"
+
+        # ========================================================================
+        # OPEN-WISPR SERVICE (Both Profiles)
+        # ========================================================================
+        # Local private voice dictation using whisper.cpp + Metal acceleration
+        # Installed via Homebrew (human37/open-wispr tap), runs as a brew service
+        if [ -x /opt/homebrew/bin/brew ]; then
+          if ! /opt/homebrew/bin/brew services list 2>/dev/null | grep -q "open-wispr.*started"; then
+            echo "Starting open-wispr service..."
+            sudo -u ${userConfig.username} /opt/homebrew/bin/brew services start open-wispr 2>&1 || true
+            echo "✓ open-wispr service started"
+          else
+            echo "✓ open-wispr service already running"
+          fi
+        fi
       '' + lib.optionalString isPowerProfile ''
         # ========================================================================
         # MAINTENANCE SCRIPTS SYNC (Power Profile Only)

@@ -122,18 +122,28 @@ check_nas_reachable() {
     # First try ping
     if ping -c 1 -W 5 "${NAS_HOST}" &>/dev/null; then
         print_status "ok" "NAS ${NAS_HOST} is reachable (ping)"
-        return 0
-    fi
-
-    # If ping fails, try SMB connection test (NAS might block ICMP)
-    print_status "info" "Ping failed, trying SMB connection..."
-    if nc -z -w 5 "${NAS_HOST}" 445 &>/dev/null; then
+    elif nc -z -w 5 "${NAS_HOST}" 445 &>/dev/null; then
+        # If ping fails, try SMB connection test (NAS might block ICMP)
         print_status "ok" "NAS ${NAS_HOST} is reachable (SMB port 445)"
-        return 0
+    else
+        print_status "error" "NAS ${NAS_HOST} is not reachable"
+        return 1
     fi
 
-    print_status "error" "NAS ${NAS_HOST} is not reachable"
-    return 1
+    # If using rsync daemon mode, also verify port 873 is accessible
+    # This prevents 10 retries with 120s timeouts when the daemon is down
+    if [[ "${USE_RSYNC_DAEMON:-false}" == "true" ]]; then
+        if nc -z -w 10 "${NAS_HOST}" 873 &>/dev/null; then
+            print_status "ok" "rsync daemon port 873 is accessible"
+        else
+            print_status "error" "rsync daemon port 873 is not responding on ${NAS_HOST}"
+            print_status "info" "The NAS is reachable but the rsync daemon appears to be down"
+            print_status "info" "Check that rsyncd is running on the NAS, or set USE_RSYNC_DAEMON=false to use SMB fallback"
+            return 1
+        fi
+    fi
+
+    return 0
 }
 
 # Mount a specific NAS share

@@ -226,7 +226,7 @@
         if [ -x /opt/homebrew/bin/brew ]; then
           if ! /opt/homebrew/bin/brew services list 2>/dev/null | grep -q "open-wispr.*started"; then
             echo "Starting open-wispr service..."
-            sudo -u ${userConfig.username} /opt/homebrew/bin/brew services start open-wispr 2>&1 || true
+            su - ${userConfig.username} -c '/opt/homebrew/bin/brew services start open-wispr' 2>&1 || true
             echo "✓ open-wispr service started"
           else
             echo "✓ open-wispr service already running"

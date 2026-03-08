@@ -1,5 +1,5 @@
 # ABOUTME: Claude Code CLI configuration with MCP servers (Context7, Playwright)
-# ABOUTME: Symlinks ~/.claude/ directory to repo for bidirectional sync (REQ-NFR-008 compliant)
+# ABOUTME: Symlinks ~/.claude/ to claude-code-config submodule for bidirectional sync (REQ-NFR-008)
 # ABOUTME: Writes MCP config to BOTH ~/.config/claude/config.json (Desktop) AND ~/.claude.json (CLI)
 {
   config,
@@ -50,19 +50,13 @@ in {
   # - Same pattern as Zed (Story 02.2-001), VSCode (Story 02.2-002), Ghostty (Story 02.2-003)
   #
   # How it works:
-  # 1. Repository structure:
-  #    - config/claude/CLAUDE.md: User instructions for Claude Code
-  #    - config/claude/agents/: Custom agent definitions
-  #    - config/claude/commands/: Custom slash commands
+  # 1. Config lives in claude-code-config submodule at config/claude-code-config/
   # 2. Activation script dynamically finds repo location
   #    - Searches: ~/nix-install, ~/.config/nix-install, ~/Documents/nix-install
   #    - Works with any NIX_INSTALL_DIR from bootstrap
-  # 3. Creates symlinks:
-  #    - ~/.claude/CLAUDE.md → $REPO/config/claude/CLAUDE.md
-  #    - ~/.claude/agents/ → $REPO/config/claude/agents/
-  #    - ~/.claude/commands/ → $REPO/config/claude/commands/
-  #    - ~/.claude/settings.json → $REPO/config/claude/settings.json
-  #    - ~/.claude/statusline-command.sh → $REPO/config/claude/statusline-command.sh
+  # 3. Creates symlinks from ~/.claude/ → $REPO/config/claude-code-config/:
+  #    - CLAUDE.md, agents/, commands/, settings.json, statusline-command.sh
+  #    - keybindings.json, docs/, hooks/ (new)
   # 4. Creates MCP configs for BOTH Claude Desktop AND Claude Code CLI:
   #    - ~/.config/claude/config.json → Claude Desktop (full mcpServers object)
   #    - ~/.claude.json → Claude Code CLI (merges mcpServers into existing config)
@@ -92,7 +86,7 @@ in {
     # If repo found, symlink CLAUDE.md, agents/, and commands/ to repository
     if [ -n "$REPO_ROOT" ]; then
       # Symlink CLAUDE.md (REQ-NFR-008 compliant)
-      CLAUDE_MD_REPO="$REPO_ROOT/config/claude/CLAUDE.md"
+      CLAUDE_MD_REPO="$REPO_ROOT/config/claude-code-config/CLAUDE.md"
       CLAUDE_MD_HOME="$CLAUDE_DIR/CLAUDE.md"
 
       if [ -f "$CLAUDE_MD_REPO" ]; then
@@ -103,13 +97,13 @@ in {
         fi
 
         $DRY_RUN_CMD ln -sf "$CLAUDE_MD_REPO" "$CLAUDE_MD_HOME"
-        echo "✓ Linked ~/.claude/CLAUDE.md → $REPO_ROOT/config/claude/CLAUDE.md"
+        echo "✓ Linked ~/.claude/CLAUDE.md → $REPO_ROOT/config/claude-code-config/CLAUDE.md"
       else
         echo "⚠️  Warning: $CLAUDE_MD_REPO not found"
       fi
 
       # Symlink agents directory
-      AGENTS_REPO="$REPO_ROOT/config/claude/agents"
+      AGENTS_REPO="$REPO_ROOT/config/claude-code-config/agents"
       AGENTS_HOME="$CLAUDE_DIR/agents"
 
       if [ -d "$AGENTS_REPO" ]; then
@@ -120,13 +114,13 @@ in {
         fi
 
         $DRY_RUN_CMD ln -sfn "$AGENTS_REPO" "$AGENTS_HOME"
-        echo "✓ Linked ~/.claude/agents/ → $REPO_ROOT/config/claude/agents/"
+        echo "✓ Linked ~/.claude/agents/ → $REPO_ROOT/config/claude-code-config/agents/"
       else
         echo "⚠️  Warning: $AGENTS_REPO directory not found"
       fi
 
       # Symlink commands directory
-      COMMANDS_REPO="$REPO_ROOT/config/claude/commands"
+      COMMANDS_REPO="$REPO_ROOT/config/claude-code-config/commands"
       COMMANDS_HOME="$CLAUDE_DIR/commands"
 
       if [ -d "$COMMANDS_REPO" ]; then
@@ -137,13 +131,13 @@ in {
         fi
 
         $DRY_RUN_CMD ln -sfn "$COMMANDS_REPO" "$COMMANDS_HOME"
-        echo "✓ Linked ~/.claude/commands/ → $REPO_ROOT/config/claude/commands/"
+        echo "✓ Linked ~/.claude/commands/ → $REPO_ROOT/config/claude-code-config/commands/"
       else
         echo "⚠️  Warning: $COMMANDS_REPO directory not found"
       fi
 
       # Symlink settings.json (statusline, plugins, theme)
-      SETTINGS_REPO="$REPO_ROOT/config/claude/settings.json"
+      SETTINGS_REPO="$REPO_ROOT/config/claude-code-config/settings.json"
       SETTINGS_HOME="$CLAUDE_DIR/settings.json"
 
       if [ -f "$SETTINGS_REPO" ]; then
@@ -154,13 +148,13 @@ in {
         fi
 
         $DRY_RUN_CMD ln -sf "$SETTINGS_REPO" "$SETTINGS_HOME"
-        echo "✓ Linked ~/.claude/settings.json → $REPO_ROOT/config/claude/settings.json"
+        echo "✓ Linked ~/.claude/settings.json → $REPO_ROOT/config/claude-code-config/settings.json"
       else
         echo "⚠️  Warning: $SETTINGS_REPO not found"
       fi
 
       # Symlink statusline-command.sh (referenced by settings.json)
-      STATUSLINE_REPO="$REPO_ROOT/config/claude/statusline-command.sh"
+      STATUSLINE_REPO="$REPO_ROOT/config/claude-code-config/statusline-command.sh"
       STATUSLINE_HOME="$CLAUDE_DIR/statusline-command.sh"
 
       if [ -f "$STATUSLINE_REPO" ]; then
@@ -171,9 +165,57 @@ in {
         fi
 
         $DRY_RUN_CMD ln -sf "$STATUSLINE_REPO" "$STATUSLINE_HOME"
-        echo "✓ Linked ~/.claude/statusline-command.sh → $REPO_ROOT/config/claude/statusline-command.sh"
+        echo "✓ Linked ~/.claude/statusline-command.sh → $REPO_ROOT/config/claude-code-config/statusline-command.sh"
       else
         echo "⚠️  Warning: $STATUSLINE_REPO not found"
+      fi
+
+      # Symlink keybindings.json
+      KEYBINDINGS_REPO="$REPO_ROOT/config/claude-code-config/keybindings.json"
+      KEYBINDINGS_HOME="$CLAUDE_DIR/keybindings.json"
+
+      if [ -f "$KEYBINDINGS_REPO" ]; then
+        if [ -f "$KEYBINDINGS_HOME" ] && [ ! -L "$KEYBINDINGS_HOME" ]; then
+          $DRY_RUN_CMD mv "$KEYBINDINGS_HOME" "$KEYBINDINGS_HOME.backup"
+          echo "Backed up existing keybindings.json to: $KEYBINDINGS_HOME.backup"
+        fi
+
+        $DRY_RUN_CMD ln -sf "$KEYBINDINGS_REPO" "$KEYBINDINGS_HOME"
+        echo "✓ Linked ~/.claude/keybindings.json → $REPO_ROOT/config/claude-code-config/keybindings.json"
+      else
+        echo "⚠️  Warning: $KEYBINDINGS_REPO not found"
+      fi
+
+      # Symlink docs directory
+      DOCS_REPO="$REPO_ROOT/config/claude-code-config/docs"
+      DOCS_HOME="$CLAUDE_DIR/docs"
+
+      if [ -d "$DOCS_REPO" ]; then
+        if [ -d "$DOCS_HOME" ] && [ ! -L "$DOCS_HOME" ]; then
+          $DRY_RUN_CMD mv "$DOCS_HOME" "$DOCS_HOME.backup"
+          echo "Backed up existing docs/ to: $DOCS_HOME.backup"
+        fi
+
+        $DRY_RUN_CMD ln -sfn "$DOCS_REPO" "$DOCS_HOME"
+        echo "✓ Linked ~/.claude/docs/ → $REPO_ROOT/config/claude-code-config/docs/"
+      else
+        echo "⚠️  Warning: $DOCS_REPO directory not found"
+      fi
+
+      # Symlink hooks directory
+      HOOKS_REPO="$REPO_ROOT/config/claude-code-config/hooks"
+      HOOKS_HOME="$CLAUDE_DIR/hooks"
+
+      if [ -d "$HOOKS_REPO" ]; then
+        if [ -d "$HOOKS_HOME" ] && [ ! -L "$HOOKS_HOME" ]; then
+          $DRY_RUN_CMD mv "$HOOKS_HOME" "$HOOKS_HOME.backup"
+          echo "Backed up existing hooks/ to: $HOOKS_HOME.backup"
+        fi
+
+        $DRY_RUN_CMD ln -sfn "$HOOKS_REPO" "$HOOKS_HOME"
+        echo "✓ Linked ~/.claude/hooks/ → $REPO_ROOT/config/claude-code-config/hooks/"
+      else
+        echo "⚠️  Warning: $HOOKS_REPO directory not found"
       fi
     else
       echo "⚠️  Warning: Could not find nix-install repository"

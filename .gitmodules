@@ -7,3 +7,6 @@
 [submodule "config/oh-my-zsh-custom/themes/powerlevel10k"]
 	path = config/oh-my-zsh-custom/themes/powerlevel10k
 	url = https://github.com/romkatv/powerlevel10k.git
+[submodule "config/claude-code-config"]
+	path = config/claude-code-config
+	url = git@github.com:fxmartin/claude-code-config.git

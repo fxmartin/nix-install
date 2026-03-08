@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mac App Store apps installation support
 
 ### Changed
+- Verify rsync daemon port 873 before backup when using daemon mode (fail fast instead of 10x120s retries)
 - Centralized Ollama model lists in `flake.nix` with `mkOllamaModelScript` generator
 - Centralized OLLAMA_HOST/OLLAMA_ORIGINS in `maintenance.nix` `let` block
 - Created `mkScheduledAgent` helper — eliminated ~100 lines of LaunchAgent boilerplate

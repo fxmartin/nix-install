@@ -213,6 +213,24 @@ The `rsync-backup.sh` script works with autofs:
 - If not mounted, the script's `mount_share()` function handles it
 - Autofs provides seamless access for both manual and automated use
 
+### Rsync Daemon Mode (Port 873)
+
+When `useRsyncDaemon = true` in `rsync-backup-config.nix`, backups use the native rsync protocol on port 873 instead of SMB. This is 2-5x faster on LAN but requires the rsync daemon (`rsyncd`) to be running on the NAS.
+
+The NAS reachability check verifies both host connectivity (ping or SMB port 445) **and** rsync daemon availability (port 873) before starting backup jobs. If the daemon is down, the backup fails immediately with a clear error instead of exhausting all retry attempts (which previously took ~35 minutes of 120s timeouts).
+
+To troubleshoot rsync daemon issues:
+```bash
+# Check if rsync daemon is responding
+nc -z -w 10 tnas.local 873
+
+# Check NAS connectivity (SMB)
+nc -z -w 5 tnas.local 445
+
+# Run backup manually
+~/.local/bin/rsync-backup.sh
+```
+
 ## References
 
 - [macOS autofs Guide](https://gist.github.com/rudelm/7bcc905ab748ab9879ea)

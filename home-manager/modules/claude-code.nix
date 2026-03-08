@@ -1,4 +1,4 @@
-# ABOUTME: Claude Code CLI configuration with MCP servers (Context7, Playwright, Sequential Thinking)
+# ABOUTME: Claude Code CLI configuration with MCP servers (Context7, Playwright)
 # ABOUTME: Symlinks ~/.claude/ directory to repo for bidirectional sync (REQ-NFR-008 compliant)
 # ABOUTME: Writes MCP config to BOTH ~/.config/claude/config.json (Desktop) AND ~/.claude.json (CLI)
 {
@@ -19,11 +19,6 @@
         enable = true;
       };
 
-      # Sequential Thinking MCP server - No authentication required
-      sequential-thinking = {
-        enable = true;
-      };
-
       # Playwright MCP server - Browser automation for web testing and scraping
       # No authentication required
       # Note: Uses Brave Browser (Chromium-based) installed via Homebrew
@@ -40,7 +35,7 @@
   jq = pkgs.jq;
 in {
   # Claude Code CLI and MCP Servers Configuration
-  # Story 02.2-006: Install Claude Code CLI with Context7 and Sequential Thinking MCP servers
+  # Story 02.2-006: Install Claude Code CLI with Context7 and Playwright MCP servers
   #
   # Installation:
   # - Claude Code CLI: Via Nix (claude-code-nix flake input, installed in darwin/configuration.nix)
@@ -66,6 +61,8 @@ in {
   #    - ~/.claude/CLAUDE.md → $REPO/config/claude/CLAUDE.md
   #    - ~/.claude/agents/ → $REPO/config/claude/agents/
   #    - ~/.claude/commands/ → $REPO/config/claude/commands/
+  #    - ~/.claude/settings.json → $REPO/config/claude/settings.json
+  #    - ~/.claude/statusline-command.sh → $REPO/config/claude/statusline-command.sh
   # 4. Creates MCP configs for BOTH Claude Desktop AND Claude Code CLI:
   #    - ~/.config/claude/config.json → Claude Desktop (full mcpServers object)
   #    - ~/.claude.json → Claude Code CLI (merges mcpServers into existing config)
@@ -76,7 +73,6 @@ in {
   #
   # MCP Servers Configuration:
   # - Context7: No authentication required
-  # - Sequential Thinking: No authentication required
   # - Playwright: No authentication required (uses Chromium, not Chrome)
   #
   # All MCP servers use Nix-installed binaries (managed by mkConfig, not npx/npm)
@@ -144,6 +140,40 @@ in {
         echo "✓ Linked ~/.claude/commands/ → $REPO_ROOT/config/claude/commands/"
       else
         echo "⚠️  Warning: $COMMANDS_REPO directory not found"
+      fi
+
+      # Symlink settings.json (statusline, plugins, theme)
+      SETTINGS_REPO="$REPO_ROOT/config/claude/settings.json"
+      SETTINGS_HOME="$CLAUDE_DIR/settings.json"
+
+      if [ -f "$SETTINGS_REPO" ]; then
+        # Back up existing file if it's not a symlink
+        if [ -f "$SETTINGS_HOME" ] && [ ! -L "$SETTINGS_HOME" ]; then
+          $DRY_RUN_CMD mv "$SETTINGS_HOME" "$SETTINGS_HOME.backup"
+          echo "Backed up existing settings.json to: $SETTINGS_HOME.backup"
+        fi
+
+        $DRY_RUN_CMD ln -sf "$SETTINGS_REPO" "$SETTINGS_HOME"
+        echo "✓ Linked ~/.claude/settings.json → $REPO_ROOT/config/claude/settings.json"
+      else
+        echo "⚠️  Warning: $SETTINGS_REPO not found"
+      fi
+
+      # Symlink statusline-command.sh (referenced by settings.json)
+      STATUSLINE_REPO="$REPO_ROOT/config/claude/statusline-command.sh"
+      STATUSLINE_HOME="$CLAUDE_DIR/statusline-command.sh"
+
+      if [ -f "$STATUSLINE_REPO" ]; then
+        # Back up existing file if it's not a symlink
+        if [ -f "$STATUSLINE_HOME" ] && [ ! -L "$STATUSLINE_HOME" ]; then
+          $DRY_RUN_CMD mv "$STATUSLINE_HOME" "$STATUSLINE_HOME.backup"
+          echo "Backed up existing statusline-command.sh to: $STATUSLINE_HOME.backup"
+        fi
+
+        $DRY_RUN_CMD ln -sf "$STATUSLINE_REPO" "$STATUSLINE_HOME"
+        echo "✓ Linked ~/.claude/statusline-command.sh → $REPO_ROOT/config/claude/statusline-command.sh"
+      else
+        echo "⚠️  Warning: $STATUSLINE_REPO not found"
       fi
     else
       echo "⚠️  Warning: Could not find nix-install repository"

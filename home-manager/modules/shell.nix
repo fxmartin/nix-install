@@ -220,6 +220,9 @@
       # Auto-theme wrapper: detects macOS light/dark mode and sets Claude Code theme
       # Workaround until https://github.com/anthropics/claude-code/issues/11813 is resolved
       cld = "bash ${dotfilesPath}/scripts/claude-code-wrapper.sh";
+
+      # Sync claude-code-config submodule (pull latest from remote)
+      claude-sync = "git -C ${dotfilesPath}/config/claude-code-config pull origin main";
     };
 
     # =============================================================================

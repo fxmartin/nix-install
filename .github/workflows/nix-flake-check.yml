@@ -34,6 +34,9 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
 
+      - name: Cache Nix store
+        uses: DeterminateSystems/magic-nix-cache-action@main
+
       - name: Create user-config.nix for CI
         run: |
           # Create minimal user-config.nix so flake can evaluate

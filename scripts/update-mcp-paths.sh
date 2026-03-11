@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 # ABOUTME: Updates MCP server paths in Claude Code config files after nix rebuild
-# ABOUTME: Finds current Nix store paths for Context7 and Sequential Thinking servers
-# NOTE: Sequential Thinking is currently disabled pending PR #276 (Node.js 22 pinning)
-# See: https://github.com/natsukium/mcp-servers-nix/pull/276
+# ABOUTME: Finds current Nix store paths for Context7 and Playwright MCP servers
 
 set -euo pipefail
 
@@ -68,12 +66,10 @@ main() {
     echo ""
 
     # Find current paths
-    local context7_path sequential_path
-    context7_path=$(find_mcp_path "context7-mcp" "context7-mcp")
-    sequential_path=$(find_mcp_path "mcp-server-sequential-thinking" "mcp-server-sequential-thinking")
-
-    # Verify all paths found
+    local context7_path playwright_path
     local all_found=true
+    context7_path=$(find_mcp_path "context7-mcp" "context7-mcp")
+    playwright_path=$(find_mcp_path "playwright-mcp" "playwright-mcp")
 
     if [[ -n "${context7_path}" ]]; then
         log_info "context7: ${context7_path}"
@@ -82,11 +78,11 @@ main() {
         all_found=false
     fi
 
-    if [[ -n "${sequential_path}" ]]; then
-        log_info "sequential-thinking: ${sequential_path}"
+    if [[ -n "${playwright_path}" ]]; then
+        log_info "playwright: ${playwright_path}"
     else
-        # Sequential Thinking is currently disabled pending PR #276
-        log_warn "sequential-thinking not found (disabled pending PR #276)"
+        log_error "playwright-mcp not found in Nix store"
+        all_found=false
     fi
 
     if [[ "${all_found}" != "true" ]]; then
@@ -106,10 +102,8 @@ main() {
             update_json_path "${claude_json}" "context7" "${context7_path}"
             log_info "Updated context7 in ~/.claude.json"
 
-            if [[ -n "${sequential_path}" ]]; then
-                update_json_path "${claude_json}" "sequential-thinking" "${sequential_path}"
-                log_info "Updated sequential-thinking in ~/.claude.json"
-            fi
+            update_json_path "${claude_json}" "playwright" "${playwright_path}"
+            log_info "Updated playwright in ~/.claude.json"
         else
             log_warn "No mcpServers section in ~/.claude.json - skipping"
         fi
@@ -127,10 +121,8 @@ main() {
         update_json_path "${config_json}" "context7" "${context7_path}"
         log_info "Updated context7 in config.json"
 
-        if [[ -n "${sequential_path}" ]]; then
-            update_json_path "${config_json}" "sequential-thinking" "${sequential_path}"
-            log_info "Updated sequential-thinking in config.json"
-        fi
+        update_json_path "${config_json}" "playwright" "${playwright_path}"
+        log_info "Updated playwright in config.json"
     else
         log_warn "${HOME}/.config/claude/config.json not found"
     fi

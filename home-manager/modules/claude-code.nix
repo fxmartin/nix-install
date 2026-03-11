@@ -202,6 +202,22 @@ in {
         echo "⚠️  Warning: $DOCS_REPO directory not found"
       fi
 
+      # Symlink skills directory
+      SKILLS_REPO="$REPO_ROOT/config/claude-code-config/skills"
+      SKILLS_HOME="$CLAUDE_DIR/skills"
+
+      if [ -d "$SKILLS_REPO" ]; then
+        if [ -d "$SKILLS_HOME" ] && [ ! -L "$SKILLS_HOME" ]; then
+          $DRY_RUN_CMD mv "$SKILLS_HOME" "$SKILLS_HOME.backup"
+          echo "Backed up existing skills/ to: $SKILLS_HOME.backup"
+        fi
+
+        $DRY_RUN_CMD ln -sfn "$SKILLS_REPO" "$SKILLS_HOME"
+        echo "✓ Linked ~/.claude/skills/ → $REPO_ROOT/config/claude-code-config/skills/"
+      else
+        echo "⚠️  Warning: $SKILLS_REPO directory not found"
+      fi
+
       # Symlink hooks directory
       HOOKS_REPO="$REPO_ROOT/config/claude-code-config/hooks"
       HOOKS_HOME="$CLAUDE_DIR/hooks"

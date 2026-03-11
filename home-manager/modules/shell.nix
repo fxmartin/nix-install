@@ -223,6 +223,10 @@
 
       # Sync claude-code-config submodule (pull latest from remote)
       claude-sync = "git -C ${dotfilesPath}/config/claude-code-config pull origin main";
+
+      # Claude Session Dashboard - local observability for ~/.claude sessions
+      # https://github.com/dlupiak/claude-session-dashboard
+      claude-dashboard = "npx claude-session-dashboard --open";
     };
 
     # =============================================================================

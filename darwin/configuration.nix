@@ -346,7 +346,7 @@
       46.224.44.190  dev dev-server dev-public
 
       # Local network IPs (accessible only on local network)
-      192.168.68.58  nas-lux nas-local
+      192.168.178.76  nas-lux nas-local
     '';
 
     # Known SHA256 hashes of /etc/hosts files that are safe to overwrite

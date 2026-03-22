@@ -560,9 +560,9 @@
 - MCP servers: Context7, GitHub, Sequential Thinking
 - All servers configured with appropriate permissions
 - **REQ-NFR-008**: Claude Code configuration MUST use repository symlink pattern (not /nix/store)
-  - ~/.claude/CLAUDE.md → $REPO/config/claude/CLAUDE.md
-  - ~/.claude/agents/ → $REPO/config/claude/agents/
-  - ~/.claude/commands/ → $REPO/config/claude/commands/
+  - ~/.claude/CLAUDE.md → $REPO/config/claude-code-config/CLAUDE.md
+  - ~/.claude/agents/ → $REPO/config/claude-code-config/agents/
+  - ~/.claude/commands/ → $REPO/config/claude-code-config/commands/
 - Documentation for MCP server usage and authentication
 
 **Technical Notes**:
@@ -650,7 +650,7 @@
       # Find repository location (same pattern as Zed, VSCode, Ghostty)
       REPO_ROOT=""
       for location in "$HOME/nix-install" "$HOME/.config/nix-install" "$HOME/Documents/nix-install"; do
-        if [[ -d "$location" && -f "$location/flake.nix" && -d "$location/config/claude" ]]; then
+        if [[ -d "$location" && -f "$location/flake.nix" && -d "$location/config/claude-code-config" ]]; then
           REPO_ROOT="$location"
           break
         fi
@@ -665,27 +665,27 @@
         mkdir -p "$HOME/.claude"
 
         # Symlink CLAUDE.md (REQ-NFR-008 compliant)
-        if [[ -f "$REPO_ROOT/config/claude/CLAUDE.md" ]]; then
-          ln -sf "$REPO_ROOT/config/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
-          echo "✓ Linked ~/.claude/CLAUDE.md → $REPO_ROOT/config/claude/CLAUDE.md"
+        if [[ -f "$REPO_ROOT/config/claude-code-config/CLAUDE.md" ]]; then
+          ln -sf "$REPO_ROOT/config/claude-code-config/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+          echo "✓ Linked ~/.claude/CLAUDE.md → $REPO_ROOT/config/claude-code-config/CLAUDE.md"
         else
-          echo "⚠ WARNING: $REPO_ROOT/config/claude/CLAUDE.md not found"
+          echo "⚠ WARNING: $REPO_ROOT/config/claude-code-config/CLAUDE.md not found"
         fi
 
         # Symlink agents directory
-        if [[ -d "$REPO_ROOT/config/claude/agents" ]]; then
-          ln -sfn "$REPO_ROOT/config/claude/agents" "$HOME/.claude/agents"
-          echo "✓ Linked ~/.claude/agents/ → $REPO_ROOT/config/claude/agents/"
+        if [[ -d "$REPO_ROOT/config/claude-code-config/agents" ]]; then
+          ln -sfn "$REPO_ROOT/config/claude-code-config/agents" "$HOME/.claude/agents"
+          echo "✓ Linked ~/.claude/agents/ → $REPO_ROOT/config/claude-code-config/agents/"
         else
-          echo "⚠ WARNING: $REPO_ROOT/config/claude/agents/ directory not found"
+          echo "⚠ WARNING: $REPO_ROOT/config/claude-code-config/agents/ directory not found"
         fi
 
         # Symlink commands directory
-        if [[ -d "$REPO_ROOT/config/claude/commands" ]]; then
-          ln -sfn "$REPO_ROOT/config/claude/commands" "$HOME/.claude/commands"
-          echo "✓ Linked ~/.claude/commands/ → $REPO_ROOT/config/claude/commands/"
+        if [[ -d "$REPO_ROOT/config/claude-code-config/commands" ]]; then
+          ln -sfn "$REPO_ROOT/config/claude-code-config/commands" "$HOME/.claude/commands"
+          echo "✓ Linked ~/.claude/commands/ → $REPO_ROOT/config/claude-code-config/commands/"
         else
-          echo "⚠ WARNING: $REPO_ROOT/config/claude/commands/ directory not found"
+          echo "⚠ WARNING: $REPO_ROOT/config/claude-code-config/commands/ directory not found"
         fi
       fi
 
@@ -762,9 +762,9 @@
 - [ ] GitHub MCP server functional (with token configured) ⚠️ VM testing pending
 - [ ] Sequential Thinking MCP server functional ⚠️ Disabled pending [PR #276](https://github.com/natsukium/mcp-servers-nix/pull/276)
 - [x] **REQ-NFR-008**: Repository symlinks verified:
-  - [x] `~/.claude/CLAUDE.md` → `$REPO/config/claude/CLAUDE.md` (bidirectional)
-  - [x] `~/.claude/agents/` → `$REPO/config/claude/agents/`
-  - [x] `~/.claude/commands/` → `$REPO/config/claude/commands/`
+  - [x] `~/.claude/CLAUDE.md` → `$REPO/config/claude-code-config/CLAUDE.md` (bidirectional)
+  - [x] `~/.claude/agents/` → `$REPO/config/claude-code-config/agents/`
+  - [x] `~/.claude/commands/` → `$REPO/config/claude-code-config/commands/`
   - [ ] Verify: `ls -la ~/.claude/` shows symlinks to repository ⚠️ VM testing pending
 - [x] Configuration documented in app-post-install-configuration.md (370+ lines)
 - [x] Token/credential setup documented (GitHub token creation guide)
@@ -792,9 +792,9 @@
 **Implementation Details**:
 - **Fully Nix-Based**: All packages via Nix (zero Node.js or npm dependencies)
 - **REQ-NFR-008 Compliant**: Bidirectional sync via repository symlinks
-  - ~/.claude/CLAUDE.md → $REPO/config/claude/CLAUDE.md
-  - ~/.claude/agents/ → $REPO/config/claude/agents/
-  - ~/.claude/commands/ → $REPO/config/claude/commands/
+  - ~/.claude/CLAUDE.md → $REPO/config/claude-code-config/CLAUDE.md
+  - ~/.claude/agents/ → $REPO/config/claude-code-config/agents/
+  - ~/.claude/commands/ → $REPO/config/claude-code-config/commands/
   - Dynamic repository location detection (works with any NIX_INSTALL_DIR)
 - **MCP Configuration**: Created at ~/.config/claude/config.json
   - Three servers: context7, github, sequential-thinking

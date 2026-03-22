@@ -31,8 +31,9 @@ The `darwin/smb-automount.nix` module manages:
 
 ### NAS Details
 
-- **Host**: `192.168.68.58` (IP used for reliability over mDNS)
-- **mDNS**: `TNAS.local`
+- **Host**: `192.168.178.76` (use `tnas.local` mDNS for resilience to IP changes)
+- **mDNS**: `tnas.local`
+- **Web UI**: `http://tnas.local:8181` (TerraMaster TOS admin, HTTPS on port 5443)
 - **Username**: `fxmartin`
 
 ## Setup
@@ -44,7 +45,7 @@ After running `rebuild`, add your NAS credentials to Keychain:
 ```bash
 security add-internet-password \
   -a "fxmartin" \
-  -s "192.168.68.58" \
+  -s "192.168.178.76" \
   -D "network password" \
   -r "smb " \
   -w "YOUR_NAS_PASSWORD" \
@@ -120,13 +121,13 @@ ls /Volumes/Photos  # Triggers remount
 
 1. **Check NAS connectivity**:
    ```bash
-   ping 192.168.68.58
-   nc -z 192.168.68.58 445  # SMB port
+   ping 192.168.178.76
+   nc -z 192.168.178.76 445  # SMB port
    ```
 
 2. **Verify keychain credentials**:
    ```bash
-   security find-internet-password -s "192.168.68.58" -a "fxmartin"
+   security find-internet-password -s "192.168.178.76" -a "fxmartin"
    ```
 
 3. **Check autofs logs**:
@@ -144,7 +145,7 @@ ls /Volumes/Photos  # Triggers remount
 Ensure your username matches the NAS share permissions:
 ```bash
 # Test manual mount
-mount_smbfs -N //fxmartin@192.168.68.58/Photos /Volumes/Photos
+mount_smbfs -N //fxmartin@192.168.178.76/Photos /Volumes/Photos
 ```
 
 ### Mount Point Missing
@@ -212,6 +213,24 @@ The `rsync-backup.sh` script works with autofs:
 - If share is already mounted via autofs, rsync uses it
 - If not mounted, the script's `mount_share()` function handles it
 - Autofs provides seamless access for both manual and automated use
+
+### Rsync Daemon Mode (Port 873)
+
+When `useRsyncDaemon = true` in `rsync-backup-config.nix`, backups use the native rsync protocol on port 873 instead of SMB. This is 2-5x faster on LAN but requires the rsync daemon (`rsyncd`) to be running on the NAS.
+
+The NAS reachability check verifies both host connectivity (ping or SMB port 445) **and** rsync daemon availability (port 873) before starting backup jobs. If the daemon is down, the backup fails immediately with a clear error instead of exhausting all retry attempts (which previously took ~35 minutes of 120s timeouts).
+
+To troubleshoot rsync daemon issues:
+```bash
+# Check if rsync daemon is responding
+nc -z -w 10 tnas.local 873
+
+# Check NAS connectivity (SMB)
+nc -z -w 5 tnas.local 445
+
+# Run backup manually
+~/.local/bin/rsync-backup.sh
+```
 
 ## References
 

@@ -13,7 +13,9 @@
 
     # Homebrew taps (repositories)
     # Epic-02 will add: homebrew/cask-fonts, etc.
-    taps = [];
+    taps = [
+      "human37/open-wispr" # open-wispr - Local private voice dictation using whisper.cpp
+    ];
 
     onActivation = {
       autoUpdate = false; # CRITICAL: Disable auto-updates per REQUIREMENTS.md
@@ -55,6 +57,11 @@
       # Media Tools
       # Note: yt-dlp broken in nixpkgs (curl-impersonate AppleIDN check fails on macOS 15.3)
       "yt-dlp"          # YouTube/video downloader (active fork of youtube-dl)
+
+      # Voice Dictation (open-wispr + its dependencies to prevent brew bundle cleanup warnings)
+      "open-wispr"      # Local private voice dictation using whisper.cpp + Metal acceleration
+      "sdl2"            # open-wispr dependency - listed explicitly to prevent brew cleanup removal
+      "whisper-cpp"     # open-wispr dependency - listed explicitly to prevent brew cleanup removal
     ];
 
     # GUI Applications (Casks)
@@ -182,6 +189,7 @@
     # Requires user to be signed into App Store before installation
     #
     # If disabled, install manually after bootstrap:
+    #   mas install 937984704   # Amphetamine
     #   mas install 6714467650  # Perplexity
     #   mas install 302584613   # Kindle
     #   mas install 890031187   # Marked 2
@@ -192,6 +200,7 @@
       "Kindle" = 302584613;       # Ebook reader
       "Marked 2" = 890031187;     # Markdown preview
       "WhatsApp" = 310633997;     # Messaging app
+      "Amphetamine" = 937984704;  # Keep-awake utility to prevent sleep
       "reMarkable desktop" = 1276493162;  # reMarkable tablet sync and screen share
     };
   };

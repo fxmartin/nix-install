@@ -53,7 +53,7 @@ adjust-font-baseline = -1
 # =========================
 # Background transparency and blur for a modern look
 # Increased opacity from 0.95 to 1.0 for better text readability
-background-opacity = 1.0
+background-opacity = 0.90
 background-blur = 10
 
 # Window padding for breathing room

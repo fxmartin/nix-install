@@ -103,6 +103,7 @@
       ];
       power = [
         { name = "llava:34b"; desc = "Multimodal vision-language model"; size = "~20GB"; }
+        { name = "qwen3.5:35b-a3b"; desc = "Qwen 3.5 MoE model (35B total, 3B active)"; size = "~23GB"; }
         { name = "ministral-3:14b"; desc = "Mistral multilingual reasoning model"; size = "~9GB"; }
         { name = "phi4:14b"; desc = "Microsoft Phi-4 reasoning model"; size = "~9GB"; }
         { name = "nomic-embed-text"; desc = "Text embeddings model"; size = "~274MB"; }

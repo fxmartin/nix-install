@@ -98,10 +98,6 @@
       # Checks Homebrew, nixpkgs, nix-darwin, Ollama for updates and creates GitHub issues
       release-monitor = "bash ${dotfilesPath}/scripts/release-monitor.sh";
 
-      # Update Get Shit Done (GSD) meta-prompting system for Claude Code
-      # Fetches latest version from npm and updates the repo (then commit the changes)
-      update-gsd = "cd ~/.claude/commands && rm -rf gsd && npx get-shit-done-cc@latest --global && cd -";
-
       # =============================================================================
       # GENERAL SHELL ALIASES (Story 04.5-002)
       # =============================================================================
@@ -224,6 +220,13 @@
       # Auto-theme wrapper: detects macOS light/dark mode and sets Claude Code theme
       # Workaround until https://github.com/anthropics/claude-code/issues/11813 is resolved
       cld = "bash ${dotfilesPath}/scripts/claude-code-wrapper.sh";
+
+      # Sync claude-code-config submodule (pull latest from remote)
+      claude-sync = "git -C ${dotfilesPath}/config/claude-code-config pull origin main";
+
+      # Claude Session Dashboard - local observability for ~/.claude sessions
+      # https://github.com/dlupiak/claude-session-dashboard
+      claude-dashboard = "npx claude-session-dashboard --open";
     };
 
     # =============================================================================
@@ -292,6 +295,9 @@
       # Locale settings (UTF-8 for proper character handling)
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
+
+      # SOPS age key file location for secrets decryption
+      SOPS_AGE_KEY_FILE = "$HOME/.config/sops/age/keys.txt";
 
     };
 

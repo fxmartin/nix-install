@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Claude Code config extracted to standalone `claude-code-config` submodule at `config/claude-code-config/`
+- Portable `install.sh` enables usage on non-Nix machines and SSH sessions
+- Added symlinks for `keybindings.json`, `docs/`, and `hooks/` (previously untracked)
+- Updated `claude-code.nix` to reference submodule paths
+
 ### Added
 - Health check HTTP API endpoint on port 7780 for remote monitoring via Tailscale
 - Ollama model verification in health check with profile-aware expected models
@@ -42,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mac App Store apps installation support
 
 ### Changed
+- Verify rsync daemon port 873 before backup when using daemon mode (fail fast instead of 10x120s retries)
 - Centralized Ollama model lists in `flake.nix` with `mkOllamaModelScript` generator
 - Centralized OLLAMA_HOST/OLLAMA_ORIGINS in `maintenance.nix` `let` block
 - Created `mkScheduledAgent` helper — eliminated ~100 lines of LaunchAgent boilerplate

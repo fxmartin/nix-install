@@ -1,12 +1,11 @@
 # ABOUTME: Claude Code CLI post-installation configuration guide
-# ABOUTME: Covers CLI setup, MCP servers, GSD meta-prompting, and integration with development tools
+# ABOUTME: Covers CLI setup, MCP servers, and integration with development tools
 
-### Claude Code CLI with MCP Servers + Get Shit Done (GSD)
+### Claude Code CLI with MCP Servers
 
 **Status**: Installed via Nix (Story 02.2-006)
 - Claude Code CLI: `claude-code-nix` flake input
 - MCP Servers: `mcp-servers-nix` flake input (Context7, Playwright, Sequential Thinking)
-- Get Shit Done (GSD): Auto-installed via `npx get-shit-done-cc --global`
 - All packages installed to `darwin/configuration.nix` systemPackages
 - Configuration managed by Home Manager (`home-manager/modules/claude-code.nix`)
 - **REQ-NFR-008 Compliant**: Bidirectional sync via repository symlinks
@@ -36,9 +35,19 @@ claude mcp list
 ```
 
 **Configuration Files** (REQ-NFR-008 compliant bidirectional sync):
-- `~/.claude/CLAUDE.md` → symlinked to `$REPO/config/claude/CLAUDE.md`
-- `~/.claude/agents/` → symlinked to `$REPO/config/claude/agents/`
-- `~/.claude/commands/` → symlinked to `$REPO/config/claude/commands/`
+
+Config lives in the `claude-code-config` git submodule at `config/claude-code-config/`.
+This submodule is also a standalone repo (`github.com/fxmartin/claude-code-config`) with
+a portable `install.sh` for non-Nix machines.
+
+- `~/.claude/CLAUDE.md` → symlinked to `$REPO/config/claude-code-config/CLAUDE.md`
+- `~/.claude/agents/` → symlinked to `$REPO/config/claude-code-config/agents/`
+- `~/.claude/commands/` → symlinked to `$REPO/config/claude-code-config/commands/`
+- `~/.claude/settings.json` → symlinked to `$REPO/config/claude-code-config/settings.json`
+- `~/.claude/statusline-command.sh` → symlinked to `$REPO/config/claude-code-config/statusline-command.sh`
+- `~/.claude/keybindings.json` → symlinked to `$REPO/config/claude-code-config/keybindings.json`
+- `~/.claude/docs/` → symlinked to `$REPO/config/claude-code-config/docs/`
+- `~/.claude/hooks/` → symlinked to `$REPO/config/claude-code-config/hooks/`
 
 **MCP Server Configuration** (dual-location for Claude Desktop AND Claude Code CLI):
 - `~/.config/claude/config.json` → Claude Desktop MCP config
@@ -126,28 +135,28 @@ claude
 #### Configuration Customization
 
 **Custom Agents** (repository-synced):
-Create custom agent definitions in `config/claude/agents/`:
+Create custom agent definitions in `config/claude-code-config/agents/`:
 ```bash
 # Agents are version controlled in repo
-ls -la config/claude/agents/
+ls -la config/claude-code-config/agents/
 
 # Changes sync automatically to ~/.claude/agents/
 ```
 
 **Custom Commands** (repository-synced):
-Create slash commands in `config/claude/commands/`:
+Create slash commands in `config/claude-code-config/commands/`:
 ```bash
 # Commands are version controlled in repo
-ls -la config/claude/commands/
+ls -la config/claude-code-config/commands/
 
 # Changes sync automatically to ~/.claude/commands/
 ```
 
 **CLAUDE.md** (repository-synced):
-Global instructions for Claude Code in `config/claude/CLAUDE.md`:
+Global instructions for Claude Code in `config/claude-code-config/CLAUDE.md`:
 ```bash
 # Edit in repo
-code config/claude/CLAUDE.md
+code config/claude-code-config/CLAUDE.md
 
 # Changes instantly visible to Claude Code via symlink
 ```
@@ -172,10 +181,15 @@ claude mcp list
 **Verify Configuration Symlinks** (REQ-NFR-008):
 ```bash
 ls -la ~/.claude/
-# Should show:
-# lrwxr-xr-x CLAUDE.md -> /path/to/nix-install/config/claude/CLAUDE.md
-# lrwxr-xr-x agents -> /path/to/nix-install/config/claude/agents/
-# lrwxr-xr-x commands -> /path/to/nix-install/config/claude/commands/
+# Should show all symlinks pointing to config/claude-code-config/:
+# lrwxr-xr-x CLAUDE.md -> .../config/claude-code-config/CLAUDE.md
+# lrwxr-xr-x agents -> .../config/claude-code-config/agents/
+# lrwxr-xr-x commands -> .../config/claude-code-config/commands/
+# lrwxr-xr-x settings.json -> .../config/claude-code-config/settings.json
+# lrwxr-xr-x statusline-command.sh -> .../config/claude-code-config/statusline-command.sh
+# lrwxr-xr-x keybindings.json -> .../config/claude-code-config/keybindings.json
+# lrwxr-xr-x docs -> .../config/claude-code-config/docs/
+# lrwxr-xr-x hooks -> .../config/claude-code-config/hooks/
 ```
 
 **Verify MCP Configs Created** (both locations):
@@ -240,7 +254,7 @@ ls -la ~/.claude/
 darwin-rebuild switch --flake ~/nix-install#standard  # or #power
 
 # Symlinks should point to working directory, NOT /nix/store/
-# Correct: ~/.claude/CLAUDE.md -> /Users/fx/nix-install/config/claude/CLAUDE.md
+# Correct: ~/.claude/CLAUDE.md -> /Users/fx/nix-install/config/claude-code-config/CLAUDE.md
 # Wrong: ~/.claude/CLAUDE.md -> /nix/store/.../CLAUDE.md
 ```
 
@@ -316,70 +330,26 @@ mcp-server-sequential-thinking --version
 #### Testing Checklist
 
 - [ ] Claude Code CLI installed and `claude --version` works
-- [ ] `~/.claude/CLAUDE.md` symlinked to repository (bidirectional sync)
-- [ ] `~/.claude/agents/` symlinked to repository
-- [ ] `~/.claude/commands/` symlinked to repository
+- [ ] `~/.claude/CLAUDE.md` symlinked to submodule (bidirectional sync)
+- [ ] `~/.claude/agents/` symlinked to submodule
+- [ ] `~/.claude/commands/` symlinked to submodule
+- [ ] `~/.claude/settings.json` symlinked to submodule
+- [ ] `~/.claude/statusline-command.sh` symlinked to submodule
+- [ ] `~/.claude/keybindings.json` symlinked to submodule
+- [ ] `~/.claude/docs/` symlinked to submodule (python.md, source-control.md, docker-uv.md)
+- [ ] `~/.claude/hooks/` symlinked to submodule
 - [ ] `~/.config/claude/config.json` created (Claude Desktop)
 - [ ] `~/.claude.json` has mcpServers key (Claude Code CLI)
 - [ ] `claude mcp list` shows all servers as connected
 - [ ] Can start Claude Code CLI with `claude` command
 - [ ] Context7 MCP responds to documentation queries
 - [ ] Playwright MCP can navigate and interact with web pages
-- [ ] Sequential Thinking MCP enables structured reasoning (pending [PR #276](https://github.com/natsukium/mcp-servers-nix/pull/276))
-- [ ] Configuration changes in repo appear in `~/.claude/` (bidirectional sync)
-- [ ] Symlinks point to working directory, NOT /nix/store
-- [ ] Get Shit Done (GSD) installed at `~/.claude/commands/gsd/`
-- [ ] `/gsd:help` command works in Claude Code
-
-#### Get Shit Done (GSD) Meta-Prompting System
-
-**What is GSD?**
-[Get Shit Done](https://github.com/glittercowboy/get-shit-done) is a meta-prompting and context engineering system for Claude Code that solves context degradation in long sessions. It provides spec-driven development workflows with parallel subagent execution.
-
-**Installation**:
-- Installed automatically during darwin-rebuild via `npx get-shit-done-cc --global`
-- Location: `~/.claude/commands/gsd/`
-- Requires Node.js (installed via Nix)
-
-**Key Commands**:
-```bash
-/gsd:new-project          # Start new project with context gathering
-/gsd:research-project     # Research domain ecosystem (optional)
-/gsd:define-requirements  # Scope v1/v2/out-of-scope
-/gsd:create-roadmap       # Generate phased roadmap
-/gsd:plan-phase 1         # Create atomic task plans for phase
-/gsd:execute-phase 1      # Execute with parallel subagents
-/gsd:progress             # Check current status and next steps
-/gsd:pause-work           # Create handoff file when stopping
-/gsd:resume-work          # Restore context from previous session
-/gsd:help                 # Full command reference
-```
-
-**Why GSD Works**:
-- Each task runs in a fresh subagent context (200k tokens)
-- Prevents quality degradation as context fills
-- Atomic git commits per task enable precise rollback
-- Plans run in parallel when no dependencies exist
-
-**Updating GSD**:
-```bash
-# Update to latest version
-npx get-shit-done-cc@latest
-
-# Check current version
-/gsd:whats-new
-```
-
-**Recommended Usage**:
-```bash
-# Start Claude Code with skip permissions for frictionless automation
-claude --dangerously-skip-permissions
-```
-
+- [ ] Sequential Thinking MCP enables structured reasoning
+- [ ] Configuration changes in submodule appear in `~/.claude/` (bidirectional sync)
+- [ ] Symlinks point to submodule working directory, NOT /nix/store
 #### Resources
 
 - Claude Code CLI: https://github.com/anthropics/claude-code
-- Get Shit Done (GSD): https://github.com/glittercowboy/get-shit-done
 - MCP Specification: https://modelcontextprotocol.io/
 - MCP Servers Nix: https://github.com/natsukium/mcp-servers-nix (community maintained)
 - Context7: https://context7.com/

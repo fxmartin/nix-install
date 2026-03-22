@@ -4,6 +4,7 @@
   config,
   lib,
   userConfig,
+  isPowerProfile,
   ...
 }: {
   # macOS System Preferences
@@ -157,6 +158,16 @@
     };
 
   };
+
+  # ============================================================================
+  # POWER MANAGEMENT (Power Profile Only)
+  # ============================================================================
+  # System Settings → Battery → Options
+  # Only for MacBook Pro M3 Max — keep MacBook Airs on default sleep behavior
+
+  # "Prevent automatic sleeping when display is off"
+  # Runs: sudo pmset -a sleep 0
+  power.sleep.computer = lib.mkIf isPowerProfile "never";
 
   # ============================================================================
   # SECURITY SETTINGS (Epic-03, Feature 03.2)
@@ -345,6 +356,18 @@
   # Custom script names like 'configureTimeMachine' are NOT executed
   # See: https://github.com/nix-darwin/nix-darwin/issues/663
   system.activationScripts.extraActivation.text = ''
+    # ============================================================================
+    # POWER MANAGEMENT - Wake for Network Access (Power Profile Only)
+    # ============================================================================
+    # System Settings → Battery → Options → "Wake for network access"
+    ${if isPowerProfile then ''
+      echo "Configuring power management for Power profile..."
+      /usr/bin/sudo /usr/bin/pmset -a womp 1
+      echo "✅ Wake for network access enabled"
+    '' else ''
+      echo "Skipping power management (Standard profile)"
+    ''}
+
     # ============================================================================
     # TIME MACHINE CONFIGURATION
     # ============================================================================

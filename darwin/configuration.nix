@@ -40,6 +40,8 @@
     darwin.cctools
 
     # Core Utilities
+    age
+    sops
     curl
     wget
     tree
@@ -91,6 +93,12 @@
     # Remote Access Tools
     mosh                # Mobile shell - persistent SSH alternative with roaming support
 
+    # Network Tools
+    nmap                # Network discovery and security auditing
+
+    # File Transfer
+    rsync               # GNU rsync 3.x (fixes iCloud mmap deadlock in macOS openrsync)
+
     # Nix Development Tools
     nil                 # Nix language server (simpler, lightweight)
     nixd                # Nix language server (feature-rich, used by Zed extension)
@@ -104,7 +112,7 @@
     shellcheck          # Shell script static analysis (used by bash-language-server)
 
     # Web Development (React.js / TypeScript / JavaScript)
-    nodejs                                   # Node.js runtime (required for npx, npm, GSD)
+    nodejs                                   # Node.js runtime (required for npx, npm)
     nodePackages.typescript-language-server  # TypeScript/JavaScript language server
     nodePackages.vscode-langservers-extracted  # HTML, CSS, JSON, ESLint language servers
     nodePackages.prettier                    # Code formatter for JS/TS/HTML/CSS/JSON
@@ -209,6 +217,21 @@
 
         chown -R ${userConfig.username}:staff "$SCRIPTS_DST"
         echo "✓ Common scripts synced to $SCRIPTS_DST"
+
+        # ========================================================================
+        # OPEN-WISPR SERVICE (Both Profiles)
+        # ========================================================================
+        # Local private voice dictation using whisper.cpp + Metal acceleration
+        # Installed via Homebrew (human37/open-wispr tap), runs as a brew service
+        if [ -x /opt/homebrew/bin/brew ]; then
+          if ! /opt/homebrew/bin/brew services list 2>/dev/null | grep -q "open-wispr.*started"; then
+            echo "Starting open-wispr service..."
+            su - ${userConfig.username} -c '/opt/homebrew/bin/brew services start open-wispr' 2>&1 || true
+            echo "✓ open-wispr service started"
+          else
+            echo "✓ open-wispr service already running"
+          fi
+        fi
       '' + lib.optionalString isPowerProfile ''
         # ========================================================================
         # MAINTENANCE SCRIPTS SYNC (Power Profile Only)
@@ -323,7 +346,7 @@
       46.224.44.190  dev dev-server dev-public
 
       # Local network IPs (accessible only on local network)
-      192.168.68.58  nas-lux nas-local
+      192.168.178.76  nas-lux nas-local
     '';
 
     # Known SHA256 hashes of /etc/hosts files that are safe to overwrite

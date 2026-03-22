@@ -1,6 +1,5 @@
-# ABOUTME: Claude Code CLI configuration with MCP servers (Context7, Playwright, Sequential Thinking)
-# ABOUTME: Includes Get Shit Done (GSD) meta-prompting system installation
-# ABOUTME: Symlinks ~/.claude/ directory to repo for bidirectional sync (REQ-NFR-008 compliant)
+# ABOUTME: Claude Code CLI configuration with MCP servers (Context7, Playwright)
+# ABOUTME: Symlinks ~/.claude/ to claude-code-config submodule for bidirectional sync (REQ-NFR-008)
 # ABOUTME: Writes MCP config to BOTH ~/.config/claude/config.json (Desktop) AND ~/.claude.json (CLI)
 {
   config,
@@ -20,11 +19,6 @@
         enable = true;
       };
 
-      # Sequential Thinking MCP server - No authentication required
-      sequential-thinking = {
-        enable = true;
-      };
-
       # Playwright MCP server - Browser automation for web testing and scraping
       # No authentication required
       # Note: Uses Brave Browser (Chromium-based) installed via Homebrew
@@ -41,7 +35,7 @@
   jq = pkgs.jq;
 in {
   # Claude Code CLI and MCP Servers Configuration
-  # Story 02.2-006: Install Claude Code CLI with Context7 and Sequential Thinking MCP servers
+  # Story 02.2-006: Install Claude Code CLI with Context7 and Playwright MCP servers
   #
   # Installation:
   # - Claude Code CLI: Via Nix (claude-code-nix flake input, installed in darwin/configuration.nix)
@@ -56,17 +50,13 @@ in {
   # - Same pattern as Zed (Story 02.2-001), VSCode (Story 02.2-002), Ghostty (Story 02.2-003)
   #
   # How it works:
-  # 1. Repository structure:
-  #    - config/claude/CLAUDE.md: User instructions for Claude Code
-  #    - config/claude/agents/: Custom agent definitions
-  #    - config/claude/commands/: Custom slash commands
+  # 1. Config lives in claude-code-config submodule at config/claude-code-config/
   # 2. Activation script dynamically finds repo location
   #    - Searches: ~/nix-install, ~/.config/nix-install, ~/Documents/nix-install
   #    - Works with any NIX_INSTALL_DIR from bootstrap
-  # 3. Creates symlinks:
-  #    - ~/.claude/CLAUDE.md → $REPO/config/claude/CLAUDE.md
-  #    - ~/.claude/agents/ → $REPO/config/claude/agents/
-  #    - ~/.claude/commands/ → $REPO/config/claude/commands/
+  # 3. Creates symlinks from ~/.claude/ → $REPO/config/claude-code-config/:
+  #    - CLAUDE.md, agents/, commands/, settings.json, statusline-command.sh
+  #    - keybindings.json, docs/, hooks/ (new)
   # 4. Creates MCP configs for BOTH Claude Desktop AND Claude Code CLI:
   #    - ~/.config/claude/config.json → Claude Desktop (full mcpServers object)
   #    - ~/.claude.json → Claude Code CLI (merges mcpServers into existing config)
@@ -77,7 +67,6 @@ in {
   #
   # MCP Servers Configuration:
   # - Context7: No authentication required
-  # - Sequential Thinking: No authentication required
   # - Playwright: No authentication required (uses Chromium, not Chrome)
   #
   # All MCP servers use Nix-installed binaries (managed by mkConfig, not npx/npm)
@@ -97,7 +86,7 @@ in {
     # If repo found, symlink CLAUDE.md, agents/, and commands/ to repository
     if [ -n "$REPO_ROOT" ]; then
       # Symlink CLAUDE.md (REQ-NFR-008 compliant)
-      CLAUDE_MD_REPO="$REPO_ROOT/config/claude/CLAUDE.md"
+      CLAUDE_MD_REPO="$REPO_ROOT/config/claude-code-config/CLAUDE.md"
       CLAUDE_MD_HOME="$CLAUDE_DIR/CLAUDE.md"
 
       if [ -f "$CLAUDE_MD_REPO" ]; then
@@ -108,13 +97,13 @@ in {
         fi
 
         $DRY_RUN_CMD ln -sf "$CLAUDE_MD_REPO" "$CLAUDE_MD_HOME"
-        echo "✓ Linked ~/.claude/CLAUDE.md → $REPO_ROOT/config/claude/CLAUDE.md"
+        echo "✓ Linked ~/.claude/CLAUDE.md → $REPO_ROOT/config/claude-code-config/CLAUDE.md"
       else
         echo "⚠️  Warning: $CLAUDE_MD_REPO not found"
       fi
 
       # Symlink agents directory
-      AGENTS_REPO="$REPO_ROOT/config/claude/agents"
+      AGENTS_REPO="$REPO_ROOT/config/claude-code-config/agents"
       AGENTS_HOME="$CLAUDE_DIR/agents"
 
       if [ -d "$AGENTS_REPO" ]; then
@@ -125,13 +114,13 @@ in {
         fi
 
         $DRY_RUN_CMD ln -sfn "$AGENTS_REPO" "$AGENTS_HOME"
-        echo "✓ Linked ~/.claude/agents/ → $REPO_ROOT/config/claude/agents/"
+        echo "✓ Linked ~/.claude/agents/ → $REPO_ROOT/config/claude-code-config/agents/"
       else
         echo "⚠️  Warning: $AGENTS_REPO directory not found"
       fi
 
       # Symlink commands directory
-      COMMANDS_REPO="$REPO_ROOT/config/claude/commands"
+      COMMANDS_REPO="$REPO_ROOT/config/claude-code-config/commands"
       COMMANDS_HOME="$CLAUDE_DIR/commands"
 
       if [ -d "$COMMANDS_REPO" ]; then
@@ -142,9 +131,107 @@ in {
         fi
 
         $DRY_RUN_CMD ln -sfn "$COMMANDS_REPO" "$COMMANDS_HOME"
-        echo "✓ Linked ~/.claude/commands/ → $REPO_ROOT/config/claude/commands/"
+        echo "✓ Linked ~/.claude/commands/ → $REPO_ROOT/config/claude-code-config/commands/"
       else
         echo "⚠️  Warning: $COMMANDS_REPO directory not found"
+      fi
+
+      # Symlink settings.json (statusline, plugins, theme)
+      SETTINGS_REPO="$REPO_ROOT/config/claude-code-config/settings.json"
+      SETTINGS_HOME="$CLAUDE_DIR/settings.json"
+
+      if [ -f "$SETTINGS_REPO" ]; then
+        # Back up existing file if it's not a symlink
+        if [ -f "$SETTINGS_HOME" ] && [ ! -L "$SETTINGS_HOME" ]; then
+          $DRY_RUN_CMD mv "$SETTINGS_HOME" "$SETTINGS_HOME.backup"
+          echo "Backed up existing settings.json to: $SETTINGS_HOME.backup"
+        fi
+
+        $DRY_RUN_CMD ln -sf "$SETTINGS_REPO" "$SETTINGS_HOME"
+        echo "✓ Linked ~/.claude/settings.json → $REPO_ROOT/config/claude-code-config/settings.json"
+      else
+        echo "⚠️  Warning: $SETTINGS_REPO not found"
+      fi
+
+      # Symlink statusline-command.sh (referenced by settings.json)
+      STATUSLINE_REPO="$REPO_ROOT/config/claude-code-config/statusline-command.sh"
+      STATUSLINE_HOME="$CLAUDE_DIR/statusline-command.sh"
+
+      if [ -f "$STATUSLINE_REPO" ]; then
+        # Back up existing file if it's not a symlink
+        if [ -f "$STATUSLINE_HOME" ] && [ ! -L "$STATUSLINE_HOME" ]; then
+          $DRY_RUN_CMD mv "$STATUSLINE_HOME" "$STATUSLINE_HOME.backup"
+          echo "Backed up existing statusline-command.sh to: $STATUSLINE_HOME.backup"
+        fi
+
+        $DRY_RUN_CMD ln -sf "$STATUSLINE_REPO" "$STATUSLINE_HOME"
+        echo "✓ Linked ~/.claude/statusline-command.sh → $REPO_ROOT/config/claude-code-config/statusline-command.sh"
+      else
+        echo "⚠️  Warning: $STATUSLINE_REPO not found"
+      fi
+
+      # Symlink keybindings.json
+      KEYBINDINGS_REPO="$REPO_ROOT/config/claude-code-config/keybindings.json"
+      KEYBINDINGS_HOME="$CLAUDE_DIR/keybindings.json"
+
+      if [ -f "$KEYBINDINGS_REPO" ]; then
+        if [ -f "$KEYBINDINGS_HOME" ] && [ ! -L "$KEYBINDINGS_HOME" ]; then
+          $DRY_RUN_CMD mv "$KEYBINDINGS_HOME" "$KEYBINDINGS_HOME.backup"
+          echo "Backed up existing keybindings.json to: $KEYBINDINGS_HOME.backup"
+        fi
+
+        $DRY_RUN_CMD ln -sf "$KEYBINDINGS_REPO" "$KEYBINDINGS_HOME"
+        echo "✓ Linked ~/.claude/keybindings.json → $REPO_ROOT/config/claude-code-config/keybindings.json"
+      else
+        echo "⚠️  Warning: $KEYBINDINGS_REPO not found"
+      fi
+
+      # Symlink docs directory
+      DOCS_REPO="$REPO_ROOT/config/claude-code-config/docs"
+      DOCS_HOME="$CLAUDE_DIR/docs"
+
+      if [ -d "$DOCS_REPO" ]; then
+        if [ -d "$DOCS_HOME" ] && [ ! -L "$DOCS_HOME" ]; then
+          $DRY_RUN_CMD mv "$DOCS_HOME" "$DOCS_HOME.backup"
+          echo "Backed up existing docs/ to: $DOCS_HOME.backup"
+        fi
+
+        $DRY_RUN_CMD ln -sfn "$DOCS_REPO" "$DOCS_HOME"
+        echo "✓ Linked ~/.claude/docs/ → $REPO_ROOT/config/claude-code-config/docs/"
+      else
+        echo "⚠️  Warning: $DOCS_REPO directory not found"
+      fi
+
+      # Symlink skills directory
+      SKILLS_REPO="$REPO_ROOT/config/claude-code-config/skills"
+      SKILLS_HOME="$CLAUDE_DIR/skills"
+
+      if [ -d "$SKILLS_REPO" ]; then
+        if [ -d "$SKILLS_HOME" ] && [ ! -L "$SKILLS_HOME" ]; then
+          $DRY_RUN_CMD mv "$SKILLS_HOME" "$SKILLS_HOME.backup"
+          echo "Backed up existing skills/ to: $SKILLS_HOME.backup"
+        fi
+
+        $DRY_RUN_CMD ln -sfn "$SKILLS_REPO" "$SKILLS_HOME"
+        echo "✓ Linked ~/.claude/skills/ → $REPO_ROOT/config/claude-code-config/skills/"
+      else
+        echo "⚠️  Warning: $SKILLS_REPO directory not found"
+      fi
+
+      # Symlink hooks directory
+      HOOKS_REPO="$REPO_ROOT/config/claude-code-config/hooks"
+      HOOKS_HOME="$CLAUDE_DIR/hooks"
+
+      if [ -d "$HOOKS_REPO" ]; then
+        if [ -d "$HOOKS_HOME" ] && [ ! -L "$HOOKS_HOME" ]; then
+          $DRY_RUN_CMD mv "$HOOKS_HOME" "$HOOKS_HOME.backup"
+          echo "Backed up existing hooks/ to: $HOOKS_HOME.backup"
+        fi
+
+        $DRY_RUN_CMD ln -sfn "$HOOKS_REPO" "$HOOKS_HOME"
+        echo "✓ Linked ~/.claude/hooks/ → $REPO_ROOT/config/claude-code-config/hooks/"
+      else
+        echo "⚠️  Warning: $HOOKS_REPO directory not found"
       fi
     else
       echo "⚠️  Warning: Could not find nix-install repository"
@@ -220,31 +307,6 @@ in {
     echo "  - Claude Code CLI config: $CLAUDE_CLI_CONFIG"
     echo ""
     echo "To verify MCP servers: claude mcp list"
-
-    # Install Get Shit Done (GSD) - meta-prompting system for Claude Code
-    # https://github.com/glittercowboy/get-shit-done
-    # Only install if not already present (idempotent)
-    GSD_COMMANDS_DIR="$CLAUDE_DIR/commands/gsd"
-    if [ ! -d "$GSD_COMMANDS_DIR" ]; then
-      echo ""
-      echo "Installing Get Shit Done (GSD) for Claude Code..."
-      if [ -x "${pkgs.nodejs}/bin/npx" ]; then
-        # Use --global flag for non-interactive install to ~/.claude/
-        $DRY_RUN_CMD ${pkgs.nodejs}/bin/npx get-shit-done-cc --global 2>&1 || {
-          echo "⚠️  GSD installation failed - you can install manually with: npx get-shit-done-cc"
-        }
-        if [ -d "$GSD_COMMANDS_DIR" ]; then
-          echo "✓ Get Shit Done (GSD) installed successfully"
-          echo "  - Commands: $GSD_COMMANDS_DIR"
-          echo "  - Usage: /gsd:help in Claude Code"
-        fi
-      else
-        echo "⚠️  npx not found - skipping GSD installation"
-        echo "  Install manually with: npx get-shit-done-cc"
-      fi
-    else
-      echo "✓ Get Shit Done (GSD) already installed: $GSD_COMMANDS_DIR"
-    fi
   '';
 
   # No additional packages needed - Claude Code CLI installed via darwin/configuration.nix

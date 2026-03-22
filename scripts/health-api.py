@@ -10,6 +10,7 @@ import hmac
 import time
 from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from socketserver import ThreadingMixIn
 
 # NOTE: These thresholds are shared with scripts/health-check.sh (CLI).
 # If you change a value here, update health-check.sh to match.
@@ -120,8 +121,9 @@ def check_generations() -> dict:
 
 
 def check_nix_store() -> dict:
-    # du -sh /nix/store can take 30+ seconds on large stores
-    size = run("du -sh /nix/store 2>/dev/null | cut -f1", timeout=30)
+    # du -sh /nix/store can take 30-60+ seconds on large stores
+    # Use a short timeout — store size is non-critical and shouldn't block the response
+    size = run("du -sh /nix/store 2>/dev/null | cut -f1", timeout=10)
     return {"size": size or "timed out"}
 
 
@@ -476,8 +478,13 @@ class HealthHandler(BaseHTTPRequestHandler):
         print(f"{self.address_string()} - {format % args}")
 
 
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Handle each request in a new thread to prevent slow checks from blocking."""
+    daemon_threads = True
+
+
 def main():
-    server = HTTPServer(("0.0.0.0", PORT), HealthHandler)
+    server = ThreadedHTTPServer(("0.0.0.0", PORT), HealthHandler)
     print(f"Health API listening on 0.0.0.0:{PORT}")
     try:
         server.serve_forever()

@@ -14,7 +14,6 @@
     # Homebrew taps (repositories)
     # Epic-02 will add: homebrew/cask-fonts, etc.
     taps = [
-      "human37/open-wispr" # open-wispr - Local private voice dictation using whisper.cpp
     ];
 
     onActivation = {
@@ -49,6 +48,7 @@
       # Podman Desktop (GUI app) needs to find podman CLI in standard PATH
       "podman"          # Podman container engine (Docker alternative)
       "podman-compose"  # Docker Compose alternative for Podman
+      "vfkit"           # macOS virtualisation framework for Podman machine (Apple Hypervisor)
 
       # System Monitoring (Apple Silicon)
       # Note: Not available in nixpkgs, Homebrew formula only
@@ -58,10 +58,6 @@
       # Note: yt-dlp broken in nixpkgs (curl-impersonate AppleIDN check fails on macOS 15.3)
       "yt-dlp"          # YouTube/video downloader (active fork of youtube-dl)
 
-      # Voice Dictation (open-wispr + its dependencies to prevent brew bundle cleanup warnings)
-      "open-wispr"      # Local private voice dictation using whisper.cpp + Metal acceleration
-      "sdl2"            # open-wispr dependency - listed explicitly to prevent brew cleanup removal
-      "whisper-cpp"     # open-wispr dependency - listed explicitly to prevent brew cleanup removal
     ];
 
     # GUI Applications (Casks)

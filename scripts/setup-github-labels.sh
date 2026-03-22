@@ -45,7 +45,7 @@ gh label create "epic-nfr" --description "Non-Functional Requirements" --color "
 echo "🏗️  Creating component labels..."
 gh label create "bootstrap" --description "Bootstrap script and pre-flight checks" --color "28A745" || true
 gh label create "system-config" --description "macOS system preferences (Finder, security, etc.)" --color "2DA44E" || true
-gh label create "dev-environment" --description "Development tools (Zsh, Git, Python, Podman)" --color "2F7F3F" || true
+gh label create "dev-environment" --description "Development tools (Zsh, Git, Python, Docker)" --color "2F7F3F" || true
 gh label create "theming" --description "Stylix, Catppuccin, visual consistency" --color "57AB5A" || true
 gh label create "monitoring" --description "Health checks, garbage collection, optimization" --color "1F6E43" || true
 gh label create "apps" --description "Application installation (GUI, CLI, Mac App Store)" --color "3FB950" || true

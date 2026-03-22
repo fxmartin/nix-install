@@ -246,7 +246,7 @@
       # Deploys pre-configured plugins from config/calibre/
       ./darwin/calibre.nix
 
-      # Open WebUI (Podman container on port 3000)
+      # Open WebUI (Docker container on port 3000)
       # Web chat interface for Ollama models, accessible via Tailscale
       ./darwin/open-webui.nix
     ];

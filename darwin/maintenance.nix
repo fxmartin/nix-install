@@ -152,7 +152,7 @@ in {
     # MONTHLY DISK CLEANUP (Feature 06.7, Story 06.7-001)
     # =========================================================================
     # Runs monthly on the 1st at 4:00 AM to clean development caches
-    # Cleans uv, Homebrew, npm, pip, node-gyp, and Podman/Docker caches
+    # Cleans uv, Homebrew, npm, pip, node-gyp, and Docker caches
     # Sends email report to NOTIFICATION_EMAIL after cleanup
     disk-cleanup = mkScheduledAgent {
       name = "disk-cleanup";

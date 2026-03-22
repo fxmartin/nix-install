@@ -44,7 +44,7 @@ This is a personal MacBook configuration using:
 - Homebrew for GUI apps
 - Ollama for local LLM models
 
-The user (FX) is a developer working with Python, Podman, and AI tools.
+The user (FX) is a developer working with Python, Docker, and AI tools.
 
 ## Release Notes Data
 PROMPT_HEADER
@@ -56,7 +56,7 @@ PROMPT_HEADER
 ## Analysis Required
 Analyze these release notes and provide recommendations. Focus on items relevant to:
 - Python development (uv, ruff, Python 3.12+)
-- Container development (Podman)
+- Container development (Docker)
 - AI/LLM tools (Ollama, Claude)
 - macOS system management
 - Security updates (always include)
@@ -71,7 +71,7 @@ Output your analysis as JSON in this exact format:
     {"tool": "name", "summary": "what changed", "impact": "how it affects config", "action": "required action"}
   ],
   "new_features": [
-    {"tool": "name", "feature": "feature name", "relevance": "why relevant to Python/Podman/AI stack", "action": "suggested action"}
+    {"tool": "name", "feature": "feature name", "relevance": "why relevant to Python/Docker/AI stack", "action": "suggested action"}
   ],
   "ollama_models": [
     {"model": "model name", "description": "what it's good for", "recommendation": "worth trying because..."}

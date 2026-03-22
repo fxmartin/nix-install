@@ -203,23 +203,14 @@ def check_audiobook_api(launchctl_output: str) -> dict:
         return {"status": "error", "detail": "Audiobook API unreachable"}
 
 
-def check_podman() -> dict:
-    if not run("command -v podman"):
-        return {"status": "skipped", "detail": "Podman not installed"}
-    machines = run("podman machine list --format '{{.Name}} {{.Running}}' 2>/dev/null")
-    if not machines:
-        return {"status": "ok", "machine": None, "images": 0, "detail": "No machines configured"}
-    running = None
-    for line in machines.strip().splitlines():
-        parts = line.split()
-        if len(parts) >= 2 and parts[1].lower() == "true":
-            running = parts[0]
-            break
-    if not running:
-        return {"status": "ok", "machine": None, "images": 0, "detail": "Machine not running"}
-    images_output = run("podman images --format '{{.ID}}' 2>/dev/null")
+def check_docker() -> dict:
+    if not run("command -v docker"):
+        return {"status": "skipped", "detail": "Docker not installed"}
+    if not run("docker info 2>/dev/null"):
+        return {"status": "ok", "running": False, "images": 0, "detail": "Docker Desktop not running"}
+    images_output = run("docker images --format '{{.ID}}' 2>/dev/null")
     image_count = len(images_output.splitlines()) if images_output else 0
-    return {"status": "ok", "machine": running, "images": image_count}
+    return {"status": "ok", "running": True, "images": image_count}
 
 
 def check_launch_agents(launchctl_output: str, profile: str) -> dict:
@@ -296,7 +287,7 @@ def build_health_response() -> dict:
         "firewall": check_firewall(),
         "generations": check_generations(),
         "nix_store": check_nix_store(),
-        "podman": check_podman(),
+        "docker": check_docker(),
         "ollama": check_ollama(profile),
         "tts_server": check_tts_server(launchctl_output),
         "stt_server": check_stt_server(launchctl_output),

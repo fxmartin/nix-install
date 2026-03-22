@@ -14,6 +14,7 @@
     # Homebrew taps (repositories)
     # Epic-02 will add: homebrew/cask-fonts, etc.
     taps = [
+      "manaflow-ai/cmux" # cmux terminal - Ghostty-based terminal with vertical tabs for AI coding agents
     ];
 
     onActivation = {
@@ -43,13 +44,6 @@
       # AI & LLM Tools
       "ollama"          # Ollama CLI - Local LLM server (replaces ollama-app cask)
 
-      # Container Tools (Story 02.2-005)
-      # Note: Installed via Homebrew instead of Nix for better GUI integration
-      # Podman Desktop (GUI app) needs to find podman CLI in standard PATH
-      "podman"          # Podman container engine (Docker alternative)
-      "podman-compose"  # Docker Compose alternative for Podman
-      "vfkit"           # macOS virtualisation framework for Podman machine (Apple Hypervisor)
-
       # System Monitoring (Apple Silicon)
       # Note: Not available in nixpkgs, Homebrew formula only
       "mactop"          # Real-time Apple Silicon CPU/GPU/ANE monitor (TUI)
@@ -62,18 +56,19 @@
 
     # GUI Applications (Casks)
     # Epic-02 will populate with:
-    # - Development: Zed, VSCode, Cursor, Podman Desktop
+    # - Development: Zed, VSCode, Cursor, Docker Desktop
     # - Browsers: Brave
     # - Communication: Zoom, Webex, Slack, WhatsApp
     # - Productivity: 1Password, Raycast, Obsidian, Dropbox
     # - Terminal: Ghostty
     # - Fonts: JetBrains Mono Nerd Font, etc.
-    # - Power profile only: Parallels Desktop
+    # - Power profile only: additional apps as needed
 
     # MINIMAL INSTALL: Ghostty terminal for Phase 5 validation testing
     # Epic-02 will expand this list with full app inventory
     casks = [
       "ghostty" # Modern GPU-accelerated terminal (Phase 5 validation test app)
+      "manaflow-ai/cmux/cmux" # cmux - Ghostty-based terminal with vertical tabs and notifications for AI coding agents
 
       # AI & LLM Tools (Story 02.1-001, 02.1-002)
       # Auto-update disable: Check app preferences after first launch
@@ -90,7 +85,7 @@
             # Configuration: home-manager/modules/zed.nix (Catppuccin theme, JetBrains Mono)
 
       # Container Tools (Story 02.2-005)
-      "podman-desktop" # Podman Desktop - GUI for managing Podman containers
+      "docker" # Docker Desktop - Container development platform
 
       # Browsers (Story 02.3-001, 02.3-002)
       # Auto-update disable: Updates managed by Homebrew (no in-app setting available)
@@ -159,19 +154,6 @@
       # Auto-update disable: EACH app → Preferences → Update → Uncheck (6 apps total: Word, Excel, PowerPoint, Outlook, OneNote, Teams)
       # License: Active Microsoft 365 subscription required (Personal $69.99/year, Family $99.99/year, or company-provided)
       "microsoft-office-businesspro" # Office 365 - Word, Excel, PowerPoint, Outlook, OneNote, Teams
-    ]
-    # Profile-Specific Apps: POWER PROFILE ONLY (MacBook Pro M3 Max)
-    # These apps are conditionally installed based on isPowerProfile parameter
-    ++ lib.optionals isPowerProfile [
-      # Virtualization & Development Tools (Story 02.8-001)
-      # POWER PROFILE ONLY: Parallels requires significant system resources (CPU, RAM)
-      # MacBook Pro M3 Max: 64GB RAM, 14-16 cores - suitable for running VMs
-      # MacBook Air: 8-16GB RAM, 8 cores - insufficient for virtualization workloads
-      # Auto-update disable: Preferences → Advanced → Uncheck "Check for updates automatically"
-      # License: Paid software (Trial 14 days OR Subscription $99.99-$119.99/year OR Perpetual $129.99)
-      # Permissions: Network Extension permission required for VM networking
-      # Large app: ~500MB download
-      "parallels" # Parallels Desktop - Professional VM software for macOS (Windows, Linux, macOS VMs)
     ];
 
     # Global Homebrew options

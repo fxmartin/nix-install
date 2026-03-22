@@ -120,7 +120,7 @@
     nodePackages.stylelint                   # CSS/SCSS/Less linter
     nodePackages.htmlhint                    # HTML linter
 
-    # YAML (for docker-compose, podman-compose, CI configs)
+    # YAML (for docker-compose, CI configs)
     yaml-language-server  # YAML language server with schema support
 
     # TOML (for pyproject.toml, Cargo.toml)

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ABOUTME: Comprehensive disk cleanup script for development caches (Feature 06.7)
-# ABOUTME: Cleans uv, Homebrew, npm, pip, node-gyp, and Podman/Docker caches with size reporting
+# ABOUTME: Cleans uv, Homebrew, npm, pip, node-gyp, and Docker caches with size reporting
 
 set -euo pipefail
 
@@ -124,15 +124,12 @@ analyze_caches() {
     total_kb=$((total_kb + hf_kb))
     print_status "info" "Huggingface cache: ${hf_size}"
 
-    # Podman/Docker
-    if command -v podman &>/dev/null && podman machine list 2>/dev/null | grep -q "Currently running"; then
-        local podman_info=$(podman system df --format "{{.TotalCount}} items, {{.Size}}" 2>/dev/null | head -1 || echo "unknown")
-        print_status "info" "Podman: ${podman_info}"
-    elif command -v docker &>/dev/null && docker info &>/dev/null 2>&1; then
+    # Docker
+    if command -v docker &>/dev/null && docker info &>/dev/null 2>&1; then
         local docker_size=$(docker system df --format "{{.Size}}" 2>/dev/null | head -1 || echo "unknown")
         print_status "info" "Docker: ${docker_size}"
     else
-        print_status "skip" "Podman/Docker: not running"
+        print_status "skip" "Docker: not running"
     fi
 
     echo ""
@@ -215,20 +212,7 @@ cleanup_nodegyp() {
 cleanup_containers() {
     print_header "Cleaning Container Runtime"
 
-    # Try Podman first (preferred in this project)
-    if command -v podman &>/dev/null; then
-        if podman machine list 2>/dev/null | grep -q "Currently running"; then
-            echo "Cleaning Podman (unused containers, images, volumes, build cache)..."
-            if podman system prune -a --volumes -f 2>&1; then
-                print_status "cleaned" "Podman system pruned"
-            else
-                print_status "error" "Failed to prune Podman"
-            fi
-        else
-            print_status "skip" "Podman machine not running (start with: podman machine start)"
-        fi
-    # Fall back to Docker if present
-    elif command -v docker &>/dev/null; then
+    if command -v docker &>/dev/null; then
         if docker info &>/dev/null 2>&1; then
             echo "Cleaning Docker (unused containers, images, volumes, build cache)..."
             if docker system prune -a --volumes -f 2>&1; then
@@ -237,10 +221,10 @@ cleanup_containers() {
                 print_status "error" "Failed to prune Docker"
             fi
         else
-            print_status "skip" "Docker not running"
+            print_status "skip" "Docker Desktop not running"
         fi
     else
-        print_status "skip" "No container runtime found (Podman or Docker)"
+        print_status "skip" "Docker not installed"
     fi
 }
 

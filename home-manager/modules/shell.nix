@@ -86,7 +86,7 @@
       health-check = "bash ${dotfilesPath}/scripts/health-check.sh";
 
       # Disk cleanup (Feature 06.7 - Epic-06)
-      # Cleans uv, Homebrew, npm, pip, node-gyp, and Podman/Docker caches
+      # Cleans uv, Homebrew, npm, pip, node-gyp, and Docker caches
       disk-cleanup = "bash ${dotfilesPath}/scripts/disk-cleanup.sh";
 
       # Weekly maintenance digest (Feature 06.5 - Epic-06)
@@ -147,32 +147,23 @@
       # =============================================================================
       # CONTAINER DEVELOPMENT ALIASES (Story 04.8-002)
       # =============================================================================
-      # Docker → Podman compatibility layer
-      # Podman is a daemonless, rootless container engine that's Docker CLI compatible
-
-      # Docker compatibility aliases
-      docker = "podman";                            # Use podman for all docker commands
-      docker-compose = "podman-compose";            # Use podman-compose for compose
+      # Docker Desktop container workflow shortcuts
 
       # Container workflow shortcuts
-      dps = "podman ps";                            # List running containers
-      dpsa = "podman ps -a";                        # List all containers
-      dim = "podman images";                        # List images
-      dex = "podman exec -it";                      # Execute in container (interactive)
-      dlogs = "podman logs -f";                     # Follow container logs
-      dstop = "podman stop";                        # Stop container
-      drm = "podman rm";                            # Remove container
-      drmi = "podman rmi";                          # Remove image
-      dprune = "podman system prune -af";           # Clean up everything (force)
-
-      # Podman machine management
-      pmstart = "podman machine start";             # Start Podman VM
-      pmstop = "podman machine stop";               # Stop Podman VM
-      pmstatus = "podman machine list";             # Show VM status
+      dps = "docker ps";                            # List running containers
+      dpsa = "docker ps -a";                        # List all containers
+      dim = "docker images";                        # List images
+      dex = "docker exec -it";                      # Execute in container (interactive)
+      dlogs = "docker logs -f";                     # Follow container logs
+      dstop = "docker stop";                        # Stop container
+      drm = "docker rm";                            # Remove container
+      drmi = "docker rmi";                          # Remove image
+      dprune = "docker system prune -af";           # Clean up everything (force)
+      dc = "docker compose";                        # Docker Compose shortcut
 
       # Quick container execution
-      drun = "podman run --rm -it";                 # Run container (auto-remove, interactive)
-      dalpine = "podman run --rm -it alpine sh";    # Quick Alpine shell
+      drun = "docker run --rm -it";                 # Run container (auto-remove, interactive)
+      dalpine = "docker run --rm -it alpine sh";    # Quick Alpine shell
 
       # =============================================================================
       # PYTHON DEVELOPMENT ALIASES (Story 04.7-001, 04.7-002)
@@ -277,9 +268,6 @@
       # CRITICAL: Disable Homebrew auto-updates
       # All updates controlled via `rebuild` command only (REQ-APP-010)
       HOMEBREW_NO_AUTO_UPDATE = "1";
-
-      # Suppress podman-compose warning logs
-      PODMAN_COMPOSE_WARNING_LOGS = "false";
 
       # Default editor for git commits, crontab, etc.
       # --wait flag keeps terminal attached until editor closes

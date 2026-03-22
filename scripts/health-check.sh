@@ -305,39 +305,31 @@ if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.qwen3tts.server"; then
 fi
 
 # ---------------------------------------------------------------------------
-# Check 11: Podman container runtime
+# Check 11: Docker container runtime
 # ---------------------------------------------------------------------------
-echo "Checking Podman..."
-if command -v podman &> /dev/null; then
-    # Check Podman machine status
-    PODMAN_MACHINES=$(podman machine list --format '{{.Name}} {{.Running}}' 2>/dev/null || true)
-    if [[ -n "${PODMAN_MACHINES}" ]]; then
-        RUNNING_MACHINE=$(echo "${PODMAN_MACHINES}" | /usr/bin/grep -i "true" | head -1 | awk '{print $1}')
-        if [[ -n "${RUNNING_MACHINE}" ]]; then
-            print_status "ok" "Podman machine running: ${RUNNING_MACHINE}"
-        else
-            print_status "info" "Podman machine not running (start with: pmstart)"
-        fi
-    else
-        print_status "info" "No Podman machines configured"
-    fi
+echo "Checking Docker..."
+if command -v docker &> /dev/null; then
+    # Check Docker Desktop status
+    if docker info > /dev/null 2>&1; then
+        print_status "ok" "Docker Desktop running"
 
-    # Image count (only if machine is running)
-    if [[ -n "${RUNNING_MACHINE:-}" ]]; then
-        IMAGE_COUNT=$(podman images --format '{{.ID}}' 2>/dev/null | wc -l | tr -d ' ')
-        print_status "info" "Podman images: ${IMAGE_COUNT}"
+        # Image count
+        IMAGE_COUNT=$(docker images --format '{{.ID}}' 2>/dev/null | wc -l | tr -d ' ')
+        print_status "info" "Docker images: ${IMAGE_COUNT}"
 
         # Disk usage (reclaimable space)
-        PODMAN_DF=$(podman system df 2>/dev/null || true)
-        if [[ -n "${PODMAN_DF}" ]]; then
-            RECLAIMABLE=$(echo "${PODMAN_DF}" | /usr/bin/grep -i "Local Volumes\|Images" | awk '{for(i=1;i<=NF;i++) if($i ~ /\(/) print $i $(i+1)}' | head -1)
+        DOCKER_DF=$(docker system df 2>/dev/null || true)
+        if [[ -n "${DOCKER_DF}" ]]; then
+            RECLAIMABLE=$(echo "${DOCKER_DF}" | /usr/bin/grep -i "Local Volumes\|Images" | awk '{for(i=1;i<=NF;i++) if($i ~ /\(/) print $i $(i+1)}' | head -1)
             if [[ -n "${RECLAIMABLE}" ]]; then
-                print_status "info" "Podman reclaimable: ${RECLAIMABLE}"
+                print_status "info" "Docker reclaimable: ${RECLAIMABLE}"
             fi
         fi
+    else
+        print_status "info" "Docker Desktop not running (start Docker Desktop app)"
     fi
 else
-    print_status "info" "Podman not installed (container check skipped)"
+    print_status "info" "Docker not installed (container check skipped)"
 fi
 
 # ---------------------------------------------------------------------------
@@ -598,7 +590,7 @@ echo "Quick commands:"
 echo "  gc           - Remove old user generations"
 echo "  gc-system    - Remove old system generations (sudo)"
 echo "  cleanup      - GC + store optimization"
-echo "  disk-cleanup - Clean dev caches (uv, npm, Homebrew, Podman)"
+echo "  disk-cleanup - Clean dev caches (uv, npm, Homebrew, Docker)"
 echo "  rebuild      - Rebuild system configuration"
 echo "  update       - Update flake.lock + rebuild"
 echo "  brew-upgrade - Update all Homebrew packages"

@@ -189,13 +189,13 @@ fetch_flake_from_github() {
         return 1
     }
 
-    log_info "  - home-manager/modules/podman.nix"
-    if ! curl -fsSL -o "home-manager/modules/podman.nix" "${base_url}/home-manager/modules/podman.nix"; then
-        log_error "Failed to fetch home-manager/modules/podman.nix"
+    log_info "  - home-manager/modules/docker.nix"
+    if ! curl -fsSL -o "home-manager/modules/docker.nix" "${base_url}/home-manager/modules/docker.nix"; then
+        log_error "Failed to fetch home-manager/modules/docker.nix"
         return 1
     fi
-    [[ -s "home-manager/modules/podman.nix" ]] || {
-        log_error "Downloaded home-manager/modules/podman.nix is empty"
+    [[ -s "home-manager/modules/docker.nix" ]] || {
+        log_error "Downloaded home-manager/modules/docker.nix is empty"
         return 1
     }
 
@@ -413,7 +413,7 @@ fetch_flake_from_github() {
     log_info "  • home-manager/modules/ghostty.nix"
     log_info "  • home-manager/modules/claude-code.nix"
     log_info "  • home-manager/modules/python.nix"
-    log_info "  • home-manager/modules/podman.nix"
+    log_info "  • home-manager/modules/docker.nix"
     log_info "  • home-manager/modules/msmtp.nix"
     log_info "  • scripts/health-check.sh"
     log_info "  • scripts/setup-msmtp-keychain.sh"

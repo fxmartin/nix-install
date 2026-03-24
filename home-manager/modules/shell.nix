@@ -578,7 +578,7 @@
         behind = "⇣\${count}";
         diverged = "⇕⇡\${ahead_count}⇣\${behind_count}";
         untracked = "?";
-        stashed = "$";
+        stashed = "\\$";
         modified = "!";
         staged = "+";
         renamed = "»";

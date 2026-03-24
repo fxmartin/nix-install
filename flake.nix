@@ -94,6 +94,18 @@
     # Allow unfree packages (needed for many GUI apps)
     nixpkgsConfig.config.allowUnfree = true;
 
+    # Temporary overlay: fix direnv 2.37.1 build failure (nixpkgs#502464)
+    # direnv CGO was disabled but -linkmode=external in GNUmakefile requires cgo.
+    # Fix merged in nixpkgs master (PR#502769) but not yet in nixpkgs-unstable.
+    # TODO: Remove this overlay after next `nix flake update` picks up the fix.
+    direnvFixOverlay = final: prev: {
+      direnv = prev.direnv.overrideAttrs (old: {
+        postPatch = (old.postPatch or "") + ''
+          sed -i 's/-linkmode=external//' GNUmakefile
+        '';
+      });
+    };
+
     # Ollama model definitions — single source of truth for both profiles
     # Standard models are included in Power profile via ollamaModels.power
     ollamaModels = {
@@ -168,6 +180,9 @@
 
     # Common configuration modules shared by both profiles
     commonModules = [
+      # Temporary: apply direnv build fix overlay (nixpkgs#502464)
+      { nixpkgs.overlays = [ direnvFixOverlay ]; }
+
       # Core System Configuration
       ./darwin/configuration.nix
 

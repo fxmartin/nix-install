@@ -25,8 +25,8 @@
       WorkingDirectory = "/Users/${userConfig.username}/Projects/qwen3-tts";
 
       # Start at login and restart on crash
-      RunAtLoad = true;
-      KeepAlive = {SuccessfulExit = false;};
+      RunAtLoad = false;
+      KeepAlive = false;
 
       # Logging configuration
       StandardOutPath = "/tmp/qwen3-tts-serve.log";

@@ -87,10 +87,14 @@
       # Container Tools (Story 02.2-005)
       "docker" # Docker Desktop - Container development platform
 
+      # Database Tools
+      "tableplus" # TablePlus - Modern database management GUI (PostgreSQL, MySQL, SQLite, Redis, etc.)
+
       # Browsers (Story 02.3-001, 02.3-002)
       # Auto-update disable: Updates managed by Homebrew (no in-app setting available)
-      "brave-browser" # Brave Browser - Privacy-focused browser with built-in ad/tracker blocking
-      "arc"           # Arc Browser - Modern workspace browser with Spaces and vertical sidebar
+      "brave-browser"    # Brave Browser - Privacy-focused browser with built-in ad/tracker blocking
+      "arc"              # Arc Browser - Modern workspace browser with Spaces and vertical sidebar
+      "google-chrome"    # Google Chrome - Web browser (auto-update managed by Homebrew)
 
       # Productivity & Utilities (Story 02.4-001, 02.4-002, 02.4-004)
       # Auto-update disable: Raycast/1Password (Preferences → Advanced), Dropbox (Preferences → Account → Disable automatic updates)
@@ -141,6 +145,7 @@
       # Permissions: Network Extension permission required on first VPN connection
       "nordvpn" # NordVPN - VPN privacy and security service (subscription required)
       "tailscale-app" # Tailscale - Zero-config mesh VPN built on WireGuard
+      "rustdesk"      # RustDesk - Open source remote desktop application
 
       # Network Firewall (Story 02.7-001)
       # Auto-update disable: Preferences → Advanced → Uncheck "Automatically check for updates"

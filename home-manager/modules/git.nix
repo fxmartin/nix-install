@@ -34,6 +34,9 @@
   programs.git = {
     enable = true;
 
+    # Adopt new default: signing.format changed from "openpgp" to null in stateVersion 25.05
+    signing.format = null;
+
     # Git LFS Configuration
     lfs = {
       enable = true;                  # Enable Git Large File Storage

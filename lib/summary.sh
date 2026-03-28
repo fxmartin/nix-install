@@ -226,11 +226,6 @@ display_manual_activation_apps() {
     echo "  • 1Password (license key required)"
     echo "  • Microsoft Office (Office 365 subscription required)"
 
-    # Parallels Desktop only for Power profile
-    if [[ "${INSTALL_PROFILE:-standard}" == "power" ]]; then
-        echo "  • Parallels Desktop (license key required)"
-    fi
-
     echo ""
 
     return 0

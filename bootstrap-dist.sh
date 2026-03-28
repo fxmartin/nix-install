@@ -241,82 +241,6 @@ check_internet() {
     return 1
 }
 
-# Check if terminal has Full Disk Access (FDA)
-# Required for Power profile to install Parallels Desktop via Homebrew
-# Returns: 0 if FDA granted, 1 if not granted
-check_terminal_full_disk_access() {
-    log_info "Checking terminal Full Disk Access permissions..."
-    echo ""
-
-    # Determine current terminal app
-    # Use :- default to handle unset variables with set -u
-    local terminal_app="Terminal"
-    if [[ -n "${GHOSTTY_RESOURCES_DIR:-}" ]]; then
-        terminal_app="Ghostty"
-    elif [[ -n "${ITERM_SESSION_ID:-}" ]]; then
-        terminal_app="iTerm2"
-    elif [[ "${TERM_PROGRAM:-}" == "Apple_Terminal" ]]; then
-        terminal_app="Terminal.app"
-    fi
-
-    log_info "Detected terminal: ${terminal_app}"
-    echo ""
-
-    # Test FDA by attempting to read a protected directory
-    # ~/Library/Mail is protected and requires FDA
-    local test_path="${HOME}/Library/Mail"
-
-    if [[ -d "${test_path}" ]]; then
-        # Try to list contents of protected directory
-        if ls "${test_path}" >/dev/null 2>&1; then
-            log_info "Terminal has Full Disk Access ✓"
-            log_info "FDA is granted for: ${terminal_app}"
-            echo ""
-            return 0
-        fi
-    else
-        # If Mail directory doesn't exist, try Safari
-        test_path="${HOME}/Library/Safari"
-        if [[ -d "${test_path}" ]]; then
-            if ls "${test_path}" >/dev/null 2>&1; then
-                log_info "Terminal has Full Disk Access ✓"
-                log_info "FDA is granted for: ${terminal_app}"
-                echo ""
-                return 0
-            fi
-        fi
-    fi
-
-    # FDA not granted - provide instructions
-    log_error "Terminal does NOT have Full Disk Access"
-    log_error "FDA is REQUIRED for Power profile to install Parallels Desktop"
-    echo ""
-    log_info "======================================"
-    log_info "MANUAL ACTION REQUIRED"
-    log_info "======================================"
-    echo ""
-    log_info "Please grant Full Disk Access to your terminal:"
-    echo ""
-    log_info "1. Open System Settings → Privacy & Security → Full Disk Access"
-    log_info "   (or run: open 'x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles')"
-    echo ""
-    log_info "2. Click the lock icon (🔒) → Authenticate with your password"
-    echo ""
-    log_info "3. Find your terminal app: ${terminal_app}"
-    echo ""
-    log_info "4. Toggle switch to ON (blue checkmark)"
-    echo ""
-    log_info "5. Click lock icon (🔒) again to prevent changes"
-    echo ""
-    log_info "6. QUIT terminal completely (Cmd+Q)"
-    echo ""
-    log_info "7. Relaunch terminal and run bootstrap.sh again"
-    echo ""
-    log_warn "Without FDA, Parallels Desktop installation will fail!"
-    echo ""
-
-    return 1
-}
 
 # Display system information summary
 # Useful for debugging and validation
@@ -888,7 +812,7 @@ generate_user_config() {
 # Story 01.2-002: Profile Selection System
 # These functions allow FX to choose between Standard and Power installation profiles
 # Standard: MacBook Air - essential apps, 1 Ollama model (~35GB)
-# Power: MacBook Pro M3 Max - all apps, 4 Ollama models, Parallels (~120GB)
+# Power: MacBook Pro M3 Max - all apps, 4 Ollama models (~120GB)
 # =============================================================================
 
 # Validate profile choice input (must be 1 or 2)
@@ -952,10 +876,9 @@ display_profile_options() {
     echo ""
     echo "2) Power Profile"
     echo "   Target:         MacBook Pro M3 Max"
-    echo "   Apps:           All apps + Parallels Desktop"
+    echo "   Apps:           All apps"
     echo "   Ollama Models:  4 Ollama models (gpt-oss:20b, qwen2.5-coder:32b,"
     echo "                   llama3.1:70b, deepseek-r1:32b)"
-    echo "   Virtualization: Parallels Desktop"
     echo "   Disk Usage:     ~120GB"
     echo ""
 }
@@ -4746,11 +4669,6 @@ display_rebuild_success_message() {
         log_info "   ollama list"
         log_info "   Expected: gpt-oss:20b, qwen2.5-coder:32b, llama3.1:70b, deepseek-r1:32b"
         echo ""
-        log_info "4. Configure Parallels Desktop (Power profile):"
-        log_info "   • Launch Parallels Desktop"
-        log_info "   • Activate your license"
-        log_info "   • Set up development VMs as needed"
-        echo ""
     fi
 
     echo "════════════════════════════════════════════════════════════════════"
@@ -5068,11 +4986,6 @@ display_manual_activation_apps() {
     echo "  • 1Password (license key required)"
     echo "  • Microsoft Office (Office 365 subscription required)"
 
-    # Parallels Desktop only for Power profile
-    if [[ "${INSTALL_PROFILE:-standard}" == "power" ]]; then
-        echo "  • Parallels Desktop (license key required)"
-    fi
-
     echo ""
 
     return 0
@@ -5202,24 +5115,6 @@ main() {
         log_error "Failed to generate user configuration file"
         log_error "Bootstrap process terminated."
         exit 1
-    fi
-
-    # Story 02.8-001: Parallels Desktop requires terminal FDA for installation
-    # Only check for Power profile (Parallels is Power-only)
-    if [[ "${INSTALL_PROFILE}" == "power" ]]; then
-        log_info "Power profile requires terminal Full Disk Access for Parallels Desktop installation."
-        echo ""
-
-        # shellcheck disable=SC2310  # Intentional: Using ! to handle validation failure
-        if ! check_terminal_full_disk_access; then
-            log_error "Terminal Full Disk Access check failed"
-            log_error "Please grant FDA to your terminal and relaunch before continuing."
-            log_error "Bootstrap process terminated."
-            exit 1
-        fi
-
-        log_info "✓ Terminal has required permissions for Power profile"
-        echo ""
     fi
 
     local phase2_end

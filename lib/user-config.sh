@@ -497,7 +497,7 @@ generate_user_config() {
 # Story 01.2-002: Profile Selection System
 # These functions allow FX to choose between Standard and Power installation profiles
 # Standard: MacBook Air - essential apps, 1 Ollama model (~35GB)
-# Power: MacBook Pro M3 Max - all apps, 4 Ollama models, Parallels (~120GB)
+# Power: MacBook Pro M3 Max - all apps, 4 Ollama models (~120GB)
 # =============================================================================
 
 # Validate profile choice input (must be 1 or 2)
@@ -561,10 +561,9 @@ display_profile_options() {
     echo ""
     echo "2) Power Profile"
     echo "   Target:         MacBook Pro M3 Max"
-    echo "   Apps:           All apps + Parallels Desktop"
+    echo "   Apps:           All apps"
     echo "   Ollama Models:  4 Ollama models (gpt-oss:20b, qwen2.5-coder:32b,"
     echo "                   llama3.1:70b, deepseek-r1:32b)"
-    echo "   Virtualization: Parallels Desktop"
     echo "   Disk Usage:     ~120GB"
     echo ""
 }

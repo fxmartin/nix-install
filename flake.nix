@@ -96,8 +96,11 @@
 
     # Temporary overlay: fix direnv 2.37.1 build failure (nixpkgs#502464)
     # direnv CGO was disabled but -linkmode=external in GNUmakefile requires cgo.
-    # Fix merged in nixpkgs master (PR#502769) but not yet in nixpkgs-unstable.
-    # TODO: Remove this overlay after next `nix flake update` picks up the fix.
+    # Fix merged in nixpkgs master (PR#502769, commit d6f179c, 2026-03-23) but
+    # not yet in nixpkgs-unstable channel (waiting for Hydra CI evaluation).
+    # TODO: Remove this overlay + the module reference at line ~184 after running
+    #       `nix flake update nixpkgs`. Verify with: nix build nixpkgs#direnv --dry-run
+    #       If it doesn't need to build locally, the fix is in your flake.lock.
     direnvFixOverlay = final: prev: {
       direnv = prev.direnv.overrideAttrs (old: {
         postPatch = (old.postPatch or "") + ''
@@ -282,7 +285,7 @@
       };
   in {
     # Standard Profile - MacBook Air
-    # Minimal configuration: Core apps, no Parallels, single Ollama model
+    # Minimal configuration: Core apps, single Ollama model
     # Profile differentiation: modules can check `isPowerProfile` from specialArgs
     darwinConfigurations.standard = mkDarwinConfiguration {
       system = "aarch64-darwin"; # Apple Silicon (can also support x86_64-darwin)
@@ -290,7 +293,6 @@
       modules = [
         ({lib, ...}: {
           # Standard profile specific settings
-          # - No Parallels Desktop (isPowerProfile = false)
           # - Ollama models: defined in ollamaModels.standard
 
           # Story 02.1-003: Automatically pull Ollama models for Standard profile
@@ -304,7 +306,7 @@
     };
 
     # Power Profile - MacBook Pro M3 Max
-    # Full configuration: All apps, Parallels enabled, multiple Ollama models
+    # Full configuration: All apps, multiple Ollama models
     # Profile differentiation: modules can check `isPowerProfile` from specialArgs
     darwinConfigurations.power = mkDarwinConfiguration {
       system = "aarch64-darwin"; # Apple Silicon only
@@ -336,7 +338,6 @@
 
         ({lib, ...}: {
           # Power profile specific settings
-          # - Parallels Desktop enabled (isPowerProfile = true)
           # - Ollama models: defined in ollamaModels.power
 
           # Story 02.1-004: Automatically pull Ollama models for Power profile

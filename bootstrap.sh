@@ -192,24 +192,6 @@ main() {
         exit 1
     fi
 
-    # Story 02.8-001: Parallels Desktop requires terminal FDA for installation
-    # Only check for Power profile (Parallels is Power-only)
-    if [[ "${INSTALL_PROFILE}" == "power" ]]; then
-        log_info "Power profile requires terminal Full Disk Access for Parallels Desktop installation."
-        echo ""
-
-        # shellcheck disable=SC2310  # Intentional: Using ! to handle validation failure
-        if ! check_terminal_full_disk_access; then
-            log_error "Terminal Full Disk Access check failed"
-            log_error "Please grant FDA to your terminal and relaunch before continuing."
-            log_error "Bootstrap process terminated."
-            exit 1
-        fi
-
-        log_info "✓ Terminal has required permissions for Power profile"
-        echo ""
-    fi
-
     local phase2_end
     phase2_end=$(date +%s)
     log_phase_complete 2 "User Configuration & Profile Selection" $((phase2_end - phase2_start))

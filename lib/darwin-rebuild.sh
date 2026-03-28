@@ -260,11 +260,6 @@ display_rebuild_success_message() {
         log_info "   ollama list"
         log_info "   Expected: gpt-oss:20b, qwen2.5-coder:32b, llama3.1:70b, deepseek-r1:32b"
         echo ""
-        log_info "4. Configure Parallels Desktop (Power profile):"
-        log_info "   • Launch Parallels Desktop"
-        log_info "   • Activate your license"
-        log_info "   • Set up development VMs as needed"
-        echo ""
     fi
 
     echo "════════════════════════════════════════════════════════════════════"

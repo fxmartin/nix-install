@@ -85,7 +85,7 @@
             # Configuration: home-manager/modules/zed.nix (Catppuccin theme, JetBrains Mono)
 
       # Container Tools (Story 02.2-005)
-      "docker" # Docker Desktop - Container development platform
+      "docker-desktop" # Docker Desktop - Container development platform (renamed from "docker")
 
       # Database Tools
       "tableplus" # TablePlus - Modern database management GUI (PostgreSQL, MySQL, SQLite, Redis, etc.)

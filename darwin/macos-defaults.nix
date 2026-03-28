@@ -277,7 +277,6 @@
       "/Applications/1Password.app"
       "/Applications/NordVPN.app"
       # System (rightmost - less frequent)
-      "/Applications/Parallels Desktop.app"
       "/System/Applications/System Settings.app"
     ];
 
@@ -385,7 +384,9 @@
     # The || true ensures the script continues even if path doesn't exist
 
     # Nix store - fully reproducible, no need to backup (~20-50GB)
-    /usr/bin/tmutil addexclusion -p /nix 2>/dev/null || true
+    # NOTE: /nix is an APFS volume; tmutil addexclusion fails with EINVAL on it.
+    # The Nix installer already excludes this volume from Time Machine at the volume level.
+    # Verify with: tmutil isexcluded /nix
 
     # User trash - no need to backup deleted files
     /usr/bin/tmutil addexclusion -p "$USER_HOME/.Trash" 2>/dev/null || true
@@ -445,7 +446,7 @@
   # - [✅] Auto-correct disabled (Story 03.5-001)
 
   # Feature 03.6: Dock Configuration (Complete)
-  # - [✅] Persistent apps configured (Story 03.6-001) - Mail, Claude, Ghostty, WhatsApp, Perplexity, ChatGPT, 1Password, Brave, Settings, Parallels, NordVPN
+  # - [✅] Persistent apps configured (Story 03.6-001) - Mail, Claude, Ghostty, WhatsApp, Perplexity, ChatGPT, 1Password, Brave, Settings, NordVPN
   # - [✅] Minimize to application icon (Story 03.6-001)
   # - [✅] Auto-hide enabled (Story 03.6-001)
   # - [✅] Fast auto-hide animation (Story 03.6-001)

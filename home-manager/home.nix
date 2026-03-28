@@ -56,6 +56,10 @@
     ];
   };
 
+  # Adopt new defaults for options that changed in newer stateVersions
+  # gtk.gtk4.theme changed from config.gtk.theme to null in 26.05
+  gtk.gtk4.theme = null;
+
   programs = {
     home-manager.enable = true;
 

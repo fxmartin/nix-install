@@ -37,6 +37,7 @@
     ./modules/ripgrep.nix  # Grep replacement with smart defaults
     ./modules/fd.nix       # Find replacement with ignore patterns
     ./modules/httpie.nix   # HTTP client with developer defaults
+    ./modules/sketchybar.nix # SketchyBar status bar with repo-synced config
   ];
 
   home = {

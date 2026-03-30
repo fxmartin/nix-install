@@ -14,6 +14,7 @@
     # Homebrew taps (repositories)
     # Epic-02 will add: homebrew/cask-fonts, etc.
     taps = [
+      "felixkratz/formulae" # SketchyBar - highly customizable macOS status bar replacement
       "manaflow-ai/cmux" # cmux terminal - Ghostty-based terminal with vertical tabs for AI coding agents
     ];
 
@@ -48,6 +49,9 @@
       # Note: Not available in nixpkgs, Homebrew formula only
       "mactop"          # Real-time Apple Silicon CPU/GPU/ANE monitor (TUI)
 
+      # Status Bar
+      "felixkratz/formulae/sketchybar" # SketchyBar - Highly customizable macOS status bar replacement
+
       # Media Tools
       # Note: yt-dlp broken in nixpkgs (curl-impersonate AppleIDN check fails on macOS 15.3)
       "yt-dlp"          # YouTube/video downloader (active fork of youtube-dl)
@@ -75,7 +79,6 @@
       "claude" # Claude Desktop - Anthropic's AI assistant
       "chatgpt" # ChatGPT Desktop - OpenAI's conversational AI
       # Note: Perplexity moved to Mac App Store (masApps) - no Homebrew cask available
-      "lm-studio" # LM Studio - Discover, download, and run local LLMs with GUI
 
       # Development Environment Applications (Story 02.2-001, 02.2-005)
       # Auto-update disable: Managed via Home Manager settings.json
@@ -159,6 +162,9 @@
       # Auto-update disable: EACH app → Preferences → Update → Uncheck (6 apps total: Word, Excel, PowerPoint, Outlook, OneNote, Teams)
       # License: Active Microsoft 365 subscription required (Personal $69.99/year, Family $99.99/year, or company-provided)
       "microsoft-office-businesspro" # Office 365 - Word, Excel, PowerPoint, Outlook, OneNote, Teams
+
+      # Fonts
+      "font-hack-nerd-font" # Hack Nerd Font - Patched font for SketchyBar and dev tools
     ];
 
     # Global Homebrew options
@@ -177,6 +183,7 @@
     #   mas install 302584613   # Kindle
     #   mas install 890031187   # Marked 2
     #   mas install 310633997   # WhatsApp
+    #   mas install 6749861443  # Inferencer
     masApps = lib.mkIf (userConfig.enableMasApps or false) {
       "1Password for Safari" = 1569813296;  # Safari password manager extension
       "Perplexity" = 6714467650;  # AI search assistant
@@ -185,6 +192,7 @@
       "WhatsApp" = 310633997;     # Messaging app
       "Amphetamine" = 937984704;  # Keep-awake utility to prevent sleep
       "reMarkable desktop" = 1276493162;  # reMarkable tablet sync and screen share
+      "Inferencer" = 6749861443;  # Private on-device AI model runner
     };
   };
 

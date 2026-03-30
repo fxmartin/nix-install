@@ -243,6 +243,9 @@
       #          "Tinted", "TintedLight", "TintedDark"
       # "Light" = Clean light appearance for icons and widgets
       AppleIconAppearanceTheme = "Light";
+
+      # Menu bar auto-hide is managed via osascript in the activation script below
+      # (defaults write alone doesn't apply immediately on macOS 26 Tahoe)
     };
   };
 
@@ -366,6 +369,29 @@
     '' else ''
       echo "Skipping power management (Standard profile)"
     ''}
+
+    # ============================================================================
+    # TIME MACHINE CONFIGURATION
+    # ============================================================================
+    # ============================================================================
+    # MENU BAR AUTO-HIDE
+    # ============================================================================
+    # Automatically hide and show the menu bar: Always
+    # Options: 0 = Never, 1 = In Full Screen Only, 2 = Always
+    # Pairs well with SketchyBar as a replacement status bar
+    # Both keys must be set: NSGlobalDomain._HIHideMenuBar (set via system.defaults)
+    # and com.apple.controlcenter.AutoHideMenuBarOption (the actual ControlCenter key)
+    /usr/bin/sudo -u ${userConfig.username} /usr/bin/osascript -e 'tell application "System Events" to tell dock preferences to set autohide menu bar to true'
+    echo "✅ Menu bar auto-hide set to Always"
+
+    # ============================================================================
+    # SKETCHYBAR SERVICE
+    # ============================================================================
+    # Start SketchyBar as a brew service (runs as LaunchAgent for current user)
+    if /opt/homebrew/bin/brew list sketchybar &>/dev/null; then
+      /usr/bin/sudo -u ${userConfig.username} /opt/homebrew/bin/brew services start sketchybar 2>/dev/null || true
+      echo "✅ SketchyBar service started"
+    fi
 
     # ============================================================================
     # TIME MACHINE CONFIGURATION

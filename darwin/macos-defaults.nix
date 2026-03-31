@@ -300,7 +300,7 @@
     autohide-delay = 0.0;
 
     # Dock position (bottom, left, right)
-    orientation = "bottom";
+    orientation = "left";
 
     # Don't show recent applications in Dock
     # Keeps Dock clean and predictable
@@ -385,12 +385,39 @@
     echo "✅ Menu bar auto-hide set to Always"
 
     # ============================================================================
+    # SAFARI CONFIGURATION
+    # ============================================================================
+    # Force "target=_blank" links to open in tabs instead of new windows
+    /usr/bin/defaults write com.apple.Safari TargetedClicksCreateTabs -bool true
+
+    # Open pages in tabs instead of windows: Automatically
+    # 0 = Never, 1 = Automatically, 2 = Always
+    /usr/bin/defaults write com.apple.Safari TabCreationPolicy -int 1
+
+    # Safari opens with: All windows from last session
+    # 0 = A new window, 1 = A new private window, 2 = All windows from last session
+    # 3 = All non-private windows from last session
+    /usr/bin/defaults write com.apple.Safari AlwaysRestoreSessionAtLaunch -bool true
+    /usr/bin/defaults write com.apple.Safari ExcludePrivateWindowWhenRestoringSessionAtLaunch -bool false
+
+    echo "✅ Safari configured (tabs, restore last session)"
+
+    # ============================================================================
     # SKETCHYBAR SERVICE
     # ============================================================================
     # Start SketchyBar as a brew service (runs as LaunchAgent for current user)
     if /opt/homebrew/bin/brew list sketchybar &>/dev/null; then
       /usr/bin/sudo -u ${userConfig.username} /opt/homebrew/bin/brew services start sketchybar 2>/dev/null || true
       echo "✅ SketchyBar service started"
+    fi
+
+    # ============================================================================
+    # SKHD SERVICE
+    # ============================================================================
+    # Start skhd as a brew service (simple hotkey daemon for macOS)
+    if /opt/homebrew/bin/brew list skhd &>/dev/null; then
+      /usr/bin/sudo -u ${userConfig.username} /opt/homebrew/bin/skhd --start-service 2>/dev/null || true
+      echo "✅ skhd service started"
     fi
 
     # ============================================================================

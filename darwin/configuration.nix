@@ -44,6 +44,7 @@
     sops
     curl
     wget
+    jq                  # Lightweight JSON processor for shell pipelines
     tree
 
     # Build Dependencies

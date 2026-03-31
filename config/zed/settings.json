@@ -37,7 +37,7 @@
     "dock": "left",
     "default_width": 240
   },
-  "assistant": {
+  "agent": {
     "enabled": false
   }
 }

@@ -33,6 +33,49 @@ default=(
 )
 sketchybar --default "${default[@]}"
 
+#### Changing the default font to match Apple' style ####
+sketchybar --bar font=Sf Pro:13.0
+
+##### Adding Apple icon and dropdown menu #####
+sketchybar --set apple font=Sf Pro
+sketchybar --set apple.preferences font=Sf Pro
+sketchybar --set apple.start font=Sf Pro
+sketchybar --set apple.shutdown font=Sf Pro
+
+sketchybar --add item apple left \
+  --set apple icon= \
+  label.drawing=off \
+  padding_right=10 \
+  click_script="sketchybar --set apple popup.drawing=toggle"
+
+# Adding link to Settings
+sketchybar --add item apple.preferences popup.apple \
+  --set apple.preferences icon=⚙️ \
+  label="Preferences" \
+  click_script="open -a 'System Settings' ; sketchybar --set apple popup.drawing=off"
+
+# Adding link to Finder
+sketchybar --add item apple.start popup.apple \
+  --set apple.start icon=▶️ \
+  label="Finder" \
+  click_script="open -a Finder ; sketchybar --set apple popup.drawing=off"
+
+# Adding link to Shutdown
+sketchybar --add item apple.shutdown popup.apple \
+  --set apple.shutdown icon=⏻ \
+  label="Shutdown" \
+  click_script="osascript -e 'tell app \"System Events\" to shut down' ; sketchybar --set apple popup.drawing=off"
+
+# Styling the pop-up window
+sketchybar --set apple \
+  popup.background.color=0xff1e1e2e \
+  popup.background.border_width=1 \
+  popup.background.border_color=0xffffffff \
+  popup.background.corner_radius=12 \
+  popup.background.height=32 \
+  popup.background.shadow.drawing=on \
+  popup.y_offset=5
+
 ##### Adding Mission Control Space Indicators #####
 # Let's add some mission control spaces:
 # https://felixkratz.github.io/SketchyBar/config/components#space----associate-mission-control-spaces-with-an-item

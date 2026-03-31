@@ -16,6 +16,8 @@
     taps = [
       "felixkratz/formulae" # SketchyBar - highly customizable macOS status bar replacement
       "manaflow-ai/cmux" # cmux terminal - Ghostty-based terminal with vertical tabs for AI coding agents
+      "nikitabobko/tap" # AeroSpace - i3-like tiling window manager for macOS
+      "koekeishiya/formulae" # skhd - simple hotkey daemon for macOS
     ];
 
     onActivation = {
@@ -51,6 +53,9 @@
 
       # Status Bar
       "felixkratz/formulae/sketchybar" # SketchyBar - Highly customizable macOS status bar replacement
+
+      # Hotkey Daemon
+      "koekeishiya/formulae/skhd" # skhd - Simple hotkey daemon for macOS (https://github.com/koekeishiya/skhd)
 
       # Media Tools
       # Note: yt-dlp broken in nixpkgs (curl-impersonate AppleIDN check fails on macOS 15.3)
@@ -109,6 +114,9 @@
       # Auto-update disable: Calibre (Preferences → Misc), Marked 2 (Preferences → General)
       "calibre" # Calibre - Ebook library manager and converter (Story 02.4-003)
       "keka"    # Keka - Archive utility for zip, rar, 7z, etc. (Story 02.4-003)
+
+      # Window Management
+      "nikitabobko/tap/aerospace" # AeroSpace - i3-like tiling window manager for macOS (https://github.com/nikitabobko/AeroSpace)
 
       # System Utilities (Story 02.4-005)
       # Auto-update disable: None required (both free utilities, Homebrew-controlled)

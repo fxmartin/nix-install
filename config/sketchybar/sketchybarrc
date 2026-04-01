@@ -123,6 +123,8 @@ sketchybar --add item clock right \
            --add item battery right \
            --set battery update_freq=120 icon.font="Hack Nerd Font:Bold:15.0" script="$PLUGIN_DIR/battery.sh" \
            --subscribe battery system_woke power_source_change \
+           --add item network right \
+           --set network update_freq=5 icon=󰛳 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/network.sh" \
            --add item wifi right \
            --set wifi update_freq=10 icon=󰤨 icon.font="Hack Nerd Font:Bold:15.0" label.drawing=off click_script="open x-apple.systempreferences:com.apple.wifi-settings-extension" script="$PLUGIN_DIR/wifi.sh" \
            --add item tailscale right \

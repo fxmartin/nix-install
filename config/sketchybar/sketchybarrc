@@ -123,12 +123,28 @@ sketchybar --add item clock right \
            --add item battery right \
            --set battery update_freq=120 icon.font="Hack Nerd Font:Bold:15.0" script="$PLUGIN_DIR/battery.sh" \
            --subscribe battery system_woke power_source_change \
-           --add item network right \
-           --set network update_freq=5 icon=󰛳 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/network.sh" \
+           --add item docker right \
+           --set docker update_freq=10 icon=󰡨 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 \
+             script="$PLUGIN_DIR/docker.sh" \
+             click_script="$PLUGIN_DIR/docker.sh" \
+             popup.background.color=0xff1e1e2e \
+             popup.background.border_width=1 \
+             popup.background.border_color=0xff585b70 \
+             popup.background.corner_radius=12 \
+             popup.background.height=32 \
+             popup.y_offset=5 \
            --add item wifi right \
            --set wifi update_freq=10 icon=󰤨 icon.font="Hack Nerd Font:Bold:15.0" label.drawing=off click_script="open x-apple.systempreferences:com.apple.wifi-settings-extension" script="$PLUGIN_DIR/wifi.sh" \
            --add item tailscale right \
-           --set tailscale update_freq=10 icon=󰖂 icon.font="Hack Nerd Font:Bold:15.0" label.drawing=off script="$PLUGIN_DIR/tailscale.sh" \
+           --set tailscale update_freq=10 icon=󰖂 icon.font="Hack Nerd Font:Bold:15.0" label.drawing=off \
+             script="$PLUGIN_DIR/tailscale.sh" \
+             click_script="$PLUGIN_DIR/tailscale.sh" \
+             popup.background.color=0xff1e1e2e \
+             popup.background.border_width=1 \
+             popup.background.border_color=0xff585b70 \
+             popup.background.corner_radius=12 \
+             popup.background.height=32 \
+             popup.y_offset=5 \
            --add item disk right \
            --set disk update_freq=60 icon=󰋊 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/disk.sh" \
            --add item memory right \
@@ -138,7 +154,17 @@ sketchybar --add item clock right \
            --add item gpu right \
            --set gpu update_freq=5 icon=󰏔 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/gpu.sh" \
            --add item cpu right \
-           --set cpu update_freq=5 icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/cpu.sh"
+           --set cpu update_freq=5 icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/cpu.sh" \
+           --add item network right \
+           --set network update_freq=5 icon=󰛳 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 \
+             script="$PLUGIN_DIR/network.sh" \
+             click_script="$PLUGIN_DIR/network.sh" \
+             popup.background.color=0xff1e1e2e \
+             popup.background.border_width=1 \
+             popup.background.border_color=0xff585b70 \
+             popup.background.corner_radius=12 \
+             popup.background.height=32 \
+             popup.y_offset=5
 
 ##### Force all scripts to run the first time (never do this in a script) #####
 sketchybar --update

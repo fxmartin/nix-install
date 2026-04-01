@@ -1,9 +1,18 @@
 #!/bin/sh
 
-# ABOUTME: SketchyBar plugin — Disk usage with spark bar (static level)
+# ABOUTME: SketchyBar plugin — Disk usage percentage matching Finder (includes purgeable space)
 
-# Get disk usage percentage for Data volume (where user data lives)
-DISK=$(df -h /System/Volumes/Data 2>/dev/null | awk 'NR==2 {gsub(/%/,""); print int($5)}')
+# Use Swift to get volumeAvailableCapacityForImportantUsage (same as Finder)
+DISK=$(swift -e '
+import Foundation
+let url = URL(fileURLWithPath: "/")
+let values = try url.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey, .volumeTotalCapacityKey])
+let available = values.volumeAvailableCapacityForImportantUsage ?? 0
+let total = Int64(values.volumeTotalCapacity ?? 0)
+let usedPct = Int(Double(total - available) / Double(total) * 100)
+print(usedPct)
+' 2>/dev/null)
+
 [ -z "$DISK" ] && exit 0
 
 # Color based on current value

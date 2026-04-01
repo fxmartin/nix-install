@@ -172,6 +172,7 @@
       "microsoft-office-businesspro" # Office 365 - Word, Excel, PowerPoint, Outlook, OneNote, Teams
 
       # Fonts
+      "font-sf-pro"         # SF Pro - Apple's system font for native macOS look (used by SketchyBar)
       "font-hack-nerd-font" # Hack Nerd Font - Patched font for SketchyBar and dev tools
     ];
 

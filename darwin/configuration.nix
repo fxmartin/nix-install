@@ -137,6 +137,9 @@
     # Media Processing
     ffmpeg              # Audio/video processing (required by mlx-whisper STT server)
 
+    # Container Tools
+    lazydocker          # Simple terminal UI for Docker and docker-compose
+
     # DevOps & Config Linters
     hadolint            # Dockerfile/Containerfile linter (best practices)
     yamllint            # YAML linter (syntax and style)

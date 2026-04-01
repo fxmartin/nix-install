@@ -18,7 +18,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Version
-HEALTH_CHECK_VERSION="1.1.0"
+HEALTH_CHECK_VERSION="1.2.0"
 
 # Shared thresholds (keep in sync with health-api.py)
 GENERATION_WARNING_THRESHOLD=50  # Warn if more than N system generations
@@ -305,13 +305,72 @@ if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.qwen3tts.server"; then
 fi
 
 # ---------------------------------------------------------------------------
-# Check 11: Docker container runtime
+# Check 11: Window management & status bar
+# ---------------------------------------------------------------------------
+echo "Checking window management..."
+
+# SketchyBar (managed by Homebrew service)
+if pgrep -x sketchybar > /dev/null 2>&1; then
+    SKETCHYBAR_ITEMS=$(sketchybar --query bar 2>/dev/null | python3 -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    print(len(d.get('items', [])))
+except:
+    print('?')
+" 2>/dev/null || echo "?")
+    print_status "ok" "SketchyBar running (${SKETCHYBAR_ITEMS} items)"
+else
+    print_status "warn" "SketchyBar not running"
+    echo "    → Run: brew services start sketchybar"
+fi
+
+# AeroSpace window manager
+if command -v aerospace &> /dev/null; then
+    if pgrep -x AeroSpace > /dev/null 2>&1; then
+        WORKSPACE=$(aerospace list-workspaces --focused 2>/dev/null || echo "?")
+        print_status "ok" "AeroSpace running (workspace: ${WORKSPACE})"
+    else
+        print_status "warn" "AeroSpace not running"
+        echo "    → Launch AeroSpace from Applications or login items"
+    fi
+fi
+
+# skhd hotkey daemon
+if command -v skhd &> /dev/null; then
+    if pgrep -x skhd > /dev/null 2>&1; then
+        print_status "ok" "skhd hotkey daemon running"
+    else
+        print_status "warn" "skhd not running (hotkeys disabled)"
+        echo "    → Run: brew services start skhd"
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# Check 12: Docker container runtime
 # ---------------------------------------------------------------------------
 echo "Checking Docker..."
 if command -v docker &> /dev/null; then
     # Check Docker Desktop status
     if docker info > /dev/null 2>&1; then
         print_status "ok" "Docker Desktop running"
+
+        # Container health summary
+        RUNNING=$(docker ps -q 2>/dev/null | wc -l | tr -d ' ')
+        UNHEALTHY=$(docker ps --filter "health=unhealthy" -q 2>/dev/null | wc -l | tr -d ' ')
+        HEALTHY=$(docker ps --filter "health=healthy" -q 2>/dev/null | wc -l | tr -d ' ')
+
+        if [[ ${UNHEALTHY} -gt 0 ]]; then
+            print_status "warn" "Docker containers: ${RUNNING} running (${HEALTHY} healthy, ${UNHEALTHY} unhealthy)"
+            # List unhealthy containers
+            docker ps --filter "health=unhealthy" --format '{{.Names}}' 2>/dev/null | while read -r name; do
+                echo "    → Unhealthy: ${name}"
+            done
+        elif [[ ${RUNNING} -gt 0 ]]; then
+            print_status "ok" "Docker containers: ${RUNNING} running (${HEALTHY} healthy)"
+        else
+            print_status "info" "Docker containers: none running"
+        fi
 
         # Image count
         IMAGE_COUNT=$(docker images --format '{{.ID}}' 2>/dev/null | wc -l | tr -d ' ')
@@ -333,7 +392,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Check 12: Qwen3-TTS server (Power profile only)
+# Check 13: Qwen3-TTS server (Power profile only)
 # ---------------------------------------------------------------------------
 if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.qwen3tts.server"; then
     echo "Checking Qwen3-TTS server..."
@@ -383,7 +442,7 @@ except:
 fi
 
 # ---------------------------------------------------------------------------
-# Check 13: Whisper STT server (Power profile only)
+# Check 14: Whisper STT server (Power profile only)
 # ---------------------------------------------------------------------------
 if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.whisper-stt.server"; then
     echo "Checking Whisper STT server..."
@@ -433,7 +492,7 @@ except:
 fi
 
 # ---------------------------------------------------------------------------
-# Check 14: Audiobook API server (Power profile only)
+# Check 15: Audiobook API server (Power profile only)
 # ---------------------------------------------------------------------------
 if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.audiobook-api.server"; then
     echo "Checking Audiobook API server..."
@@ -479,7 +538,7 @@ except:
 fi
 
 # ---------------------------------------------------------------------------
-# Check 15: Ollama models
+# Check 16: Ollama models
 # ---------------------------------------------------------------------------
 if command -v ollama &> /dev/null; then
     echo "Checking Ollama models..."
@@ -539,7 +598,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Check 15: System metrics (Apple Silicon vitals via health-api /metrics)
+# Check 17: System metrics (Apple Silicon vitals via health-api /metrics)
 # ---------------------------------------------------------------------------
 echo "Checking system metrics..."
 METRICS_JSON=$(curl -s --connect-timeout 3 --max-time 5 http://localhost:7780/metrics 2>/dev/null || true)

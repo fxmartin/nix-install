@@ -114,12 +114,12 @@
 
     # Web Development (React.js / TypeScript / JavaScript)
     nodejs                                   # Node.js runtime (required for npx, npm)
-    nodePackages.typescript-language-server  # TypeScript/JavaScript language server
-    nodePackages.vscode-langservers-extracted  # HTML, CSS, JSON, ESLint language servers
-    nodePackages.prettier                    # Code formatter for JS/TS/HTML/CSS/JSON
-    nodePackages.eslint                      # JavaScript/TypeScript linter
-    nodePackages.stylelint                   # CSS/SCSS/Less linter
-    nodePackages.htmlhint                    # HTML linter
+    typescript-language-server              # TypeScript/JavaScript language server
+    vscode-langservers-extracted             # HTML, CSS, JSON, ESLint language servers
+    prettier                                 # Code formatter for JS/TS/HTML/CSS/JSON
+    eslint                                   # JavaScript/TypeScript linter
+    stylelint                                # CSS/SCSS/Less linter
+    htmlhint                                 # HTML linter
 
     # YAML (for docker-compose, CI configs)
     yaml-language-server  # YAML language server with schema support
@@ -136,7 +136,7 @@
 
     # Media Processing
     ffmpeg              # Audio/video processing (required by mlx-whisper STT server)
-    poppler_utils       # PDF tools: pdftotext, pdfinfo, pdfimages, pdftoppm (used by Python PDF libs)
+    poppler-utils       # PDF tools: pdftotext, pdfinfo, pdfimages, pdftoppm (used by Python PDF libs)
 
     # Container Tools
     lazydocker          # Simple terminal UI for Docker and docker-compose

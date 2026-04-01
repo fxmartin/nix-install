@@ -136,6 +136,7 @@
 
     # Media Processing
     ffmpeg              # Audio/video processing (required by mlx-whisper STT server)
+    poppler_utils       # PDF tools: pdftotext, pdfinfo, pdfimages, pdftoppm (used by Python PDF libs)
 
     # Container Tools
     lazydocker          # Simple terminal UI for Docker and docker-compose

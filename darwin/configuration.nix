@@ -141,6 +141,9 @@
     # Container Tools
     lazydocker          # Simple terminal UI for Docker and docker-compose
 
+    # Code Analysis
+    scc                 # Fast code counter (lines of code, complexity, COCOMO estimates)
+
     # DevOps & Config Linters
     hadolint            # Dockerfile/Containerfile linter (best practices)
     yamllint            # YAML linter (syntax and style)

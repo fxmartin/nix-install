@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `claude-code.nix` to reference submodule paths
 
 ### Added
+- `scc` fast code counter (lines of code, complexity, COCOMO estimates)
+- `typst` modern typesetting system for PDF generation from markup
 - Health check HTTP API endpoint on port 7780 for remote monitoring via Tailscale
 - Ollama model verification in health check with profile-aware expected models
 - Qwen3-TTS LaunchAgent and health check for Power profile

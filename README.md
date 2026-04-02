@@ -207,7 +207,8 @@ Rollback is instant — no re-downloading, just switches symlinks.
 - **Starship** prompt with Nerd Font icons (replaces Oh My Zsh themes)
 - **FZF** fuzzy finder (Ctrl+R history, Ctrl+T files, Alt+C directories)
 - **Zoxide** for smart directory jumping (frecency-based `z` command)
-- **Modern CLI**: ripgrep, bat, eza, fd, httpie, tldr, mosh
+- **Modern CLI**: ripgrep, bat, eza, fd, httpie, tldr, mosh, scc
+- **Document generation**: typst (markup → PDF)
 
 ### Theming
 

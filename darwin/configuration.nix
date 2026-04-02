@@ -144,6 +144,9 @@
     # Code Analysis
     scc                 # Fast code counter (lines of code, complexity, COCOMO estimates)
 
+    # Document Generation
+    typst               # Modern typesetting system — fast PDF generation from markup
+
     # DevOps & Config Linters
     hadolint            # Dockerfile/Containerfile linter (best practices)
     yamllint            # YAML linter (syntax and style)

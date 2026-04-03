@@ -51,10 +51,8 @@ adjust-font-baseline = -1
 # =========================
 # WINDOW & APPEARANCE
 # =========================
-# Background transparency and blur for a modern look
-# Increased opacity from 0.95 to 1.0 for better text readability
-background-opacity = 0.90
-background-blur = 10
+# Background opacity set to 1.0 for consistent colors across cmux panes
+background-opacity = 1
 
 # Window padding for breathing room
 window-padding-x = 16

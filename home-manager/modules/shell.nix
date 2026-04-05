@@ -287,6 +287,9 @@
       # SOPS age key file location for secrets decryption
       SOPS_AGE_KEY_FILE = "$HOME/.config/sops/age/keys.txt";
 
+      # Prevent flickering in Claude Code terminal sessions
+      CLAUDE_CODE_NO_FLICKER = "1";
+
     };
 
     # Shell initialization code (runs after .zshrc setup)

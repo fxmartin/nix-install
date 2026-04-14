@@ -109,6 +109,8 @@
       "raycast" # Raycast - Application launcher and productivity tool (Story 02.4-001)
       "1password" # 1Password - Password manager and secure vault (Story 02.4-002)
       "dropbox" # Dropbox - Cloud storage and file sync (Story 02.4-004)
+      "obsidian" # Obsidian - Markdown-based knowledge base and note-taking app
+                 # Auto-update disable: Settings → General → Uncheck "Automatic updates"
 
       # File Utilities (Story 02.4-003)
       # Auto-update disable: Calibre (Preferences → Misc), Marked 2 (Preferences → General)

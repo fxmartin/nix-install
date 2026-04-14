@@ -104,6 +104,7 @@
       power = [
         { name = "ministral-3:14b"; desc = "Mistral multilingual reasoning model"; size = "~9GB"; }
         { name = "phi4:14b"; desc = "Microsoft Phi-4 reasoning model"; size = "~9GB"; }
+        { name = "gemma4:e4b"; desc = "Google Gemma 4 compact 4B coding/chat model"; size = "~3GB"; }
         { name = "nomic-embed-text"; desc = "Text embeddings model"; size = "~274MB"; }
       ];
     };

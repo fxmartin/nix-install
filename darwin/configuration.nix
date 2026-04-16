@@ -31,6 +31,14 @@
     config = {
       allowUnfree = true;
     };
+    overlays = [
+      # nushell 0.112.1 tests env_shlvl_in_repl and env_shlvl_in_exec_repl fail
+      # under the macOS build sandbox (exec blocked → "Operation not permitted").
+      # Upstream nixpkgs skip list is missing these two; disable checks until fixed.
+      (_final: prev: {
+        nushell = prev.nushell.overrideAttrs (_: { doCheck = false; });
+      })
+    ];
   };
 
   # System-wide packages installed via Nix

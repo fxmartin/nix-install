@@ -136,6 +136,52 @@ nix-install/
 
 5. **Bootstrap synchronization**: When adding new .nix files, update the file download list in `lib/nix-darwin.sh`.
 
+6. **Submodule discipline**: Never commit a parent pointer that ends in `-dirty`. Always land changes inside the submodule first, then bump the parent pointer. See workflow below.
+
+### Git Submodule Workflow
+
+This repo uses four submodules (see `.gitmodules`):
+
+| Submodule | Type | Notes |
+|-----------|------|-------|
+| `config/claude-code-config` | **FX-owned, writable** | Claude Code hooks/settings/skills (`git@github.com:fxmartin/claude-code-config.git`). Edits originate here. |
+| `config/oh-my-zsh-custom/plugins/zsh-autosuggestions` | Upstream, read-only | Bump only via `git submodule update --remote`. |
+| `config/oh-my-zsh-custom/plugins/zsh-syntax-highlighting` | Upstream, read-only | Bump only via `git submodule update --remote`. |
+| `config/oh-my-zsh-custom/themes/powerlevel10k` | Upstream, read-only | Bump only via `git submodule update --remote`. |
+
+**Detecting a dirty submodule**: `git status` in the parent shows `modified: config/<name> (modified content, untracked content)` and `git diff` shows the SHA suffixed with `-dirty`. That suffix means there are uncommitted changes *inside* the submodule — do **not** stage that pointer until those are landed upstream.
+
+**Commit & push workflow (FX-owned submodule)**:
+
+```bash
+SM=config/claude-code-config
+
+# 1. Inspect what changed inside the submodule
+git -C "$SM" status
+git -C "$SM" diff
+
+# 2. Commit inside the submodule (split unrelated changes into separate commits)
+git -C "$SM" add <files>
+git -C "$SM" commit -m "..."
+
+# 3. Push — if rejected because remote moved (FX commits from another machine),
+#    rebase onto origin/main rather than merge to keep linear history
+git -C "$SM" fetch origin
+git -C "$SM" rebase origin/main
+git -C "$SM" push
+
+# 4. Bump the pointer in the parent and commit
+git add "$SM"
+git commit -m "chore: bump claude-code-config submodule"
+git push
+```
+
+**Rules:**
+- Use `git -C <path>` from the parent repo root, **not** `cd` — the shell cwd can drift across chained commands and silently break the next step.
+- Split unrelated submodule changes into separate logical commits before bumping the parent pointer (e.g. one feature + one doc tweak = two commits).
+- On push rejection from the submodule, **rebase** (`git rebase origin/main`), do not merge.
+- Pre-commit hooks (gitleaks, etc.) live inside the submodule's own repo and run on its commits — respect failures there as you would in the parent.
+
 ### Git Commit Template
 
 ```

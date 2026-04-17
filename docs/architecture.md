@@ -130,9 +130,8 @@ bootstrap-dist.sh (standalone, built from lib/*.sh)
                               │
                     Endpoints:
                     ├── /health  — Full system diagnostics
-                    ├── /metrics — Apple Silicon stats (via mactop)
-                    │   └── CPU, GPU, memory, thermal, power,
-                    │       network, disk I/O
+                    ├── /metrics — Apple Silicon stats (via macmon)
+                    │   └── CPU, GPU, memory, thermal, power
                     └── /ping    — Liveness check
                               │
                     Health checks performed:

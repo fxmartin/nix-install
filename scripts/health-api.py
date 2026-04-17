@@ -5,6 +5,7 @@
 import json
 import subprocess
 import os
+import shutil
 import socket
 import hmac
 import threading
@@ -288,13 +289,18 @@ def build_health_response() -> dict:
 
 
 # ---------------------------------------------------------------------------
-# System Metrics via mactop (Apple Silicon monitoring)
+# System Metrics via macmon (Apple Silicon monitoring)
 # ---------------------------------------------------------------------------
+# Switched from mactop to macmon (issue #226): on an M3 Max, mactop takes
+# ~6.5s per --count 1 sample (Go startup + 1s sampling window + lsof-based
+# process enumeration), well above any reasonable subprocess timeout. macmon
+# (installed via Nix) returns in ~1.5-2s with --interval 500 and exposes the
+# same core Apple Silicon vitals we care about.
 _metrics_cache: dict = {}
 _metrics_cache_time: float = 0.0
 METRICS_CACHE_TTL = 2  # seconds
 
-# Last known-good mactop sample, used as a fallback when mactop times out or
+# Last known-good macmon sample, used as a fallback when macmon times out or
 # errors.  Returning slightly-stale data is far more useful than an error for
 # the /metrics endpoint, which is consumed by dashboards and health-check.sh.
 _metrics_last_good: dict = {}
@@ -312,12 +318,31 @@ def _stale_metrics_fallback(error_detail: str) -> dict:
     return {"status": "error", "detail": error_detail}
 
 
-def get_system_metrics() -> dict:
-    """Return Apple Silicon metrics from mactop (CPU, GPU, memory, thermal, power).
+def _thermal_state_from_temps(cpu_temp: float, gpu_temp: float) -> str:
+    """Synthesize a thermal state string from CPU/GPU temperatures.
 
-    Calls `mactop --headless --format json --count 1` and reshapes the output
+    macmon does not emit a thermal-state label (unlike mactop), but
+    health-check.sh reads d['thermal']['state'] directly, so we compute a
+    label from the hotter of the two silicon sensors.  Thresholds picked
+    to match typical Apple Silicon thermal envelopes (sustained heavy load
+    on an M3 Max sits in the 80-90 C range on p-cluster).
+    """
+    hottest = max(cpu_temp or 0.0, gpu_temp or 0.0)
+    if hottest <= 0:
+        return "Unknown"
+    if hottest < 70:
+        return "Normal"
+    if hottest < 85:
+        return "Warning"
+    return "Critical"
+
+
+def get_system_metrics() -> dict:
+    """Return Apple Silicon metrics from macmon (CPU, GPU, memory, thermal, power).
+
+    Calls `macmon pipe --samples 1 --interval 500` and reshapes the output
     into a clean API response.  Results are cached for METRICS_CACHE_TTL seconds.
-    On mactop timeout/error, returns the last-good sample marked as stale
+    On macmon timeout/error, returns the last-good sample marked as stale
     (or an error dict if no sample has ever succeeded).
     """
     global _metrics_cache, _metrics_cache_time  # noqa: PLW0603
@@ -326,96 +351,108 @@ def get_system_metrics() -> dict:
     if _metrics_cache and (now - _metrics_cache_time) < METRICS_CACHE_TTL:
         return _metrics_cache
 
-    mactop_bin = "/opt/homebrew/bin/mactop"
-    if not os.path.isfile(mactop_bin):
-        return _stale_metrics_fallback("mactop not installed")
+    # Prefer the Nix-managed absolute path (stable across rebuilds); fall back
+    # to PATH discovery so this also works in dev shells / on other machines.
+    macmon_bin = "/run/current-system/sw/bin/macmon"
+    if not os.path.isfile(macmon_bin):
+        macmon_bin = shutil.which("macmon") or ""
+    if not macmon_bin:
+        return _stale_metrics_fallback("macmon not installed")
 
     try:
         result = subprocess.run(
-            [mactop_bin, "--headless", "--format", "json", "--count", "1"],
-            capture_output=True, text=True, timeout=3,
+            [macmon_bin, "pipe", "--samples", "1", "--interval", "500"],
+            capture_output=True, text=True, timeout=4,
         )
         if result.returncode != 0 or not result.stdout.strip():
-            return _stale_metrics_fallback(f"mactop failed: {result.stderr.strip()[:200]}")
+            return _stale_metrics_fallback(f"macmon failed: {result.stderr.strip()[:200]}")
     except subprocess.TimeoutExpired:
-        return _stale_metrics_fallback("mactop timed out (3s)")
+        return _stale_metrics_fallback("macmon timed out (4s)")
     except Exception as e:
         return _stale_metrics_fallback(str(e)[:200])
 
     try:
-        raw = json.loads(result.stdout)
-        # mactop returns a JSON array; take first sample
-        sample = raw[0] if isinstance(raw, list) else raw
+        # macmon emits one JSON object per sample; with --samples 1 it's a
+        # single object on stdout.  Be defensive in case it ever becomes
+        # NDJSON (take the first non-empty line).
+        stdout = result.stdout.strip()
+        first_line = stdout.splitlines()[0] if stdout else ""
+        sample = json.loads(first_line)
     except (json.JSONDecodeError, IndexError) as e:
-        return _stale_metrics_fallback(f"mactop JSON parse error: {e}")
+        return _stale_metrics_fallback(f"macmon JSON parse error: {e}")
 
+    # macmon field shape (v0.6.x):
+    #   ecpu_usage / pcpu_usage / gpu_usage: [freq_mhz:int, active_fraction:float]
+    #   memory: { ram_total, ram_usage, swap_total, swap_usage }  (bytes)
+    #   temp: { cpu_temp_avg, gpu_temp_avg }  (degrees C)
+    #   *_power: watts (all_power, cpu_power, gpu_power, ane_power, ram_power,
+    #            sys_power, gpu_ram_power)
+    ecpu = sample.get("ecpu_usage", [0, 0.0])
+    pcpu = sample.get("pcpu_usage", [0, 0.0])
+    gpu = sample.get("gpu_usage", [0, 0.0])
     mem = sample.get("memory", {})
-    soc = sample.get("soc_metrics", {})
-    nd = sample.get("net_disk", {})
-    si = sample.get("system_info", {})
+    temp = sample.get("temp", {})
 
-    total_bytes = mem.get("total", 0)
-    used_bytes = mem.get("used", 0)
-    available_bytes = mem.get("available", 0)
+    ecpu_freq = ecpu[0] if len(ecpu) > 0 else 0
+    ecpu_active = ecpu[1] if len(ecpu) > 1 else 0.0
+    pcpu_freq = pcpu[0] if len(pcpu) > 0 else 0
+    pcpu_active = pcpu[1] if len(pcpu) > 1 else 0.0
+    gpu_freq = gpu[0] if len(gpu) > 0 else 0
+    gpu_active = gpu[1] if len(gpu) > 1 else 0.0
+
+    ram_total = mem.get("ram_total", 0)
+    ram_usage = mem.get("ram_usage", 0)
+    cpu_temp_c = round(temp.get("cpu_temp_avg", 0) or 0, 1)
+    gpu_temp_c = round(temp.get("gpu_temp_avg", 0) or 0, 1)
 
     response = {
         "timestamp": sample.get("timestamp", datetime.now(timezone.utc).astimezone().isoformat()),
         "system": {
-            "name": si.get("name", "Unknown"),
-            "cores": si.get("core_count", 0),
-            "e_cores": si.get("e_core_count", 0),
-            "p_cores": si.get("p_core_count", 0),
-            "gpu_cores": si.get("gpu_core_count", 0),
+            "name": "Apple Silicon",
+            # macmon pipe does not expose core counts; keep keys for
+            # backwards compatibility but report 0.
+            "cores": 0,
+            "e_cores": 0,
+            "p_cores": 0,
+            "gpu_cores": 0,
         },
         "cpu": {
-            "usage_percent": round(sample.get("cpu_usage", 0), 1),
+            "usage_percent": round((ecpu_active + pcpu_active) / 2 * 100, 1),
             "e_cluster": {
-                "active_percent": round(soc.get("e_cluster_active", 0), 1),
-                "freq_mhz": soc.get("e_cluster_freq_mhz", 0),
+                "active_percent": round(ecpu_active * 100, 1),
+                "freq_mhz": ecpu_freq,
             },
             "p_cluster": {
-                "active_percent": round(soc.get("p_cluster_active", 0), 1),
-                "freq_mhz": soc.get("p_cluster_freq_mhz", 0),
+                "active_percent": round(pcpu_active * 100, 1),
+                "freq_mhz": pcpu_freq,
             },
-            "per_core": [round(c, 1) for c in sample.get("core_usages", [])],
         },
         "gpu": {
-            "usage_percent": round(sample.get("gpu_usage", 0), 1),
-            "freq_mhz": soc.get("gpu_freq_mhz", 0),
-            "power_watts": round(soc.get("gpu_power", 0), 1),
+            "usage_percent": round(gpu_active * 100, 1),
+            "freq_mhz": gpu_freq,
+            "power_watts": round(sample.get("gpu_power", 0), 1),
         },
         "memory": {
-            "total_gb": round(total_bytes / (1024 ** 3), 1),
-            "used_gb": round(used_bytes / (1024 ** 3), 1),
-            "available_gb": round(available_bytes / (1024 ** 3), 1),
+            "total_gb": round(ram_total / (1024 ** 3), 1),
+            "used_gb": round(ram_usage / (1024 ** 3), 1),
+            "available_gb": round(max(ram_total - ram_usage, 0) / (1024 ** 3), 1),
             "swap_total_gb": round(mem.get("swap_total", 0) / (1024 ** 3), 1),
-            "swap_used_gb": round(mem.get("swap_used", 0) / (1024 ** 3), 1),
+            "swap_used_gb": round(mem.get("swap_usage", 0) / (1024 ** 3), 1),
         },
         "power": {
-            "cpu_watts": round(soc.get("cpu_power", 0), 1),
-            "gpu_watts": round(soc.get("gpu_power", 0), 1),
-            "ane_watts": round(soc.get("ane_power", 0), 1),
-            "dram_watts": round(soc.get("dram_power", 0), 1),
-            "system_watts": round(soc.get("system_power", 0), 1),
-            "total_watts": round(soc.get("total_power", 0), 1),
+            "cpu_watts": round(sample.get("cpu_power", 0), 1),
+            "gpu_watts": round(sample.get("gpu_power", 0), 1),
+            "ane_watts": round(sample.get("ane_power", 0), 1),
+            "dram_watts": round(sample.get("ram_power", 0), 1),
+            "system_watts": round(sample.get("sys_power", 0), 1),
+            "total_watts": round(sample.get("all_power", 0), 1),
         },
         "thermal": {
-            "cpu_temp_c": round(soc.get("cpu_temp", 0), 1),
-            "gpu_temp_c": round(soc.get("gpu_temp", 0), 1),
-            "soc_temp_c": round(soc.get("soc_temp", 0), 1),
-            "state": sample.get("thermal_state", "Unknown"),
-        },
-        "network": {
-            "in_bytes_per_sec": round(nd.get("in_bytes_per_sec", 0)),
-            "out_bytes_per_sec": round(nd.get("out_bytes_per_sec", 0)),
-            "in_packets_per_sec": round(nd.get("in_packets_per_sec", 0)),
-            "out_packets_per_sec": round(nd.get("out_packets_per_sec", 0)),
-        },
-        "disk": {
-            "read_kbytes_per_sec": round(nd.get("read_kbytes_per_sec", 0)),
-            "write_kbytes_per_sec": round(nd.get("write_kbytes_per_sec", 0)),
-            "read_ops_per_sec": round(nd.get("read_ops_per_sec", 0)),
-            "write_ops_per_sec": round(nd.get("write_ops_per_sec", 0)),
+            "cpu_temp_c": cpu_temp_c,
+            "gpu_temp_c": gpu_temp_c,
+            # Synthesized from temps — macmon does not emit a state label,
+            # but health-check.sh reads thermal.state, so we must provide one.
+            "state": _thermal_state_from_temps(cpu_temp_c, gpu_temp_c),
         },
     }
 

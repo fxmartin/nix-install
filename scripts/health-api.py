@@ -138,7 +138,10 @@ NIX_STORE_CACHE_TTL = 300  # seconds (5 minutes)
 def _refresh_nix_store_cache() -> None:
     """Run du -sh /nix/store and populate the cache. Safe to call from any thread."""
     global _nix_store_cache, _nix_store_cache_time  # noqa: PLW0603
-    size = run("du -sh /nix/store 2>/dev/null | cut -f1", timeout=10)
+    # 60s timeout: du on a hard-link-dense store (millions of inodes) can take
+    # 30-50s even on M3 Max NVMe. Runs off the request critical path, so a
+    # generous timeout is harmless — the request still returns instantly from cache.
+    size = run("du -sh /nix/store 2>/dev/null | cut -f1", timeout=60)
     with _nix_store_lock:
         _nix_store_cache = {"size": size or "timed out"}
         _nix_store_cache_time = time.monotonic()

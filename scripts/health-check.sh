@@ -455,7 +455,10 @@ fi
 # Check 14: System metrics (Apple Silicon vitals via health-api /metrics)
 # ---------------------------------------------------------------------------
 echo "Checking system metrics..."
-METRICS_JSON=$(curl -s --connect-timeout 3 --max-time 5 http://localhost:7780/metrics 2>/dev/null || true)
+# --max-time must exceed health-api.py mactop subprocess timeout (3s) plus request
+# overhead; 8s leaves comfortable headroom so curl never aborts before Python
+# can write the response (issue #224).
+METRICS_JSON=$(curl -s --connect-timeout 3 --max-time 8 http://localhost:7780/metrics 2>/dev/null || true)
 if [[ -n "${METRICS_JSON}" ]]; then
     METRICS_SUMMARY=$(echo "${METRICS_JSON}" | python3 -c "
 import json, sys
@@ -489,8 +492,17 @@ except:
             ;;
     esac
 else
-    print_status "info" "System metrics: health-api not responding on port 7780"
-    echo "    → Run: launchctl start org.nixos.health-api"
+    # Empty response from /metrics could mean two different things:
+    #   1. The server is up but the request timed out (e.g. mactop slow)
+    #   2. The port isn't listening at all (LaunchAgent down)
+    # A quick /ping probe with a tight timeout distinguishes the two so the
+    # operator gets actionable advice instead of a misleading generic error.
+    if curl -s --connect-timeout 1 --max-time 2 http://localhost:7780/ping > /dev/null 2>&1; then
+        print_status "warn" "System metrics: request timed out (server alive — see /tmp/health-api.err)"
+    else
+        print_status "info" "System metrics: health-api not responding on port 7780"
+        echo "    → Run: launchctl start org.nixos.health-api"
+    fi
 fi
 
 # ---------------------------------------------------------------------------

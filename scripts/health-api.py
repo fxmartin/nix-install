@@ -7,6 +7,7 @@ import subprocess
 import os
 import socket
 import hmac
+import threading
 import time
 from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -120,11 +121,50 @@ def check_generations() -> dict:
         return {"status": "warn", "count": 0}
 
 
-def check_nix_store() -> dict:
-    # du -sh /nix/store can take 30-60+ seconds on large stores
-    # Use a short timeout — store size is non-critical and shouldn't block the response
+# ---------------------------------------------------------------------------
+# Nix store size — cached asynchronously to avoid blocking /health
+# `du -sh /nix/store` takes 10+ seconds on large stores and used to run on
+# every /health request.  A daemon thread refreshes the value every
+# NIX_STORE_CACHE_TTL seconds off the request critical path, so check_nix_store()
+# returns instantly from the cache.  Stale data is acceptable here — store size
+# is a diagnostic signal, not a real-time metric.
+# ---------------------------------------------------------------------------
+_nix_store_cache: dict = {}
+_nix_store_cache_time: float = 0.0
+_nix_store_lock = threading.Lock()
+NIX_STORE_CACHE_TTL = 300  # seconds (5 minutes)
+
+
+def _refresh_nix_store_cache() -> None:
+    """Run du -sh /nix/store and populate the cache. Safe to call from any thread."""
+    global _nix_store_cache, _nix_store_cache_time  # noqa: PLW0603
     size = run("du -sh /nix/store 2>/dev/null | cut -f1", timeout=10)
-    return {"size": size or "timed out"}
+    with _nix_store_lock:
+        _nix_store_cache = {"size": size or "timed out"}
+        _nix_store_cache_time = time.monotonic()
+
+
+def _nix_store_refresher() -> None:
+    """Daemon-thread loop that refreshes the cache every NIX_STORE_CACHE_TTL seconds."""
+    while True:
+        try:
+            _refresh_nix_store_cache()
+        except Exception:
+            # Never let the refresher thread die — leave last-good cache in place
+            pass
+        time.sleep(NIX_STORE_CACHE_TTL)
+
+
+def check_nix_store() -> dict:
+    """Return the cached nix store size. Non-blocking.
+
+    Returns {"size": "pending", ...} if the background refresher has not yet
+    produced a first sample. Otherwise returns the last cached value.
+    """
+    with _nix_store_lock:
+        if not _nix_store_cache:
+            return {"size": "pending", "detail": "first sample in progress"}
+        return dict(_nix_store_cache)
 
 
 def detect_profile(launchctl_output: str) -> str:
@@ -251,40 +291,60 @@ _metrics_cache: dict = {}
 _metrics_cache_time: float = 0.0
 METRICS_CACHE_TTL = 2  # seconds
 
+# Last known-good mactop sample, used as a fallback when mactop times out or
+# errors.  Returning slightly-stale data is far more useful than an error for
+# the /metrics endpoint, which is consumed by dashboards and health-check.sh.
+_metrics_last_good: dict = {}
+_metrics_last_good_time: float = 0.0
+
+
+def _stale_metrics_fallback(error_detail: str) -> dict:
+    """Return the last-good metrics sample marked stale, or the error dict if none."""
+    if _metrics_last_good:
+        stale = dict(_metrics_last_good)
+        stale["stale"] = True
+        stale["stale_age_seconds"] = round(time.monotonic() - _metrics_last_good_time, 1)
+        stale["stale_reason"] = error_detail
+        return stale
+    return {"status": "error", "detail": error_detail}
+
 
 def get_system_metrics() -> dict:
     """Return Apple Silicon metrics from mactop (CPU, GPU, memory, thermal, power).
 
     Calls `mactop --headless --format json --count 1` and reshapes the output
     into a clean API response.  Results are cached for METRICS_CACHE_TTL seconds.
+    On mactop timeout/error, returns the last-good sample marked as stale
+    (or an error dict if no sample has ever succeeded).
     """
     global _metrics_cache, _metrics_cache_time  # noqa: PLW0603
+    global _metrics_last_good, _metrics_last_good_time  # noqa: PLW0603
     now = time.monotonic()
     if _metrics_cache and (now - _metrics_cache_time) < METRICS_CACHE_TTL:
         return _metrics_cache
 
     mactop_bin = "/opt/homebrew/bin/mactop"
     if not os.path.isfile(mactop_bin):
-        return {"status": "error", "detail": "mactop not installed"}
+        return _stale_metrics_fallback("mactop not installed")
 
     try:
         result = subprocess.run(
             [mactop_bin, "--headless", "--format", "json", "--count", "1"],
-            capture_output=True, text=True, timeout=5,
+            capture_output=True, text=True, timeout=3,
         )
         if result.returncode != 0 or not result.stdout.strip():
-            return {"status": "error", "detail": f"mactop failed: {result.stderr.strip()[:200]}"}
+            return _stale_metrics_fallback(f"mactop failed: {result.stderr.strip()[:200]}")
     except subprocess.TimeoutExpired:
-        return {"status": "error", "detail": "mactop timed out (5s)"}
+        return _stale_metrics_fallback("mactop timed out (3s)")
     except Exception as e:
-        return {"status": "error", "detail": str(e)[:200]}
+        return _stale_metrics_fallback(str(e)[:200])
 
     try:
         raw = json.loads(result.stdout)
         # mactop returns a JSON array; take first sample
         sample = raw[0] if isinstance(raw, list) else raw
     except (json.JSONDecodeError, IndexError) as e:
-        return {"status": "error", "detail": f"mactop JSON parse error: {e}"}
+        return _stale_metrics_fallback(f"mactop JSON parse error: {e}")
 
     mem = sample.get("memory", {})
     soc = sample.get("soc_metrics", {})
@@ -358,6 +418,8 @@ def get_system_metrics() -> dict:
 
     _metrics_cache = response
     _metrics_cache_time = now
+    _metrics_last_good = response
+    _metrics_last_good_time = now
     return response
 
 
@@ -414,6 +476,14 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
 
 
 def main():
+    # Start the nix-store refresher daemon before serving so /health never blocks
+    # on `du -sh /nix/store`. It runs an initial refresh immediately and then
+    # sleeps for NIX_STORE_CACHE_TTL seconds between refreshes.
+    refresher = threading.Thread(
+        target=_nix_store_refresher, name="nix-store-refresher", daemon=True
+    )
+    refresher.start()
+
     server = ThreadedHTTPServer(("0.0.0.0", PORT), HealthHandler)
     print(f"Health API listening on 0.0.0.0:{PORT}")
     try:

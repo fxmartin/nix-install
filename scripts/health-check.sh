@@ -26,7 +26,7 @@ DISK_WARNING_GB=20               # Warn if less than N GB free
 CACHE_WARNING_KB=1048576         # 1 GB — warn if any single cache exceeds this
 
 # Expected Ollama models per profile (keep in sync with flake.nix ollamaModels)
-# Power: llava:34b, ministral-3:14b, phi4:14b, nomic-embed-text
+# Power: ministral-3:14b, phi4:14b, gemma4:e4b, nomic-embed-text
 # Standard: ministral-3:14b, nomic-embed-text
 
 # =============================================================================
@@ -291,8 +291,8 @@ for agent in "${COMMON_AGENTS[@]}"; do
     fi
 done
 
-# Power-profile LaunchAgents (detected by presence of TTS server agent)
-if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.qwen3tts.server"; then
+# Power-profile LaunchAgents (detected by presence of icloud-sync agent)
+if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.icloud-sync"; then
     POWER_AGENTS=("rsync-backup-daily" "rsync-backup-weekly-sunday" "rsync-backup-weekly-wednesday" "icloud-sync")
     for agent in "${POWER_AGENTS[@]}"; do
         if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.${agent}"; then
@@ -392,153 +392,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Check 13: Qwen3-TTS server (Power profile only)
-# ---------------------------------------------------------------------------
-if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.qwen3tts.server"; then
-    echo "Checking Qwen3-TTS server..."
-    print_status "ok" "qwen3-tts LaunchAgent loaded"
-
-    # Check if the server responds on localhost:8765
-    TTS_HEALTH=$(curl -s --connect-timeout 5 --max-time 10 http://localhost:8765/health 2>/dev/null || true)
-    if [[ -n "${TTS_HEALTH}" ]]; then
-        # Parse model statuses using python (available via nix)
-        TTS_STATUS=$(echo "${TTS_HEALTH}" | python3 -c "
-import json, sys
-try:
-    d = json.load(sys.stdin)
-    models = d.get('models', {})
-    ok = sum(1 for m in models.values() if m.get('status') == 'ok')
-    total = len(models)
-    failed = [n for n, m in models.items() if m.get('status') != 'ok']
-    if ok == total:
-        print(f'ok:{ok}')
-    else:
-        print(f'degraded:{ok}/{total}:' + ','.join(failed))
-except:
-    print('parse_error')
-" 2>/dev/null || echo "parse_error")
-
-        case "${TTS_STATUS}" in
-            ok:*)
-                MODEL_COUNT="${TTS_STATUS#ok:}"
-                print_status "ok" "Qwen3-TTS server healthy (${MODEL_COUNT} models loaded)"
-                ;;
-            degraded:*)
-                INFO="${TTS_STATUS#degraded:}"
-                COUNTS="${INFO%%:*}"
-                FAILED="${INFO#*:}"
-                print_status "warn" "Qwen3-TTS server degraded (${COUNTS} models ok, failed: ${FAILED})"
-                echo "    → Run: launchctl stop com.qwen3tts.server && launchctl start com.qwen3tts.server"
-                ;;
-            *)
-                print_status "warn" "Qwen3-TTS server responded but health parse failed"
-                ;;
-        esac
-    else
-        print_status "error" "Qwen3-TTS server not responding on localhost:8765"
-        echo "    → Run: launchctl start com.qwen3tts.server"
-        echo "    → Logs: /tmp/qwen3-tts-serve.err"
-    fi
-fi
-
-# ---------------------------------------------------------------------------
-# Check 14: Whisper STT server (Power profile only)
-# ---------------------------------------------------------------------------
-if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.whisper-stt.server"; then
-    echo "Checking Whisper STT server..."
-    print_status "ok" "whisper-stt LaunchAgent loaded"
-
-    # Check if the server responds on localhost:8766
-    STT_HEALTH=$(curl -s --connect-timeout 5 --max-time 10 http://localhost:8766/health 2>/dev/null || true)
-    if [[ -n "${STT_HEALTH}" ]]; then
-        # Parse model status using python (available via nix)
-        STT_STATUS=$(echo "${STT_HEALTH}" | python3 -c "
-import json, sys
-try:
-    d = json.load(sys.stdin)
-    models = d.get('models', {})
-    ok = sum(1 for m in models.values() if m.get('status') == 'ok')
-    total = len(models)
-    failed = [n for n, m in models.items() if m.get('status') != 'ok']
-    if ok == total:
-        print(f'ok:{ok}')
-    else:
-        print(f'degraded:{ok}/{total}:' + ','.join(failed))
-except:
-    print('parse_error')
-" 2>/dev/null || echo "parse_error")
-
-        case "${STT_STATUS}" in
-            ok:*)
-                MODEL_COUNT="${STT_STATUS#ok:}"
-                print_status "ok" "Whisper STT server healthy (${MODEL_COUNT} models loaded)"
-                ;;
-            degraded:*)
-                INFO="${STT_STATUS#degraded:}"
-                COUNTS="${INFO%%:*}"
-                FAILED="${INFO#*:}"
-                print_status "warn" "Whisper STT server degraded (${COUNTS} models ok, failed: ${FAILED})"
-                echo "    → Run: launchctl stop com.whisper-stt.server && launchctl start com.whisper-stt.server"
-                ;;
-            *)
-                print_status "warn" "Whisper STT server responded but health parse failed"
-                ;;
-        esac
-    else
-        print_status "error" "Whisper STT server not responding on localhost:8766"
-        echo "    → Run: launchctl start com.whisper-stt.server"
-        echo "    → Logs: /tmp/whisper-stt-serve.err"
-    fi
-fi
-
-# ---------------------------------------------------------------------------
-# Check 15: Audiobook API server (Power profile only)
-# ---------------------------------------------------------------------------
-if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.audiobook-api.server"; then
-    echo "Checking Audiobook API server..."
-    print_status "ok" "audiobook-api LaunchAgent loaded"
-
-    # Check if the server responds on localhost:8767
-    AUDIOBOOK_HEALTH=$(curl -s --connect-timeout 5 --max-time 10 http://localhost:8767/health 2>/dev/null || true)
-    if [[ -n "${AUDIOBOOK_HEALTH}" ]]; then
-        AUDIOBOOK_STATUS=$(echo "${AUDIOBOOK_HEALTH}" | python3 -c "
-import json, sys
-try:
-    d = json.load(sys.stdin)
-    status = d.get('status', 'unknown')
-    tts = d.get('tts_server', {}).get('status', 'unknown')
-    if status == 'ok' and tts == 'ok':
-        print('ok')
-    elif tts != 'ok':
-        print(f'degraded:tts_{tts}')
-    else:
-        print(f'degraded:{status}')
-except:
-    print('parse_error')
-" 2>/dev/null || echo "parse_error")
-
-        case "${AUDIOBOOK_STATUS}" in
-            ok)
-                print_status "ok" "Audiobook API server healthy (TTS connected)"
-                ;;
-            degraded:*)
-                DETAIL="${AUDIOBOOK_STATUS#degraded:}"
-                print_status "warn" "Audiobook API server degraded (${DETAIL})"
-                echo "    → Run: launchctl stop com.audiobook-api.server && launchctl start com.audiobook-api.server"
-                ;;
-            *)
-                print_status "warn" "Audiobook API server responded but health parse failed"
-                ;;
-        esac
-    else
-        print_status "error" "Audiobook API server not responding on localhost:8767"
-        echo "    → Run: launchctl start com.audiobook-api.server"
-        echo "    → Logs: /tmp/audiobook-api-serve.err"
-    fi
-fi
-
-# ---------------------------------------------------------------------------
-# Check 16: Ollama models
+# Check 13: Ollama models
 # ---------------------------------------------------------------------------
 if command -v ollama &> /dev/null; then
     echo "Checking Ollama models..."
@@ -554,9 +408,9 @@ if command -v ollama &> /dev/null; then
         OLLAMA_LIST=$(ollama list 2>/dev/null || true)
 
         # Determine expected models based on profile
-        # Power profile has the qwen3tts LaunchAgent; Standard does not
-        if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "com.qwen3tts.server"; then
-            EXPECTED_MODELS=("llava:34b" "ministral-3:14b" "phi4:14b" "nomic-embed-text")
+        # Power profile has the icloud-sync LaunchAgent; Standard does not
+        if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.icloud-sync"; then
+            EXPECTED_MODELS=("ministral-3:14b" "phi4:14b" "gemma4:e4b" "nomic-embed-text")
             PROFILE="Power"
         else
             EXPECTED_MODELS=("ministral-3:14b" "nomic-embed-text")
@@ -565,7 +419,7 @@ if command -v ollama &> /dev/null; then
 
         MISSING=0
         for model in "${EXPECTED_MODELS[@]}"; do
-            # Match on model name prefix (ollama list shows full tags like "llava:34b")
+            # Match on model name prefix (ollama list shows full tags like "phi4:14b")
             MODEL_BASE="${model%%:*}"
             if echo "${OLLAMA_LIST}" | /usr/bin/grep -q "${MODEL_BASE}"; then
                 print_status "ok" "Ollama model: ${model}"
@@ -598,7 +452,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Check 17: System metrics (Apple Silicon vitals via health-api /metrics)
+# Check 14: System metrics (Apple Silicon vitals via health-api /metrics)
 # ---------------------------------------------------------------------------
 echo "Checking system metrics..."
 METRICS_JSON=$(curl -s --connect-timeout 3 --max-time 5 http://localhost:7780/metrics 2>/dev/null || true)

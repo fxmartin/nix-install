@@ -21,7 +21,7 @@ CACHE_WARNING_KB = 1_048_576        # 1 GB — warn if any single cache exceeds 
 
 # Expected Ollama models per profile (keep in sync with flake.nix ollamaModels)
 OLLAMA_MODELS = {
-    "power": ["llava:34b", "ministral-3:14b", "phi4:14b", "nomic-embed-text"],
+    "power": ["ministral-3:14b", "phi4:14b", "gemma4:e4b", "nomic-embed-text"],
     "standard": ["ministral-3:14b", "nomic-embed-text"],
 }
 
@@ -128,7 +128,7 @@ def check_nix_store() -> dict:
 
 
 def detect_profile(launchctl_output: str) -> str:
-    if "com.qwen3tts.server" in launchctl_output:
+    if "org.nixos.icloud-sync" in launchctl_output:
         return "power"
     return "standard"
 
@@ -153,54 +153,6 @@ def check_ollama(profile: str) -> dict:
 
     status = "ok" if not missing else ("warn" if installed else "error")
     return {"status": status, "models": installed, "missing": missing}
-
-
-def check_tts_server(launchctl_output: str) -> dict:
-    if "com.qwen3tts.server" not in launchctl_output:
-        return {"status": "skipped", "detail": "Not a Power profile"}
-    try:
-        result = subprocess.run(
-            ["curl", "-s", "--connect-timeout", "3", "--max-time", "5",
-             "http://localhost:8765/health"],
-            capture_output=True, text=True, timeout=10
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            return {"status": "ok", "detail": "TTS server responding"}
-        return {"status": "error", "detail": "TTS server not responding"}
-    except Exception:
-        return {"status": "error", "detail": "TTS server unreachable"}
-
-
-def check_stt_server(launchctl_output: str) -> dict:
-    if "com.whisper-stt.server" not in launchctl_output:
-        return {"status": "skipped", "detail": "Not a Power profile"}
-    try:
-        result = subprocess.run(
-            ["curl", "-s", "--connect-timeout", "3", "--max-time", "5",
-             "http://localhost:8766/health"],
-            capture_output=True, text=True, timeout=10
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            return {"status": "ok", "detail": "STT server responding"}
-        return {"status": "error", "detail": "STT server not responding"}
-    except Exception:
-        return {"status": "error", "detail": "STT server unreachable"}
-
-
-def check_audiobook_api(launchctl_output: str) -> dict:
-    if "com.audiobook-api.server" not in launchctl_output:
-        return {"status": "skipped", "detail": "Not a Power profile"}
-    try:
-        result = subprocess.run(
-            ["curl", "-s", "--connect-timeout", "3", "--max-time", "5",
-             "http://localhost:8767/health"],
-            capture_output=True, text=True, timeout=10
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            return {"status": "ok", "detail": "Audiobook API responding"}
-        return {"status": "error", "detail": "Audiobook API not responding"}
-    except Exception:
-        return {"status": "error", "detail": "Audiobook API unreachable"}
 
 
 def check_docker() -> dict:
@@ -229,16 +181,6 @@ def check_launch_agents(launchctl_output: str, profile: str) -> dict:
             loaded.append(agent)
         else:
             missing.append(agent)
-
-    # Power-only non-nixos agents (different label prefix)
-    power_services = []
-    if profile == "power":
-        for label in ["com.qwen3tts.server", "com.whisper-stt.server", "com.audiobook-api.server"]:
-            if label in launchctl_output:
-                loaded.append(label)
-            else:
-                missing.append(label)
-            power_services.append(label)
 
     status = "ok" if not missing else "warn"
     return {"status": status, "loaded": loaded, "missing": missing}
@@ -289,9 +231,6 @@ def build_health_response() -> dict:
         "nix_store": check_nix_store(),
         "docker": check_docker(),
         "ollama": check_ollama(profile),
-        "tts_server": check_tts_server(launchctl_output),
-        "stt_server": check_stt_server(launchctl_output),
-        "audiobook_api": check_audiobook_api(launchctl_output),
         "launch_agents": check_launch_agents(launchctl_output, profile),
     }
 

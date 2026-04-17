@@ -27,7 +27,7 @@ This repository implements an automated, declarative MacBook configuration syste
 
 2. **Power Profile** (MacBook Pro M3 Max target):
    - All Standard apps + Parallels Desktop
-   - 4 Ollama models (`llava:34b`, `ministral-3:14b`, `phi4:14b`, `nomic-embed-text`)
+   - 4 Ollama models (`ministral-3:14b`, `phi4:14b`, `gemma4:e4b`, `nomic-embed-text`)
    - ~120GB disk usage
 
 ### Package Management Strategy (Priority Order)

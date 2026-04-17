@@ -144,8 +144,6 @@ bootstrap-dist.sh (standalone, built from lib/*.sh)
                     ├── Nix store size
                     ├── Podman machine/images
                     ├── Ollama models (profile-aware)
-                    ├── TTS server (Power only)
-                    ├── STT server (Power only)
                     ├── LaunchAgents
                     └── Dev caches (uv, npm, Homebrew)
 ```
@@ -156,9 +154,7 @@ bootstrap-dist.sh (standalone, built from lib/*.sh)
 |---------|----------|-------|
 | Target | MacBook Air | MacBook Pro M3 Max |
 | Disk usage | ~35GB | ~120GB |
-| Ollama models | 2 (ministral-3, nomic-embed-text) | 4 (+llava, phi4) |
+| Ollama models | 2 (ministral-3, nomic-embed-text) | 4 (+phi4, gemma4) |
 | Parallels | No | Yes |
 | NAS mounts | No | SMB automount |
 | Backups | No | rsync to NAS, iCloud sync |
-| TTS server | No | Qwen3-TTS on port 8765 |
-| STT server | No | Whisper STT on port 8766 |

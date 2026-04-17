@@ -1,5 +1,5 @@
 # ABOUTME: AI and LLM desktop applications configuration guide
-# ABOUTME: Covers Claude Desktop, ChatGPT Desktop, Perplexity, Ollama (CLI), Open WebUI, and Qwen3-TTS
+# ABOUTME: Covers Claude Desktop, ChatGPT Desktop, Perplexity, Ollama (CLI), and Open WebUI
 
 # AI & LLM Tools
 
@@ -144,34 +144,6 @@ curl http://localhost:11434/api/version
 - Models are pulled automatically during `darwin-rebuild` via activation scripts
 
 **Web Interface**: Use **Open WebUI** (see below) for a browser-based chat interface.
-
----
-
----
-
-## Qwen3-TTS Server (Power Profile Only)
-
-**Status**: Managed via nix-darwin LaunchAgent — **Power profile only**
-
-A local text-to-speech FastAPI server running on port 8765, started automatically at login. Accessible via localhost and Tailscale.
-
-For full documentation (prerequisites, setup, troubleshooting), see the dedicated guide:
-
-- **[Qwen3-TTS Server Guide](qwen3-tts.md)**
-
----
-
-## Whisper STT Server (Power Profile Only)
-
-**Status**: Managed via nix-darwin LaunchAgent — **Power profile only**
-
-A local speech-to-text FastAPI server running on port 8766 using **mlx-whisper** (Apple MLX framework, 2-3x faster than whisper.cpp on M3 Max). Started automatically at login. Accessible via localhost and Tailscale.
-
-Exposes an OpenAI-compatible `/v1/audio/transcriptions` endpoint for audio file transcription using the `large-v3-turbo` model.
-
-For full documentation (prerequisites, setup, troubleshooting), see the dedicated guide:
-
-- **[Whisper STT Server Guide](whisper-stt.md)**
 
 ---
 

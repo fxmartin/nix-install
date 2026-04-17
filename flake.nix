@@ -301,18 +301,6 @@
         # Mirrors proposals folder to iCloud Drive daily at 12:30 PM
         ./darwin/icloud-sync.nix
 
-        # Qwen3-TTS Server (Power profile only)
-        # FastAPI/uvicorn TTS service on port 8765
-        ./darwin/tts-serve.nix
-
-        # Whisper STT Server (Power profile only)
-        # FastAPI/uvicorn STT service on port 8766
-        ./darwin/stt-serve.nix
-
-        # Audiobook API Server (Power profile only)
-        # ePub/PDF to audiobook conversion on port 8767
-        ./darwin/audiobook-api.nix
-
         ({lib, ...}: {
           # Power profile specific settings
           # - Ollama models: defined in ollamaModels.power

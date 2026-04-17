@@ -627,9 +627,9 @@ ollama pull ministral-3:14b
 ollama pull nomic-embed-text
 
 # For Power profile, pull all expected models:
-ollama pull llava:34b
 ollama pull ministral-3:14b
 ollama pull phi4:14b
+ollama pull gemma4:e4b
 ollama pull nomic-embed-text
 
 # Verify

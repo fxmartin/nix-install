@@ -143,7 +143,7 @@
     hcloud              # Hetzner Cloud CLI for managing servers, networks, volumes, etc.
 
     # Media Processing
-    ffmpeg              # Audio/video processing (required by mlx-whisper STT server)
+    ffmpeg              # Audio/video processing
     poppler-utils       # PDF tools: pdftotext, pdfinfo, pdfimages, pdftoppm (used by Python PDF libs)
 
     # Container Tools

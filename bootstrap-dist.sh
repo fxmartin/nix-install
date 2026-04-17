@@ -585,17 +585,16 @@ prompt_user_info() {
 # =============================================================================
 
 # Global variable for user config file path
-USER_CONFIG_PATH="/tmp/nix-bootstrap/user-config.nix"
+# Uses USER_CONFIG_FILE from common.sh (which uses the randomized WORK_DIR)
+USER_CONFIG_PATH="${USER_CONFIG_FILE}"
 
 # Create bootstrap work directory for temporary files
-# Creates /tmp/nix-bootstrap/ if it doesn't exist
+# Uses WORK_DIR from common.sh (randomized temp directory)
 # Returns: 0 on success
 create_bootstrap_workdir() {
-    local work_dir="/tmp/nix-bootstrap"
-
-    # Create directory with proper permissions (755)
-    if ! mkdir -p "${work_dir}"; then
-        log_error "Failed to create bootstrap work directory: ${work_dir}"
+    # WORK_DIR is already created by common.sh, just verify it exists
+    if ! mkdir -p "${WORK_DIR}"; then
+        log_error "Failed to create bootstrap work directory: ${WORK_DIR}"
         return 1
     fi
 

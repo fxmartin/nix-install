@@ -455,9 +455,9 @@ fi
 # Check 14: System metrics (Apple Silicon vitals via health-api /metrics)
 # ---------------------------------------------------------------------------
 echo "Checking system metrics..."
-# --max-time must exceed health-api.py mactop subprocess timeout (3s) plus request
+# --max-time must exceed health-api.py macmon subprocess timeout (4s) plus request
 # overhead; 8s leaves comfortable headroom so curl never aborts before Python
-# can write the response (issue #224).
+# can write the response (issue #224, #226).
 METRICS_JSON=$(curl -s --connect-timeout 3 --max-time 8 http://localhost:7780/metrics 2>/dev/null || true)
 if [[ -n "${METRICS_JSON}" ]]; then
     METRICS_SUMMARY=$(echo "${METRICS_JSON}" | python3 -c "

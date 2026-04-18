@@ -264,9 +264,9 @@ installProfile = "@INSTALL_PROFILE@";  # "standard" or "power"
 **3. Updated load_profile_from_user_config()** in bootstrap.sh (lines 3756-3765):
 ```bash
 # Extract installProfile value from user-config.nix
-# Pattern: installProfile = "standard"; or installProfile = "power";
+# Pattern: installProfile = "standard"; or installProfile = "power"; or installProfile = "ai-assistant";
 local profile_value
-profile_value=$(grep -E '^\s*installProfile\s*=\s*"(standard|power)";' "${user_config_path}" | sed -E 's/.*"([^"]+)".*/\1/')
+profile_value=$(grep -E '^\s*installProfile\s*=\s*"(standard|power|ai-assistant)";' "${user_config_path}" | sed -E 's/.*"([^"]+)".*/\1/')
 ```
 
 Changed from `INSTALL_PROFILE = ` (all caps) to `installProfile = ` (camelCase) to match Nix attribute naming conventions.

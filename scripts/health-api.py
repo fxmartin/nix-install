@@ -25,6 +25,7 @@ CACHE_WARNING_KB = 1_048_576        # 1 GB — warn if any single cache exceeds 
 OLLAMA_MODELS = {
     "power": ["ministral-3:14b", "phi4:14b", "gemma4:e4b", "nomic-embed-text"],
     "standard": ["ministral-3:14b", "nomic-embed-text"],
+    "ai-assistant": ["nomic-embed-text"],
 }
 
 
@@ -172,6 +173,18 @@ def check_nix_store() -> dict:
 
 
 def detect_profile(launchctl_output: str) -> str:
+    """Detect installation profile from user-config.nix, fall back to LaunchAgent heuristic."""
+    import pathlib
+    home = pathlib.Path.home()
+    for candidate in [home / ".config/nix-install", home / "nix-install", home / "Documents/nix-install"]:
+        config = candidate / "user-config.nix"
+        if config.exists():
+            import re
+            match = re.search(r'installProfile\s*=\s*"([^"]+)"', config.read_text())
+            if match:
+                return match.group(1)
+            break
+    # Fallback: detect via LaunchAgent presence
     if "org.nixos.icloud-sync" in launchctl_output:
         return "power"
     return "standard"

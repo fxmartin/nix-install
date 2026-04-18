@@ -29,7 +29,7 @@ curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh 
 
 1. **Pre-flight checks** — Verifies macOS version, disk space, internet
 2. **User prompts** — Enter your name, email, and GitHub username
-3. **Profile selection** — Choose Standard (MacBook Air) or Power (MacBook Pro)
+3. **Profile selection** — Choose Standard (MacBook Air), Power (MacBook Pro), or AI-Assistant (personal AI machine)
 4. **Xcode CLI tools** — Installs automatically if needed
 5. **Nix installation** — Multi-user Nix with flakes enabled
 6. **SSH key setup** — Generates key, you add it to GitHub (prompted with instructions)
@@ -40,7 +40,7 @@ curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh 
 ### Requirements
 
 - **macOS**: Sonoma 14.0+ (Apple Silicon or Intel)
-- **Disk space**: 35GB (Standard) or 120GB (Power profile)
+- **Disk space**: 20GB (AI-Assistant), 35GB (Standard), or 120GB (Power profile)
 - **Internet**: Required throughout installation
 - **GitHub account**: For SSH key authentication
 
@@ -216,15 +216,18 @@ Rollback is instant — no re-downloading, just switches symlinks.
 
 ---
 
-## Two Installation Profiles
+## Three Installation Profiles
 
-| Feature | Standard | Power |
-|---------|----------|-------|
-| **Target** | MacBook Air | MacBook Pro M3 Max |
-| **Apps** | 47+ | 51+ |
-| **Ollama Models** | 1 (~12GB) | 4 (~80GB) |
-| **Parallels Desktop** | No | Yes |
-| **Disk Usage** | ~35GB | ~120GB |
+| Feature | AI-Assistant | Standard | Power |
+|---------|-------------|----------|-------|
+| **Target** | Older MacBook (AI) | MacBook Air | MacBook Pro M3 Max |
+| **Apps** | ~25 (minimal) | 47+ | 51+ |
+| **Ollama Models** | 1 (embeddings) | 2 (~9GB) | 4 (~21GB) |
+| **Docker** | No | Yes | Yes |
+| **LSPs** | No | Yes | Yes |
+| **Office/Video Conf** | No | Yes | Yes |
+| **Parallels Desktop** | No | No | Yes |
+| **Disk Usage** | ~20GB | ~35GB | ~120GB |
 
 ### Package Sources (Priority Order)
 
@@ -345,7 +348,7 @@ NEXT STEPS
 
 ```
 nix-install/
-├── flake.nix                 # System definition (Standard/Power profiles)
+├── flake.nix                 # System definition (Standard/Power/AI-Assistant profiles)
 ├── bootstrap.sh              # Interactive installer (9 phases)
 ├── darwin/                   # System-level nix-darwin configs
 │   ├── configuration.nix     # System packages, PATH

@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `claude-code.nix` to reference submodule paths
 
 ### Added
+- **AI-Assistant profile** — lightweight third profile for older MacBooks running as personal AI assistants (minimal GUI, no Docker/LSPs/Office, embeddings-only Ollama)
+- `profileName` string in flake specialArgs for clean 3-way conditional gating
 - `scc` fast code counter (lines of code, complexity, COCOMO estimates)
 - `typst` modern typesetting system for PDF generation from markup
 - Health check HTTP API endpoint on port 7780 for remote monitoring via Tailscale

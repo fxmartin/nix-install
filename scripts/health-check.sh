@@ -28,6 +28,7 @@ CACHE_WARNING_KB=1048576         # 1 GB — warn if any single cache exceeds thi
 # Expected Ollama models per profile (keep in sync with flake.nix ollamaModels)
 # Power: ministral-3:14b, phi4:14b, gemma4:e4b, nomic-embed-text
 # Standard: ministral-3:14b, nomic-embed-text
+# AI-Assistant: nomic-embed-text
 
 # =============================================================================
 # HELPER FUNCTIONS
@@ -408,14 +409,35 @@ if command -v ollama &> /dev/null; then
         OLLAMA_LIST=$(ollama list 2>/dev/null || true)
 
         # Determine expected models based on profile
-        # Power profile has the icloud-sync LaunchAgent; Standard does not
-        if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.icloud-sync"; then
-            EXPECTED_MODELS=("ministral-3:14b" "phi4:14b" "gemma4:e4b" "nomic-embed-text")
-            PROFILE="Power"
-        else
-            EXPECTED_MODELS=("ministral-3:14b" "nomic-embed-text")
-            PROFILE="Standard"
+        # Try to read profile from user-config.nix, fall back to LaunchAgent heuristic
+        PROFILE=""
+        for config_path in "$HOME/.config/nix-install/user-config.nix" "$HOME/nix-install/user-config.nix" "$HOME/Documents/nix-install/user-config.nix"; do
+            if [[ -f "${config_path}" ]]; then
+                PROFILE=$(grep -E '^\s*installProfile\s*=' "${config_path}" 2>/dev/null | sed -E 's/.*"([^"]+)".*/\1/' || true)
+                break
+            fi
+        done
+        # Fallback: detect via LaunchAgent presence
+        if [[ -z "${PROFILE}" ]]; then
+            if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.icloud-sync"; then
+                PROFILE="power"
+            else
+                PROFILE="standard"
+            fi
         fi
+
+        case "${PROFILE}" in
+            power)
+                EXPECTED_MODELS=("ministral-3:14b" "phi4:14b" "gemma4:e4b" "nomic-embed-text")
+                ;;
+            ai-assistant)
+                EXPECTED_MODELS=("nomic-embed-text")
+                ;;
+            *)
+                EXPECTED_MODELS=("ministral-3:14b" "nomic-embed-text")
+                PROFILE="standard"
+                ;;
+        esac
 
         MISSING=0
         for model in "${EXPECTED_MODELS[@]}"; do

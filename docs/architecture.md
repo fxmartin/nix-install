@@ -16,14 +16,16 @@ flake.nix
 │   ├── claude-code-nix
 │   └── mcp-servers-nix
 │
-├── darwinConfigurations.standard  ──┐
-│                                    ├── commonModules
-├── darwinConfigurations.power  ─────┘
+├── darwinConfigurations.standard      ──┐
+│                                        ├── commonModules
+├── darwinConfigurations.power      ─────┤
+│                                        │
+├── darwinConfigurations.ai-assistant ───┘
 │
 └── helpers
-    ├── ollamaModels { standard, power }
+    ├── ollamaModels { standard, power, ai-assistant }
     ├── mkOllamaModelScript (generates pull scripts)
-    └── mkDarwinConfiguration (shared builder)
+    └── mkDarwinConfiguration (shared builder, passes profileName)
 ```
 
 ## Module Dependency Graph
@@ -31,18 +33,19 @@ flake.nix
 ```
                          flake.nix
                             │
-              ┌─────────────┼─────────────────┐
-              │             │                  │
-              ▼             ▼                  ▼
-     commonModules    standard-only      power-only
+              ┌─────────────┼─────────────────┬──────────────┐
+              │             │                  │              │
+              ▼             ▼                  ▼              ▼
+     commonModules    standard-only      power-only    ai-assistant-only
+                                                       (embeddings model)
               │                          │
     ┌─────────┼──────────┐     ┌────────┼────────┼────────┐
     │         │          │     │        │        │        │
     ▼         ▼          ▼     ▼        ▼        ▼        ▼
- darwin/   darwin/    darwin/ darwin/  darwin/  darwin/  darwin/
- config    homebrew   macos   smb-    rsync-   tts-     stt-
- .nix      .nix       def.   auto    backup   serve    serve
-                      nix    mount    .nix     .nix     .nix
+ darwin/   darwin/    darwin/ darwin/  darwin/  darwin/
+ config    homebrew   macos   smb-    rsync-   icloud-
+ .nix      .nix       def.   auto    backup   sync
+                      nix    mount    .nix     .nix
     │         │
     │         ├── darwin/maintenance.nix ──── mkScheduledAgent
     │         │   ├── nix-gc           (6 LaunchAgents)
@@ -62,11 +65,11 @@ flake.nix
          ├── modules/git.nix       (git, lfs, delta)
          ├── modules/ghostty.nix   (terminal config, Catppuccin theme)
          ├── modules/zed.nix       (editor settings, extensions)
-         ├── modules/vscode.nix    (backup editor)
          ├── modules/python.nix    (uv, ruff, mypy)
-         ├── modules/podman.nix    (container runtime)
          ├── modules/claude-code.nix (CLI + MCP servers)
-         └── modules/ssh.nix       (SSH config, known hosts)
+         ├── modules/ssh.nix       (SSH config, known hosts)
+         ├── modules/docker.nix    (container runtime — not ai-assistant)
+         └── modules/sketchybar.nix (status bar — not ai-assistant)
 ```
 
 ## Bootstrap Flow
@@ -149,11 +152,14 @@ bootstrap-dist.sh (standalone, built from lib/*.sh)
 
 ## Profile Comparison
 
-| Feature | Standard | Power |
-|---------|----------|-------|
-| Target | MacBook Air | MacBook Pro M3 Max |
-| Disk usage | ~35GB | ~120GB |
-| Ollama models | 2 (ministral-3, nomic-embed-text) | 4 (+phi4, gemma4) |
-| Parallels | No | Yes |
-| NAS mounts | No | SMB automount |
-| Backups | No | rsync to NAS, iCloud sync |
+| Feature | AI-Assistant | Standard | Power |
+|---------|-------------|----------|-------|
+| Target | Older MacBook (AI) | MacBook Air | MacBook Pro M3 Max |
+| Disk usage | ~20GB | ~35GB | ~120GB |
+| Ollama models | 1 (nomic-embed-text) | 2 (+ministral-3) | 4 (+phi4, gemma4) |
+| Docker | No | Yes | Yes |
+| LSPs | No | Yes | Yes |
+| Office/Comms | No | Yes | Yes |
+| Parallels | No | No | Yes |
+| NAS mounts | No | No | SMB automount |
+| Backups | No | No | rsync to NAS, iCloud sync |

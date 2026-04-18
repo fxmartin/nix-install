@@ -29,10 +29,10 @@ load_profile_from_user_config() {
     fi
 
     # Extract installProfile value from user-config.nix
-    # Pattern: installProfile = "standard"; or installProfile = "power";
+    # Pattern: installProfile = "standard"; or "power"; or "ai-assistant";
     # Note: Use non-greedy pattern to extract FIRST quoted string (not from comment)
     local profile_value
-    profile_value=$(grep -E '^\s*installProfile\s*=\s*"(standard|power)";' "${user_config_path}" | sed -E 's/^[^=]*=[[:space:]]*"([^"]+)".*/\1/')
+    profile_value=$(grep -E '^\s*installProfile\s*=\s*"(standard|power|ai-assistant)";' "${user_config_path}" | sed -E 's/^[^=]*=[[:space:]]*"([^"]+)".*/\1/')
 
     if [[ -z "${profile_value}" ]]; then
         log_error "Could not extract installProfile from user-config.nix"
@@ -41,9 +41,9 @@ load_profile_from_user_config() {
     fi
 
     # Validate profile value
-    if [[ "${profile_value}" != "standard" ]] && [[ "${profile_value}" != "power" ]]; then
+    if [[ "${profile_value}" != "standard" ]] && [[ "${profile_value}" != "power" ]] && [[ "${profile_value}" != "ai-assistant" ]]; then
         log_error "Invalid profile value in user-config.nix: ${profile_value}"
-        log_error "Expected 'standard' or 'power'"
+        log_error "Expected 'standard', 'power', or 'ai-assistant'"
         return 1
     fi
 

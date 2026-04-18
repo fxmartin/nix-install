@@ -129,7 +129,6 @@ in {
 
       # Productivity
       "dropbox" # Dropbox - Cloud storage and file sync (Story 02.4-004)
-      "excalidraw" # Excalidraw - Virtual whiteboard for sketching hand-drawn diagrams
 
       # File Utilities (Story 02.4-003)
       "calibre" # Calibre - Ebook library manager and converter

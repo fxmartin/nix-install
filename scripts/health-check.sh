@@ -50,10 +50,20 @@ print_status() {
 # HEALTH CHECKS
 # =============================================================================
 
+# Detect installation profile from user-config.nix (used in header and Ollama check)
+PROFILE=""
+for config_path in "$HOME/.config/nix-install/user-config.nix" "$HOME/nix-install/user-config.nix" "$HOME/Documents/nix-install/user-config.nix"; do
+    if [[ -f "${config_path}" ]]; then
+        PROFILE=$(grep -E '^\s*installProfile\s*=' "${config_path}" 2>/dev/null | sed -E 's/.*"([^"]+)".*/\1/' || true)
+        break
+    fi
+done
+
 echo ""
 echo "=== System Health Check ==="
-echo "Host: $(hostname)"
-echo "Date: $(date '+%Y-%m-%d %H:%M:%S')"
+echo "Host:    $(hostname)"
+echo "Profile: ${PROFILE:-unknown}"
+echo "Date:    $(date '+%Y-%m-%d %H:%M:%S')"
 echo ""
 
 # ---------------------------------------------------------------------------
@@ -408,15 +418,7 @@ if command -v ollama &> /dev/null; then
         # Get installed models
         OLLAMA_LIST=$(ollama list 2>/dev/null || true)
 
-        # Determine expected models based on profile
-        # Try to read profile from user-config.nix, fall back to LaunchAgent heuristic
-        PROFILE=""
-        for config_path in "$HOME/.config/nix-install/user-config.nix" "$HOME/nix-install/user-config.nix" "$HOME/Documents/nix-install/user-config.nix"; do
-            if [[ -f "${config_path}" ]]; then
-                PROFILE=$(grep -E '^\s*installProfile\s*=' "${config_path}" 2>/dev/null | sed -E 's/.*"([^"]+)".*/\1/' || true)
-                break
-            fi
-        done
+        # Determine expected models based on profile (detected at top of script).
         # Fallback: detect via LaunchAgent presence
         if [[ -z "${PROFILE}" ]]; then
             if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.icloud-sync"; then

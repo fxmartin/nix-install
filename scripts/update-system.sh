@@ -70,7 +70,7 @@ detect_profile() {
         # Extract value: installProfile = "standard"; -> standard
         # Use awk to get the first quoted string after the = sign, ignoring comments
         profile=$(grep 'installProfile' "$user_config" | awk -F'"' '{print $2}' | head -1)
-        if [[ "$profile" == "standard" || "$profile" == "power" ]]; then
+        if [[ "$profile" == "standard" || "$profile" == "power" || "$profile" == "ai-assistant" ]]; then
             echo "$profile"
             return 0
         fi
@@ -90,7 +90,7 @@ detect_profile() {
         *)
             log_warning "Could not auto-detect profile from hostname: $hostname"
             log_warning "And could not read from user-config.nix"
-            log_info "Please specify profile: ./scripts/update-system.sh [update|rebuild] [standard|power]"
+            log_info "Please specify profile: ./scripts/update-system.sh [update|rebuild] [standard|power|ai-assistant]"
             return 1
             ;;
     esac
@@ -202,12 +202,14 @@ Commands:
 Profiles:
     standard           MacBook Air profile (~35GB)
     power              MacBook Pro M3 Max profile (~120GB)
+    ai-assistant       Older MacBook personal AI assistant profile (~20GB)
     (auto-detected if not specified)
 
 Examples:
     $(basename "$0") update              # Update flake.lock
     $(basename "$0") rebuild             # Rebuild with auto-detected profile
     $(basename "$0") rebuild power       # Rebuild with Power profile
+    $(basename "$0") rebuild ai-assistant # Rebuild with AI-Assistant profile
     $(basename "$0") full                # Update + rebuild with auto-detected profile
     $(basename "$0") full standard       # Update + rebuild with Standard profile
 

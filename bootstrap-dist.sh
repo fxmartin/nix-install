@@ -814,8 +814,8 @@ generate_user_config() {
 # Power: MacBook Pro M3 Max - all apps, 4 Ollama models (~120GB)
 # =============================================================================
 
-# Validate profile choice input (must be 1 or 2)
-# Returns: 0 if valid (1 or 2), 1 otherwise
+# Validate profile choice input (must be 1, 2, or 3)
+# Returns: 0 if valid, 1 otherwise
 validate_profile_choice() {
     local choice="$1"
 
@@ -824,8 +824,8 @@ validate_profile_choice() {
         return 1
     fi
 
-    # Accept only 1 or 2
-    if [[ "$choice" == "1" ]] || [[ "$choice" == "2" ]]; then
+    # Accept only 1, 2, or 3
+    if [[ "$choice" == "1" ]] || [[ "$choice" == "2" ]] || [[ "$choice" == "3" ]]; then
         return 0
     fi
 
@@ -846,6 +846,9 @@ convert_profile_choice_to_name() {
             ;;
         2)
             echo "power"
+            ;;
+        3)
+            echo "ai-assistant"
             ;;
         *)
             # Default to standard for any invalid input
@@ -869,16 +872,22 @@ display_profile_options() {
     echo "1) Standard Profile"
     echo "   Target:         MacBook Air"
     echo "   Apps:           Essential apps only"
-    echo "   Ollama Models:  1 Ollama model (gpt-oss:20b)"
-    echo "   Virtualization: no virtualization"
+    echo "   Ollama Models:  2 models (ministral-3:14b, nomic-embed-text)"
     echo "   Disk Usage:     ~35GB"
     echo ""
     echo "2) Power Profile"
     echo "   Target:         MacBook Pro M3 Max"
     echo "   Apps:           All apps"
-    echo "   Ollama Models:  4 Ollama models (gpt-oss:20b, qwen2.5-coder:32b,"
-    echo "                   llama3.1:70b, deepseek-r1:32b)"
+    echo "   Ollama Models:  4 models (ministral-3:14b, phi4:14b, gemma4:e4b,"
+    echo "                   nomic-embed-text)"
     echo "   Disk Usage:     ~120GB"
+    echo ""
+    echo "3) AI-Assistant Profile"
+    echo "   Target:         Older MacBook (personal AI assistant)"
+    echo "   Apps:           Minimal - terminal, AI chat, browser, editor"
+    echo "   Ollama Models:  1 model (nomic-embed-text for RAG/search)"
+    echo "   No:             Docker, Office, video conferencing, LSPs"
+    echo "   Disk Usage:     ~20GB"
     echo ""
 }
 
@@ -894,6 +903,9 @@ get_profile_display_name() {
             ;;
         power)
             echo "Power Profile (MacBook Pro M3 Max - ~120GB)"
+            ;;
+        ai-assistant)
+            echo "AI-Assistant Profile (Older MacBook - ~20GB)"
             ;;
         *)
             echo "Unknown Profile"
@@ -947,7 +959,7 @@ select_installation_profile() {
                 log_info "✓ Profile choice validated"
                 break
             else
-                log_error "Invalid choice. Please enter 1 for Standard or 2 for Power."
+                log_error "Invalid choice. Please enter 1 for Standard, 2 for Power, or 3 for AI-Assistant."
             fi
         done
 

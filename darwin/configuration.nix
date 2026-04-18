@@ -9,6 +9,7 @@
   mcp-servers-nix,
   system,
   isPowerProfile,
+  profileName,
   ...
 }: {
   # Nix package manager settings
@@ -111,8 +112,9 @@
     # Nix Development Tools
     nil                 # Nix language server (simpler, lightweight)
     nixd                # Nix language server (feature-rich, used by Zed extension)
-
-    # Language Servers for Editor Integration (Zed, VSCode)
+  ]
+  # Language Servers and dev tooling (excluded from ai-assistant profile)
+  ++ lib.optionals (profileName != "ai-assistant") [
     # Python
     pyright             # Python type checker and language server (fastest, recommended)
 
@@ -138,16 +140,18 @@
     # Markdown
     # marksman          # DISABLED: Requires .NET which requires Swift build (broken in current nixpkgs)
                         # Re-enable when nixpkgs Swift build is fixed
-
+  ]
+  # Container Tools (excluded from ai-assistant profile)
+  ++ lib.optionals (profileName != "ai-assistant") [
+    lazydocker          # Simple terminal UI for Docker and docker-compose
+  ]
+  ++ [
     # Cloud CLI Tools
     hcloud              # Hetzner Cloud CLI for managing servers, networks, volumes, etc.
 
     # Media Processing
     ffmpeg              # Audio/video processing
     poppler-utils       # PDF tools: pdftotext, pdfinfo, pdfimages, pdftoppm (used by Python PDF libs)
-
-    # Container Tools
-    lazydocker          # Simple terminal UI for Docker and docker-compose
 
     # Code Analysis
     scc                 # Fast code counter (lines of code, complexity, COCOMO estimates)

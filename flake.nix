@@ -1,7 +1,7 @@
 # ABOUTME: Main Nix flake defining system configurations for Standard and Power profiles
 # ABOUTME: Integrates nixpkgs, nix-darwin, home-manager, nix-homebrew, and stylix
 {
-  description = "Nix-darwin configuration for FX's MacBooks - Standard and Power profiles (v1.0.0)";
+  description = "Nix-darwin configuration for FX's MacBooks - Standard, Power, and AI-Assistant profiles (v1.0.0)";
 
   inputs = {
     # Package Sources
@@ -107,6 +107,9 @@
         { name = "gemma4:e4b"; desc = "Google Gemma 4 compact 4B coding/chat model"; size = "~3GB"; }
         { name = "nomic-embed-text"; desc = "Text embeddings model"; size = "~274MB"; }
       ];
+      ai-assistant = [
+        { name = "nomic-embed-text"; desc = "Text embeddings model for RAG/search"; size = "~274MB"; }
+      ];
     };
 
     # Generate Ollama model pull activation script for a given profile
@@ -172,7 +175,7 @@
 
       # Home Manager Integration
       home-manager.darwinModules.home-manager
-      {
+      ({profileName, ...}: {
         nixpkgs = nixpkgsConfig;
         home-manager = {
           useGlobalPkgs = true;
@@ -180,6 +183,7 @@
           backupFileExtension = "hm-backup";
           extraSpecialArgs = {
             userConfig = validatedConfig;
+            inherit profileName;  # Pass profile name to home-manager modules
             inherit
               (validatedConfig)
               username
@@ -215,7 +219,7 @@
             programs.home-manager.enable = true;
           };
         };
-      }
+      })
 
       # Homebrew Management
       nix-homebrew.darwinModules.nix-homebrew
@@ -250,13 +254,14 @@
     mkDarwinConfiguration = {
       system,
       isPowerProfile,
+      profileName,
       modules,
     }:
       darwin.lib.darwinSystem {
         inherit system;
         specialArgs = {
           userConfig = validatedConfig;
-          inherit nixpkgsConfig self isPowerProfile system claude-code-nix mcp-servers-nix;
+          inherit nixpkgsConfig self isPowerProfile profileName system claude-code-nix mcp-servers-nix;
         };
         modules = commonModules ++ modules;
       };
@@ -267,6 +272,7 @@
     darwinConfigurations.standard = mkDarwinConfiguration {
       system = "aarch64-darwin"; # Apple Silicon (can also support x86_64-darwin)
       isPowerProfile = false;
+      profileName = "standard";
       modules = [
         ({lib, ...}: {
           # Standard profile specific settings
@@ -288,6 +294,7 @@
     darwinConfigurations.power = mkDarwinConfiguration {
       system = "aarch64-darwin"; # Apple Silicon only
       isPowerProfile = true;
+      profileName = "power";
       modules = [
         # SMB Automount for NAS shares (Power profile only)
         # On-demand mounting via autofs - mounts when accessed, unmounts when idle
@@ -310,6 +317,23 @@
           # See: https://github.com/nix-darwin/nix-darwin/issues/663
           system.activationScripts.postActivation.text = lib.mkAfter (
             mkOllamaModelScript "Power" ollamaModels.power
+          );
+        })
+      ];
+    };
+
+    # AI-Assistant Profile - Older MacBook for personal AI assistant
+    # Lightweight: No containers, no LSPs, minimal GUI apps
+    # Focus: Claude Code, Ollama embeddings, terminal-centric workflow
+    darwinConfigurations.ai-assistant = mkDarwinConfiguration {
+      system = "aarch64-darwin"; # Apple Silicon
+      isPowerProfile = false;
+      profileName = "ai-assistant";
+      modules = [
+        ({lib, ...}: {
+          # AI-Assistant profile: embeddings-only Ollama model
+          system.activationScripts.postActivation.text = lib.mkAfter (
+            mkOllamaModelScript "AI-Assistant" ollamaModels.ai-assistant
           );
         })
       ];

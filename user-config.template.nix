@@ -11,7 +11,7 @@
   signingKey = "";  # GPG key ID (leave empty initially)
 
   # Installation Profile
-  installProfile = "@INSTALL_PROFILE@";  # "standard" or "power"
+  installProfile = "@INSTALL_PROFILE@";  # "standard", "power", or "ai-assistant"
 
   # Mac App Store apps (requires App Store sign-in)
   # Set to true only if signed into App Store before running bootstrap

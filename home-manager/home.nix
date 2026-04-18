@@ -6,6 +6,7 @@
   lib,
   username,
   userConfig,
+  profileName ? "standard",
   ...
 }: {
   imports = [
@@ -27,8 +28,6 @@
     ./modules/claude-code.nix
     # Python development environment configuration (Feature 04.7)
     ./modules/python.nix
-    # Docker container development environment (Feature 04.8)
-    ./modules/docker.nix
     # Email notifications for maintenance (Feature 06.5)
     ./modules/msmtp.nix
     # CLI tool configurations with Catppuccin theming and sensible defaults
@@ -37,7 +36,11 @@
     ./modules/ripgrep.nix  # Grep replacement with smart defaults
     ./modules/fd.nix       # Find replacement with ignore patterns
     ./modules/httpie.nix   # HTTP client with developer defaults
-    ./modules/sketchybar.nix # SketchyBar status bar with repo-synced config
+  ]
+  # Modules excluded from ai-assistant profile
+  ++ lib.optionals (profileName != "ai-assistant") [
+    ./modules/docker.nix      # Docker container development environment (Feature 04.8)
+    ./modules/sketchybar.nix  # SketchyBar status bar with repo-synced config
   ];
 
   home = {

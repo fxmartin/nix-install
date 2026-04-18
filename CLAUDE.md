@@ -18,7 +18,7 @@ This repository implements an automated, declarative MacBook configuration syste
 
 ## Architecture
 
-### Two-Tier Installation Profiles
+### Three-Tier Installation Profiles
 
 1. **Standard Profile** (MacBook Air targets):
    - Core apps, Ollama models (`ministral-3:14b`, `nomic-embed-text`)
@@ -29,6 +29,12 @@ This repository implements an automated, declarative MacBook configuration syste
    - All Standard apps + Parallels Desktop
    - 4 Ollama models (`ministral-3:14b`, `phi4:14b`, `gemma4:e4b`, `nomic-embed-text`)
    - ~120GB disk usage
+
+3. **AI-Assistant Profile** (Older MacBook, personal AI assistant):
+   - Minimal GUI: Ghostty, cmux, Claude, ChatGPT, Chrome, Zed, 1Password
+   - No Docker, no LSPs, no Office, no video conferencing
+   - 1 Ollama model (`nomic-embed-text` for RAG/search)
+   - ~20GB disk usage
 
 ### Package Management Strategy (Priority Order)
 
@@ -132,7 +138,7 @@ nix-install/
 
 3. **Stylix theming**: Ghostty and Zed must use matching Catppuccin themes via Stylix.
 
-4. **Two profiles only**: Standard (Air) and Power (Pro M3 Max). Don't create additional profiles without approval.
+4. **Three profiles**: Standard (Air), Power (Pro M3 Max), AI-Assistant (older MacBook). Don't create additional profiles without approval.
 
 5. **Bootstrap synchronization**: When adding new .nix files, update the file download list in `lib/nix-darwin.sh`.
 

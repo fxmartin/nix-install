@@ -1,6 +1,8 @@
 # ABOUTME: Homebrew package management configuration (STUB for Epic-02)
 # ABOUTME: Manages GUI applications (casks), CLI tools (brews), and Mac App Store apps
-{userConfig, isPowerProfile, lib, ...}: {
+{userConfig, isPowerProfile, profileName, lib, ...}: let
+  isAiAssistant = profileName == "ai-assistant";
+in {
   nix-homebrew = {
     enable = true;
     user = userConfig.username;
@@ -76,106 +78,81 @@
     # MINIMAL INSTALL: Ghostty terminal for Phase 5 validation testing
     # Epic-02 will expand this list with full app inventory
     casks = [
+      # === Core Apps (all profiles) ===
       "ghostty" # Modern GPU-accelerated terminal (Phase 5 validation test app)
       "manaflow-ai/cmux/cmux" # cmux - Ghostty-based terminal with vertical tabs and notifications for AI coding agents
 
       # AI & LLM Tools (Story 02.1-001, 02.1-002)
-      # Auto-update disable: Check app preferences after first launch
       "claude" # Claude Desktop - Anthropic's AI assistant
       "chatgpt" # ChatGPT Desktop - OpenAI's conversational AI
-      # Note: Perplexity moved to Mac App Store (masApps) - no Homebrew cask available
 
-      # Development Environment Applications (Story 02.2-001, 02.2-005)
-      # Auto-update disable: Managed via Home Manager settings.json
-      # NOTE: VSCode DISABLED due to Electron crash issues during darwin-rebuild (Issue: Electron crashes)
-      # "visual-studio-code" # VSCode - DISABLED: Causes Electron crashes during rebuild
+      # Development Environment
       "zed" # Zed Editor - Fast, modern code editor with GPU acceleration
-            # Configuration: home-manager/modules/zed.nix (Catppuccin theme, JetBrains Mono)
 
-      # Container Tools (Story 02.2-005)
-      "docker-desktop" # Docker Desktop - Container development platform (renamed from "docker")
-
-      # Database Tools
-      "tableplus" # TablePlus - Modern database management GUI (PostgreSQL, MySQL, SQLite, Redis, etc.)
-
-      # Browsers (Story 02.3-001, 02.3-002)
-      # Auto-update disable: Updates managed by Homebrew (no in-app setting available)
-      "brave-browser"    # Brave Browser - Privacy-focused browser with built-in ad/tracker blocking
-      "arc"              # Arc Browser - Modern workspace browser with Spaces and vertical sidebar
+      # Browsers
       "google-chrome"    # Google Chrome - Web browser (auto-update managed by Homebrew)
 
-      # Productivity & Utilities (Story 02.4-001, 02.4-002, 02.4-004)
-      # Auto-update disable: Raycast/1Password (Preferences → Advanced), Dropbox (Preferences → Account → Disable automatic updates)
+      # Productivity & Utilities
       "raycast" # Raycast - Application launcher and productivity tool (Story 02.4-001)
       "1password" # 1Password - Password manager and secure vault (Story 02.4-002)
-      "dropbox" # Dropbox - Cloud storage and file sync (Story 02.4-004)
       "obsidian" # Obsidian - Markdown-based knowledge base and note-taking app
-                 # Auto-update disable: Settings → General → Uncheck "Automatic updates"
-
-      # File Utilities (Story 02.4-003)
-      # Auto-update disable: Calibre (Preferences → Misc), Marked 2 (Preferences → General)
-      "calibre" # Calibre - Ebook library manager and converter (Story 02.4-003)
-      "keka"    # Keka - Archive utility for zip, rar, 7z, etc. (Story 02.4-003)
 
       # Window Management
-      "nikitabobko/tap/aerospace" # AeroSpace - i3-like tiling window manager for macOS (https://github.com/nikitabobko/AeroSpace)
+      "nikitabobko/tap/aerospace" # AeroSpace - i3-like tiling window manager for macOS
 
-      # System Utilities (Story 02.4-005)
-      # Auto-update disable: None required (both free utilities, Homebrew-controlled)
-      # Permission notes: Onyx requires admin password for system tasks, f.lux may request accessibility
-      "onyx"     # Onyx - System maintenance and optimization utility (Story 02.4-005)
-      "flux-app" # f.lux - Display color temperature adjustment (Story 02.4-005)
-
-      # System Monitoring (Story 02.4-006)
-      # Auto-update disable: iStat Menus (Preferences → General → Updates → Uncheck "Automatically check for updates")
-      # License: iStat Menus requires activation (14-day free trial, $11.99 USD for license)
-      # Permission notes: iStat Menus may request Accessibility permissions for system monitoring
+      # System Monitoring
       "istat-menus" # iStat Menus - Professional menubar system monitoring (licensed app)
 
-      # Media Tools (Story 02.6-001)
-      # Auto-update disable: VLC (Preferences → General → Uncheck auto-update)
-      "vlc"  # VLC - Universal media player supporting 100+ formats (Story 02.6-001)
-
-      # Communication Tools - Video Conferencing (Story 02.5-002)
-      # CRITICAL: Auto-update disable required for both apps
-      # Zoom: Preferences → General → Uncheck "Update Zoom automatically when connected to Wi-Fi"
-      # Webex: Preferences → General → Check for auto-update option (may vary by version)
-      # Both apps require account sign-in:
-      #   - Zoom: Free account available, license may be needed for full features (meeting duration, participant limits)
-      #   - Webex: Requires company account or free Webex account
-      # Permissions: Both apps request camera and microphone on first use
-      "zoom"  # Zoom - Video conferencing and meetings (Story 02.5-002)
-      "webex" # Cisco Webex - Enterprise video conferencing (Story 02.5-002)
-
-      # Messaging (Story 02.5-001)
-      # Auto-update disable: Settings → Advanced → Uncheck "Automatic updates"
-      "slack"    # Slack - Team communication and collaboration platform
+      # Messaging
       "telegram" # Telegram - Cross-platform messaging with cloud sync
 
-      # Security & VPN (Story 02.7-001)
-      # Auto-update: Check Preferences → Settings → Advanced during VM testing (may not be user-configurable)
-      # License: Requires active NordVPN subscription (NO free tier)
-      # Permissions: Network Extension permission required on first VPN connection
+      # Security & VPN
       "nordvpn" # NordVPN - VPN privacy and security service (subscription required)
       "tailscale-app" # Tailscale - Zero-config mesh VPN built on WireGuard
-      "rustdesk"      # RustDesk - Open source remote desktop application
-
-      # Network Firewall (Story 02.7-001)
-      # Auto-update disable: Preferences → Advanced → Uncheck "Automatically check for updates"
-      # License: Paid software ($59 single license, or subscription)
-      # Permissions: Network Extension and System Extension permissions required
-      # Note: Requires system restart after installation to enable kernel extension
       "little-snitch" # Little Snitch - Application-level network firewall and monitor
-
-      # Office 365 (Story 02.9-001)
-      # Sign-in required: Microsoft account (personal, work, or school) - ONE-TIME activates ALL apps
-      # Auto-update disable: EACH app → Preferences → Update → Uncheck (6 apps total: Word, Excel, PowerPoint, Outlook, OneNote, Teams)
-      # License: Active Microsoft 365 subscription required (Personal $69.99/year, Family $99.99/year, or company-provided)
-      "microsoft-office-businesspro" # Office 365 - Word, Excel, PowerPoint, Outlook, OneNote, Teams
 
       # Fonts
       "font-sf-pro"         # SF Pro - Apple's system font for native macOS look (used by SketchyBar)
       "font-hack-nerd-font" # Hack Nerd Font - Patched font for SketchyBar and dev tools
+    ]
+    # === Standard/Power profile additional apps ===
+    ++ lib.optionals (!isAiAssistant) [
+      # Container Tools (Story 02.2-005)
+      "docker-desktop" # Docker Desktop - Container development platform
+
+      # Database Tools
+      "tableplus" # TablePlus - Modern database management GUI
+
+      # Additional Browsers
+      "brave-browser"    # Brave Browser - Privacy-focused browser
+      "arc"              # Arc Browser - Modern workspace browser with Spaces
+
+      # Productivity
+      "dropbox" # Dropbox - Cloud storage and file sync (Story 02.4-004)
+
+      # File Utilities (Story 02.4-003)
+      "calibre" # Calibre - Ebook library manager and converter
+      "keka"    # Keka - Archive utility for zip, rar, 7z, etc.
+
+      # System Utilities (Story 02.4-005)
+      "onyx"     # Onyx - System maintenance and optimization utility
+      "flux-app" # f.lux - Display color temperature adjustment
+
+      # Media Tools (Story 02.6-001)
+      "vlc"  # VLC - Universal media player supporting 100+ formats
+
+      # Video Conferencing (Story 02.5-002)
+      "zoom"  # Zoom - Video conferencing and meetings
+      "webex" # Cisco Webex - Enterprise video conferencing
+
+      # Additional Messaging
+      "slack"    # Slack - Team communication and collaboration platform
+
+      # Remote Access
+      "rustdesk"      # RustDesk - Open source remote desktop application
+
+      # Office 365 (Story 02.9-001)
+      "microsoft-office-businesspro" # Office 365 - Word, Excel, PowerPoint, Outlook, OneNote, Teams
     ];
 
     # Global Homebrew options

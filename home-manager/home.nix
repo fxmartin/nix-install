@@ -36,11 +36,12 @@
     ./modules/ripgrep.nix  # Grep replacement with smart defaults
     ./modules/fd.nix       # Find replacement with ignore patterns
     ./modules/httpie.nix   # HTTP client with developer defaults
+    # SketchyBar status bar — needed in all profiles since macOS menu bar is auto-hidden
+    ./modules/sketchybar.nix
   ]
   # Modules excluded from ai-assistant profile
   ++ lib.optionals (profileName != "ai-assistant") [
     ./modules/docker.nix      # Docker container development environment (Feature 04.8)
-    ./modules/sketchybar.nix  # SketchyBar status bar with repo-synced config
   ];
 
   home = {

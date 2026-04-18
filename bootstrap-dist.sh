@@ -3616,16 +3616,10 @@ authenticate_github_cli() {
     # --hostname github.com: Authenticate to GitHub (not enterprise)
     # --git-protocol ssh: Use SSH for git operations (not HTTPS)
     # --web: Use browser-based OAuth flow (auto-opens browser)
-    # Timeout after 5 minutes to avoid blocking forever if browser flow stalls
-    log_info "Starting GitHub OAuth flow (5 minute timeout)..."
-    if ! timeout 300 gh auth login --hostname github.com --git-protocol ssh --web; then
-        local exit_code=$?
-        if [[ ${exit_code} -eq 124 ]]; then
-            log_error "GitHub CLI authentication timed out after 5 minutes"
-            log_error "The browser OAuth flow did not complete in time."
-        else
-            log_error "GitHub CLI authentication failed"
-        fi
+    # Run gh auth login interactively (user completes OAuth in browser)
+    log_info "Starting GitHub OAuth flow..."
+    if ! gh auth login --hostname github.com --git-protocol ssh --web; then
+        log_error "GitHub CLI authentication failed"
         log_error ""
         log_error "Troubleshooting:"
         log_error "1. Check internet connection"

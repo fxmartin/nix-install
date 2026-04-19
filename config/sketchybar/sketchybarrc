@@ -77,7 +77,7 @@ sketchybar --set apple \
 
 sketchybar --add event aerospace_workspace_change
 
-WORKSPACE_LABELS=("Term" "Code" "Chat" "Web" "Mail" "Teams" "Misc")
+WORKSPACE_LABELS=("Term" "Code" "Edit" "AI" "Web" "Mail" "Teams" "Chat" "Misc")
 for i in "${!WORKSPACE_LABELS[@]}"
 do
   sid="$(($i+1))"

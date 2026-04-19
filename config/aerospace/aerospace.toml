@@ -35,6 +35,23 @@ exec-on-workspace-change = ['/bin/bash', '-c',
     'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE',
 ]
 
+# Pin workspaces to monitors. When the named monitor is absent (laptop
+# undocked, for instance), the workspace falls back to the only available one.
+#   main      — the monitor that carries the macOS menu bar (arranged in
+#               System Settings → Displays). On a MacBook with no external
+#               display this is the built-in panel.
+#   secondary — the first non-main monitor (external display when docked).
+[workspace-to-monitor-force-assignment]
+1 = 'main'       # Terminal
+2 = 'main'       # Code
+3 = 'main'       # Editor
+4 = 'secondary'  # AI
+5 = 'secondary'  # Web
+6 = 'secondary'  # Mail
+7 = 'secondary'  # Teams
+8 = 'main'       # Chat
+9 = 'main'       # Misc
+
 # Gaps between tiles (0 = flush edges; bump to 4–8 for breathing room)
 [gaps]
 inner.horizontal = 4

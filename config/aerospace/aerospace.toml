@@ -11,7 +11,7 @@
 #   6 Mail     — Outlook
 #   7 Teams    — Microsoft Teams
 #   8 Chat     — Telegram, WhatsApp
-#   9 Misc     — System Settings, 1Password, Finder, Calculator, Calendar, Docker
+#   9 Misc     — System Settings, 1Password, Finder, Calculator, Calendar, Docker, NordVPN
 
 # Start AeroSpace at login (replaces the need for macOS Login Items entry)
 start-at-login = true
@@ -247,4 +247,8 @@ run = 'move-node-to-workspace 9'
 
 [[on-window-detected]]
 if.app-id = 'com.electron.dockerdesktop'
+run = ['layout floating', 'move-node-to-workspace 9']
+
+[[on-window-detected]]
+if.app-id = 'com.nordvpn.macos'
 run = ['layout floating', 'move-node-to-workspace 9']

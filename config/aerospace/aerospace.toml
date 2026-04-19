@@ -6,7 +6,7 @@
 #   1 Terminal — Ghostty
 #   2 Code     — cmux, VSCode
 #   3 Editor   — Zed
-#   4 AI       — Claude, ChatGPT
+#   4 AI       — Claude, ChatGPT, Perplexity, Inferencer
 #   5 Web      — Chrome, Arc, Brave, Firefox, Safari, Preview
 #   6 Mail     — Outlook
 #   7 Teams    — Microsoft Teams
@@ -58,7 +58,7 @@ inner.horizontal = 4
 inner.vertical   = 4
 outer.left       = 4
 outer.right      = 4
-outer.top        = 4
+outer.top        = 41  # clear SketchyBar (37px) + 4px breathing room
 outer.bottom     = 4
 
 # ============================================================================
@@ -164,6 +164,14 @@ run = 'move-node-to-workspace 4'
 
 [[on-window-detected]]
 if.app-id = 'com.openai.chat'
+run = 'move-node-to-workspace 4'
+
+[[on-window-detected]]
+if.app-id = 'ai.perplexity.mac'
+run = 'move-node-to-workspace 4'
+
+[[on-window-detected]]
+if.app-id = 'com.inferencer'
 run = 'move-node-to-workspace 4'
 
 # --- Workspace 5: Web ---

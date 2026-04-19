@@ -272,6 +272,16 @@ fetch_flake_from_github() {
         return 1
     }
 
+    log_info "  - home-manager/modules/aerospace.nix"
+    if ! curl -fsSL -o "home-manager/modules/aerospace.nix" "${base_url}/home-manager/modules/aerospace.nix"; then
+        log_error "Failed to fetch home-manager/modules/aerospace.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/aerospace.nix" ]] || {
+        log_error "Downloaded home-manager/modules/aerospace.nix is empty"
+        return 1
+    }
+
     # Fetch maintenance scripts (Epic-06)
     log_info "Fetching maintenance scripts..."
     mkdir -p scripts
@@ -430,6 +440,7 @@ fetch_flake_from_github() {
     log_info "  • home-manager/modules/docker.nix"
     log_info "  • home-manager/modules/msmtp.nix"
     log_info "  • home-manager/modules/sketchybar.nix"
+    log_info "  • home-manager/modules/aerospace.nix"
     log_info "  • scripts/health-check.sh"
     log_info "  • scripts/setup-msmtp-keychain.sh"
     log_info "  • scripts/send-notification.sh"

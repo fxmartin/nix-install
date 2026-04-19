@@ -58,7 +58,13 @@ inner.horizontal = 4
 inner.vertical   = 4
 outer.left       = 4
 outer.right      = 4
-outer.top        = 41  # clear SketchyBar (37px) + 4px breathing room
+# Per-monitor outer.top: the MacBook's notch already reserves ~44px, so only
+# 4px is needed on the built-in. External displays need 41px (37px SketchyBar
+# + 4px breathing room). Any unmatched monitor falls back to the trailing 41.
+outer.top = [
+    { monitor."built-in" = 4 },
+    41,
+]
 outer.bottom     = 4
 
 # ============================================================================

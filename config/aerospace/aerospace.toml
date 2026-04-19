@@ -155,7 +155,7 @@ run = 'move-node-to-workspace 2'
 # --- Workspace 3: Editor ---
 [[on-window-detected]]
 if.app-id = 'dev.zed.Zed'
-run = 'move-node-to-workspace 3'
+run = ['move-node-to-workspace 3', 'layout accordion']
 
 # --- Workspace 4: AI ---
 [[on-window-detected]]

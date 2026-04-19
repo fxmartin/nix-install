@@ -1026,6 +1026,8 @@ cat /tmp/weekly-digest.err      # stderr
 cat /tmp/release-monitor.log
 cat /tmp/nix-gc.log
 cat /tmp/nix-optimize.log
+cat /tmp/claude-code-cleanup.log
+cat ~/.claude/cleanup.log       # Claude Code orphan cleanup history
 
 # Manually trigger a LaunchAgent
 launchctl start org.nixos.weekly-digest

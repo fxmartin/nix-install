@@ -327,6 +327,63 @@ mcp-server-github --version
 mcp-server-sequential-thinking --version
 ```
 
+#### Orphan Process Cleanup (kalloc.1024 Mitigation)
+
+**Status**: LaunchAgent `claude-code-cleanup` (runs every 90 minutes)
+
+**Purpose**: Running many parallel Claude Code agents on macOS triggers a kernel
+memory leak in the `kalloc.1024` zone and leaves orphaned Node/MCP subprocesses
+behind when a Claude Code session crashes or is force-quit. Left to accumulate,
+these orphans exhaust memory and can cause GPU panics after 1–2 hours of heavy
+multi-agent use.
+
+**What it kills**: Only Node processes whose **parent PID is 1** (launchd) —
+i.e. truly orphaned. MCP servers belonging to live Claude Code sessions have
+the Claude Code CLI as their parent and are never touched.
+
+**Patterns matched** (in `scripts/claude-cleanup.sh`):
+- `node.*mcp-server`
+- `node.*claude.*server`
+
+**Schedule**: Every 90 minutes via `StartInterval = 5400` (seconds). Does NOT
+run at login — first fire is 90 minutes after the LaunchAgent loads. Chosen
+over `StartCalendarInterval` because 90-minute polling has no clean calendar
+expression.
+
+**Files**:
+- Script: `scripts/claude-cleanup.sh` → synced to `~/.local/bin/claude-cleanup.sh`
+  (listed in `COMMON_SCRIPTS` in `darwin/configuration.nix`, all profiles)
+- LaunchAgent: `claude-code-cleanup` in `darwin/maintenance.nix`
+- App log: `~/.claude/cleanup.log` (one line per run: timestamp + orphan count)
+- LaunchAgent log: `/tmp/claude-code-cleanup.log`
+- LaunchAgent errors: `/tmp/claude-code-cleanup.err`
+
+**Manual operations**:
+```bash
+# Run the cleanup immediately
+~/.local/bin/claude-cleanup.sh
+
+# Tail the application log
+tail -f ~/.claude/cleanup.log
+
+# Verify the LaunchAgent is loaded
+launchctl list | grep claude-code-cleanup
+
+# Force the LaunchAgent to fire now
+launchctl kickstart -k gui/$(id -u)/org.nixos.claude-code-cleanup
+
+# Inspect what orphans exist right now (no kill)
+ps -axo pid=,ppid=,command= | awk '$2==1 && /node.*(mcp-server|claude.*server)/'
+```
+
+**Disabling**: Remove or comment out the `claude-code-cleanup` block in
+`darwin/maintenance.nix` and run `darwin-rebuild switch`. The LaunchAgent plist
+will be unloaded automatically.
+
+**Safety note**: The PPID=1 filter is the important safety. The naïve
+`pkill -f 'node.*mcp-server'` form circulating in online guides will kill
+MCP servers of *live* sessions and break them.
+
 #### Testing Checklist
 
 - [ ] Claude Code CLI installed and `claude --version` works

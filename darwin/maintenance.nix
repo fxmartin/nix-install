@@ -173,6 +173,43 @@ in {
     };
 
     # =========================================================================
+    # CLAUDE CODE ORPHAN CLEANUP
+    # =========================================================================
+    # Runs every 90 minutes to kill orphaned Claude Code MCP / node server
+    # processes (PPID=1 only — live Claude Code sessions are untouched).
+    # Mitigates the kalloc.1024 kernel memory leak seen when running many
+    # parallel Claude Code agents on macOS.
+    #
+    # NOTE: Uses StartInterval (not StartCalendarInterval) so it's a simple
+    # periodic timer. The mkScheduledAgent helper doesn't cover this shape,
+    # so the service is defined directly.
+    claude-code-cleanup = {
+      serviceConfig = {
+        ProgramArguments = [
+          "/bin/bash" "-c"
+          ''
+            SCRIPT="${scriptsDir}/claude-cleanup.sh"
+            if [[ -x "$SCRIPT" ]]; then
+              "$SCRIPT"
+            else
+              echo "Claude cleanup script not found: $SCRIPT" >> /tmp/claude-code-cleanup.err
+              exit 1
+            fi
+          ''
+        ];
+        StartInterval = 5400;  # 90 minutes
+        StandardOutPath = "/tmp/claude-code-cleanup.log";
+        StandardErrorPath = "/tmp/claude-code-cleanup.err";
+        EnvironmentVariables = {
+          PATH = agentPath;
+          HOME = agentHome;
+        };
+        RunAtLoad = false;
+        Umask = 77;
+      };
+    };
+
+    # =========================================================================
     # OLLAMA SERVER (Network-accessible via Tailscale)
     # =========================================================================
     # Starts Ollama server at login bound to all interfaces (0.0.0.0)

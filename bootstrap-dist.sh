@@ -2098,6 +2098,16 @@ fetch_flake_from_github() {
         return 1
     }
 
+    log_info "  - home-manager/modules/aerospace.nix"
+    if ! curl -fsSL -o "home-manager/modules/aerospace.nix" "${base_url}/home-manager/modules/aerospace.nix"; then
+        log_error "Failed to fetch home-manager/modules/aerospace.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/aerospace.nix" ]] || {
+        log_error "Downloaded home-manager/modules/aerospace.nix is empty"
+        return 1
+    }
+
     # Fetch maintenance scripts (Epic-06)
     log_info "Fetching maintenance scripts..."
     mkdir -p scripts
@@ -2112,6 +2122,17 @@ fetch_flake_from_github() {
         return 1
     }
     chmod +x "scripts/health-check.sh"
+
+    log_info "  - scripts/claude-cleanup.sh"
+    if ! curl -fsSL -o "scripts/claude-cleanup.sh" "${base_url}/scripts/claude-cleanup.sh"; then
+        log_error "Failed to fetch scripts/claude-cleanup.sh"
+        return 1
+    fi
+    [[ -s "scripts/claude-cleanup.sh" ]] || {
+        log_error "Downloaded scripts/claude-cleanup.sh is empty"
+        return 1
+    }
+    chmod +x "scripts/claude-cleanup.sh"
 
     log_info "  - scripts/setup-msmtp-keychain.sh"
     if ! curl -fsSL -o "scripts/setup-msmtp-keychain.sh" "${base_url}/scripts/setup-msmtp-keychain.sh"; then
@@ -2256,6 +2277,7 @@ fetch_flake_from_github() {
     log_info "  • home-manager/modules/docker.nix"
     log_info "  • home-manager/modules/msmtp.nix"
     log_info "  • home-manager/modules/sketchybar.nix"
+    log_info "  • home-manager/modules/aerospace.nix"
     log_info "  • scripts/health-check.sh"
     log_info "  • scripts/setup-msmtp-keychain.sh"
     log_info "  • scripts/send-notification.sh"

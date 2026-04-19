@@ -297,6 +297,17 @@ fetch_flake_from_github() {
     }
     chmod +x "scripts/health-check.sh"
 
+    log_info "  - scripts/claude-cleanup.sh"
+    if ! curl -fsSL -o "scripts/claude-cleanup.sh" "${base_url}/scripts/claude-cleanup.sh"; then
+        log_error "Failed to fetch scripts/claude-cleanup.sh"
+        return 1
+    fi
+    [[ -s "scripts/claude-cleanup.sh" ]] || {
+        log_error "Downloaded scripts/claude-cleanup.sh is empty"
+        return 1
+    }
+    chmod +x "scripts/claude-cleanup.sh"
+
     log_info "  - scripts/setup-msmtp-keychain.sh"
     if ! curl -fsSL -o "scripts/setup-msmtp-keychain.sh" "${base_url}/scripts/setup-msmtp-keychain.sh"; then
         log_error "Failed to fetch scripts/setup-msmtp-keychain.sh"

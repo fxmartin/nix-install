@@ -225,6 +225,7 @@
         COMMON_SCRIPTS=(
           "health-api.py"
           "health-check.sh"
+          "claude-cleanup.sh"
         )
 
         for script in "''${COMMON_SCRIPTS[@]}"; do

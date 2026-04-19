@@ -48,11 +48,12 @@ flake.nix
                       nix    mount    .nix     .nix
     │         │
     │         ├── darwin/maintenance.nix ──── mkScheduledAgent
-    │         │   ├── nix-gc           (6 LaunchAgents)
+    │         │   ├── nix-gc           (7 LaunchAgents)
     │         │   ├── nix-optimize
     │         │   ├── weekly-digest
     │         │   ├── release-monitor
     │         │   ├── disk-cleanup
+    │         │   ├── claude-code-cleanup  (StartInterval: 90min)
     │         │   └── ollama-serve
     │         │
     │         ├── darwin/health-api.nix

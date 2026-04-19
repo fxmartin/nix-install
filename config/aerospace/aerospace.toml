@@ -1,0 +1,211 @@
+# ABOUTME: AeroSpace tiling window manager configuration
+# ABOUTME: Universal layout — works across standard, power, and ai-assistant profiles
+#
+# Reference: https://nikitabobko.github.io/AeroSpace/guide
+# Workspace layout:
+#   1 Terminal — Ghostty
+#   2 Code     — cmux, VSCode
+#   3 Editor   — Zed
+#   4 AI       — Claude, ChatGPT
+#   5 Web      — Chrome, Arc, Brave, Firefox, Safari
+#   6 Mail     — Outlook
+#   7 Teams    — Microsoft Teams
+#   8 Chat     — Telegram, WhatsApp
+#   9 Misc     — System Settings, 1Password, Finder, Calculator, Calendar
+
+# Start AeroSpace at login (replaces the need for macOS Login Items entry)
+start-at-login = true
+
+# Normalize nested containers automatically — easier tiling behavior
+enable-normalization-flatten-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = true
+
+# Default layout for new workspaces: tiles, auto orientation (horizontal on wide, vertical on tall)
+default-root-container-layout = 'tiles'
+default-root-container-orientation = 'auto'
+
+# Padding between accordion-layout windows
+accordion-padding = 30
+
+# Mouse follows focus (disable if it feels jumpy)
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+
+# Notify SketchyBar whenever the focused workspace changes so the bar updates
+exec-on-workspace-change = ['/bin/bash', '-c',
+    'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE',
+]
+
+# Gaps between tiles (0 = flush edges; bump to 4–8 for breathing room)
+[gaps]
+inner.horizontal = 4
+inner.vertical   = 4
+outer.left       = 4
+outer.right      = 4
+outer.top        = 4
+outer.bottom     = 4
+
+# ============================================================================
+# Main mode — the default keybindings you use day to day
+# ============================================================================
+[mode.main.binding]
+
+# --- Focus (vim-style hjkl) ---
+alt-h = 'focus left'
+alt-j = 'focus down'
+alt-k = 'focus up'
+alt-l = 'focus right'
+
+# --- Move window within workspace ---
+alt-shift-h = 'move left'
+alt-shift-j = 'move down'
+alt-shift-k = 'move up'
+alt-shift-l = 'move right'
+
+# --- Resize focused window ---
+alt-minus = 'resize smart -50'
+alt-equal = 'resize smart +50'
+
+# --- Workspace switch (1..9) ---
+alt-1 = 'workspace 1'
+alt-2 = 'workspace 2'
+alt-3 = 'workspace 3'
+alt-4 = 'workspace 4'
+alt-5 = 'workspace 5'
+alt-6 = 'workspace 6'
+alt-7 = 'workspace 7'
+alt-8 = 'workspace 8'
+alt-9 = 'workspace 9'
+
+# --- Send focused window to workspace (1..9) ---
+alt-shift-1 = 'move-node-to-workspace 1'
+alt-shift-2 = 'move-node-to-workspace 2'
+alt-shift-3 = 'move-node-to-workspace 3'
+alt-shift-4 = 'move-node-to-workspace 4'
+alt-shift-5 = 'move-node-to-workspace 5'
+alt-shift-6 = 'move-node-to-workspace 6'
+alt-shift-7 = 'move-node-to-workspace 7'
+alt-shift-8 = 'move-node-to-workspace 8'
+alt-shift-9 = 'move-node-to-workspace 9'
+
+# Jump back to the previous workspace
+alt-tab       = 'workspace-back-and-forth'
+alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
+
+# --- Layout (letter keys avoid AZERTY / non-US punctuation conflicts) ---
+alt-t = 'layout tiles horizontal vertical'      # toggle tiles / cycle orientation
+alt-a = 'layout accordion horizontal vertical'  # toggle accordion / cycle orientation
+
+alt-shift-t     = 'layout tiles'            # force tiles (from accordion/floating)
+alt-shift-a     = 'layout accordion'        # force accordion
+alt-shift-f     = 'fullscreen'              # AeroSpace fullscreen (keeps SketchyBar)
+alt-shift-space = 'layout floating tiling'  # float/unfloat the current window
+
+# --- Service mode: reload, reset, close-all-but-current ---
+alt-shift-semicolon = 'mode service'
+
+[mode.service.binding]
+esc       = ['reload-config', 'mode main']
+r         = ['flatten-workspace-tree', 'mode main']
+f         = ['layout floating tiling', 'mode main']
+backspace = ['close-all-windows-but-current', 'mode main']
+
+# Join with neighbor, then back to main
+alt-shift-h = ['join-with left',  'mode main']
+alt-shift-j = ['join-with down',  'mode main']
+alt-shift-k = ['join-with up',    'mode main']
+alt-shift-l = ['join-with right', 'mode main']
+
+# ============================================================================
+# App → workspace assignments
+# ============================================================================
+# Bundle IDs verified via: osascript -e 'id of app "<Name>"'
+# To add a new rule: open the app, then run `aerospace list-apps` to confirm ID.
+
+# --- Workspace 1: Terminal ---
+[[on-window-detected]]
+if.app-id = 'com.mitchellh.ghostty'
+run = 'move-node-to-workspace 1'
+
+# --- Workspace 2: Code ---
+[[on-window-detected]]
+if.app-id = 'com.cmuxterm.app'
+run = 'move-node-to-workspace 2'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.VSCode'
+run = 'move-node-to-workspace 2'
+
+# --- Workspace 3: Editor ---
+[[on-window-detected]]
+if.app-id = 'dev.zed.Zed'
+run = 'move-node-to-workspace 3'
+
+# --- Workspace 4: AI ---
+[[on-window-detected]]
+if.app-id = 'com.anthropic.claudefordesktop'
+run = 'move-node-to-workspace 4'
+
+[[on-window-detected]]
+if.app-id = 'com.openai.chat'
+run = 'move-node-to-workspace 4'
+
+# --- Workspace 5: Web ---
+[[on-window-detected]]
+if.app-id = 'com.google.Chrome'
+run = 'move-node-to-workspace 5'
+
+[[on-window-detected]]
+if.app-id = 'company.thebrowser.Browser'  # Arc
+run = 'move-node-to-workspace 5'
+
+[[on-window-detected]]
+if.app-id = 'com.brave.Browser'
+run = 'move-node-to-workspace 5'
+
+[[on-window-detected]]
+if.app-id = 'org.mozilla.firefox'
+run = 'move-node-to-workspace 5'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Safari'
+run = 'move-node-to-workspace 5'
+
+# --- Workspace 6: Mail ---
+[[on-window-detected]]
+if.app-id = 'com.microsoft.Outlook'
+run = 'move-node-to-workspace 6'
+
+# --- Workspace 7: Teams ---
+[[on-window-detected]]
+if.app-id = 'com.microsoft.teams2'
+run = 'move-node-to-workspace 7'
+
+# --- Workspace 8: Chat (messaging) ---
+[[on-window-detected]]
+if.app-id = 'ru.keepcoder.Telegram'
+run = 'move-node-to-workspace 8'
+
+[[on-window-detected]]
+if.app-id = 'net.whatsapp.WhatsApp'
+run = 'move-node-to-workspace 8'
+
+# --- Workspace 9: Misc (float-friendly utility apps) ---
+[[on-window-detected]]
+if.app-id = 'com.apple.systempreferences'
+run = ['layout floating', 'move-node-to-workspace 9']
+
+[[on-window-detected]]
+if.app-id = 'com.1password.1password'
+run = 'move-node-to-workspace 9'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.finder'
+run = ['layout floating', 'move-node-to-workspace 9']
+
+[[on-window-detected]]
+if.app-id = 'com.apple.calculator'
+run = ['layout floating', 'move-node-to-workspace 9']
+
+[[on-window-detected]]
+if.app-id = 'com.apple.iCal'
+run = 'move-node-to-workspace 9'

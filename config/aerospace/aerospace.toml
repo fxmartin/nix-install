@@ -9,7 +9,7 @@
 #   4 AI       — Claude, ChatGPT, Perplexity, Inferencer
 #   5 Web      — Chrome, Chrome for Testing, Arc, Brave, Firefox, Safari, Preview
 #   6 Mail     — Outlook, Mail
-#   7 Teams    — Microsoft Teams
+#   7 Office   — Microsoft Teams, Word, Excel, PowerPoint
 #   8 Chat     — Telegram, WhatsApp
 #   9 Misc     — System Settings, 1Password, Finder, Calculator, Calendar, Docker, NordVPN
 
@@ -48,7 +48,7 @@ exec-on-workspace-change = ['/bin/bash', '-c',
 4 = 'secondary'  # AI
 5 = 'secondary'  # Web
 6 = 'secondary'  # Mail
-7 = 'secondary'  # Teams
+7 = 'secondary'  # Office
 8 = 'main'       # Chat
 9 = 'main'       # Misc
 
@@ -218,9 +218,21 @@ run = ['move-node-to-workspace 6', 'layout accordion']
 if.app-id = 'com.apple.mail'
 run = ['move-node-to-workspace 6', 'layout accordion']
 
-# --- Workspace 7: Teams ---
+# --- Workspace 7: Office ---
 [[on-window-detected]]
 if.app-id = 'com.microsoft.teams2'
+run = 'move-node-to-workspace 7'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.Word'
+run = 'move-node-to-workspace 7'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.Excel'
+run = 'move-node-to-workspace 7'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.Powerpoint'
 run = 'move-node-to-workspace 7'
 
 # --- Workspace 8: Chat (messaging) ---

@@ -222,6 +222,43 @@ cleanup_nodegyp() {
     fi
 }
 
+cleanup_huggingface() {
+    # Prunes model blobs and dataset snapshots older than the retention window.
+    # HF re-downloads on next use, so this only costs bandwidth, not data.
+    # APFS often defaults to noatime — atime may equal mtime; we accept the
+    # approximation. Override windows with HF_RETENTION_DAYS / HF_DATASETS_RETENTION_DAYS.
+    print_header "Cleaning Huggingface Cache"
+    local cache_dir="${HOME}/.cache/huggingface"
+    if [[ ! -d "${cache_dir}" ]]; then
+        print_status "skip" "Huggingface cache not present"
+        return 0
+    fi
+
+    local before=$(get_size "${cache_dir}")
+    local retention="${HF_RETENTION_DAYS:-60}"
+    local datasets_retention="${HF_DATASETS_RETENTION_DAYS:-90}"
+
+    local blobs_count=0
+    if [[ -d "${cache_dir}/hub" ]]; then
+        blobs_count=$(find "${cache_dir}/hub" -path "*/blobs/*" -type f -atime "+${retention}" 2>/dev/null | wc -l | tr -d ' ')
+        find "${cache_dir}/hub" -path "*/blobs/*" -type f -atime "+${retention}" -delete 2>/dev/null || true
+    fi
+
+    local datasets_count=0
+    if [[ -d "${cache_dir}/datasets" ]]; then
+        # Match snapshot dirs: datasets/<org>/<name>/<hash>/
+        datasets_count=$(find "${cache_dir}/datasets" -mindepth 3 -maxdepth 4 -type d -mtime "+${datasets_retention}" 2>/dev/null | wc -l | tr -d ' ')
+        find "${cache_dir}/datasets" -mindepth 3 -maxdepth 4 -type d -mtime "+${datasets_retention}" -exec rm -rf {} + 2>/dev/null || true
+    fi
+
+    local after=$(get_size "${cache_dir}")
+    if [[ "${blobs_count}" == "0" && "${datasets_count}" == "0" ]]; then
+        print_status "info" "Huggingface cache: nothing older than ${retention}d (was: ${before})"
+    else
+        print_status "cleaned" "Huggingface: ${blobs_count} blobs + ${datasets_count} datasets pruned (was: ${before}, now: ${after})"
+    fi
+}
+
 cleanup_browsers() {
     # Cleans browser cache subdirs (Cache/, Code Cache/, GPUCache/) but never
     # touches profile data, bookmarks, cookies, or sessions.
@@ -380,6 +417,7 @@ main() {
         cleanup_npm
         cleanup_pip
         cleanup_nodegyp
+        cleanup_huggingface
         cleanup_browsers
         cleanup_containers
 

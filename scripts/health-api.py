@@ -20,6 +20,7 @@ PORT = 7780
 GENERATION_WARNING_THRESHOLD = 50   # Warn if more than N system generations
 DISK_WARNING_GB = 20                # Warn if less than N GB free
 CACHE_WARNING_KB = 1_048_576        # 1 GB — warn if any single cache exceeds this
+HF_CACHE_WARNING_KB = 10_485_760    # 10 GB — Huggingface cache grows fastest (model blobs)
 
 # Expected Ollama models per profile (keep in sync with flake.nix ollamaModels)
 OLLAMA_MODELS = {
@@ -255,6 +256,7 @@ def get_caches() -> dict:
         "uv": get_cache_size("~/.cache/uv"),
         "homebrew": get_cache_size("~/Library/Caches/Homebrew"),
         "npm": get_cache_size("~/.npm"),
+        "huggingface": get_cache_size("~/.cache/huggingface"),
     }
 
 

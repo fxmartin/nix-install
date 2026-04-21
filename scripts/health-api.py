@@ -334,6 +334,38 @@ def _stale_metrics_fallback(error_detail: str) -> dict:
     return {"status": "error", "detail": error_detail}
 
 
+def _top_cpu_processes(n: int = 5) -> list[dict]:
+    """Return the top-N CPU-consuming processes as [{pid, cpu_percent, name}, ...].
+
+    Uses BSD ps (macOS) with whitespace-stripped columns, sorts numerically on
+    pcpu desc. Skips the health-api server itself to avoid self-referential
+    noise in the SketchyBar vitals popup. Truncates long process names to 40
+    chars for compact rendering.
+    """
+    # Ask for n+1 rows to have headroom when filtering out our own process.
+    out = run(f"ps -Ao pid=,pcpu=,comm= | sort -k2 -nr | head -{n + 2}")
+    results: list[dict] = []
+    for line in out.splitlines():
+        parts = line.split(None, 2)
+        if len(parts) < 3:
+            continue
+        pid_s, pct_s, name = parts
+        # Filter the health-api python process; it appears under its script path.
+        if name.endswith("health-api.py"):
+            continue
+        try:
+            results.append({
+                "pid": int(pid_s),
+                "cpu_percent": float(pct_s),
+                "name": name[:40],
+            })
+        except ValueError:
+            continue
+        if len(results) >= n:
+            break
+    return results
+
+
 def _thermal_state_from_temps(cpu_temp: float, gpu_temp: float) -> str:
     """Synthesize a thermal state string from CPU/GPU temperatures.
 
@@ -480,6 +512,11 @@ def get_system_metrics() -> dict:
         status_flags["memory_swap"] = "warn"
     if status_flags:
         response["status_flags"] = status_flags
+
+    # Top CPU processes — consumed by SketchyBar vitals popup (Story 08.3-005)
+    # to avoid forking `ps` inside the click handler. Cached with the rest of
+    # the metrics response (2s TTL).
+    response["processes"] = {"top_cpu": _top_cpu_processes(5)}
 
     _metrics_cache = response
     _metrics_cache_time = now

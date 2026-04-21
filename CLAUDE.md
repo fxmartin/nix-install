@@ -130,6 +130,30 @@ nix-install/
 - `bash -n` - Syntax validation
 - `bats` - Bash test framework (for read-only checks)
 
+### Shell & Script Gotchas
+
+Two foot-guns that have already bitten twice during Epic-08 work. Internalize before writing any new diagnostic snippet or maintenance script.
+
+**1. FX's zsh aliases rewrite common binaries in interactive shells** (`home-manager/modules/shell.nix`):
+
+| Typed | Actually runs |
+|-------|---------------|
+| `grep` | `rg` (ripgrep) — `-E` means `--engine`, **not** "extended regex" |
+| `find` | `fd` — `-type f` parses as `-t ype f` and errors silently |
+| `cat` | `bat` |
+| `ls` | `eza --icons --group-directories-first` |
+
+Escapes: `oldgrep` / `oldfind` / `oldcat` / `oldls`, `command <name>`, or an absolute path like `/usr/bin/find`. Bash subshells (scripts in `scripts/`) are unaffected — aliases are zsh interactive-only. **But any diagnostic one-liner pasted into FX's terminal must survive them.** When in doubt: `type grep` in the target shell.
+
+**2. `set -euo pipefail` scripts must guard pipelines whose commands legitimately exit non-zero.** Under `pipefail`, any non-zero step kills the script even when the "failure" is the expected normal path. Common offenders in this codebase:
+
+- `launchctl print gui/$UID/org.nixos.<label>` → non-zero when service not loaded (normal for scheduled one-shots)
+- `ps -o rss= -p <pid>` → non-zero when pid has exited
+- `grep <pat>` → non-zero on no-match
+- `sed -nE 's/…/p'` → zero exit but empty stdout; downstream arithmetic on `""` then bombs
+
+Rule: end every such pipeline with `|| true`, or wrap in `if … ; then`. For variable assignments from potentially-empty pipelines, default with `${var:-0}` before any arithmetic. Don't ship on `bash -n` alone — smoke-test with both a loaded and unloaded target before claiming done.
+
 ### Key Constraints
 
 1. **No auto-updates**: Every app must have auto-update disabled. `rebuild` is the ONLY update mechanism.

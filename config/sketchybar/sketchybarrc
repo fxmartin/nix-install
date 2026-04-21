@@ -154,8 +154,12 @@ sketchybar --add item clock right \
            --set disk update_freq=60 icon=󰋊 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/disk.sh" \
            --add item memory right \
            --set memory update_freq=5 icon=󰍛 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/memory.sh" \
-           --add item thermal right \
-           --set thermal update_freq=10 icon=󰔏 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/thermal.sh" \
+           --add item power right \
+           --set power icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/power.sh" \
+           --subscribe power system_metrics_update \
+           --add item temp right \
+           --set temp icon=󰔏 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/temp.sh" \
+           --subscribe temp system_metrics_update \
            --add item gpu right \
            --set gpu update_freq=5 icon=󰏔 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/gpu.sh" \
            --add item cpu right \

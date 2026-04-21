@@ -173,6 +173,76 @@ in {
     };
 
     # =========================================================================
+    # DOCKER QUARTERLY DEEP PRUNE (Story 08.1-005)
+    # =========================================================================
+    # Runs quarterly (1st of Jan/Apr/Jul/Oct at 4:30 AM) to deep-clean Docker's
+    # build cache, orphan volumes, and dangling images — catching the long-tail
+    # that monthly `docker system prune` misses. On Power profile, Docker's
+    # container VM dir can reach 13+ GB of reclaimable space.
+    #
+    # Safe by design: skips cleanly if
+    #   - Docker binary not installed (ai-assistant profile)
+    #   - Docker Desktop isn't running
+    #   - Any containers are currently up (to avoid surprising active workloads)
+    #
+    # Defined directly (not via mkScheduledAgent) because the helper only
+    # supports a single schedule entry; this needs four.
+    docker-deep-prune = {
+      serviceConfig = {
+        Label = "org.nixos.docker-deep-prune";
+        ProgramArguments = [
+          "/bin/bash" "-c"
+          ''
+            LOG=/tmp/docker-deep-prune.log
+            echo "=== Docker Deep Prune $(date '+%Y-%m-%d %H:%M:%S') ===" >> "$LOG"
+
+            if ! command -v docker >/dev/null 2>&1; then
+              echo "✓ Docker not installed — skipping" >> "$LOG"
+              exit 0
+            fi
+
+            if ! docker info >/dev/null 2>&1; then
+              echo "✓ Docker Desktop not running — skipping" >> "$LOG"
+              exit 0
+            fi
+
+            running=$(docker ps -q 2>/dev/null | wc -l | tr -d ' ')
+            if [[ "$running" != "0" ]]; then
+              echo "⊘ $running container(s) running — skipping to avoid disruption" >> "$LOG"
+              exit 0
+            fi
+
+            before=$(docker system df --format '{{.Size}}' 2>/dev/null | paste -sd ' ' -)
+            echo "Before: $before" >> "$LOG"
+
+            docker builder prune --all -f 2>&1 | tail -5 >> "$LOG" || true
+            docker volume prune -f 2>&1 | tail -5 >> "$LOG" || true
+            docker system prune -a --volumes -f 2>&1 | tail -5 >> "$LOG" || true
+
+            after=$(docker system df --format '{{.Size}}' 2>/dev/null | paste -sd ' ' -)
+            echo "After:  $after" >> "$LOG"
+            echo "---" >> "$LOG"
+          ''
+        ];
+        # Fire 1st of Jan/Apr/Jul/Oct at 04:30 (quarterly cadence)
+        StartCalendarInterval = [
+          { Month = 1;  Day = 1; Hour = 4; Minute = 30; }
+          { Month = 4;  Day = 1; Hour = 4; Minute = 30; }
+          { Month = 7;  Day = 1; Hour = 4; Minute = 30; }
+          { Month = 10; Day = 1; Hour = 4; Minute = 30; }
+        ];
+        StandardOutPath = "/tmp/docker-deep-prune.log";
+        StandardErrorPath = "/tmp/docker-deep-prune.err";
+        EnvironmentVariables = {
+          PATH = "/opt/homebrew/bin:${agentPath}";
+          HOME = agentHome;
+        };
+        RunAtLoad = false;
+        Umask = 77;
+      };
+    };
+
+    # =========================================================================
     # CLAUDE CODE ORPHAN CLEANUP
     # =========================================================================
     # Runs every 90 minutes to kill orphaned Claude Code MCP / node server

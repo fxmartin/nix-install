@@ -33,4 +33,12 @@
   # Defaults: power "5m", standard "2m", ai-assistant "30s".
   # Uncomment to override — format matches Go duration strings.
   # ollamaKeepAlive = "10m";
+
+  # Ollama LRU pruning (Story 08.1-004) — opt-in
+  # When true, runs ollama-lru.sh --auto monthly (1st @ 05:00) to remove
+  # models idle >threshold days. Profile-expected models are ALWAYS
+  # preserved (see flake.nix ollamaModels.*). Manual control via
+  # `ollama-lru` alias (--analyze / --prune / --auto).
+  # enableOllamaLRU = true;
+  # ollamaLRUThresholdDays = 60;  # default 60
 }

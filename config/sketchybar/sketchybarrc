@@ -82,6 +82,7 @@ sketchybar --add event system_metrics_update
 # exec-on-workspace-change in aerospace.toml, and highlight the active one.
 
 sketchybar --add event aerospace_workspace_change
+sketchybar --add event system_metrics_update
 
 WORKSPACE_LABELS=("Term" "Code" "Edit" "AI" "Web" "Mail" "Office" "Chat" "Misc")
 for i in "${!WORKSPACE_LABELS[@]}"
@@ -206,14 +207,15 @@ sketchybar --add item clock right \
              popup.background.height=32 \
              popup.y_offset=5
 
-##### System metrics aggregator (Story 08.3-001) #####
-# Invisible item that polls /metrics every 2s and fans values out to all
-# subscribed items via the `system_metrics_update` event. Drawing disabled
-# so it takes no bar real estate — just drives the event loop.
+##### System metrics aggregator (Story 08.3-001 + 08.3-007 adaptive) #####
+# Invisible item that polls /metrics every update_freq (2s on AC, 10s on
+# battery) and fans values out via system_metrics_update. Subscribes to
+# power_source_change so it re-tunes its own cadence on plug/unplug.
 sketchybar --add item system right \
            --set system update_freq=2 \
              drawing=off \
-             script="$PLUGIN_DIR/system.sh"
+             script="$PLUGIN_DIR/system.sh" \
+           --subscribe system power_source_change
 
 ##### Force all scripts to run the first time (never do this in a script) #####
 sketchybar --update

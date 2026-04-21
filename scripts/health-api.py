@@ -21,6 +21,7 @@ GENERATION_WARNING_THRESHOLD = 50   # Warn if more than N system generations
 DISK_WARNING_GB = 20                # Warn if less than N GB free
 CACHE_WARNING_KB = 1_048_576        # 1 GB — warn if any single cache exceeds this
 HF_CACHE_WARNING_KB = 10_485_760    # 10 GB — Huggingface cache grows fastest (model blobs)
+SWAP_WARNING_GB = 2                 # Warn when swap usage exceeds this (signals real memory pressure)
 
 # Expected Ollama models per profile (keep in sync with flake.nix ollamaModels)
 OLLAMA_MODELS = {
@@ -470,6 +471,15 @@ def get_system_metrics() -> dict:
             "state": _thermal_state_from_temps(cpu_temp_c, gpu_temp_c),
         },
     }
+
+    # Status flags: derived signals for dashboards / health-check.sh to key on.
+    # Additive field; absent for backwards compatibility when all checks are OK.
+    swap_used = response["memory"]["swap_used_gb"]
+    status_flags: dict[str, str] = {}
+    if swap_used > SWAP_WARNING_GB:
+        status_flags["memory_swap"] = "warn"
+    if status_flags:
+        response["status_flags"] = status_flags
 
     _metrics_cache = response
     _metrics_cache_time = now

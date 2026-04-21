@@ -182,7 +182,15 @@ sketchybar --add item clock right \
            --set ane icon="AI" icon.font="SF Pro:Bold:11.0" icon.color=0xff585b70 script="$PLUGIN_DIR/ane.sh" \
            --subscribe ane system_metrics_update \
            --add item cpu.p right \
-           --set cpu.p icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffcba6f7 script="$PLUGIN_DIR/cpu_cluster.sh" \
+           --set cpu.p icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffcba6f7 \
+             script="$PLUGIN_DIR/cpu_cluster.sh" \
+             click_script="$PLUGIN_DIR/vitals.sh" \
+             popup.background.color=0xff1e1e2e \
+             popup.background.border_width=1 \
+             popup.background.border_color=0xff585b70 \
+             popup.background.corner_radius=12 \
+             popup.background.height=32 \
+             popup.y_offset=5 \
            --subscribe cpu.p system_metrics_update \
            --add item cpu.e right \
            --set cpu.e icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xff94e2d5 script="$PLUGIN_DIR/cpu_cluster.sh" \

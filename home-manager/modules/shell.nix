@@ -104,6 +104,11 @@
       # --auto: non-interactive, preserves profile-expected models
       ollama-lru = "bash ${dotfilesPath}/scripts/ollama-lru.sh";
 
+      # LaunchAgent memory audit (Story 08.2-004)
+      # One-shot: samples RSS 10× over 5 minutes, prints markdown table.
+      # Output suitable for pasting into docs/architecture.md.
+      audit-launchagents = "bash ${dotfilesPath}/scripts/audit-launchagents.sh";
+
       # =============================================================================
       # GENERAL SHELL ALIASES (Story 04.5-002)
       # =============================================================================

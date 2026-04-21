@@ -357,6 +357,53 @@ in {
     };
 
     # =========================================================================
+    # OLLAMA MEMORY-PRESSURE GUARD (Story 08.2-002)
+    # =========================================================================
+    # Polls every 60s and unloads all Ollama models when swap usage crosses
+    # the configured threshold. Restores RAM to other workloads without the
+    # user having to notice + intervene.
+    #
+    # Complements ollama-serve tuning (Story 08.2-001) which shortens
+    # keep-alive by default — this catches the case where a user keeps
+    # requests coming and the keep-alive timer never expires.
+    #
+    # Uses StartInterval (not StartCalendarInterval) for periodic sampling.
+    # Defined directly because the mkScheduledAgent helper doesn't cover
+    # this shape.
+    #
+    # Tunable via env on the LaunchAgent (rebuild after changes):
+    #   OLLAMA_UNLOAD_ON_PRESSURE  off|warn|critical   (default warn)
+    #   SWAP_WARN_GB               default 2
+    #   SWAP_CRITICAL_GB           default 5
+    ollama-pressure-guard = {
+      serviceConfig = {
+        Label = "org.nixos.ollama-pressure-guard";
+        ProgramArguments = [
+          "/bin/bash" "-c"
+          ''
+            SCRIPT="${scriptsDir}/ollama-pressure-guard.sh"
+            if [[ -x "$SCRIPT" ]]; then
+              "$SCRIPT"
+            else
+              echo "ollama-pressure-guard script not found: $SCRIPT" >> /tmp/ollama-pressure-guard.err
+              exit 1
+            fi
+          ''
+        ];
+        StartInterval = 60;  # Every minute
+        StandardOutPath = "/tmp/ollama-pressure-guard.log";
+        StandardErrorPath = "/tmp/ollama-pressure-guard.err";
+        EnvironmentVariables = {
+          PATH = "/opt/homebrew/bin:${agentPath}";
+          HOME = agentHome;
+          OLLAMA_UNLOAD_ON_PRESSURE = userConfig.ollamaUnloadOnPressure or "warn";
+        };
+        RunAtLoad = false;
+        Umask = 77;
+      };
+    };
+
+    # =========================================================================
     # OLLAMA SERVER (Network-accessible via Tailscale)
     # =========================================================================
     # Starts Ollama server at login bound to all interfaces (0.0.0.0)

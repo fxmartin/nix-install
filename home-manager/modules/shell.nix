@@ -379,6 +379,67 @@
       }
 
       # =============================================================================
+      # OLLAMA MODEL RESIDENCY HELPERS (Story 08.2-003)
+      # =============================================================================
+      # Explicit control over Ollama model in-RAM residency, complementing the
+      # automatic OLLAMA_KEEP_ALIVE behavior tuned in darwin/maintenance.nix.
+
+      # Pin a model in RAM until evicted (keep_alive=-1).
+      # Usage: ollama-warm <model>
+      # Example: ollama-warm gemma4:26b
+      ollama-warm() {
+        local model="''${1:-}"
+        if [[ -z "$model" ]]; then
+          echo "usage: ollama-warm <model>" >&2
+          return 2
+        fi
+        if ! curl -sf -o /dev/null http://localhost:11434/api/version; then
+          echo "✗ Ollama daemon not responding on localhost:11434" >&2
+          return 1
+        fi
+        if curl -sf -o /dev/null http://localhost:11434/api/generate \
+             -d "{\"model\":\"$model\",\"prompt\":\"\",\"keep_alive\":-1}"; then
+          echo "✓ Warmed: $model (keep_alive=-1 until evicted)"
+        else
+          echo "✗ Failed to warm $model — is the tag valid? 'ollama list'" >&2
+          return 1
+        fi
+      }
+
+      # Evict one model, or all loaded models if no arg given.
+      # Usage: ollama-evict [model]
+      ollama-evict() {
+        local target="''${1:-}"
+        if ! curl -sf -o /dev/null http://localhost:11434/api/version; then
+          echo "✗ Ollama daemon not responding on localhost:11434" >&2
+          return 1
+        fi
+        if [[ -n "$target" ]]; then
+          if curl -sf -o /dev/null http://localhost:11434/api/generate \
+               -d "{\"model\":\"$target\",\"keep_alive\":0}"; then
+            echo "✓ Evicted: $target"
+          else
+            echo "✗ Failed to evict $target" >&2
+            return 1
+          fi
+        else
+          # No arg: evict every loaded model
+          local loaded
+          loaded=$(ollama ps 2>/dev/null | awk 'NR>1 {print $1}')
+          if [[ -z "$loaded" ]]; then
+            echo "No models currently loaded."
+            return 0
+          fi
+          while IFS= read -r m; do
+            curl -sf -o /dev/null http://localhost:11434/api/generate \
+              -d "{\"model\":\"$m\",\"keep_alive\":0}" \
+              && echo "✓ Evicted: $m" \
+              || echo "✗ Failed to evict: $m" >&2
+          done <<< "$loaded"
+        fi
+      }
+
+      # =============================================================================
       # ZSH OPTIONS (Story 04.1-003)
       # =============================================================================
 

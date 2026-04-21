@@ -92,6 +92,28 @@ Activate apps requiring sign-in or license keys. See [Licensed Apps Guide](./lic
   ollama run gpt-oss:20b "Hello, how are you?"
   ```
 
+#### Managing Ollama model residency
+
+Two shell helpers provide explicit control over whether a model stays
+loaded in RAM, complementing the profile-tuned `OLLAMA_KEEP_ALIVE`
+default (see `darwin/maintenance.nix`):
+
+- `ollama-warm <model>` — pins the model in RAM (`keep_alive=-1`) until
+  evicted. Useful before a session of heavy use so the first request
+  doesn't pay the cold-load penalty.
+- `ollama-evict [model]` — unloads one model, or all loaded models if
+  no argument is given. Inspect loaded models first with `ollama ps`.
+
+```bash
+ollama-warm gemma4:26b     # Pin before a coding session
+ollama ps                  # See what's loaded
+ollama-evict gemma4:26b    # Free the RAM
+ollama-evict               # Unload everything currently loaded
+```
+
+Both commands refuse if the Ollama daemon isn't running on
+`localhost:11434`.
+
 ### Raycast Configuration
 
 - [ ] **Set Raycast hotkey**

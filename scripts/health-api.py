@@ -23,7 +23,7 @@ CACHE_WARNING_KB = 1_048_576        # 1 GB — warn if any single cache exceeds 
 
 # Expected Ollama models per profile (keep in sync with flake.nix ollamaModels)
 OLLAMA_MODELS = {
-    "power": ["ministral-3:14b", "phi4:14b", "gemma4:e4b", "nomic-embed-text"],
+    "power": ["gemma4:e4b", "gemma4:26b", "nomic-embed-text"],
     "standard": ["ministral-3:14b", "nomic-embed-text"],
     "ai-assistant": ["nomic-embed-text"],
 }

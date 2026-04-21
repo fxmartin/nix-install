@@ -26,7 +26,7 @@ DISK_WARNING_GB=20               # Warn if less than N GB free
 CACHE_WARNING_KB=1048576         # 1 GB — warn if any single cache exceeds this
 
 # Expected Ollama models per profile (keep in sync with flake.nix ollamaModels)
-# Power: ministral-3:14b, phi4:14b, gemma4:e4b, nomic-embed-text
+# Power: gemma4:e4b, gemma4:26b, nomic-embed-text
 # Standard: ministral-3:14b, nomic-embed-text
 # AI-Assistant: nomic-embed-text
 
@@ -430,7 +430,7 @@ if command -v ollama &> /dev/null; then
 
         case "${PROFILE}" in
             power)
-                EXPECTED_MODELS=("ministral-3:14b" "phi4:14b" "gemma4:e4b" "nomic-embed-text")
+                EXPECTED_MODELS=("gemma4:e4b" "gemma4:26b" "nomic-embed-text")
                 ;;
             ai-assistant)
                 EXPECTED_MODELS=("nomic-embed-text")

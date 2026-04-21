@@ -157,7 +157,7 @@ bootstrap-dist.sh (standalone, built from lib/*.sh)
 |---------|-------------|----------|-------|
 | Target | Older MacBook (AI) | MacBook Air | MacBook Pro M3 Max |
 | Disk usage | ~20GB | ~35GB | ~120GB |
-| Ollama models | 1 (nomic-embed-text) | 2 (+ministral-3) | 4 (+phi4, gemma4) |
+| Ollama models | 1 (nomic-embed-text) | 2 (+ministral-3) | 3 (gemma4:e4b, gemma4:26b) |
 | Docker | No | Yes | Yes |
 | LSPs | No | Yes | Yes |
 | Office/Comms | No | Yes | Yes |

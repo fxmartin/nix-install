@@ -102,9 +102,8 @@
         { name = "nomic-embed-text"; desc = "Text embeddings model"; size = "~274MB"; }
       ];
       power = [
-        { name = "ministral-3:14b"; desc = "Mistral multilingual reasoning model"; size = "~9GB"; }
-        { name = "phi4:14b"; desc = "Microsoft Phi-4 reasoning model"; size = "~9GB"; }
         { name = "gemma4:e4b"; desc = "Google Gemma 4 compact 4B coding/chat model"; size = "~3GB"; }
+        { name = "gemma4:26b"; desc = "Google Gemma 4 large 26B reasoning model"; size = "~16GB"; }
         { name = "nomic-embed-text"; desc = "Text embeddings model"; size = "~274MB"; }
       ];
       ai-assistant = [

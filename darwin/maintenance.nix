@@ -6,6 +6,7 @@
   pkgs,
   lib,
   userConfig,
+  profileName,
   ...
 }: let
   # Scripts are installed to ~/.local/bin to avoid macOS TCC (Transparency, Consent, Control)
@@ -17,6 +18,22 @@
   # NOTE: Only one * per origin pattern (gin-contrib/cors limitation in Ollama 0.15+)
   ollamaHost = "0.0.0.0";
   ollamaOrigins = "http://localhost:*,http://127.0.0.1:*,http://100.*";
+
+  # Ollama memory-residency tuning (Story 08.2-001).
+  # MAX_LOADED_MODELS=1: second model evicts the first (prevents 20+ GB RAM pin)
+  # NUM_PARALLEL=1: one in-flight request — avoids speculative memory allocation
+  # KEEP_ALIVE: profile-scoped idle timeout before model unloads
+  #   - power: 5m (chat sessions, 26B model worth keeping resident)
+  #   - standard: 2m (mid-size models, shorter sessions)
+  #   - ai-assistant: 30s (embeddings-only; unload aggressively)
+  # User can override KEEP_ALIVE via userConfig.ollamaKeepAlive attr.
+  ollamaMaxLoadedModels = "1";
+  ollamaNumParallel = "1";
+  ollamaKeepAlive = userConfig.ollamaKeepAlive or (
+    if profileName == "power" then "5m"
+    else if profileName == "ai-assistant" then "30s"
+    else "2m"
+  );
 
   # Standard PATH for scheduled LaunchAgents (includes per-user Nix profile)
   agentPath = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
@@ -257,6 +274,9 @@ in {
       env = {
         OLLAMA_HOST = ollamaHost;
         OLLAMA_ORIGINS = ollamaOrigins;
+        OLLAMA_MAX_LOADED_MODELS = ollamaMaxLoadedModels;
+        OLLAMA_NUM_PARALLEL = ollamaNumParallel;
+        OLLAMA_KEEP_ALIVE = ollamaKeepAlive;
         PATH = "/opt/homebrew/bin:/run/current-system/sw/bin:/usr/bin:/bin";
       };
       command = ''
@@ -272,7 +292,10 @@ in {
 
   # Global environment variables for Ollama
   # Ensures any manually started Ollama server (e.g., `ollama serve` from terminal)
-  # also binds to all interfaces for Tailscale accessibility
+  # also picks up the tuned memory-residency behavior.
   environment.variables.OLLAMA_HOST = ollamaHost;
   environment.variables.OLLAMA_ORIGINS = ollamaOrigins;
+  environment.variables.OLLAMA_MAX_LOADED_MODELS = ollamaMaxLoadedModels;
+  environment.variables.OLLAMA_NUM_PARALLEL = ollamaNumParallel;
+  environment.variables.OLLAMA_KEEP_ALIVE = ollamaKeepAlive;
 }

@@ -270,15 +270,24 @@ EOF
 
 # Main function
 main() {
-    # Extract --force flag from anywhere in argv, before positional parsing.
+    # Extract --force and --help/-h flags from anywhere in argv, before
+    # positional parsing. This lets "rebuild --help", "rebuild power --force",
+    # etc. work intuitively rather than treating the flag as a profile name.
     # FORCE_REBUILD is consumed by check_free_disk().
     local filtered=()
     for arg in "$@"; do
-        if [[ "$arg" == "--force" ]]; then
-            export FORCE_REBUILD=1
-        else
-            filtered+=("$arg")
-        fi
+        case "$arg" in
+            --force)
+                export FORCE_REBUILD=1
+                ;;
+            -h|--help)
+                usage
+                exit 0
+                ;;
+            *)
+                filtered+=("$arg")
+                ;;
+        esac
     done
     set -- "${filtered[@]}"
 

@@ -236,6 +236,11 @@
       # Automated garbage collection and store optimization
       ./darwin/maintenance.nix
 
+      # System-level Nix GC LaunchDaemon (Epic-08 Story 08.1-001)
+      # Root-owned weekly prune of system profile generations — the user-level
+      # nix-gc agent above cannot touch /nix/var/nix/profiles/system-*-link
+      ./darwin/maintenance-system.nix
+
       # Health API Server (HTTP JSON endpoint on port 7780)
       # Accessible via Tailscale for remote health monitoring
       ./darwin/health-api.nix

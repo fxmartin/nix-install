@@ -7,6 +7,11 @@ set -euo pipefail
 # Script version
 readonly UPDATE_SYSTEM_VERSION="1.0.0"
 
+# Minimum free disk required for rebuild/build (GB).
+# Guards against mid-rebuild disk-fill. Bypass with --force or $CI.
+# Uses Finder-equivalent metric (volumeAvailableCapacityForImportantUsage).
+readonly DISK_REBUILD_MIN_GB=10
+
 # Colors for output
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
@@ -33,6 +38,47 @@ log_warning() {
 
 log_error() {
     echo -e "${RED}✗${NC} $*" >&2
+}
+
+# Check that enough free disk is available before starting a rebuild.
+# Honors --force (via FORCE_REBUILD=1) and CI environments.
+check_free_disk() {
+    if [[ "${FORCE_REBUILD:-0}" == "1" ]] || [[ -n "${CI:-}" ]]; then
+        return 0
+    fi
+
+    local free_gb=""
+    # Prefer NSURL volumeAvailableCapacityForImportantUsage (matches Finder — includes purgeable)
+    free_gb=$(/usr/bin/swift -e '
+import Foundation
+let url = URL(fileURLWithPath: "/")
+let v = try url.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+if let a = v.volumeAvailableCapacityForImportantUsage { print(a / 1073741824) }
+' 2>/dev/null || true)
+
+    # Fallback to df if swift is unavailable (e.g. stripped-down environments)
+    if [[ -z "$free_gb" ]]; then
+        free_gb=$(df -k / 2>/dev/null | tail -1 | awk '{print int($4/1024/1024)}')
+    fi
+
+    if [[ -z "$free_gb" ]]; then
+        log_warning "Could not determine free disk space — skipping guard"
+        return 0
+    fi
+
+    if [[ "$free_gb" -lt "$DISK_REBUILD_MIN_GB" ]]; then
+        log_error "Only ${free_gb}GB free — ${DISK_REBUILD_MIN_GB}GB required for rebuild"
+        echo ""
+        echo "Free up space with:"
+        echo "  gc            # Remove old user generations"
+        echo "  gc-system     # Remove old system generations (sudo)"
+        echo "  disk-cleanup  # Clean dev caches (uv, npm, Homebrew, Docker)"
+        echo ""
+        echo "Or bypass this check:"
+        echo "  rebuild --force"
+        return 1
+    fi
+    return 0
 }
 
 # Check if user-config.nix exists and provide helpful error if not
@@ -144,6 +190,7 @@ rebuild_system() {
 
     # Check user-config.nix exists before attempting rebuild
     check_user_config || return 1
+    check_free_disk || return 1
 
     if [[ -z "$profile" ]]; then
         profile=$(detect_profile) || return 1
@@ -170,6 +217,7 @@ dry_run_system() {
     local profile="${1:-}"
 
     check_user_config || return 1
+    check_free_disk || return 1
 
     if [[ -z "$profile" ]]; then
         profile=$(detect_profile) || return 1
@@ -191,13 +239,17 @@ dry_run_system() {
 # Show usage
 usage() {
     cat <<EOF
-Usage: $(basename "$0") <command> [profile]
+Usage: $(basename "$0") <command> [profile] [--force]
 
 Commands:
     update              Update flake.lock only (no rebuild)
     rebuild [profile]   Rebuild system without updating flake.lock
     dry [profile]       Build without switching (preview changes)
     full [profile]      Update flake.lock AND rebuild system
+
+Flags:
+    --force             Bypass the ${DISK_REBUILD_MIN_GB}GB free-disk guard for rebuild/dry/full
+                        (also skipped automatically when \$CI is set)
 
 Profiles:
     standard           MacBook Air profile (~35GB)
@@ -218,6 +270,18 @@ EOF
 
 # Main function
 main() {
+    # Extract --force flag from anywhere in argv, before positional parsing.
+    # FORCE_REBUILD is consumed by check_free_disk().
+    local filtered=()
+    for arg in "$@"; do
+        if [[ "$arg" == "--force" ]]; then
+            export FORCE_REBUILD=1
+        else
+            filtered+=("$arg")
+        fi
+    done
+    set -- "${filtered[@]}"
+
     local command="${1:-}"
     local profile="${2:-}"
 

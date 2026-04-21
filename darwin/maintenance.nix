@@ -260,6 +260,37 @@ in {
     };
 
     # =========================================================================
+    # OLLAMA LRU PRUNE (Story 08.1-004) — OPT-IN
+    # =========================================================================
+    # Monthly non-interactive prune of stale Ollama models (>60 days idle).
+    # Profile-expected models (from flake.nix ollamaModels.*) are ALWAYS
+    # preserved; only extras get removed.
+    #
+    # Opt-in to avoid surprising users who pull a model for a one-off task
+    # and don't want it auto-removed. Enable with:
+    #     # user-config.nix
+    #     enableOllamaLRU = true;
+    #     ollamaLRUThresholdDays = 60;  # optional override
+    ollama-lru =
+      lib.mkIf (userConfig.enableOllamaLRU or false)
+        (mkScheduledAgent {
+          name = "ollama-lru";
+          schedule = { Day = 1; Hour = 5; Minute = 0; };  # 1st of month, 05:00
+          env = {
+            PATH = "/opt/homebrew/bin:${agentPath}";
+          };
+          command = ''
+            SCRIPT="${scriptsDir}/ollama-lru.sh"
+            if [[ -x "$SCRIPT" ]]; then
+              "$SCRIPT" --auto --threshold-days=${toString (userConfig.ollamaLRUThresholdDays or 60)}
+            else
+              echo "ollama-lru script not found: $SCRIPT" >> /tmp/ollama-lru.err
+              exit 1
+            fi
+          '';
+        });
+
+    # =========================================================================
     # CLAUDE CODE ORPHAN CLEANUP
     # =========================================================================
     # Runs every 90 minutes to kill orphaned Claude Code MCP / node server

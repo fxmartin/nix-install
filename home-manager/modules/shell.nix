@@ -98,6 +98,12 @@
       # Checks Homebrew, nixpkgs, nix-darwin, Ollama for updates and creates GitHub issues
       release-monitor = "bash ${dotfilesPath}/scripts/release-monitor.sh";
 
+      # Ollama LRU model pruning (Story 08.1-004)
+      # --analyze (default): report size + days-since-use for each model
+      # --prune: interactive y/N per stale model
+      # --auto: non-interactive, preserves profile-expected models
+      ollama-lru = "bash ${dotfilesPath}/scripts/ollama-lru.sh";
+
       # =============================================================================
       # GENERAL SHELL ALIASES (Story 04.5-002)
       # =============================================================================

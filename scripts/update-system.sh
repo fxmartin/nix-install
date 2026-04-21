@@ -116,12 +116,49 @@ update_flake() {
         log_info "Changes to flake.lock:"
         git diff flake.lock | /usr/bin/grep -E '^\+|^\-' | /usr/bin/grep -v '^\+\+\+|^\-\-\-' || true
         echo ""
+        commit_and_push_flake_lock
+    fi
+}
+
+# Prompt FX to commit + push flake.lock. Non-interactive shells fall back to
+# printing the manual command (preserves prior behavior for pipes/CI).
+commit_and_push_flake_lock() {
+    local reply
+
+    if [[ ! -t 0 ]]; then
         log_warning "flake.lock has uncommitted changes"
         echo ""
         echo "To commit and push:"
         echo "  git add flake.lock && git commit -m 'chore: update flake.lock' && git push"
         echo ""
+        return 0
     fi
+
+    read -r -p "$(echo -e "${YELLOW}?${NC} Commit and push flake.lock? [y/N] ")" reply || reply=""
+    echo ""
+
+    case "$reply" in
+        [yY]|[yY][eE][sS])
+            if ! git add flake.lock; then
+                log_error "Failed to stage flake.lock"
+                return 1
+            fi
+            if ! git commit -m "chore: update flake.lock"; then
+                log_error "Failed to commit flake.lock (pre-commit hook?)"
+                return 1
+            fi
+            log_success "Committed flake.lock"
+            if ! git push; then
+                log_warning "Push failed — commit is local; push manually when ready"
+                return 0
+            fi
+            log_success "Pushed to remote"
+            ;;
+        *)
+            log_info "Skipped commit. To do it later:"
+            echo "  git add flake.lock && git commit -m 'chore: update flake.lock' && git push"
+            ;;
+    esac
 }
 
 # Update MCP server paths in Claude Code config files

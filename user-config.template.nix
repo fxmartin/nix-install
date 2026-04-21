@@ -28,4 +28,9 @@
   # Any path containing a memory/ subdir is preserved automatically.
   # List project dir names here to preserve them even without memory/.
   # claudeProjectsKeep = [ "important-project" "long-running-research" ];
+
+  # Ollama keep-alive override (Story 08.2-001)
+  # Defaults: power "5m", standard "2m", ai-assistant "30s".
+  # Uncomment to override — format matches Go duration strings.
+  # ollamaKeepAlive = "10m";
 }

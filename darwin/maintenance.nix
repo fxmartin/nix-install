@@ -210,6 +210,35 @@ in {
     };
 
     # =========================================================================
+    # CLAUDE PROJECT PRUNING (Story 08.1-006)
+    # =========================================================================
+    # Runs weekly on Saturday at 5:00 AM to remove stale project transcripts
+    # from ~/.claude/projects/ that have been untouched for
+    # CLAUDE_RETENTION_DAYS days (default 90). Always preserves any path
+    # containing a memory/ subdir (auto-memory persists across conversations).
+    #
+    # User can opt-out specific projects by setting
+    # userConfig.claudeProjectsKeep = [ "project-name-1" "project-name-2" ];
+    # (colon-joined into CLAUDE_PROJECTS_KEEP env var).
+    claude-project-prune = mkScheduledAgent {
+      name = "claude-project-prune";
+      schedule = { Weekday = 6; Hour = 5; Minute = 0; };
+      env = {
+        CLAUDE_PROJECTS_KEEP = builtins.concatStringsSep ":"
+          (userConfig.claudeProjectsKeep or []);
+      };
+      command = ''
+        SCRIPT="${scriptsDir}/claude-cleanup.sh"
+        if [[ -x "$SCRIPT" ]]; then
+          "$SCRIPT" --prune-old
+        else
+          echo "Claude cleanup script not found: $SCRIPT" >> /tmp/claude-project-prune.err
+          exit 1
+        fi
+      '';
+    };
+
+    # =========================================================================
     # OLLAMA SERVER (Network-accessible via Tailscale)
     # =========================================================================
     # Starts Ollama server at login bound to all interfaces (0.0.0.0)

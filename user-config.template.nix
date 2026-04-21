@@ -21,4 +21,11 @@
   directories = {
     dotfiles = "@DOTFILES_PATH@";  # Nix configuration repository location
   };
+
+  # Claude Code project retention
+  # Projects under ~/.claude/projects/ untouched for 90 days are pruned
+  # weekly by the claude-project-prune LaunchAgent (Story 08.1-006).
+  # Any path containing a memory/ subdir is preserved automatically.
+  # List project dir names here to preserve them even without memory/.
+  # claudeProjectsKeep = [ "important-project" "long-running-research" ];
 }

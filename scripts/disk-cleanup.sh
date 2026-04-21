@@ -224,9 +224,11 @@ cleanup_nodegyp() {
 
 cleanup_huggingface() {
     # Prunes model blobs and dataset snapshots older than the retention window.
-    # HF re-downloads on next use, so this only costs bandwidth, not data.
-    # APFS often defaults to noatime — atime may equal mtime; we accept the
-    # approximation. Override windows with HF_RETENTION_DAYS / HF_DATASETS_RETENTION_DAYS.
+    # HF blobs are content-addressed and immutable, so mtime = download time —
+    # a reliable "age" signal even on macOS where atime gets bumped by any
+    # Python process importing transformers. Re-download on next use is pure
+    # bandwidth, no data loss.
+    # Override windows with HF_RETENTION_DAYS / HF_DATASETS_RETENTION_DAYS.
     print_header "Cleaning Huggingface Cache"
     local cache_dir="${HOME}/.cache/huggingface"
     if [[ ! -d "${cache_dir}" ]]; then
@@ -240,8 +242,8 @@ cleanup_huggingface() {
 
     local blobs_count=0
     if [[ -d "${cache_dir}/hub" ]]; then
-        blobs_count=$(find "${cache_dir}/hub" -path "*/blobs/*" -type f -atime "+${retention}" 2>/dev/null | wc -l | tr -d ' ')
-        find "${cache_dir}/hub" -path "*/blobs/*" -type f -atime "+${retention}" -delete 2>/dev/null || true
+        blobs_count=$(find "${cache_dir}/hub" -path "*/blobs/*" -type f -mtime "+${retention}" 2>/dev/null | wc -l | tr -d ' ')
+        find "${cache_dir}/hub" -path "*/blobs/*" -type f -mtime "+${retention}" -delete 2>/dev/null || true
     fi
 
     local datasets_count=0

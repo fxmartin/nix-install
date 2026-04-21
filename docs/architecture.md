@@ -151,6 +151,21 @@ bootstrap-dist.sh (standalone, built from lib/*.sh)
                     └── Dev caches (uv, npm, Homebrew)
 ```
 
+## LaunchAgent Memory Profile
+
+_Snapshot captured 2026-04-21 on Power profile (MacBook Pro M3 Max). Median RSS over 10 samples at 30s intervals. Flag threshold: 100 MB. Regenerate with `audit-launchagents`._
+
+| Agent | Scope | Running samples | Median RSS (MB) | Notes |
+|-------|-------|-----------------|-----------------|-------|
+| `ollama-serve` | user | 10/10 | 31 | Always-on LLM server; stays light because models load into GPU/Metal, not resident RSS |
+| `health-api` | user | 10/10 | 14 | Python stdlib `http.server`, threaded handler — no framework overhead |
+| `beszel-agent` | user | 10/10 | 6 | Go binary, shipped upstream; negligible |
+| `nix-gc`, `nix-optimize`, `weekly-digest`, `disk-cleanup`, `release-monitor`, `claude-code-cleanup`, `claude-project-prune`, `docker-deep-prune`, `ollama-lru`, `ollama-pressure-guard`, `rsync-backup-*`, `icloud-sync`, `nix-gc-system` | user/system | 0/10 | — | Scheduled one-shots — correctly absent between fires |
+
+**Total always-on footprint: ~51 MB.** No agent exceeds the 100 MB warn threshold. Room for Wave 4's planned additions (SketchyBar `system.sh` aggregator) without pressure concerns.
+
+To re-audit at any time: `audit-launchagents` (5 min). Tune via `SAMPLES=N INTERVAL_SEC=N WARN_MB=N audit-launchagents`. System daemons (`nix-gc-system`) need `sudo` pre-authorization to show their RSS; without it they report "not running".
+
 ## Profile Comparison
 
 | Feature | AI-Assistant | Standard | Power |

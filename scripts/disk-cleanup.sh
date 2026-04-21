@@ -124,6 +124,19 @@ analyze_caches() {
     total_kb=$((total_kb + hf_kb))
     print_status "info" "Huggingface cache: ${hf_size}"
 
+    # Browser caches (Arc/Brave/Chrome) — roots, not cleanable subdirs
+    local browser_kb_total=0
+    for path in ~/Library/Caches/Arc \
+                ~/Library/Caches/company.thebrowser.Browser \
+                ~/Library/Caches/BraveSoftware/Brave-Browser \
+                ~/Library/Caches/Google/Chrome; do
+        local b_size=$(get_size "${path}")
+        local b_kb=$(get_size_bytes "${path}")
+        browser_kb_total=$((browser_kb_total + b_kb))
+        [[ "${b_size}" != "0B" ]] && print_status "info" "Browser cache ($(basename "${path}")): ${b_size}"
+    done
+    total_kb=$((total_kb + browser_kb_total))
+
     # Docker
     if command -v docker &>/dev/null && docker info &>/dev/null 2>&1; then
         local docker_size=$(docker system df --format "{{.Size}}" 2>/dev/null | head -1 || echo "unknown")
@@ -206,6 +219,64 @@ cleanup_nodegyp() {
         print_status "cleaned" "node-gyp cache cleaned (was: ${before})"
     else
         print_status "skip" "node-gyp cache not present"
+    fi
+}
+
+cleanup_browsers() {
+    # Cleans browser cache subdirs (Cache/, Code Cache/, GPUCache/) but never
+    # touches profile data, bookmarks, cookies, or sessions.
+    # Skips any browser whose process is currently running to avoid DB corruption.
+    #
+    # Arc has two cache paths because of a historical path migration; both are
+    # cleaned when Arc is not running.
+    print_header "Cleaning Browser Caches"
+
+    # Format: "<label>|<process-name>|<cache-root>"
+    local browsers=(
+        "Arc|Arc|${HOME}/Library/Caches/Arc"
+        "Arc (legacy path)|Arc|${HOME}/Library/Caches/company.thebrowser.Browser"
+        "Brave|Brave Browser|${HOME}/Library/Caches/BraveSoftware/Brave-Browser"
+        "Chrome|Google Chrome|${HOME}/Library/Caches/Google/Chrome"
+    )
+
+    # Cache-only subdirs that are safe to clear.
+    # Never: profile data, cookies, sessions, bookmarks, history, passwords.
+    local subdirs=("Cache" "Code Cache" "GPUCache" "ShaderCache")
+
+    local cleaned_any=0
+    for entry in "${browsers[@]}"; do
+        IFS='|' read -r label procname root <<< "${entry}"
+
+        if [[ ! -d "${root}" ]]; then
+            continue  # Silently skip absent browsers (profile may vary)
+        fi
+
+        local before=$(get_size "${root}")
+
+        if pgrep -x "${procname}" >/dev/null 2>&1; then
+            print_status "skip" "${label}: running (${before}) — skipped to avoid DB corruption"
+            continue
+        fi
+
+        # Walk every profile under the cache root and remove only known-safe subdirs
+        local removed=0
+        for sub in "${subdirs[@]}"; do
+            while IFS= read -r -d '' target; do
+                rm -rf "${target}" 2>/dev/null && removed=$((removed + 1))
+            done < <(find "${root}" -type d -name "${sub}" -print0 2>/dev/null)
+        done
+
+        local after=$(get_size "${root}")
+        if [[ ${removed} -gt 0 ]]; then
+            print_status "cleaned" "${label}: ${removed} cache dirs (was: ${before}, now: ${after})"
+            cleaned_any=1
+        else
+            print_status "info" "${label}: no safe cache subdirs found (${before})"
+        fi
+    done
+
+    if [[ ${cleaned_any} -eq 0 ]]; then
+        print_status "info" "No browser caches cleaned (all running or empty)"
     fi
 }
 
@@ -309,6 +380,7 @@ main() {
         cleanup_npm
         cleanup_pip
         cleanup_nodegyp
+        cleanup_browsers
         cleanup_containers
 
         # Final disk space

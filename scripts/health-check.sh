@@ -24,6 +24,7 @@ HEALTH_CHECK_VERSION="1.2.0"
 GENERATION_WARNING_THRESHOLD=50  # Warn if more than N system generations
 DISK_WARNING_GB=20               # Warn if less than N GB free
 CACHE_WARNING_KB=1048576         # 1 GB — warn if any single cache exceeds this
+HF_CACHE_WARNING_KB=10485760     # 10 GB — Huggingface cache grows fastest (model blobs)
 
 # Expected Ollama models per profile (keep in sync with flake.nix ollamaModels)
 # Power: gemma4:e4b, gemma4:26b, nomic-embed-text
@@ -246,8 +247,16 @@ else
     print_status "info" "npm cache: ${NPM_CACHE_SIZE}"
 fi
 
-# Total cache estimate
-TOTAL_CACHE_KB=$((UV_CACHE_KB + BREW_CACHE_KB + NPM_CACHE_KB))
+HF_CACHE_KB=$(get_cache_kb ~/.cache/huggingface)
+HF_CACHE_SIZE=$(du -sh ~/.cache/huggingface 2>/dev/null | cut -f1 || echo "0B")
+if [[ ${HF_CACHE_KB} -gt ${HF_CACHE_WARNING_KB} ]]; then
+    print_status "warn" "Huggingface cache: ${HF_CACHE_SIZE} (large! → disk-cleanup)"
+else
+    print_status "info" "Huggingface cache: ${HF_CACHE_SIZE}"
+fi
+
+# Total cache estimate (includes HF since it often dominates)
+TOTAL_CACHE_KB=$((UV_CACHE_KB + BREW_CACHE_KB + NPM_CACHE_KB + HF_CACHE_KB))
 TOTAL_CACHE_GB=$((TOTAL_CACHE_KB / 1024 / 1024))
 if [[ ${TOTAL_CACHE_GB} -gt 5 ]]; then
     print_status "warn" "Total dev caches: ~${TOTAL_CACHE_GB}GB → Run: disk-cleanup"

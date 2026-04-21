@@ -41,10 +41,14 @@ SYSTEM_DAEMONS=(
 )
 
 # Resolve the pid of a user-level service, or empty string if not running.
+# `|| true` — launchctl print exits non-zero for unloaded services, which
+# would kill the script under `set -euo pipefail`. Non-running is a normal
+# outcome we want to report as empty, not as an error.
 user_agent_pid() {
     local label="$1"
     launchctl print "gui/$UID/org.nixos.${label}" 2>/dev/null \
-        | awk '/^[[:space:]]*pid = / {print $3; exit}'
+        | awk '/^[[:space:]]*pid = / {print $3; exit}' \
+        || true
 }
 
 # Resolve the pid of a system-level daemon.
@@ -56,10 +60,12 @@ system_daemon_pid() {
 }
 
 # Return RSS (in KB) for a pid, or empty if the process has exited.
+# `|| true` — ps exits non-zero when the pid no longer exists (common
+# for scheduled one-shots that fire between samples).
 rss_kb() {
     local pid="$1"
     [[ -z "$pid" ]] && return 0
-    ps -o rss= -p "$pid" 2>/dev/null | awk '{print $1}'
+    ps -o rss= -p "$pid" 2>/dev/null | awk '{print $1}' || true
 }
 
 # Compute median of stdin (newline-separated integers). Empty input → empty output.

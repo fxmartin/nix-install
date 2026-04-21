@@ -70,6 +70,12 @@ sketchybar --set apple \
   popup.background.shadow.drawing=on \
   popup.y_offset=5
 
+##### Custom events #####
+# Centralized /metrics aggregator — Story 08.3-001.
+# All CPU/GPU/memory/thermal/power items subscribe to this event and update
+# from parsed env vars rather than spawning their own silicon probes.
+sketchybar --add event system_metrics_update
+
 ##### Adding AeroSpace Workspace Indicators #####
 # AeroSpace manages its own workspaces on top of a single macOS Space.
 # We subscribe to the custom `aerospace_workspace_change` event, triggered by
@@ -170,6 +176,15 @@ sketchybar --add item clock right \
              popup.background.corner_radius=12 \
              popup.background.height=32 \
              popup.y_offset=5
+
+##### System metrics aggregator (Story 08.3-001) #####
+# Invisible item that polls /metrics every 2s and fans values out to all
+# subscribed items via the `system_metrics_update` event. Drawing disabled
+# so it takes no bar real estate — just drives the event loop.
+sketchybar --add item system right \
+           --set system update_freq=2 \
+             drawing=off \
+             script="$PLUGIN_DIR/system.sh"
 
 ##### Force all scripts to run the first time (never do this in a script) #####
 sketchybar --update

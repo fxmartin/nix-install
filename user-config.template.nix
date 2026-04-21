@@ -41,4 +41,10 @@
   # `ollama-lru` alias (--analyze / --prune / --auto).
   # enableOllamaLRU = true;
   # ollamaLRUThresholdDays = 60;  # default 60
+
+  # Ollama memory-pressure guard (Story 08.2-002)
+  # Default: "warn" — unload loaded models when swap usage > 2 GB.
+  # "critical" — only unload when swap > 5 GB (less aggressive).
+  # "off" — disable the guard entirely.
+  # ollamaUnloadOnPressure = "warn";
 }

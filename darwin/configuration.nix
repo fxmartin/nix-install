@@ -226,6 +226,9 @@
           "health-api.py"
           "health-check.sh"
           "claude-cleanup.sh"
+          # Epic-08: invoked by always-on / opt-in LaunchAgents (darwin/maintenance.nix)
+          "ollama-pressure-guard.sh"  # 60s guard; Story 08.2-002
+          "ollama-lru.sh"             # monthly opt-in prune; Story 08.1-004
         )
 
         for script in "''${COMMON_SCRIPTS[@]}"; do

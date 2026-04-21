@@ -25,6 +25,7 @@ GENERATION_WARNING_THRESHOLD=50  # Warn if more than N system generations
 DISK_WARNING_GB=20               # Warn if less than N GB free
 CACHE_WARNING_KB=1048576         # 1 GB — warn if any single cache exceeds this
 HF_CACHE_WARNING_KB=10485760     # 10 GB — Huggingface cache grows fastest (model blobs)
+SWAP_WARNING_GB=2                # Warn when swap usage exceeds this (signals real memory pressure)
 
 # Expected Ollama models per profile (keep in sync with flake.nix ollamaModels)
 # Power: gemma4:e4b, gemma4:26b, nomic-embed-text
@@ -506,15 +507,24 @@ try:
         mem_total = d['memory']['total_gb']
         thermal = d['thermal']['state']
         total_w = d['power']['total_watts']
-        print(f'ok:CPU {cpu}% | GPU {gpu}% | Mem {mem_used:.0f}/{mem_total:.0f}GB | {total_w:.0f}W | Thermal: {thermal}')
+        swap_used = d['memory'].get('swap_used_gb', 0)
+        swap_flag = d.get('status_flags', {}).get('memory_swap', '')
+        print(f'ok:CPU {cpu}% | GPU {gpu}% | Mem {mem_used:.0f}/{mem_total:.0f}GB | {total_w:.0f}W | Thermal: {thermal}|swap={swap_used}|swap_flag={swap_flag}')
 except:
     print('parse_error')
 " 2>/dev/null || echo "parse_error")
 
     case "${METRICS_SUMMARY}" in
         ok:*)
-            VITALS="${METRICS_SUMMARY#ok:}"
+            # Parse trailing swap info (pipe-separated) out of the vitals line
+            VITALS_FULL="${METRICS_SUMMARY#ok:}"
+            VITALS="${VITALS_FULL%%|swap=*}"
+            SWAP_USED="${VITALS_FULL#*|swap=}"; SWAP_USED="${SWAP_USED%%|*}"
+            SWAP_FLAG="${VITALS_FULL##*|swap_flag=}"
             print_status "ok" "System vitals: ${VITALS}"
+            if [[ "${SWAP_FLAG}" == "warn" ]]; then
+                print_status "warn" "Memory pressure: swap in use ${SWAP_USED}GB (>${SWAP_WARNING_GB}GB) → consider ollama-evict or closing apps"
+            fi
             ;;
         error:*)
             DETAIL="${METRICS_SUMMARY#error:}"

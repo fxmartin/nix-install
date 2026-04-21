@@ -70,7 +70,7 @@ in {
     # - Development: Zed, VSCode, Cursor, Docker Desktop
     # - Browsers: Brave
     # - Communication: Zoom, Webex, Slack, WhatsApp
-    # - Productivity: 1Password, Raycast, Obsidian, Dropbox
+    # - Productivity: 1Password, Obsidian, Dropbox
     # - Terminal: Ghostty
     # - Fonts: JetBrains Mono Nerd Font, etc.
     # - Power profile only: additional apps as needed
@@ -93,7 +93,6 @@ in {
       "google-chrome"    # Google Chrome - Web browser (auto-update managed by Homebrew)
 
       # Productivity & Utilities
-      "raycast" # Raycast - Application launcher and productivity tool (Story 02.4-001)
       "1password" # 1Password - Password manager and secure vault (Story 02.4-002)
       "obsidian" # Obsidian - Markdown-based knowledge base and note-taking app
 

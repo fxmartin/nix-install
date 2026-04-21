@@ -39,6 +39,7 @@ gh label create "epic-04" --description "Epic 04: Development Environment & Shel
 gh label create "epic-05" --description "Epic 05: Theming & Visual Consistency" --color "FF5630" || true
 gh label create "epic-06" --description "Epic 06: Maintenance & Monitoring" --color "FF8B00" || true
 gh label create "epic-07" --description "Epic 07: Documentation & User Experience" --color "5243AA" || true
+gh label create "epic-08" --description "Epic 08: Resource Optimization & Deep Telemetry" --color "00897B" || true
 gh label create "epic-nfr" --description "Non-Functional Requirements" --color "8777D9" || true
 
 # COMPONENT LABELS (Green family - project areas)
@@ -104,7 +105,7 @@ echo "📋 LABEL SUMMARY:"
 echo "🔴 Severity: critical, high, medium, low"
 echo "🟠 Types: bug, enhancement, performance, security, documentation, refactor, code-quality"
 echo "🔵 Tech: bash/shell, nix, nix-darwin, homebrew, macos, testing"
-echo "🎯 Epics: epic-01 through epic-07, epic-nfr"
+echo "🎯 Epics: epic-01 through epic-08, epic-nfr"
 echo "🟢 Components: bootstrap, system-config, dev-environment, theming, monitoring, apps, dotfiles"
 echo "🟣 Agents: bash-zsh-macos, code-review, qa-expert, multi-agent"
 echo "🟡 Workflow: in-progress, blocked, needs-review, vm-testing, needs-info"

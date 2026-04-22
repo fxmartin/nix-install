@@ -136,7 +136,10 @@ def check_generations() -> dict:
 _nix_store_cache: dict = {}
 _nix_store_cache_time: float = 0.0
 _nix_store_lock = threading.Lock()
-NIX_STORE_CACHE_TTL = 300  # seconds (5 minutes)
+# 30 min: `du -sh /nix/store` takes 30-50s on a hard-link-dense store and
+# spikes CPU during that window. Store size is diagnostic, not real-time —
+# refreshing every 30 min keeps the refresher below 3% of wall clock.
+NIX_STORE_CACHE_TTL = int(os.environ.get("NIX_STORE_CACHE_TTL", "1800"))
 
 
 def _refresh_nix_store_cache() -> None:
@@ -307,31 +310,33 @@ def build_health_response() -> dict:
 # ---------------------------------------------------------------------------
 # System Metrics via macmon (Apple Silicon monitoring)
 # ---------------------------------------------------------------------------
-# Switched from mactop to macmon (issue #226): on an M3 Max, mactop takes
-# ~6.5s per --count 1 sample (Go startup + 1s sampling window + lsof-based
-# process enumeration), well above any reasonable subprocess timeout. macmon
-# (installed via Nix) returns in ~1.5-2s with --interval 500 and exposes the
-# same core Apple Silicon vitals we care about.
-_metrics_cache: dict = {}
+# Sampling runs on a background daemon thread (same pattern as
+# _nix_store_refresher).  macmon consistently takes 2-4s per sample on
+# M3 Max, so running it on the request path made /metrics latency variable
+# from 10ms (warm cache) to 4s (cold).  Worse, the original code had no
+# lock around the cache refresh, so concurrent requests each spawned their
+# own macmon subprocess — 300MB+ resident each, compounding under load.
+#
+# The refresher guarantees:
+#   • /metrics latency is O(1) — always returns the cached dict under a lock
+#   • At most one macmon subprocess at a time
+#   • First request after startup may see {"status": "pending"} until the
+#     first sample lands — intentional and clearly marked
+_metrics_cache: dict = {"status": "pending", "detail": "first macmon sample in progress"}
 _metrics_cache_time: float = 0.0
-METRICS_CACHE_TTL = 2  # seconds
+_metrics_lock = threading.Lock()
 
-# Last known-good macmon sample, used as a fallback when macmon times out or
-# errors.  Returning slightly-stale data is far more useful than an error for
-# the /metrics endpoint, which is consumed by dashboards and health-check.sh.
-_metrics_last_good: dict = {}
-_metrics_last_good_time: float = 0.0
+# Interval between macmon samples. macmon on M3 Max takes ~3-4s per
+# --samples 1 --interval 500 call (startup + sensor enumeration).
+# A 15s interval keeps macmon below ~3% of wall clock; 5s ran it at ~60%.
+# Power/temp/ANE/freq are trend indicators — 15s staleness is fine.
+# Override with METRICS_REFRESH_INTERVAL env var (e.g. for testing or
+# machines where macmon is fast).
+METRICS_REFRESH_INTERVAL = int(os.environ.get("METRICS_REFRESH_INTERVAL", "15"))
 
-
-def _stale_metrics_fallback(error_detail: str) -> dict:
-    """Return the last-good metrics sample marked stale, or the error dict if none."""
-    if _metrics_last_good:
-        stale = dict(_metrics_last_good)
-        stale["stale"] = True
-        stale["stale_age_seconds"] = round(time.monotonic() - _metrics_last_good_time, 1)
-        stale["stale_reason"] = error_detail
-        return stale
-    return {"status": "error", "detail": error_detail}
+# Subprocess timeout for a single macmon invocation.  Runs on a
+# background thread; nothing blocks on it, so generous is fine.
+MACMON_TIMEOUT_SEC = int(os.environ.get("MACMON_TIMEOUT_SEC", "15"))
 
 
 def _top_cpu_processes(n: int = 5) -> list[dict]:
@@ -385,39 +390,37 @@ def _thermal_state_from_temps(cpu_temp: float, gpu_temp: float) -> str:
     return "Critical"
 
 
-def get_system_metrics() -> dict:
-    """Return Apple Silicon metrics from macmon (CPU, GPU, memory, thermal, power).
+def _probe_system_metrics() -> dict | None:
+    """Run one macmon sample and assemble the response dict.
 
-    Calls `macmon pipe --samples 1 --interval 500` and reshapes the output
-    into a clean API response.  Results are cached for METRICS_CACHE_TTL seconds.
-    On macmon timeout/error, returns the last-good sample marked as stale
-    (or an error dict if no sample has ever succeeded).
+    Returns the populated dict on success, or None if macmon failed.
+    The refresher thread handles caching — this function just does the work.
+    Called only from the background daemon; nothing on the request path
+    blocks on this.
     """
-    global _metrics_cache, _metrics_cache_time  # noqa: PLW0603
-    global _metrics_last_good, _metrics_last_good_time  # noqa: PLW0603
-    now = time.monotonic()
-    if _metrics_cache and (now - _metrics_cache_time) < METRICS_CACHE_TTL:
-        return _metrics_cache
-
     # Prefer the Nix-managed absolute path (stable across rebuilds); fall back
     # to PATH discovery so this also works in dev shells / on other machines.
     macmon_bin = "/run/current-system/sw/bin/macmon"
     if not os.path.isfile(macmon_bin):
         macmon_bin = shutil.which("macmon") or ""
     if not macmon_bin:
-        return _stale_metrics_fallback("macmon not installed")
+        print("health-api: macmon not installed; refresher idle")
+        return None
 
     try:
         result = subprocess.run(
             [macmon_bin, "pipe", "--samples", "1", "--interval", "500"],
-            capture_output=True, text=True, timeout=4,
+            capture_output=True, text=True, timeout=MACMON_TIMEOUT_SEC,
         )
         if result.returncode != 0 or not result.stdout.strip():
-            return _stale_metrics_fallback(f"macmon failed: {result.stderr.strip()[:200]}")
+            print(f"health-api: macmon failed rc={result.returncode}: {result.stderr.strip()[:200]}")
+            return None
     except subprocess.TimeoutExpired:
-        return _stale_metrics_fallback("macmon timed out (4s)")
+        print(f"health-api: macmon timed out ({MACMON_TIMEOUT_SEC}s)")
+        return None
     except Exception as e:
-        return _stale_metrics_fallback(str(e)[:200])
+        print(f"health-api: macmon exception: {str(e)[:200]}")
+        return None
 
     try:
         # macmon emits one JSON object per sample; with --samples 1 it's a
@@ -427,7 +430,8 @@ def get_system_metrics() -> dict:
         first_line = stdout.splitlines()[0] if stdout else ""
         sample = json.loads(first_line)
     except (json.JSONDecodeError, IndexError) as e:
-        return _stale_metrics_fallback(f"macmon JSON parse error: {e}")
+        print(f"health-api: macmon JSON parse error: {e}")
+        return None
 
     # macmon field shape (v0.6.x):
     #   ecpu_usage / pcpu_usage / gpu_usage: [freq_mhz:int, active_fraction:float]
@@ -514,15 +518,45 @@ def get_system_metrics() -> dict:
         response["status_flags"] = status_flags
 
     # Top CPU processes — consumed by SketchyBar vitals popup (Story 08.3-005)
-    # to avoid forking `ps` inside the click handler. Cached with the rest of
-    # the metrics response (2s TTL).
+    # to avoid forking `ps` inside the click handler.
     response["processes"] = {"top_cpu": _top_cpu_processes(5)}
 
-    _metrics_cache = response
-    _metrics_cache_time = now
-    _metrics_last_good = response
-    _metrics_last_good_time = now
     return response
+
+
+def _metrics_refresher() -> None:
+    """Daemon-thread loop that refreshes the metrics cache every
+    METRICS_REFRESH_INTERVAL seconds.  Guarantees at most one macmon
+    subprocess runs at a time.
+    """
+    global _metrics_cache, _metrics_cache_time  # noqa: PLW0603
+    while True:
+        start = time.monotonic()
+        fresh = _probe_system_metrics()
+        if fresh is not None:
+            with _metrics_lock:
+                _metrics_cache = fresh
+                _metrics_cache_time = time.monotonic()
+        # Sleep the remainder of the refresh interval (never negative).
+        # If macmon took longer than the interval, sleep briefly and loop
+        # again rather than busy-looping.
+        elapsed = time.monotonic() - start
+        sleep_for = max(METRICS_REFRESH_INTERVAL - elapsed, 0.5)
+        time.sleep(sleep_for)
+
+
+def get_system_metrics() -> dict:
+    """Non-blocking read of the latest cached macmon sample.
+
+    Always returns in <1ms under a threading.Lock.  If the refresher has
+    not yet produced a first sample (service just started), returns a
+    {"status": "pending", ...} dict; clients distinguish this from an
+    error by checking `status`.
+    """
+    with _metrics_lock:
+        # Return a shallow copy so caller mutations (e.g. adding stale
+        # markers downstream) don't corrupt the shared cache.
+        return dict(_metrics_cache)
 
 
 # Optional bearer token authentication
@@ -591,6 +625,14 @@ def main():
         target=_nix_store_refresher, name="nix-store-refresher", daemon=True
     )
     refresher.start()
+
+    # Start the macmon metrics refresher on a separate daemon thread.  This
+    # guarantees /metrics returns in O(1) and bounds concurrent macmon
+    # subprocesses to one — the root cause of earlier 4s request latency.
+    metrics_refresher = threading.Thread(
+        target=_metrics_refresher, name="metrics-refresher", daemon=True
+    )
+    metrics_refresher.start()
 
     server = ThreadedHTTPServer(("0.0.0.0", PORT), HealthHandler)
     print(f"Health API listening on 0.0.0.0:{PORT}")

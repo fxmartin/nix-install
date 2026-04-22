@@ -164,8 +164,12 @@ sketchybar --add item clock right \
            --set thermal update_freq=10 icon=󰔏 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/thermal.sh" \
            --add item gpu right \
            --set gpu update_freq=5 icon=󰏔 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/gpu.sh" \
-           --add item cpu right \
-           --set cpu update_freq=5 icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/cpu.sh" \
+           --add item cpu.p right \
+           --set cpu.p icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffcba6f7 script="$PLUGIN_DIR/cpu_cluster.sh" \
+           --subscribe cpu.p system_metrics_update \
+           --add item cpu.e right \
+           --set cpu.e icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xff94e2d5 script="$PLUGIN_DIR/cpu_cluster.sh" \
+           --subscribe cpu.e system_metrics_update \
            --add item network right \
            --set network update_freq=5 icon=󰛳 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 \
              script="$PLUGIN_DIR/network.sh" \

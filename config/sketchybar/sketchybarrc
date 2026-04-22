@@ -159,7 +159,16 @@ sketchybar --add item clock right \
            --add item disk right \
            --set disk update_freq=60 icon=󰋊 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/disk.sh" \
            --add item memory right \
-           --set memory update_freq=5 icon=󰍛 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/memory.sh" \
+           --set memory icon=󰍛 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xff94e2d5 \
+             script="$PLUGIN_DIR/memory.sh" \
+             click_script="$PLUGIN_DIR/memory.sh" \
+             popup.background.color=0xff1e1e2e \
+             popup.background.border_width=1 \
+             popup.background.border_color=0xff585b70 \
+             popup.background.corner_radius=12 \
+             popup.background.height=32 \
+             popup.y_offset=5 \
+           --subscribe memory system_metrics_update \
            --add item power right \
            --set power icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/power.sh" \
            --subscribe power system_metrics_update \
@@ -167,27 +176,17 @@ sketchybar --add item clock right \
            --set temp icon=󰔏 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/temp.sh" \
            --subscribe temp system_metrics_update \
            --add item gpu right \
-<<<<<<< HEAD
-           --set gpu update_freq=5 icon=󰏔 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/gpu.sh" \
+           --set gpu icon=󰏔 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/gpu.sh" \
+           --subscribe gpu system_metrics_update \
+           --add item ane right \
+           --set ane icon="AI" icon.font="SF Pro:Bold:11.0" icon.color=0xff585b70 script="$PLUGIN_DIR/ane.sh" \
+           --subscribe ane system_metrics_update \
            --add item cpu.p right \
            --set cpu.p icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffcba6f7 script="$PLUGIN_DIR/cpu_cluster.sh" \
            --subscribe cpu.p system_metrics_update \
            --add item cpu.e right \
            --set cpu.e icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xff94e2d5 script="$PLUGIN_DIR/cpu_cluster.sh" \
            --subscribe cpu.e system_metrics_update \
-||||||| parent of 33f5a2c (feat(sketchybar): event-driven GPU + ANE indicator (#251))
-           --set gpu update_freq=5 icon=󰏔 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/gpu.sh" \
-           --add item cpu right \
-           --set cpu update_freq=5 icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/cpu.sh" \
-=======
-           --set gpu icon=󰏔 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/gpu.sh" \
-           --subscribe gpu system_metrics_update \
-           --add item ane right \
-           --set ane icon="AI" icon.font="SF Pro:Bold:11.0" icon.color=0xff585b70 script="$PLUGIN_DIR/ane.sh" \
-           --subscribe ane system_metrics_update \
-           --add item cpu right \
-           --set cpu update_freq=5 icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/cpu.sh" \
->>>>>>> 33f5a2c (feat(sketchybar): event-driven GPU + ANE indicator (#251))
            --add item network right \
            --set network update_freq=5 icon=󰛳 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 \
              script="$PLUGIN_DIR/network.sh" \

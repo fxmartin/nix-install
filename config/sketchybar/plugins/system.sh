@@ -1,15 +1,34 @@
 #!/bin/sh
 
 # ABOUTME: SketchyBar /metrics aggregator — single poller that fans out to all system items
-# ABOUTME: Triggers system_metrics_update event with parsed values for cpu.e/cpu.p/gpu/ane/power/temp/memory
+# ABOUTME: Adaptive: 2s tick on AC, 10s on battery (Story 08.3-007)
 
 # Replaces N per-plugin top/ioreg/swift/vm_stat spawns with a single
-# HTTP fetch per tick. Runs every update_freq (see sketchybarrc — 2s
-# on AC, 10s on battery per Story 08.3-007).
+# HTTP fetch per tick. On battery, slows to 10s ticks to save power —
+# sampled at boot and on every power_source_change event the bar receives.
+
+# ---------------------------------------------------------------------------
+# Power-source adaptation (Story 08.3-007)
+# When invoked by the power_source_change event, adjust the item's own
+# update_freq and exit — don't do a /metrics probe on the same call.
+# ---------------------------------------------------------------------------
+if [ "$SENDER" = "power_source_change" ]; then
+  if pmset -g ps 2>/dev/null | head -1 | grep -q "Battery Power"; then
+    sketchybar --set system update_freq=10
+  else
+    sketchybar --set system update_freq=2
+  fi
+  exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# Periodic tick: fetch /metrics and fan out via system_metrics_update event.
+# Runs every update_freq (2s on AC, 10s on battery per above).
 #
-# On success: triggers system_metrics_update with all parsed values as env.
-# On failure (timeout, non-200, parse error): triggers with STALE=1 so
+# On success: trigger system_metrics_update with all parsed values as env.
+# On failure (timeout, non-200, parse error): trigger with STALE=1 so
 # consumer items can dim to grey rather than render stale numbers.
+# ---------------------------------------------------------------------------
 
 METRICS_URL="${SKETCHYBAR_METRICS_URL:-http://localhost:7780/metrics}"
 
@@ -19,8 +38,6 @@ if [ -z "$JSON" ]; then
   exit 0
 fi
 
-# Parse with jq. `// 0` and `// ""` defaults guard against missing fields
-# (older health-api versions won't have ANE/power/processes yet).
 PAYLOAD=$(echo "$JSON" | jq -r '
   [
     "CPU_E="  + ((.cpu.e_cluster.active_percent // 0) | tostring),

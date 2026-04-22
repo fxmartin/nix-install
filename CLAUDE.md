@@ -98,22 +98,34 @@ nix-install/
 │   ├── configuration.nix     # System packages, PATH
 │   ├── homebrew.nix          # Casks, brews, Mac App Store
 │   ├── macos-defaults.nix    # Finder, Dock, trackpad, security
-│   ├── maintenance.nix       # GC, optimization, LaunchAgents
-│   ├── monitoring.nix        # Beszel agent LaunchAgent (port 45876)
+│   ├── maintenance.nix       # User-level LaunchAgents (GC, digest, Ollama, pressure-guard, claude-cleanup)
+│   ├── maintenance-system.nix # Root LaunchDaemons (system-level nix-gc, Sunday 04:00)
+│   ├── monitoring.nix        # Beszel agent LaunchAgent (port 45876) + custom sensors
 │   ├── health-api.nix        # Health API HTTP server (port 7780)
 │   └── stylix.nix            # Catppuccin theming
 ├── home-manager/modules/     # User-level dotfiles
-│   ├── shell.nix             # Zsh + Oh My Zsh + Starship + FZF
+│   ├── shell.nix             # Zsh + Oh My Zsh + Starship + FZF + ollama-warm/evict + rebuild guard
 │   ├── git.nix               # Git config + LFS
 │   ├── ghostty.nix           # Terminal with Catppuccin
 │   ├── zed.nix / vscode.nix  # Editor configs
 │   ├── python.nix            # Python + uv + ruff
 │   ├── podman.nix            # Container development
 │   └── claude-code.nix       # Claude Code CLI + MCP servers
+├── config/sketchybar/        # Status bar (Epic-08 telemetry)
+│   ├── sketchybarrc          # Bar layout, subscribes items to system_metrics_update
+│   └── plugins/              # system.sh (aggregator), cpu_cluster, gpu, ane, power, temp, memory, vitals
 ├── scripts/                  # Build and maintenance scripts
 │   ├── build-bootstrap.sh    # Build bootstrap-dist.sh from modules
+│   ├── health-api.py         # /metrics endpoint (macmon on background thread, top-5 processes)
 │   ├── health-check.sh       # System health validation
 │   ├── release-monitor.sh    # AI-powered update checker
+│   ├── disk-cleanup.sh       # HF / browser / Docker / claude-projects pruning (Epic-08 08.1)
+│   ├── ollama-lru.sh         # LRU-based stale Ollama model pruning (Epic-08 08.1-004)
+│   ├── ollama-pressure-guard.sh # Memory-pressure auto-unload (Epic-08 08.2-002)
+│   ├── audit-launchagents.sh # Steady-state RSS audit over 10 samples (Epic-08 08.2-004)
+│   ├── claude-cleanup.sh     # Orphan kill + --prune-old (Epic-08 08.1-006)
+│   ├── weekly-maintenance-digest.sh # +collect_disk_metrics (Epic-08 08.1-008)
+│   ├── beszel-sensors/       # Custom Beszel sensors (power.sh, temp.sh, temp_gpu.sh; Epic-08 08.4-002)
 │   └── estimate_effort_v2.py # Development effort analysis
 └── docs/                     # Documentation
 ```
@@ -270,13 +282,15 @@ programs.vscode.userSettings."update.mode" = "none";
 Labels are managed via `scripts/setup-github-labels.sh`. Key categories:
 - **Severity**: critical, high, medium, low
 - **Type**: bug, enhancement, documentation, refactor
-- **Epic**: epic-01 through epic-07, epic-nfr
+- **Epic**: epic-01 through epic-08, epic-nfr
 - **Profile**: profile/standard, profile/power, profile/both
 
 ## Completed Milestones
 
 | Date | Milestone |
 |------|-----------|
+| 2026-04-22 | Epic-08 SketchyBar Deep Telemetry shipped (Sprint 13, 7/8 stories; 08.3-008 validation pending) |
+| 2026-04-21 | Epic-08 Disk Optimization + Memory Mitigation + Observability Polish shipped (Sprints 11, 12, 14) |
 | 2025-12-07 | v1.0.0 Released - MacBook Pro M3 Max running Power profile |
 | 2025-12-07 | Epic-01 Complete - Modular Bootstrap Architecture |
 | 2025-12-06 | Epics 02-07 Complete |
@@ -288,12 +302,14 @@ Labels are managed via `scripts/setup-github-labels.sh`. Key categories:
 | Shell startup | <500ms | 259ms ✅ |
 | Rebuild time | <5min | 14s ✅ |
 | Bootstrap (clean) | <30min | ~25min ✅ |
+| `/metrics` p95 latency | <2s | sub-second (post #285) ✅ |
+| System generation count (Power) | <20 | <20 after weekly system-GC daemon ✅ |
 
 ### Development Effort
 
 | Metric | Value |
 |--------|-------|
-| Total commits | 430+ |
-| Active days | 18 |
-| Estimated hours | ~78 |
-| Issue completion | 83.3% |
+| Total commits | 735 (+218 since v1.0.0) |
+| Active days | ~20 (v1.0.0) + 2 (Epic-08) |
+| Estimated hours | ~96 (78 v1.0.0 + 18 Epic-08) |
+| Issue completion | 83.3% (v1.0.0) / 96% (Epic-08) |

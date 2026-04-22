@@ -77,7 +77,7 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 **Total MVP Points**: 614
 **Estimated Duration**: 6-8 weeks (implementation) + 2 weeks (migrations)
 
-### MVP Epic Breakdown
+### MVP Epic Breakdown _(Epic-08 is post-v1.0 enhancement, not MVP)_
 | Epic | MVP Stories | MVP Points | Completed Stories | Completed Points | % Complete |
 |------|-------------|------------|-------------------|------------------|------------|
 | Epic-01 | 19/19 | 113/113 | 18 | 107 | 94.7% |
@@ -87,6 +87,7 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 | Epic-05 | 7/7 | 36/36 | 7 | 36 | 100% ✅ |
 | Epic-06 | 18/18 | 97/97 | 18 | 97 | 100% ✅ |
 | Epic-07 | 8/8 | 34/34 | 8 | 34 | 100% ✅ |
+| Epic-08 | 13/13 (MVP subset) | 70/70 | 13 | 70 | 100% ✅ |
 | NFR | 15/15 | 79/79 | 14 | 76 | 93% |
 
 **Notes**:
@@ -95,15 +96,18 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 - **2025-11-12**: Epic-02 increased to 118 points after adding Story 02.10-001 (Email Account Configuration, 5 points)
 - **2025-11-12**: Additional updates - Story 02.3-001 (Firefox→Brave), 02.4-003 (+Marked 2), 05.1-001 (+wallpaper), 04.2-001 (Starship config)
 - **2025-11-16**: Epic-03 increased from 12 stories/68 points to 14 stories/76 points after adding Feature 03.7 (Time Machine Backup Configuration, 2 stories, 8 points)
+- **2026-04-21**: Epic-08 (Resource Optimization & Deep Telemetry) added — 23 stories / 118 points, post-v1.0 enhancement. MVP subset = Features 08.1 (disk) + 08.2 (memory) = 13 stories / 70 points, all P0.
+- **2026-04-22**: Epic-08 22/23 shipped (all P0 + all P2 + 7/8 P1). Only 08.3-008 (mactop retirement validation) outstanding.
 
 ## Project Metrics
-- **Total Stories**: 124
-- **Total Story Points**: 650
+- **Total Stories**: 147 (124 MVP + 23 Epic-08)
+- **Total Story Points**: 768 (650 MVP + 118 Epic-08)
 - **Average Story Size**: 5.2 points
-- **Completed Stories**: 122 (98.4%)
-- **Completed Points**: 641 (98.6%)
+- **Completed Stories**: 144 (98.0%)
+- **Completed Points**: 758 (98.7%)
 - **MVP Completion**: 98.4% by stories, 98.6% by points
 - **🎉 MILESTONE**: MacBook Pro M3 Max successfully running Power profile (2025-12-07)
+- **🎉 MILESTONE**: Epic-08 Resource Optimization & Deep Telemetry — 22/23 stories shipped over 18 hours (2026-04-21 to 2026-04-22)
 - **CHANGELOG.md**: Created 2025-12-07 - v1.0.0 release documented
 
 ## Story Dependencies

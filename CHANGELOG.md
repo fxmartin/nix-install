@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Epic-08: Resource Optimization & Deep Telemetry (2026-04-21 → 2026-04-22)
+
+**Feature 08.1: Disk Consumption Optimization**
+- System-level Nix GC LaunchDaemon (`darwin/maintenance-system.nix`) — weekly Sunday 04:00 root-owned GC keeps system generations <20 (#270)
+- Huggingface cache pruning in `disk-cleanup.sh` — 60-day retention by mtime (#261, #269)
+- Arc / Brave / Chrome cache pruning — skips running browsers, preserves profile data (#262)
+- `scripts/ollama-lru.sh` — LRU-based stale Ollama model reporting + opt-in `--prune` / `--auto` modes, profile-aware protection for expected models (#268)
+- Docker quarterly deep-prune LaunchAgent — 1st of Jan/Apr/Jul/Oct, safe container check (#266)
+- `claude-cleanup.sh --prune-old` + weekly LaunchAgent — archives `~/.claude/projects/*` older than 90 days, always preserves `memory/` subdirs (#263)
+- Pre-rebuild disk guard — `rebuild` / `update` refuse to run when free disk <10 GB; `--force` bypass; CI exempt (#259)
+- Week-over-week disk growth telemetry in weekly digest — per-consumer GB/week deltas, >1 GB/week flagged (#267)
+
+**Feature 08.2: Memory Pressure Mitigation**
+- Ollama LaunchAgent env tuning — `OLLAMA_MAX_LOADED_MODELS=1`, `OLLAMA_NUM_PARALLEL=1`, profile-scoped `OLLAMA_KEEP_ALIVE` (Standard 2m, Power 5m, AI-Assistant 30s) (#264)
+- `scripts/ollama-pressure-guard.sh` + LaunchAgent — polls `memory_pressure` every 60s, auto-unloads models on `warn`/`critical` when no active request (#271)
+- `ollama-warm <model>` / `ollama-evict [model]` zsh helpers — explicit residency control (#260)
+- `scripts/audit-launchagents.sh` — one-shot steady-state RSS audit over 10 samples, median per agent, flag >100 MB (#272)
+- Swap-usage alerting — `/metrics` `status_flags.memory_swap` field; weekly digest + `health-check.sh` consume it (#265)
+
+**Feature 08.3: SketchyBar Deep Telemetry**
+- `config/sketchybar/plugins/system.sh` aggregator — single `/metrics` poll per tick, fans out via `system_metrics_update` event, replaces per-plugin `top`/`ioreg`/`swift` spawns (#276)
+- Per-cluster CPU items (E / P) — distinct colors, Catppuccin-themed thresholds (#277)
+- GPU + ANE indicator — ANE lights up at >0.5 W (#278)
+- Power (W) + Temp (°C) quantitative items — retires old qualitative OK/WARM/HOT label (#279)
+- Event-driven memory item with swap-aware icon tint + click popup showing wired/active/compressed/swap breakdown (#280)
+- System vitals popup on `cpu.p` left-click — per-cluster breakdown, top-5 CPU processes, memory compressor/swap, power split; replaces `mactop` terminal usage (#281)
+- Adaptive update frequency — 2s on AC, 10s on battery via `power_source_change` event (#282)
+
+**Feature 08.4: Observability Polish**
+- `/metrics` response now includes `processes.top_cpu[]` — 5 entries with pid/percent/name, self-process filtered, cached with 2s TTL (#275)
+- Beszel custom sensors (`scripts/beszel-sensors/{power,temp,temp_gpu}.sh`) — power watts + CPU/GPU silicon temps shipped to Beszel hub every 60s for long-horizon trending (#283)
+
+### Fixed — Epic-08 follow-ups
+- `audit-launchagents.sh`: guard pipe failures (`ps -p` on dead pids, `launchctl print` on unloaded agents, `sed -nE` producing empty stdout) with `|| true` / `${var:-0}` so `pipefail` scripts don't abort on expected non-zero exits (#274)
+- `ollama-pressure-guard.sh` + `ollama-lru.sh` now synced to `~/.local/bin` via activation (they were written but not in PATH) (#273)
+- `disk-cleanup.sh` Huggingface pruning: atime on APFS volumes with `noatime` was a no-op; switched to mtime on blob files (#269)
+- SketchyBar stale-state noise: single consolidated "health-api not responding" warning instead of one per subscribed item; configurable debounce (#284)
+- `health-api.py`: `/metrics` macmon sampling moved to a background refresher thread with a 1s cache, keeping p95 request latency sub-second even under load (#285)
+
+### Changed — Non-Epic-08 (2026-04-20 → 2026-04-21)
+- Power profile Ollama models: `ministral-3:14b` + `phi4:14b` → `gemma4:e4b` + `gemma4:26b` (4 models → 3, ~21 GB → ~19 GB)
+- Homebrew: removed Raycast cask
+- `update-system.sh`: interactive commit+push for `flake.lock` changes
+- AeroSpace workspace 7: renamed Teams → Office, binds Word / Excel / PowerPoint; matching SketchyBar workspace label update
+- AeroSpace Web/Mail workspaces: accordion layout, extra apps
+- `claude-code-config` submodule bump: voice hold mode
+
 ### Changed
 - Claude Code config extracted to standalone `claude-code-config` submodule at `config/claude-code-config/`
 - Portable `install.sh` enables usage on non-Nix machines and SSH sessions
@@ -214,7 +261,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Milestone |
 |---------|------|-----------|
-| 1.1.0 | TBD | Health API, CI/CD, DRY refactors, Podman health check |
+| 1.1.0 | TBD | Health API, CI/CD, DRY refactors, Podman health check, Epic-08 Resource Optimization & Deep Telemetry (22/23 stories) |
 | 1.0.0 | 2025-12-07 | Initial release - MacBook Pro M3 Max running Power profile |
 
 ## Migration Notes

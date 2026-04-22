@@ -8,7 +8,23 @@
 **Feature ID**: Feature 08.3
 **Feature Name**: SketchyBar Deep Telemetry
 **Epic**: Epic-08
-**Status**: 📋 Planned
+**Status**: 🟢 7/8 Shipped (2026-04-22) — 08.3-008 pending one-day mactop-free validation
+
+### Delivery Summary
+| Story | Title | PR | Notes |
+|-------|-------|----|-------|
+| 08.3-001 | `system.sh` Aggregator Plugin | #276 | Single `/metrics` poll per tick, fans out via `system_metrics_update` event |
+| 08.3-002 | Per-Cluster CPU Items (E / P) | #277 | `cpu_cluster.sh`, Catppuccin-themed thresholds |
+| 08.3-003 | GPU + ANE Items | #278 | `ane.sh` + event-driven `gpu.sh`; ANE lights at >0.5 W |
+| 08.3-004 | Power (Watts) + Temp Items | #279 | `power.sh` + `temp.sh`, retires qualitative thermal label |
+| 08.3-005 | System Vitals Popup (mactop replacement) | #281 | Left-click `cpu.p` popup with per-cluster, top-5 processes, power split |
+| 08.3-006 | Memory Breakdown Popup | #280 | Event-driven `memory.sh`, compressor/swap breakdown on click |
+| 08.3-007 | Adaptive Update Frequency on Battery | #282 | 2s on AC → 10s on battery via `power_source_change` |
+| 08.3-008 | Retire mactop Habit | — | Acceptance only; pending FX one-day validation |
+
+### Follow-up Fixes
+- #284 — resolve "health-api not responding" noise in SketchyBar stale state
+- #285 — move macmon sampling to background refresher thread so `/metrics` stays sub-second under load
 
 ### Feature 08.3: SketchyBar Deep Telemetry
 **Feature Description**: Replace the per-plugin `top`/`ioreg`/`swift`/`vm_stat` spawns with a single `system.sh` aggregator that polls `http://localhost:7780/metrics` once per tick, then fans data out to bar items via SketchyBar trigger events. Surface the same data mactop shows — per-cluster E/P CPU %, GPU %/MHz, ANE utilization, CPU+GPU temperatures in °C, total power draw in watts — so FX can retire the mactop terminal habit.

@@ -1,6 +1,6 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.4% Complete (122/124 stories) | **Version**: 1.0.0 | **🎉 2 MacBooks Running!**
+> **Status**: 98.0% Complete (144/147 stories) | **Version**: 1.0.0 + Epic-08 | **🎉 2 MacBooks Running!**
 
 **Four MacBooks. One config. Zero drift.**
 
@@ -70,12 +70,18 @@ After installation, manage your system with these aliases:
 
 | Command | Description |
 |---------|-------------|
-| `rebuild` | Apply config changes (uses locked package versions) |
+| `rebuild` | Apply config changes (refuses if free disk <10 GB; `--force` bypasses) |
 | `update` | Update flake.lock + rebuild (the ONLY way to update apps) |
-| `gc` | Garbage collection (delete old generations) |
+| `gc` | User-profile garbage collection |
+| `gc-system` | System-profile garbage collection (runs weekly as root LaunchDaemon) |
 | `cleanup` | Full cleanup (GC + store optimization) |
+| `disk-cleanup` | Prune Huggingface / browser / Docker / `~/.claude/projects` caches |
 | `health-check` | System health report |
-| `curl localhost:7780/metrics` | Apple Silicon metrics (CPU, GPU, memory, thermal) |
+| `curl localhost:7780/metrics` | Apple Silicon metrics (CPU per-cluster, GPU, ANE, memory, power, thermal, top-5 processes) |
+| `ollama-warm <model>` | Pin an Ollama model in RAM until evicted |
+| `ollama-evict [model]` | Unload one model (or all loaded) |
+| `ollama-lru` | Report Ollama models not used in >30 days (opt-in `--prune`) |
+| `audit-launchagents` | Sample median RSS of all managed LaunchAgents |
 | `brew-upgrade` | Update Homebrew packages |
 | `release-monitor` | Run AI-powered update checker |
 
@@ -159,7 +165,7 @@ Rollback is instant — no re-downloading, just switches symlinks.
 
 **AI & LLM Tools**:
 - Claude Desktop, Claude Code CLI, ChatGPT, Perplexity
-- Ollama with models (1 for Standard, 4 for Power)
+- Ollama (Power profile: `gemma4:e4b` + `gemma4:26b` + `nomic-embed-text`; Standard: `ministral-3:14b` + `nomic-embed-text`; AI-Assistant: `nomic-embed-text`)
 - LM Studio (local LLM GUI)
 
 **Development**:
@@ -174,7 +180,6 @@ Rollback is instant — no re-downloading, just switches symlinks.
 **Browsers**: Brave
 
 **Productivity**:
-- Raycast (launcher)
 - 1Password + 1Password for Safari
 - Dropbox (cloud storage)
 - Calibre, Kindle, Marked 2, Keka
@@ -247,14 +252,19 @@ Rollback is instant — no re-downloading, just switches symlinks.
 
 ## Automated Maintenance
 
-The system runs **automated maintenance** via LaunchAgents:
+The system runs **automated maintenance** via LaunchAgents/LaunchDaemons:
 
 | Schedule | Task | Description |
 |----------|------|-------------|
 | Daily 3:00 AM | Garbage Collection | Removes old generations, frees disk space |
 | Daily 3:30 AM | Store Optimization | Deduplicates Nix store via hard links |
+| Sunday 4:00 AM | System-Level GC (daemon) | Root-owned `nix-collect-garbage --delete-older-than 30d` — keeps system generations <20 |
 | Sunday 7:00 AM | Release Monitor | AI-powered update analysis (see below) |
-| Sunday 8:00 AM | Weekly Digest | Health report email |
+| Sunday 8:00 AM | Weekly Digest | Health report email with week-over-week disk growth per consumer |
+| Weekly | Claude Projects Prune | `~/.claude/projects/*` archived after 90 days (memory preserved) |
+| Monthly | Disk Cleanup | Huggingface / browser / Docker caches pruned with retention windows |
+| Quarterly | Docker Deep Prune | `docker system prune -a --volumes` on the 1st of each quarter |
+| Every 60s | Ollama Pressure Guard | Auto-unloads Ollama models on `warn`/`critical` memory pressure (when no active request) |
 
 ### Weekly Maintenance Digest (Example)
 
@@ -354,19 +364,31 @@ nix-install/
 │   ├── configuration.nix     # System packages, PATH
 │   ├── homebrew.nix          # Casks, brews, Mac App Store
 │   ├── macos-defaults.nix    # Finder, Dock, trackpad, security
-│   ├── maintenance.nix       # GC, optimization, LaunchAgents
+│   ├── maintenance.nix       # User-level LaunchAgents (GC, digest, Ollama)
+│   ├── maintenance-system.nix # Root-level LaunchDaemons (system GC)
+│   ├── monitoring.nix        # Beszel agent + custom sensors
+│   ├── health-api.nix        # Health API HTTP server (port 7780)
 │   └── stylix.nix            # Catppuccin theming
 ├── home-manager/modules/     # User-level dotfiles
-│   ├── shell.nix             # Zsh + Oh My Zsh + Starship + FZF
+│   ├── shell.nix             # Zsh + Oh My Zsh + Starship + FZF + ollama-warm/evict
 │   ├── git.nix               # Git config + LFS
 │   ├── ghostty.nix           # Terminal with Catppuccin
 │   ├── zed.nix / vscode.nix  # Editor configs
 │   ├── python.nix            # Python + uv + ruff
 │   ├── podman.nix            # Container development
 │   └── claude-code.nix       # Claude Code CLI + MCP servers
+├── config/sketchybar/        # Status bar (Epic-08)
+│   └── plugins/              # system.sh, cpu_cluster, gpu, ane, power, temp, memory, vitals
 ├── scripts/                  # Maintenance & monitoring
+│   ├── health-api.py         # /metrics endpoint (macmon background thread)
 │   ├── health-check.sh       # System health validation
 │   ├── release-monitor.sh    # AI-powered update checker
+│   ├── disk-cleanup.sh       # HF / browser / Docker / claude-projects pruning
+│   ├── ollama-lru.sh         # Stale Ollama model reporter / pruner
+│   ├── ollama-pressure-guard.sh  # Memory-pressure auto-unload
+│   ├── audit-launchagents.sh # Steady-state RSS audit
+│   ├── claude-cleanup.sh     # Orphan kill + --prune-old
+│   ├── beszel-sensors/       # Custom Beszel sensors (power, temp_cpu, temp_gpu)
 │   └── weekly-maintenance-digest.sh
 └── docs/                     # Documentation (Epic-07)
 ```
@@ -384,6 +406,7 @@ nix-install/
 | **05** | Theming & Visual Consistency | ✅ 100% |
 | **06** | Maintenance & Monitoring | ✅ 100% |
 | **07** | Documentation & UX | ✅ 100% |
+| **08** | Resource Optimization & Deep Telemetry | 🟢 96% (22/23) |
 | **NFR** | Non-Functional Requirements | 🟢 87% |
 
 **🎉 Milestone (2025-12-07)**: MacBook Pro M3 Max successfully running Power profile!
@@ -391,19 +414,21 @@ nix-install/
 - Rebuild time: 14 seconds (target <5min) ✅
 - All 27 Homebrew apps installed, 5 Ollama models verified
 
+**🎉 Milestone (2026-04-22)**: Epic-08 — Resource Optimization & Deep Telemetry, 22/23 stories shipped in ~18 hours across 24 PRs. SketchyBar now exposes per-cluster E/P CPU, GPU + ANE, power (W), silicon temps (°C) and a full mactop-replacement vitals popup — all driven by a single `/metrics` poll per tick.
+
 ### Project Statistics
 
 | Category | Metric |
 |----------|--------|
-| **Commits** | 448 (72 feat, 56 fix, 24 docs) |
-| **Development** | 18 active days, ~78 hours |
+| **Commits** | 735 (+218 since v1.0.0) |
+| **Development** | ~20 active days (v1.0.0) + 2 days (Epic-08 sprint), ~96 hours total |
 | **Code** | 19K lines (Nix + Shell + Python) |
 | **Tests** | 1,140 test cases (16 BATS files) |
 | **Documentation** | 46K lines across 137 markdown files |
-| **GitHub Issues** | 60 total (83% closed) |
+| **GitHub Issues** | Epic-08 #236–#258 (23 stories) + follow-up fixes #269–#285 |
 | **Packages** | 25 casks, 4 brews, 4 MAS, 50+ Nix |
 
-**Next**: MacBook Air migrations (Phase 11)
+**Next**: MacBook Air migrations (Phase 11) · Story 08.3-008 (one-day mactop-free validation)
 
 ---
 

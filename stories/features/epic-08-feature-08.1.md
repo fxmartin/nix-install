@@ -8,7 +8,19 @@
 **Feature ID**: Feature 08.1
 **Feature Name**: Disk Consumption Optimization
 **Epic**: Epic-08
-**Status**: 📋 Planned
+**Status**: ✅ Complete (shipped 2026-04-21)
+
+### Delivery Summary
+| Story | Title | PR | Notes |
+|-------|-------|----|-------|
+| 08.1-001 | System-Level GC LaunchDaemon | #270 | `darwin/maintenance-system.nix`, Sunday 04:00 |
+| 08.1-002 | Huggingface Cache Pruning | #261, fix #269 | `cleanup_huggingface()` — atime → mtime after APFS `noatime` discovery |
+| 08.1-003 | Browser Cache Cleanup | #262 | Arc/Brave/Chrome, skips running browsers |
+| 08.1-004 | Ollama LRU Pruning | #268, fix #273 | `scripts/ollama-lru.sh` + activation sync to `~/.local/bin` |
+| 08.1-005 | Docker Quarterly Deep-Prune | #266 | LaunchAgent on 1st of Jan/Apr/Jul/Oct |
+| 08.1-006 | `~/.claude/projects` Pruning | #263 | `claude-cleanup.sh --prune-old` + weekly LaunchAgent, `memory/` preserved |
+| 08.1-007 | Pre-Rebuild Disk Guard | #259 | `rebuild`/`update` refuse <10 GB free; `--force` bypass |
+| 08.1-008 | Growth Telemetry in Digest | #267 | Week-over-week per-consumer deltas in weekly digest |
 
 ### Feature 08.1: Disk Consumption Optimization
 **Feature Description**: Close the disk leaks that v1.0.0 maintenance misses: system-level Nix generations, Huggingface cache, browser caches, stale Ollama models, unbounded `~/.claude/projects/`. Add a pre-rebuild guard and per-consumer growth telemetry in the weekly digest.

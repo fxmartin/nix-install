@@ -12,20 +12,24 @@
 | **Epic-05** | Theming & Visual Consistency | 7 | 36 | 100% | ✅ Complete |
 | **Epic-06** | Maintenance & Monitoring | 18 | 97 | 100% | ✅ Complete |
 | **Epic-07** | Documentation & User Experience | 8 | 34 | 100% | ✅ Complete |
+| **Epic-08** | Resource Optimization & Deep Telemetry | 23 | 118 | 96% | 🟢 22/23 Shipped |
 | **NFR** | Non-Functional Requirements | 15 | 79 | 87% | 🟢 Nearly Complete |
-| **TOTAL** | **All Epics** | **124** | **650** | **98.4%** | 🟢 **v1.0.0 Released** |
+| **TOTAL** | **All Epics** | **147** | **768** | **98.0%** | 🟢 **v1.0.0 + Epic-08** |
 
 ## Project Status
 
-- **Version**: 1.0.0 (released 2025-12-07)
-- **Total Scope**: 124 stories, 650 story points
-- **Completed**: 122 stories (98.4%), 644 points (99.1%)
-- **Current Phase**: Phase 11 - MacBook Air Migrations
+- **Version**: 1.0.0 (released 2025-12-07) + Epic-08 post-v1.0 enhancement (2026-04-21/22)
+- **Total Scope**: 147 stories, 768 story points
+- **Completed**: 144 stories (98.0%), 758 points (98.7%)
+- **Current Phase**: Epic-08 validation (08.3-008 mactop retirement) + ongoing NFR monitoring
 
 ### Milestones
 
 | Date | Milestone |
 |------|-----------|
+| 2026-04-22 | 🎉 **Epic-08 SketchyBar Deep Telemetry** - `/metrics` aggregator, per-cluster CPU, GPU+ANE, power/temp, vitals popup (Sprint 13) |
+| 2026-04-21 | 🎉 **Epic-08 Memory & Observability** - Ollama pressure guard, swap alerting, top-5 processes, Beszel custom sensors (Sprints 12 & 14) |
+| 2026-04-21 | 🎉 **Epic-08 Disk Optimization** - System GC daemon, HF/browser/Docker pruning, pre-rebuild guard, growth telemetry (Sprint 11) |
 | 2026-01-15 | 🎉 **MacBook Pro M1 (2021) Deployed** - Standard profile, second machine running |
 | 2025-12-07 | 🎉 **Epic-01 Complete** - Story 01.1-004 Modular Bootstrap Architecture implemented |
 | 2025-12-07 | 🎉 **v1.0.0 Released** - MacBook Pro M3 Max running Power profile |
@@ -41,6 +45,7 @@
 
 | Epic | Story | Points | Priority | Notes |
 |------|-------|--------|----------|-------|
+| Epic-08 | 08.3-008 Retire mactop habit | 1 | P1 | Acceptance-only validation (one day mactop-free) |
 | NFR | 1-week auto-update verification | 5 | P1 | Monitoring period |
 | NFR | MacBook Air cross-machine test | 3 | P0 | Phase 11 |
 
@@ -51,18 +56,20 @@
 | Shell startup | <500ms | 259ms | ✅ |
 | Rebuild time | <5min | 14s | ✅ |
 | Bootstrap (clean) | <30min | ~25min | ✅ |
+| `/metrics` p95 latency (post Epic-08 Sprint 14) | <2s | sub-second (macmon on background thread) | ✅ |
+| System generation count (Power, post 08.1-001) | <20 | <20 after first Sunday 04:00 cycle | ✅ |
+| Ollama keep-alive (Power) | profile-tuned | 5m / `OLLAMA_MAX_LOADED_MODELS=1` | ✅ |
 
-### Development Effort (as of 2025-12-07)
+### Development Effort (as of 2026-04-22)
 
 | Metric | Value |
 |--------|-------|
-| Total commits | 517 |
-| GitHub issues | 60 (50 closed) |
-| Active development days | 18 |
-| Project timespan | 2025-11-08 to 2025-12-07 |
-| **Estimated active hours** | **~78 hours** |
-| Commits per day | 23.9 |
-| Issue completion rate | 83.3% |
+| Total commits | 735 (+218 since v1.0.0) |
+| GitHub issues | Epic-08 issues #236–#258 + follow-up fixes #269–#285 |
+| Active development days | ~20 (v1.0.0 arc) + 2 days (Epic-08 arc) |
+| Project timespan | 2025-11-08 to 2026-04-22 |
+| **Estimated active hours** | **~78h (v1.0.0) + ~18h (Epic-08) = ~96h** |
+| Issue completion rate | 83.3% (v1.0.0) / 96% (Epic-08) |
 
 ## Story Details
 

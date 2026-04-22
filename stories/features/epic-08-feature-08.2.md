@@ -8,7 +8,16 @@
 **Feature ID**: Feature 08.2
 **Feature Name**: Memory Pressure Mitigation
 **Epic**: Epic-08
-**Status**: 📋 Planned
+**Status**: ✅ Complete (shipped 2026-04-21)
+
+### Delivery Summary
+| Story | Title | PR | Notes |
+|-------|-------|----|-------|
+| 08.2-001 | Tune Ollama LaunchAgent Env | #264 | `OLLAMA_MAX_LOADED_MODELS=1`, `NUM_PARALLEL=1`, profile-scoped `KEEP_ALIVE` |
+| 08.2-002 | Memory-Pressure Auto-Unload | #271, fix #273 | `ollama-pressure-guard.sh` + LaunchAgent, 60s poll |
+| 08.2-003 | `ollama-warm`/`ollama-evict` Helpers | #260 | Zsh functions in `home-manager/modules/shell.nix` |
+| 08.2-004 | LaunchAgent Steady-State Audit | #272, docs #247, fix #274 | `audit-launchagents.sh` + snapshot in `docs/architecture.md` |
+| 08.2-005 | Swap-Usage Alerting | #265 | `/metrics` `status_flags.memory_swap`; digest + `health-check.sh` consume it |
 
 ### Feature 08.2: Memory Pressure Mitigation
 **Feature Description**: Stop Ollama defaults from pinning 20+ GB of RAM on idle. Tune `OLLAMA_MAX_LOADED_MODELS`, `OLLAMA_KEEP_ALIVE`, `OLLAMA_NUM_PARALLEL`; add a memory-pressure-triggered auto-unload agent; audit long-running LaunchAgents; flag swap use.

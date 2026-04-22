@@ -8,7 +8,13 @@
 **Feature ID**: Feature 08.4
 **Feature Name**: Observability Polish
 **Epic**: Epic-08
-**Status**: 📋 Planned
+**Status**: ✅ Complete (shipped 2026-04-21)
+
+### Delivery Summary
+| Story | Title | PR | Notes |
+|-------|-------|----|-------|
+| 08.4-001 | Top-N CPU Processes in `/metrics` | #275 | `processes.top_cpu[]` (5 entries), self-process filtered |
+| 08.4-002 | Beszel Custom Sensors (Power + Temp) | #283 | `scripts/beszel-sensors/{power,temp,temp_gpu}.sh` shipped via activation |
 
 ### Feature 08.4: Observability Polish
 **Feature Description**: Extend `/metrics` with top-5 CPU processes (avoids forking `ps` inside SketchyBar click handlers) and wire the existing Beszel agent to ship power-draw + silicon-temperature time series for long-horizon analysis.

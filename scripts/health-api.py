@@ -561,11 +561,17 @@ class HealthHandler(BaseHTTPRequestHandler):
 
     def _respond(self, code: int, body: dict):
         payload = json.dumps(body, indent=2).encode()
-        self.send_response(code)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(payload)))
-        self.end_headers()
-        self.wfile.write(payload)
+        try:
+            self.send_response(code)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+        except (BrokenPipeError, ConnectionResetError):
+            # The client (typically SketchyBar's system.sh with --max-time)
+            # disconnected before we finished writing. Noise, not an error —
+            # the cached response is already populated for the next request.
+            pass
 
     def log_message(self, format, *args):
         # Suppress default stderr logging; write to stdout instead

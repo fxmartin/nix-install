@@ -32,7 +32,11 @@ fi
 
 METRICS_URL="${SKETCHYBAR_METRICS_URL:-http://localhost:7780/metrics}"
 
-JSON=$(curl -s --max-time 1 "$METRICS_URL" 2>/dev/null)
+# --max-time budget: macmon sampling takes 1-2s on a cold 2s-TTL cache, so a
+# 1s budget guarantees a timeout every other tick. 3s gives the cold path
+# room to breathe while the warm path (within 2s cache TTL) still returns
+# in <100ms — bar perceived latency is unchanged for most ticks.
+JSON=$(curl -s --max-time 3 "$METRICS_URL" 2>/dev/null)
 if [ -z "$JSON" ]; then
   sketchybar --trigger system_metrics_update STALE=1
   exit 0

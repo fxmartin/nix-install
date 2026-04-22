@@ -176,6 +176,5 @@ To re-audit at any time: `audit-launchagents` (5 min). Tune via `SAMPLES=N INTER
 | Docker | No | Yes | Yes |
 | LSPs | No | Yes | Yes |
 | Office/Comms | No | Yes | Yes |
-| Parallels | No | No | Yes |
 | NAS mounts | No | No | SMB automount |
 | Backups | No | No | rsync to NAS, iCloud sync |

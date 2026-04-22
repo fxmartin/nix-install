@@ -66,12 +66,11 @@ gh auth login --hostname github.com --git-protocol ssh --web
 
 **Symptom**: Bootstrap fails accessing directories or running commands.
 
-**Cause**: Terminal needs Full Disk Access for Power profile (Parallels).
+**Cause**: Terminal may need Full Disk Access for certain Homebrew cask installers and/or LaunchAgent operations on a fresh macOS.
 
 **Solution**:
 ```bash
-# The bootstrap checks for this automatically
-# If it fails, manually grant FDA:
+# Grant FDA manually:
 # System Settings → Privacy & Security → Full Disk Access
 # Add your terminal app → Restart terminal → Re-run bootstrap
 ```

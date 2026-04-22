@@ -677,9 +677,6 @@ EOF
     # Should display Ollama instructions
     assert_output --partial "Verify Ollama models"
     assert_output --partial "ollama list"
-
-    # Should display Parallels instructions
-    assert_output --partial "Parallels Desktop"
 }
 
 @test "display_rebuild_success_message: does not display Power instructions for Standard" {
@@ -690,8 +687,7 @@ EOF
     # Display success message
     run display_rebuild_success_message 180
 
-    # Should NOT display Power-specific instructions
-    refute_output --partial "Parallels Desktop"
+    # Should NOT display Power-specific Ollama verification instructions
     refute_output --partial "Verify Ollama models"
 }
 

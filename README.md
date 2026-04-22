@@ -58,7 +58,7 @@ curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh 
    ```
 4. **Activate licenses** — See [Licensed Apps Guide](./docs/licensed-apps.md):
    - 1Password, Dropbox, NordVPN (sign in)
-   - iStat Menus, Parallels (enter license key)
+   - iStat Menus, Little Snitch (enter license key)
    - Zoom, Webex (sign in)
    - Office 365 (Microsoft account sign-in)
 
@@ -161,42 +161,57 @@ Rollback is instant — no re-downloading, just switches symlinks.
 
 ## What Gets Installed
 
-### Applications (50+ apps)
+### Applications
+
+Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections below are grouped by role; items tagged **[S/P]** are Standard + Power only (AI-Assistant is deliberately minimal).
 
 **AI & LLM Tools**:
-- Claude Desktop, Claude Code CLI, ChatGPT, Perplexity
-- Ollama (Power profile: `gemma4:e4b` + `gemma4:26b` + `nomic-embed-text`; Standard: `ministral-3:14b` + `nomic-embed-text`; AI-Assistant: `nomic-embed-text`)
-- LM Studio (local LLM GUI)
+- Claude Desktop, Claude Code CLI (from `claude-code-nix` flake)
+- ChatGPT, Perplexity (MAS), Inferencer (MAS, on-device models)
+- Ollama (Power: `gemma4:e4b` + `gemma4:26b` + `nomic-embed-text`; Standard: `ministral-3:14b` + `nomic-embed-text`; AI-Assistant: `nomic-embed-text`)
+
+**Terminal & Editor**:
+- Ghostty (GPU-accelerated, Catppuccin via Stylix)
+- cmux (Ghostty-based terminal with vertical tabs for multi-agent AI workflows)
+- Zed Editor (Catppuccin themed)
 
 **Development**:
-- Zed Editor (GPU-accelerated, Catppuccin themed)
-- Ghostty terminal (Catppuccin themed)
-- Python 3.12 + uv + ruff + black + mypy + pylint
-- Podman + Podman Desktop (rootless containers)
-- Git + Git LFS + GitHub CLI
+- Python 3.12 + uv + ruff + black + mypy + pylint (via Nix)
+- Podman (rootless containers, via Nix) + Docker Desktop **[S/P]**
+- TablePlus (database GUI) **[S/P]**
+- Git + Git LFS + GitHub CLI (`gh`)
 - Node.js (for npx/npm tooling)
 - Language servers (pyright, typescript, bash, yaml, etc.)
 
-**Browsers**: Brave
+**Window Management & Status Bar**:
+- AeroSpace (i3-like tiling window manager)
+- SketchyBar (custom status bar with deep Apple Silicon telemetry — Epic-08)
+- skhd (simple hotkey daemon)
+
+**Browsers**:
+- Google Chrome (all profiles)
+- Brave, Arc **[S/P]**
 
 **Productivity**:
 - 1Password + 1Password for Safari
 - Obsidian (knowledge base / notes)
 - Plaud (AI voice recorder and transcription)
-- Dropbox (cloud storage)
-- Calibre, Kindle, Marked 2, Keka
-- Office 365 (Word, Excel, PowerPoint, Outlook, OneNote, Teams)
-- reMarkable desktop
+- Amphetamine (MAS, keep-awake utility)
+- Dropbox, Calibre, Kindle (MAS), Marked 2 (MAS), Keka **[S/P]**
+- Office 365 (Word, Excel, PowerPoint, Outlook, OneNote, Teams) **[S/P]**
+- reMarkable desktop (MAS) **[S/P]**
 
-**Communication**: WhatsApp, Zoom, Webex
+**Communication**: Telegram, WhatsApp (MAS), Slack **[S/P]**, Zoom **[S/P]**, Webex **[S/P]**
 
-**Media**: VLC
+**Media**: VLC **[S/P]**, `yt-dlp` (CLI)
 
 **Security**: NordVPN, Tailscale, Little Snitch
 
-**System**: iStat Menus, OnyX, f.lux, btop, gotop, macmon
+**System & Monitoring**: iStat Menus, OnyX **[S/P]**, f.lux **[S/P]**, btop, gotop, macmon, mactop
 
-**Power Profile Only**: Parallels Desktop, additional Ollama models
+**Remote Access**: RustDesk **[S/P]**
+
+**Fonts**: SF Pro, Hack Nerd Font, JetBrains Mono Nerd Font (via Stylix)
 
 ### System Configuration
 
@@ -228,13 +243,13 @@ Rollback is instant — no re-downloading, just switches symlinks.
 | Feature | AI-Assistant | Standard | Power |
 |---------|-------------|----------|-------|
 | **Target** | Older MacBook (AI) | MacBook Air | MacBook Pro M3 Max |
-| **Apps** | ~25 (minimal) | 47+ | 51+ |
-| **Ollama Models** | 1 (embeddings) | 2 (~9GB) | 4 (~21GB) |
-| **Docker** | No | Yes | Yes |
+| **Casks** | 17 (core only) | 32 | 32 |
+| **Ollama Models** | 1 (embeddings) | 2 (~9GB) | 3 (~19GB) |
+| **Docker Desktop** | No | Yes | Yes |
 | **LSPs** | No | Yes | Yes |
 | **Office/Video Conf** | No | Yes | Yes |
-| **Parallels Desktop** | No | No | Yes |
-| **Disk Usage** | ~20GB | ~35GB | ~120GB |
+| **NAS backup / SMB / iCloud sync** | No | No | Yes |
+| **Disk Usage** | ~20GB | ~35GB | ~80GB |
 
 ### Package Sources (Priority Order)
 
@@ -267,6 +282,7 @@ The system runs **automated maintenance** via LaunchAgents/LaunchDaemons:
 | Monthly | Disk Cleanup | Huggingface / browser / Docker caches pruned with retention windows |
 | Quarterly | Docker Deep Prune | `docker system prune -a --volumes` on the 1st of each quarter |
 | Every 60s | Ollama Pressure Guard | Auto-unloads Ollama models on `warn`/`critical` memory pressure (when no active request) |
+| Every 10 min | Orphan VM Watcher | **Notify-only** detector for Apple Virtualization.framework VMs with PPID=1 holding ≥2 GB RSS (usually Claude Desktop's sandbox left behind after a crash). Raises a red-icon modal alert + email; never kills. Added after the 2026-04-22 watchdog-timeout panic. |
 
 ### Weekly Maintenance Digest (Example)
 
@@ -287,6 +303,23 @@ Nix Store Size: 45G
 Disk Free (/nix): 380G
 System Generations: 12
 
+DISK GROWTH (12-week rolling window)
+------------------------------------
+consumer               previous      current            Δ
+nix_store                  44.1G      45.0G        +920M
+ollama                     19.2G      19.2G           0K
+huggingface                 4.8G       5.1G        +300M
+docker                      2.1G        980M        -1.1G
+library_caches              6.4G       7.0G        +600M
+claude                      1.2G       1.3G        +100M
+
+ORPHAN VM WATCH (7-day summary)
+-------------------------------
+Detections this week: 1
+
+Most recent (up to 5):
+  2026-04-22 20:46:11  pid=12345 rss=5.2GB cmd=/System/Library/...VirtualMachine
+
 SECURITY STATUS
 ---------------
 FileVault: Enabled ✅
@@ -294,7 +327,7 @@ Firewall: Enabled ✅
 
 RECOMMENDATIONS
 ---------------
-• No issues detected. System is healthy! ✅
+• 1 orphan Virtualization VM detection(s) this week — review /tmp/virt-vm-orphan-watch.log; restart Claude Desktop if the pattern repeats.
 ```
 
 ---
@@ -388,8 +421,10 @@ nix-install/
 │   ├── disk-cleanup.sh       # HF / browser / Docker / claude-projects pruning
 │   ├── ollama-lru.sh         # Stale Ollama model reporter / pruner
 │   ├── ollama-pressure-guard.sh  # Memory-pressure auto-unload
+│   ├── virt-vm-orphan-watch.sh   # Orphan Virtualization VM detector (notify-only)
 │   ├── audit-launchagents.sh # Steady-state RSS audit
 │   ├── claude-cleanup.sh     # Orphan kill + --prune-old
+│   ├── send-notification.sh  # Email helper (msmtp) — shared by maintenance scripts
 │   ├── beszel-sensors/       # Custom Beszel sensors (power, temp_cpu, temp_gpu)
 │   └── weekly-maintenance-digest.sh
 └── docs/                     # Documentation (Epic-07)
@@ -428,7 +463,7 @@ nix-install/
 | **Tests** | 1,140 test cases (16 BATS files) |
 | **Documentation** | 46K lines across 137 markdown files |
 | **GitHub Issues** | Epic-08 #236–#258 (23 stories) + follow-up fixes #269–#285 |
-| **Packages** | 26 casks, 4 brews, 4 MAS, 50+ Nix |
+| **Packages** | 32 casks (17 on AI-Assistant), 7 brews, 8 MAS, 50+ Nix |
 
 **Next**: MacBook Air migrations (Phase 11) · Story 08.3-008 (one-day mactop-free validation)
 

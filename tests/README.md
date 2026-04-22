@@ -176,10 +176,9 @@ The `bootstrap_profile_selection.bats` test suite validates:
 4. **Profile Description Display** (10 tests)
    - Standard profile description shown
    - Power profile description shown
-   - Disk usage estimates (~35GB for Standard, ~120GB for Power)
+   - Disk usage estimates (~35GB for Standard, ~80GB for Power)
    - Target hardware (MacBook Air vs MacBook Pro M3 Max)
-   - Ollama model counts (1 vs 4)
-   - Virtualization differences (no virtualization vs Parallels Desktop)
+   - Ollama model counts (2 vs 3)
 
 5. **Confirmation Flow** (3 tests)
    - Standard profile confirmation message
@@ -603,8 +602,8 @@ FX should perform these manual tests in a VM to validate profile selection funct
 
 5. **Profile Display Validation Test**
    - Verify profile descriptions are clear and accurate:
-     - Standard: MacBook Air, 1 Ollama model, no virtualization, ~35GB
-     - Power: MacBook Pro M3 Max, 4 Ollama models, Parallels Desktop, ~120GB
+     - Standard: MacBook Air, 2 Ollama models, ~35GB
+     - Power: MacBook Pro M3 Max, 3 Ollama models, NAS backup + SMB + iCloud sync, ~80GB
    - Expected: All information matches REQUIREMENTS.md specifications
 
 6. **Profile Variable Persistence Test**

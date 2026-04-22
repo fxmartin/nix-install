@@ -54,7 +54,7 @@ Activate apps requiring sign-in or license keys. See [Licensed Apps Guide](./lic
 
 **License Key Apps** (~2 minutes):
 - [ ] **iStat Menus** - Enter license key (or start 14-day trial)
-- [ ] **Parallels Desktop** (Power profile only) - Enter license key
+- [ ] **Little Snitch** - Enter license key (or start trial)
 
 **Disable Auto-Updates** (CRITICAL):
 - [ ] Each app above: Preferences → disable auto-update

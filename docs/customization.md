@@ -457,15 +457,18 @@ launchd.user.agents.my-startup-script = {
 
 ### Example 4: Profile-Specific Apps
 
-Add apps only to Power profile:
+Add Power-only configuration (e.g., NAS backup, extra modules):
 
 ```nix
-# flake.nix - in darwinConfigurations.power
-homebrew.casks = [
-  # ... common casks
-  "parallels"  # Power profile only
+# flake.nix - in darwinConfigurations.power modules list
+modules = [
+  ./darwin/smb-automount.nix   # Power-only: NAS mounts
+  ./darwin/rsync-backup.nix    # Power-only: NAS backup
+  # ...standard modules...
 ];
 ```
+
+The cask set is currently identical across Standard and Power — differentiate via module imports or Ollama models instead.
 
 ---
 

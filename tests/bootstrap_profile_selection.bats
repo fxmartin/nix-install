@@ -172,12 +172,6 @@ setup() {
     [[ "$output" =~ "no virtualization" ]]
 }
 
-@test "display_profile_options shows Parallels Desktop for Power" {
-    run display_profile_options
-    [ "$status" -eq 0 ]
-    [[ "$output" =~ "Parallels Desktop" ]]
-}
-
 # =============================================================================
 # CONFIRMATION PROMPT TESTS
 # =============================================================================

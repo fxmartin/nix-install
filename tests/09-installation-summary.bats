@@ -366,22 +366,6 @@ setup() {
     assert_output --regexp "(Microsoft Office|Office 365)"
 }
 
-@test "display_manual_activation_apps: includes Parallels for Power profile" {
-    export INSTALL_PROFILE="power"
-
-    run display_manual_activation_apps
-    assert_success
-    assert_output --partial "Parallels"
-}
-
-@test "display_manual_activation_apps: does NOT include Parallels for Standard profile" {
-    export INSTALL_PROFILE="standard"
-
-    run display_manual_activation_apps
-    assert_success
-    refute_output --partial "Parallels"
-}
-
 @test "display_manual_activation_apps: uses bullet points or list formatting" {
     run display_manual_activation_apps
     assert_success
@@ -396,7 +380,7 @@ setup() {
 }
 
 #############################################################################
-# PROFILE-SPECIFIC TESTS (6 tests)
+# PROFILE-SPECIFIC TESTS (4 tests)
 #############################################################################
 
 @test "installation_summary_phase: Standard profile has correct app count" {
@@ -465,38 +449,6 @@ setup() {
     run installation_summary_phase
     assert_success
     assert_output --regexp "(Ollama|ollama list)"
-}
-
-@test "installation_summary_phase: Standard profile does not mention Parallels" {
-    export INSTALL_PROFILE="standard"
-    export BOOTSTRAP_START_TIME=1000000000
-
-    function date() {
-        if [[ "$1" == "+%s" ]]; then
-            echo "1000000600"
-        fi
-    }
-    export -f date
-
-    run installation_summary_phase
-    assert_success
-    refute_output --partial "Parallels"
-}
-
-@test "installation_summary_phase: Power profile mentions Parallels Desktop" {
-    export INSTALL_PROFILE="power"
-    export BOOTSTRAP_START_TIME=1000000000
-
-    function date() {
-        if [[ "$1" == "+%s" ]]; then
-            echo "1000001200"
-        fi
-    }
-    export -f date
-
-    run installation_summary_phase
-    assert_success
-    assert_output --partial "Parallels"
 }
 
 #############################################################################

@@ -26,9 +26,9 @@ This repository implements an automated, declarative MacBook configuration syste
    - ~35GB disk usage
 
 2. **Power Profile** (MacBook Pro M3 Max target):
-   - All Standard apps + Parallels Desktop
+   - Same cask set as Standard, plus NAS backup (rsync), SMB automount, iCloud proposal sync
    - 3 Ollama models (`gemma4:e4b`, `gemma4:26b`, `nomic-embed-text`)
-   - ~120GB disk usage
+   - ~80GB disk usage (dominated by Ollama footprint)
 
 3. **AI-Assistant Profile** (Older MacBook, personal AI assistant):
    - Minimal GUI: Ghostty, cmux, Claude, ChatGPT, Chrome, Zed, 1Password
@@ -246,9 +246,15 @@ inputs.nix-darwin.inputs.nixpkgs.follows = "nixpkgs";  # Pin to same nixpkgs
 
 **Profile differentiation**:
 ```nix
-darwinConfigurations.power = {
-  homebrew.casks = [ "parallels" ];  # Power-only
-  system.activationScripts.pullOllamaModels = ''...'';  # Power-only
+darwinConfigurations.power = mkDarwinConfiguration {
+  isPowerProfile = true;
+  profileName = "power";
+  modules = [
+    ./darwin/smb-automount.nix    # NAS mounts — Power-only
+    ./darwin/rsync-backup.nix     # NAS backup — Power-only
+    ./darwin/icloud-sync.nix      # Proposal sync — Power-only
+    # ...postActivation pulls ollamaModels.power (3 models)
+  ];
 };
 ```
 

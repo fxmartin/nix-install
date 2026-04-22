@@ -143,7 +143,7 @@ Consistency: 100% (declarative config)
 **Declarative MacBook configuration system** using Nix package manager + nix-darwin + Home Manager with:
 - **Two installation profiles**: Standard (Air) and Power (Pro M3 Max)
 - **One-command bootstrap**: Download and run script, answer 3 questions, walk away
-- **Machine-specific configurations**: Parallels on Power, extra Ollama models on Power (1TB storage)
+- **Machine-specific configurations**: extra Ollama models, NAS/SMB/iCloud sync on Power (1TB storage)
 - **Full reproducibility**: Same config → identical system state
 - **Public GitHub repo**: Configuration versioned, forkable, shareable
 
@@ -164,8 +164,9 @@ Consistency: 100% (declarative config)
    - Theming (Catppuccin with auto light/dark mode)
 
 3. **Profile-Based Installation**
-   - **Standard Profile**: Core apps, basic Ollama model, no virtualization
-   - **Power Profile**: + Parallels Desktop, + additional Ollama models (qwen2.5-coder:32b, llama3.1:70b, deepseek-r1:32b)
+   - **Standard Profile**: Core apps, 2 Ollama models (`ministral-3:14b`, `nomic-embed-text`)
+   - **Power Profile**: Same cask set as Standard + 3 larger Ollama models (`gemma4:e4b`, `gemma4:26b`, `nomic-embed-text`) + NAS rsync, SMB automount, iCloud proposal sync
+   - **AI-Assistant Profile**: Minimal cask set (17 core), embeddings-only Ollama model
 
 4. **Maintenance Automation**
    - Daily garbage collection (cleanup old Nix generations)
@@ -287,17 +288,10 @@ Consistency: 100% (declarative config)
 - Acceptance: Generated config passes Nix validation
 
 **REQ-BOOT-003**: Profile selection system
-- Two profiles: "Standard" (Air), "Power" (Pro M3 Max)
+- Three profiles: "Standard" (Air), "Power" (Pro M3 Max), "AI-Assistant" (legacy Mac)
 - Clear description of differences shown to user
-- Profile determines: Parallels installation, Ollama models pulled
-- **Power profile prerequisite**: Terminal must have Full Disk Access (FDA)
-  - FDA check runs after profile selection (Phase 2)
-  - Required for Parallels Desktop installation via Homebrew
-  - Bootstrap terminates if FDA not granted (prevents installation failures)
-  - Provides step-by-step instructions to grant FDA and relaunch terminal
-  - Standard profile skips FDA check (Parallels not installed)
+- Profile determines: Ollama models pulled, Power-only modules (NAS rsync, SMB automount, iCloud sync)
 - Acceptance: Correct apps installed based on profile choice
-- Acceptance: Power profile bootstrap fails gracefully if terminal lacks FDA
 
 **REQ-BOOT-004**: SSH key management
 - Generate ed25519 SSH key for GitHub
@@ -378,9 +372,9 @@ Consistency: 100% (declarative config)
 - NordVPN 🔒
 - Acceptance: App installed, requires manual login
 
-**REQ-APP-009**: Profile-Specific Apps
-- **Power Only**: Parallels Desktop 🔒
-- Acceptance: Parallels NOT installed on Standard, IS installed on Power
+**REQ-APP-009**: Profile-Specific Modules
+- **Power Only**: NAS rsync backup, SMB automount (via autofs), iCloud proposal sync
+- Acceptance: Power-only modules wired into `darwinConfigurations.power` in `flake.nix`; Standard/AI-Assistant do not import them
 
 **REQ-APP-010**: Office 365 (Homebrew Cask Installation)
 - Install via Homebrew cask: `microsoft-office-businesspro`
@@ -560,7 +554,7 @@ Consistency: 100% (declarative config)
 - Acceptance: Non-technical user can follow and complete install
 
 **REQ-DOC-002**: Licensed App Activation Guide
-- List of apps requiring manual activation: 1Password, iStat Menus, NordVPN, Zoom, Webex, Parallels, Dropbox
+- List of apps requiring manual activation: 1Password, iStat Menus, Little Snitch, NordVPN, Zoom, Webex, Dropbox
 - Step-by-step for each app
 - Acceptance: User can activate all licenses within 15 minutes
 
@@ -947,9 +941,9 @@ Consistency: 100% (declarative config)
 ---
 
 #### Phase 9: VM Testing (Week 6)
-**Goal**: Test complete setup in Parallels macOS VM before touching real hardware
+**Goal**: Test complete setup in a macOS VM before touching real hardware
 
-- [ ] Create fresh macOS VM in Parallels Desktop
+- [ ] Create fresh macOS VM (any Apple-Silicon-capable hypervisor — UTM, VMware Fusion, etc.)
 - [ ] Configure VM with adequate resources (4+ CPU cores, 8+ GB RAM, 100+ GB disk)
 - [ ] Test Power profile (matches MacBook Pro M3 Max target)
 - [ ] Run bootstrap script from start to finish
@@ -978,7 +972,7 @@ Consistency: 100% (declarative config)
 - [ ] Fresh macOS reinstall on MacBook Pro M3 Max
 - [ ] Run bootstrap script (should be identical to VM experience)
 - [ ] Verify all workflows functional (work + dev)
-- [ ] Activate licensed apps (1Password, iStat Menus, NordVPN, Parallels, Office 365, etc.)
+- [ ] Activate licensed apps (1Password, iStat Menus, NordVPN, Little Snitch, Office 365, etc.)
 - [ ] Use as daily driver for 1 week minimum
 - [ ] Document any hardware-specific issues (vs VM)
 
@@ -1000,7 +994,7 @@ Consistency: 100% (declarative config)
 - [ ] Consider testing Standard profile in VM first (quick validation)
 - [ ] Migrate MacBook Air #1
   - [ ] Backup, fresh macOS install, run bootstrap with Standard profile
-  - [ ] Verify profile differences (no Parallels, only 1 Ollama model)
+  - [ ] Verify profile differences (Ollama model set, no Power-only modules)
   - [ ] Use for daily tasks to verify stability
 - [ ] Migrate MacBook Air #2
   - [ ] Same process as MacBook Air #1
@@ -1011,8 +1005,8 @@ Consistency: 100% (declarative config)
 **Deliverable**: All 3 MacBooks migrated and consistent within their profiles
 
 **Final Verification:**
-- MacBook Pro M3 Max (Power): Has Parallels, 4 Ollama models
-- MacBook Air #1 (Standard): No Parallels, 1 Ollama model
+- MacBook Pro M3 Max (Power): 3 Ollama models, NAS rsync + SMB automount + iCloud proposal sync enabled
+- MacBook Air #1 (Standard): 2 Ollama models, no Power-only modules
 - MacBook Air #2 (Standard): Identical to MacBook Air #1
 - All machines have identical config within their profile
 
@@ -1051,7 +1045,7 @@ Consistency: 100% (declarative config)
   - MacBook Pro M3 Max (Power profile target)
   - MacBook Air #1 (Standard profile)
   - MacBook Air #2 (Standard profile)
-- **Required**: macOS VM in Parallels Desktop for testing
+- **Required**: macOS VM in any Apple-Silicon-capable hypervisor (UTM, VMware Fusion, etc.) for testing
   - Configured with 4+ CPU cores, 8+ GB RAM, 100+ GB disk
   - Used for safe iteration before touching physical hardware
   - Can be destroyed and recreated quickly for reproducibility testing
@@ -1088,7 +1082,7 @@ Consistency: 100% (declarative config)
 - **Impact**: Medium (some apps won't work)
 - **Mitigation**:
   - Prefer Homebrew casks for GUI apps (better compatibility)
-  - Test critical apps early (Claude Desktop, Office 365, Parallels)
+  - Test critical apps early (Claude Desktop, Office 365, Docker Desktop)
   - Maintain escape hatch: manual installation instructions
   - Accept: Not everything needs to be in Nix
 
@@ -1246,8 +1240,6 @@ Consistency: 100% (declarative config)
 | GIMP | Homebrew Cask | GUI app |
 | **Security** | | |
 | NordVPN | Homebrew Cask (nordvpn) | GUI app |
-| **Virtualization** | | |
-| Parallels Desktop | Homebrew Cask (parallels) | GUI app, Power profile only, **Requires terminal FDA** |
 | **Shell & CLI Tools** | | |
 | Zsh | Built-in (macOS) | Already included |
 | Oh My Zsh | Home Manager | Managed declaratively |
@@ -1306,7 +1298,7 @@ Consistency: 100% (declarative config)
 │  │                                                       │  │
 │  │ Select installation profile:                         │  │
 │  │   [1] Standard (MacBook Air - essential apps)        │  │
-│  │   [2] Power (MacBook Pro - Parallels + extra models) │  │
+│  │   [2] Power (MacBook Pro - NAS sync + extra models)  │  │
 │  │                                                       │  │
 │  │ Choice: __                                            │  │
 │  └──────────────────────────────────────────────────────┘  │
@@ -1458,9 +1450,9 @@ Consistency: 100% (declarative config)
 | Feature/App | Standard Profile | Power Profile |
 |---|---|---|
 | **Target Hardware** | MacBook Air (512GB storage typical) | MacBook Pro M3 Max (1TB storage) |
-| **Use Case** | Portable, travel, light dev work | Main development machine, VM work |
-| **Virtualization** | None | Parallels Desktop |
-| **Ollama Models** | `gpt-oss:20b` only (~12GB) | `gpt-oss:20b`, `qwen2.5-coder:32b`, `llama3.1:70b`, `deepseek-r1:32b` (~80GB total) |
+| **Use Case** | Portable, travel, light dev work | Main development machine, NAS-backed workflow |
+| **Power-only modules** | None | NAS rsync backup, SMB automount, iCloud proposal sync |
+| **Ollama Models** | `ministral-3:14b`, `nomic-embed-text` (~9GB) | `gemma4:e4b`, `gemma4:26b`, `nomic-embed-text` (~19GB) |
 | **Development Tools** | ✅ Same (Python, Podman, Git LFS) | ✅ Same |
 | **AI Apps** | ✅ Same (Claude, ChatGPT, Perplexity) | ✅ Same |
 | **Browsers** | ✅ Same (Safari, Firefox, Arc) | ✅ Same |
@@ -1471,8 +1463,8 @@ Consistency: 100% (declarative config)
 | **System Config** | ✅ Same (Finder, trackpad, security) | ✅ Same |
 | **Shell Environment** | ✅ Same (Zsh, Oh My Zsh, Ghostty) | ✅ Same |
 | **Theming** | ✅ Same (Catppuccin) | ✅ Same |
-| **Total App Count** | ~47 apps | ~51 apps (+ Parallels + extra Ollama models) |
-| **Estimated Disk Usage (Apps)** | ~35GB (with 1 Ollama model) | ~120GB (with Parallels + 4 Ollama models) |
+| **Total App Count** | ~47 apps (32 casks + 7 brews + 8 MAS) | ~47 apps (same cask set as Standard) |
+| **Estimated Disk Usage (Apps)** | ~35GB (2 Ollama models) | ~80GB (3 Ollama models, larger footprint) |
 
 **Profile Selection Logic in Bootstrap:**
 ```bash
@@ -1484,8 +1476,8 @@ echo "      • No virtualization"
 echo ""
 echo "  [2] Power - MacBook Pro M3 Max (full suite, heavy storage)"
 echo "      • All development tools"
-echo "      • 4 Ollama models (~80GB)"
-echo "      • Parallels Desktop for VMs"
+echo "      • 3 Ollama models (~19GB)"
+echo "      • NAS rsync + SMB automount + iCloud proposal sync"
 echo ""
 read -p "Enter choice [1-2]: " profile_choice
 
@@ -1550,7 +1542,7 @@ esac
           ];
 
           homebrew.casks = [
-            # Standard profile casks (no Parallels)
+            # Standard profile casks
           ];
 
           # Stylix theming
@@ -1585,18 +1577,18 @@ esac
             # Common packages + power-specific
           ];
 
+          # Power profile imports additional modules (NAS rsync, SMB automount, iCloud sync)
+          # Cask list is identical to Standard — differentiation is at the module level
           homebrew.casks = [
-            # Standard casks + Parallels
-            "parallels"
+            # Same casks as Standard profile
           ];
 
-          # Power profile: Pull extra Ollama models
+          # Power profile: Pull larger Ollama models (see flake.nix for the current list)
           system.activationScripts.postActivation.text = ''
             # Pull Ollama models
-            /opt/homebrew/bin/ollama pull gpt-oss:20b
-            /opt/homebrew/bin/ollama pull qwen2.5-coder:32b
-            /opt/homebrew/bin/ollama pull llama3.1:70b
-            /opt/homebrew/bin/ollama pull deepseek-r1:32b
+            /opt/homebrew/bin/ollama pull gemma4:e4b
+            /opt/homebrew/bin/ollama pull gemma4:26b
+            /opt/homebrew/bin/ollama pull nomic-embed-text
           '';
 
           # Stylix theming (same as Standard)

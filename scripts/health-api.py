@@ -136,7 +136,10 @@ def check_generations() -> dict:
 _nix_store_cache: dict = {}
 _nix_store_cache_time: float = 0.0
 _nix_store_lock = threading.Lock()
-NIX_STORE_CACHE_TTL = 300  # seconds (5 minutes)
+# 30 min: `du -sh /nix/store` takes 30-50s on a hard-link-dense store and
+# spikes CPU during that window. Store size is diagnostic, not real-time —
+# refreshing every 30 min keeps the refresher below 3% of wall clock.
+NIX_STORE_CACHE_TTL = int(os.environ.get("NIX_STORE_CACHE_TTL", "1800"))
 
 
 def _refresh_nix_store_cache() -> None:
@@ -323,15 +326,17 @@ _metrics_cache: dict = {"status": "pending", "detail": "first macmon sample in p
 _metrics_cache_time: float = 0.0
 _metrics_lock = threading.Lock()
 
-# Interval between macmon samples. macmon on M3 Max takes ~4s per
-# --samples 1 --interval 500 call (startup + sensor enumeration),
-# so a 5s interval leaves enough headroom for the call to complete
-# before the next cycle starts.  Tune down if macmon gets faster.
-METRICS_REFRESH_INTERVAL = 5
+# Interval between macmon samples. macmon on M3 Max takes ~3-4s per
+# --samples 1 --interval 500 call (startup + sensor enumeration).
+# A 15s interval keeps macmon below ~3% of wall clock; 5s ran it at ~60%.
+# Power/temp/ANE/freq are trend indicators — 15s staleness is fine.
+# Override with METRICS_REFRESH_INTERVAL env var (e.g. for testing or
+# machines where macmon is fast).
+METRICS_REFRESH_INTERVAL = int(os.environ.get("METRICS_REFRESH_INTERVAL", "15"))
 
 # Subprocess timeout for a single macmon invocation.  Runs on a
 # background thread; nothing blocks on it, so generous is fine.
-MACMON_TIMEOUT_SEC = 15
+MACMON_TIMEOUT_SEC = int(os.environ.get("MACMON_TIMEOUT_SEC", "15"))
 
 
 def _top_cpu_processes(n: int = 5) -> list[dict]:

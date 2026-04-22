@@ -95,6 +95,7 @@ in {
       # Productivity & Utilities
       "1password" # 1Password - Password manager and secure vault (Story 02.4-002)
       "obsidian" # Obsidian - Markdown-based knowledge base and note-taking app
+      "plaud"    # Plaud - AI voice recorder and transcription companion
 
       # Window Management
       "nikitabobko/tap/aerospace" # AeroSpace - i3-like tiling window manager for macOS

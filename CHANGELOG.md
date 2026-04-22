@@ -80,6 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional bearer token authentication for health API (`HEALTH_API_TOKEN` env var)
 - Hetzner infrastructure and Ollama network access via Tailscale
 - `mactop` Apple Silicon system monitor
+- Plaud — AI voice recorder and transcription companion (all profiles)
 - Telegram messaging app
 - Daily Calibre library backup to NAS
 - Get Shit Done (GSD) meta-prompting system for Claude Code

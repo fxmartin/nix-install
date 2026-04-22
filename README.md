@@ -181,6 +181,8 @@ Rollback is instant — no re-downloading, just switches symlinks.
 
 **Productivity**:
 - 1Password + 1Password for Safari
+- Obsidian (knowledge base / notes)
+- Plaud (AI voice recorder and transcription)
 - Dropbox (cloud storage)
 - Calibre, Kindle, Marked 2, Keka
 - Office 365 (Word, Excel, PowerPoint, Outlook, OneNote, Teams)
@@ -426,7 +428,7 @@ nix-install/
 | **Tests** | 1,140 test cases (16 BATS files) |
 | **Documentation** | 46K lines across 137 markdown files |
 | **GitHub Issues** | Epic-08 #236–#258 (23 stories) + follow-up fixes #269–#285 |
-| **Packages** | 25 casks, 4 brews, 4 MAS, 50+ Nix |
+| **Packages** | 26 casks, 4 brews, 4 MAS, 50+ Nix |
 
 **Next**: MacBook Air migrations (Phase 11) · Story 08.3-008 (one-day mactop-free validation)
 

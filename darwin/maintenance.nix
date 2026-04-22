@@ -404,6 +404,50 @@ in {
     };
 
     # =========================================================================
+    # VIRTUALIZATION ORPHAN-VM WATCH (post-2026-04-22 kernel panic)
+    # =========================================================================
+    # Polls every 10 min for Apple Virtualization.framework VMs that have
+    # been reparented to launchd (PPID=1) AND hold >= 2 GB RSS. Most common
+    # source: Claude Desktop's sandbox VM left behind after a Claude.app
+    # crash. On 2026-04-22 a ~5 GB orphan VM was a primary contributor to
+    # a watchdog-timeout panic (compressor saturated, swap exhausted).
+    #
+    # NOTIFY-ONLY. The script logs to /tmp/virt-vm-orphan-watch.log and
+    # posts a native macOS notification via `osascript`. It does NOT kill
+    # anything — the decision is explicitly left to the operator.
+    #
+    # Tunable via env on the LaunchAgent (rebuild after changes):
+    #   VIRT_VM_RSS_GB_MIN   default 2   Minimum RSS (GB) to flag
+    virt-vm-orphan-watch = {
+      serviceConfig = {
+        Label = "org.nixos.virt-vm-orphan-watch";
+        ProgramArguments = [
+          "/bin/bash" "-c"
+          ''
+            SCRIPT="${scriptsDir}/virt-vm-orphan-watch.sh"
+            if [[ -x "$SCRIPT" ]]; then
+              "$SCRIPT"
+            else
+              echo "virt-vm-orphan-watch script not found: $SCRIPT" >> /tmp/virt-vm-orphan-watch.err
+              exit 1
+            fi
+          ''
+        ];
+        StartInterval = 600;  # 10 minutes
+        StandardOutPath = "/tmp/virt-vm-orphan-watch.log";
+        StandardErrorPath = "/tmp/virt-vm-orphan-watch.err";
+        EnvironmentVariables = {
+          PATH = agentPath;
+          HOME = agentHome;
+          VIRT_VM_RSS_GB_MIN = toString (userConfig.virtVmRssGbMin or 2);
+          NOTIFICATION_EMAIL = userConfig.notificationEmail;
+        };
+        RunAtLoad = false;
+        Umask = 77;
+      };
+    };
+
+    # =========================================================================
     # OLLAMA SERVER (Network-accessible via Tailscale)
     # =========================================================================
     # Starts Ollama server at login bound to all interfaces (0.0.0.0)

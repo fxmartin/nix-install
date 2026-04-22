@@ -106,6 +106,9 @@
     # Network Tools
     nmap                # Network discovery and security auditing
 
+    # Email
+    himalaya            # CLI email client (IMAP/SMTP/Maildir/Notmuch)
+
     # File Transfer
     rsync               # GNU rsync 3.x (fixes iCloud mmap deadlock in macOS openrsync)
 
@@ -226,9 +229,11 @@
           "health-api.py"
           "health-check.sh"
           "claude-cleanup.sh"
+          "send-notification.sh"      # email helper, reused by virt-vm-orphan-watch
           # Epic-08: invoked by always-on / opt-in LaunchAgents (darwin/maintenance.nix)
           "ollama-pressure-guard.sh"  # 60s guard; Story 08.2-002
           "ollama-lru.sh"             # monthly opt-in prune; Story 08.1-004
+          "virt-vm-orphan-watch.sh"   # 10min notify-only orphan-VM detector
         )
 
         for script in "''${COMMON_SCRIPTS[@]}"; do
@@ -260,7 +265,6 @@
           "weekly-maintenance-digest.sh"
           "release-monitor.sh"
           "disk-cleanup.sh"
-          "send-notification.sh"
           "fetch-release-notes.sh"
           "analyze-releases.sh"
           "create-release-issues.sh"

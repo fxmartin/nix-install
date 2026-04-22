@@ -32,6 +32,7 @@ WEEK_END=$(date "+%Y-%m-%d")
 LOG_DIR="/tmp"
 GC_LOG="${LOG_DIR}/nix-gc.log"
 OPT_LOG="${LOG_DIR}/nix-optimize.log"
+VIRT_VM_LOG="${LOG_DIR}/virt-vm-orphan-watch.log"
 
 # Disk growth telemetry (Story 08.1-008)
 # Rolling 12-week history of per-consumer sizes, persisted between runs so the
@@ -209,6 +210,62 @@ render_growth_section() {
 }
 
 # =============================================================================
+# ORPHAN VM WATCH SECTION (post-2026-04-22 panic mitigation)
+# =============================================================================
+# Aggregates detections from /tmp/virt-vm-orphan-watch.log for the past 7 days.
+# Log format written by scripts/virt-vm-orphan-watch.sh:
+#   2026-04-22T20:46:11 ORPHAN VM detected (threshold=2GB):
+#     pid=12345 rss=5.2GB cmd=...
+
+# Count detections in the reporting window (each '  pid=' line == one hit)
+count_orphan_vm_detections() {
+    [[ ! -f "${VIRT_VM_LOG}" ]] && { echo 0; return; }
+    awk -v since="${WEEK_START}" '
+        /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}/ { ts = $1 }
+        /^  pid=/ { if (substr(ts, 1, 10) >= since) c++ }
+        END { print c+0 }
+    ' "${VIRT_VM_LOG}" 2>/dev/null || echo 0
+}
+
+# Render the orphan-VM subsection of the digest.
+# State machine: cache the latest timestamp header, attach it to each
+# subsequent detail line, filter to the reporting window.
+render_orphan_vm_section() {
+    if [[ ! -f "${VIRT_VM_LOG}" ]]; then
+        echo "Log file not present (watcher may not have fired yet)."
+        return 0
+    fi
+
+    local matches
+    matches=$(awk -v since="${WEEK_START}" '
+        /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}/ {
+            ts = $1
+            next
+        }
+        /^  pid=/ {
+            date = substr(ts, 1, 10)
+            if (date >= since) {
+                time = substr(ts, 12, 8)
+                sub(/^  /, "", $0)
+                printf "  %s %s  %s\n", date, time, $0
+            }
+        }
+    ' "${VIRT_VM_LOG}" 2>/dev/null || true)
+
+    if [[ -z "${matches}" ]]; then
+        echo "No orphan VMs detected this week. ✅"
+        return 0
+    fi
+
+    local count
+    count=$(printf '%s\n' "${matches}" | grep -c '^  ' || echo 0)
+
+    printf 'Detections this week: %s\n' "${count}"
+    printf '\nMost recent (up to 5):\n'
+    printf '%s\n' "${matches}" | tail -5
+}
+
+# =============================================================================
 # GATHER METRICS
 # =============================================================================
 
@@ -217,6 +274,10 @@ echo "Generating weekly maintenance digest..."
 # Capture + persist disk history early (before email render needs it)
 persist_history || echo "Note: jq unavailable — skipping disk growth telemetry"
 GROWTH_SECTION=$(render_growth_section)
+
+# Orphan VM watch summary (post-2026-04-22 panic mitigation)
+ORPHAN_VM_SECTION=$(render_orphan_vm_section)
+ORPHAN_VM_COUNT=$(count_orphan_vm_detections)
 
 # Count GC runs from log
 GC_RUNS=0
@@ -301,6 +362,12 @@ if [[ "${FIREWALL_STATUS}" == *"Disabled"* ]]; then
 • Enable Firewall for network protection (System Settings → Network → Firewall)"
 fi
 
+# Orphan VM detections — if any fired this week, surface for review
+if [[ "${ORPHAN_VM_COUNT}" -gt 0 ]]; then
+    RECOMMENDATIONS+="
+• ${ORPHAN_VM_COUNT} orphan Virtualization VM detection(s) this week — review /tmp/virt-vm-orphan-watch.log; restart Claude Desktop if the pattern repeats."
+fi
+
 # Default message if no recommendations
 if [[ -z "${RECOMMENDATIONS}" ]]; then
     RECOMMENDATIONS="
@@ -334,6 +401,10 @@ System Generations: ${GENERATIONS}
 DISK GROWTH (12-week rolling window)
 ------------------------------------
 ${GROWTH_SECTION}
+
+ORPHAN VM WATCH (7-day summary)
+-------------------------------
+${ORPHAN_VM_SECTION}
 
 SECURITY STATUS
 ---------------

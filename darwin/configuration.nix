@@ -76,6 +76,11 @@
     # Claude Code CLI (Story 02.2-006)
     claude-code-nix.packages.${system}.default  # Claude Code CLI
 
+    # JavaScript runtime
+    # Required by Claude Code plugins such as codex@openai-codex, including
+    # on ai-assistant where the heavier JS/TS language-server stack is omitted.
+    nodejs
+
     # NOTE: MCP servers are configured via Home Manager using mcp-servers-nix.lib.mkConfig
     # See home-manager/modules/claude-code.nix for MCP server configuration
 
@@ -126,7 +131,6 @@
     shellcheck          # Shell script static analysis (used by bash-language-server)
 
     # Web Development (React.js / TypeScript / JavaScript)
-    nodejs                                   # Node.js runtime (required for npx, npm)
     typescript-language-server              # TypeScript/JavaScript language server
     vscode-langservers-extracted             # HTML, CSS, JSON, ESLint language servers
     prettier                                 # Code formatter for JS/TS/HTML/CSS/JSON
@@ -229,6 +233,13 @@
           "health-api.py"
           "health-check.sh"
           "claude-cleanup.sh"
+          "weekly-maintenance-digest.sh"
+          "release-monitor.sh"
+          "disk-cleanup.sh"
+          "fetch-release-notes.sh"
+          "analyze-releases.sh"
+          "create-release-issues.sh"
+          "send-release-summary.sh"
           "send-notification.sh"      # email helper, reused by virt-vm-orphan-watch
           # Epic-08: invoked by always-on / opt-in LaunchAgents (darwin/maintenance.nix)
           "ollama-pressure-guard.sh"  # 60s guard; Story 08.2-002
@@ -259,16 +270,10 @@
         SCRIPTS_SRC="/Users/${userConfig.username}/${userConfig.directories.dotfiles}/scripts"
         SCRIPTS_DST="/Users/${userConfig.username}/.local/bin"
 
-        # List of scripts used by LaunchAgents
+        # List of scripts used by Power-only LaunchAgents and workflows
         # NOTE: rsync-backup.sh is handled separately in darwin/rsync-backup.nix
         SCRIPTS=(
-          "weekly-maintenance-digest.sh"
-          "release-monitor.sh"
-          "disk-cleanup.sh"
-          "fetch-release-notes.sh"
-          "analyze-releases.sh"
-          "create-release-issues.sh"
-          "send-release-summary.sh"
+          "icloud-sync.sh"
         )
 
         for script in "''${SCRIPTS[@]}"; do

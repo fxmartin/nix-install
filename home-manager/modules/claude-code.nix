@@ -233,6 +233,44 @@ in {
       else
         echo "⚠️  Warning: $HOOKS_REPO directory not found"
       fi
+
+      # Install the OpenAI Codex Claude Code plugin declaratively.
+      # settings.json declares the marketplace and enabled plugin; the Claude
+      # CLI owns the runtime plugin registry and cache layout.
+      CLAUDE_BIN="$(command -v claude || true)"
+      if [ -z "$CLAUDE_BIN" ]; then
+        echo "⚠️  Warning: claude CLI not found; skipping Codex plugin installation"
+      else
+        $DRY_RUN_CMD mkdir -p "$CLAUDE_DIR/plugins"
+
+        if "$CLAUDE_BIN" plugin marketplace list 2>/dev/null | grep -q "openai-codex"; then
+          echo "✓ Claude plugin marketplace openai-codex already configured"
+        else
+          echo "Adding Claude plugin marketplace openai-codex..."
+          if $DRY_RUN_CMD "$CLAUDE_BIN" plugin marketplace add --scope user openai/codex-plugin-cc; then
+            echo "✓ Added Claude plugin marketplace openai-codex"
+          else
+            echo "⚠️  Warning: Failed to add Claude plugin marketplace openai-codex"
+          fi
+        fi
+
+        PLUGIN_LIST_JSON="$CLAUDE_DIR/plugins/installed_plugins.activation.json"
+        if "$CLAUDE_BIN" plugin list --json > "$PLUGIN_LIST_JSON" 2>/dev/null; then
+          if ${jq}/bin/jq -e 'any(.[]; .id == "codex@openai-codex")' "$PLUGIN_LIST_JSON" >/dev/null; then
+            echo "✓ Claude plugin codex@openai-codex already installed"
+          else
+            echo "Installing Claude plugin codex@openai-codex..."
+            if $DRY_RUN_CMD "$CLAUDE_BIN" plugin install --scope user codex@openai-codex; then
+              echo "✓ Installed Claude plugin codex@openai-codex"
+            else
+              echo "⚠️  Warning: Failed to install Claude plugin codex@openai-codex"
+            fi
+          fi
+          $DRY_RUN_CMD rm -f "$PLUGIN_LIST_JSON"
+        else
+          echo "⚠️  Warning: Could not list Claude plugins; skipping Codex plugin installation"
+        fi
+      fi
     else
       echo "⚠️  Warning: Could not find nix-install repository"
       echo "  Searched: ~/nix-install, ~/.config/nix-install, ~/Documents/nix-install"

@@ -237,7 +237,10 @@ in {
       # Install the OpenAI Codex Claude Code plugin declaratively.
       # settings.json declares the marketplace and enabled plugin; the Claude
       # CLI owns the runtime plugin registry and cache layout.
-      CLAUDE_BIN="$(command -v claude || true)"
+      CLAUDE_BIN="/run/current-system/sw/bin/claude"
+      if [ ! -x "$CLAUDE_BIN" ]; then
+        CLAUDE_BIN="$(command -v claude || true)"
+      fi
       if [ -z "$CLAUDE_BIN" ]; then
         echo "⚠️  Warning: claude CLI not found; skipping Codex plugin installation"
       else

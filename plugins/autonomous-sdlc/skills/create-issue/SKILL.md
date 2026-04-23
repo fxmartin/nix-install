@@ -16,11 +16,25 @@ This is a Codex-native port of the Claude Code `create-issue` workflow.
 
 Treat the user arguments as the defect description to investigate.
 
+## GitHub CLI Execution
+
+All GitHub CLI commands in this workflow must run through Batch or another
+non-sandboxed execution path that preserves the user's authenticated `gh`
+session.
+
+Rules:
+
+- Do not run `gh` commands through the default sandboxed shell path if that
+  path is unauthenticated in this environment.
+- Run `gh auth status`, `gh issue list`, and `gh issue create` through Batch.
+- If Batch or the authenticated non-sandbox path is unavailable, stop and
+  report that GitHub operations cannot be completed safely from this session.
+
 ## Preflight
 
 Before creating anything:
 
-1. Run `gh auth status` and stop with a clear error if GitHub CLI is unavailable or unauthenticated.
+1. Run `gh auth status` through Batch and stop with a clear error if GitHub CLI is unavailable or unauthenticated.
 2. Confirm the current branch with `git branch --show-current`.
 3. Read enough repo context to understand the project shape:
    - `package.json`, `pyproject.toml`, `Cargo.toml`, `Makefile`, or other obvious manifests
@@ -37,7 +51,7 @@ Classify the report:
 - Category: `bug`, `performance`, `ux`, `security`, `api`, `database`, `frontend`, `backend`, or `documentation`
 - Likely affected components and files
 
-Check for duplicate or related issues with `gh issue list --state all --search ... --limit 5`.
+Check for duplicate or related issues with `gh issue list --state all --search ... --limit 5` through Batch.
 
 Keep the investigation proportional: enough evidence to make the issue actionable, not a full root-cause analysis.
 
@@ -66,7 +80,7 @@ Before creation, present:
 
 ## Creation
 
-Create the issue with `gh issue create` only after the preview is ready.
+Create the issue with `gh issue create` through Batch only after the preview is ready.
 
 After creation, report:
 

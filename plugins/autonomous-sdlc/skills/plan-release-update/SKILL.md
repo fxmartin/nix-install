@@ -15,9 +15,23 @@ This is a Codex-native port of the Claude Code `plan-release-update` workflow.
 
 Parse the user arguments as a GitHub issue number.
 
+## GitHub CLI Execution
+
+All GitHub CLI commands in this workflow must run through Batch or another
+non-sandboxed execution path that preserves the user's authenticated `gh`
+session.
+
+Rules:
+
+- Do not run `gh` commands through the default sandboxed shell path if that
+  path is unauthenticated in this environment.
+- Run `gh issue view` through Batch.
+- If Batch or the authenticated non-sandbox path is unavailable, stop and
+  report that GitHub operations cannot be completed safely from this session.
+
 ## Workflow
 
-1. Read the issue with `gh issue view`.
+1. Read the issue with `gh issue view` through Batch.
 2. Determine the issue type from labels and title:
    - security update
    - breaking change

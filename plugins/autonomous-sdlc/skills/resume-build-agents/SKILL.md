@@ -27,6 +27,20 @@ Use it when the user wants:
 - visible coordination over which slices are delegated
 - a tighter implementation loop before PR or merge work
 
+## GitHub CLI Execution
+
+All GitHub CLI commands in this workflow must run through Batch or another
+non-sandboxed execution path that preserves the user's authenticated `gh`
+session.
+
+Rules:
+
+- Do not run `gh` commands through the default sandboxed shell path if that
+  path is unauthenticated in this environment.
+- Run `gh auth status` and any PR update/create operation through Batch.
+- If Batch or the authenticated non-sandbox path is unavailable, stop and
+  report that GitHub operations cannot be completed safely from this session.
+
 ## Preflight
 
 Before making changes:
@@ -34,7 +48,7 @@ Before making changes:
 1. Confirm the repository has story files such as `STORIES.md`, `docs/stories/`, or the repo’s established equivalent.
 2. Run `git status --porcelain` and stop on a dirty worktree unless the user explicitly accepts working from that state.
 3. Confirm the current branch with `git branch --show-current`.
-4. Check `gh auth status` if the workflow may create or update PRs.
+4. Check `gh auth status` through Batch if the workflow may create or update PRs.
 
 ## Workflow
 
@@ -51,7 +65,7 @@ Before making changes:
 
 When delegation is explicitly authorized:
 
-- The main agent owns story interpretation, git state, integration, and GitHub operations.
+- The main agent owns story interpretation, git state, integration, and Batch-executed GitHub operations.
 - Workers get disjoint file ownership.
 - Workers do not create PRs, push branches, or merge changes.
 - Always end with a main-agent review pass before completion.

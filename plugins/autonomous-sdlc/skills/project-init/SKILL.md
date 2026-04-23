@@ -16,6 +16,20 @@ This is a Codex-native port of the Claude Code `project-init` workflow.
 
 Parse the user arguments as the proposed project name. If omitted, derive the name from the current directory and confirm only if the inferred name is ambiguous or risky.
 
+## GitHub CLI Execution
+
+All GitHub CLI commands in this workflow must run through Batch or another
+non-sandboxed execution path that preserves the user's authenticated `gh`
+session.
+
+Rules:
+
+- Do not run `gh` commands through the default sandboxed shell path if that
+  path is unauthenticated in this environment.
+- Run `gh auth status` and `gh repo create` through Batch.
+- If Batch or the authenticated non-sandbox path is unavailable, stop and
+  report that GitHub operations cannot be completed safely from this session.
+
 ## Preflight
 
 Before mutating anything:
@@ -23,7 +37,7 @@ Before mutating anything:
 1. Inspect the current directory contents.
 2. Check whether `.git/` already exists.
 3. Verify `git` is available.
-4. Verify `gh auth status` before any GitHub repo creation.
+4. Verify `gh auth status` through Batch before any GitHub repo creation.
 
 Stop and explain the conflict if:
 
@@ -51,7 +65,7 @@ When the environment and intent are clear, initialize the minimum useful scaffol
 - stack-appropriate `.gitignore`
 - lightweight `PROJECT-SEED.md`
 - lightweight project guidance file if the user asked for it
-- GitHub repo creation with `gh repo create` only if requested or clearly implied by the task
+- GitHub repo creation with `gh repo create` through Batch only if requested or clearly implied by the task
 
 Keep generated artifacts minimal and editable.
 

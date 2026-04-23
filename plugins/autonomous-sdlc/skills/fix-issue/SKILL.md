@@ -34,14 +34,28 @@ Defaults:
 - Batch targets (`next --limit=N`, `all`) also run sequentially unless the user explicitly asks for parallel workers.
 - `--skip-e2e` means `--e2e-gate=off`.
 
+## GitHub CLI Execution
+
+All GitHub CLI commands in this workflow must run through Batch or another
+non-sandboxed execution path that preserves the user's authenticated `gh`
+session.
+
+Rules:
+
+- Do not run `gh` commands through the default sandboxed shell path if that
+  path is unauthenticated in this environment.
+- Run `gh auth status`, `gh issue view`, and any PR or issue mutation through Batch.
+- If Batch or the authenticated non-sandbox path is unavailable, stop and
+  report that GitHub operations cannot be completed safely from this session.
+
 ## Preflight
 
 Before making changes:
 
-1. Run `gh auth status` before any GitHub issue or PR action.
+1. Run `gh auth status` through Batch before any GitHub issue or PR action.
 2. Run `git status --porcelain` and stop on a dirty worktree unless the user has explicitly accepted working from that state.
 3. Confirm the current branch with `git branch --show-current`.
-4. If the workflow needs current remote issue or PR state, refresh with the narrowest useful `git fetch` or `gh` query.
+4. If the workflow needs current remote issue or PR state, refresh with the narrowest useful `git fetch` or Batch-executed `gh` query.
 5. Run the detected baseline test command unless `--skip-preflight` is present.
 
 Detect tests in this order:
@@ -57,7 +71,7 @@ If baseline tests fail before any issue work starts, stop and report that the de
 
 For each target issue:
 
-1. Fetch issue metadata with `gh issue view`.
+1. Fetch issue metadata with `gh issue view` through Batch.
 2. Stop if the issue is closed, explicitly marked `wontfix`, or clearly assigned to someone else.
 3. Investigate the problem directly in the codebase:
    - identify likely root cause
@@ -76,7 +90,7 @@ Only use subagents when the user explicitly says `parallel agents`, `subagents`,
 
 When delegation is authorized:
 
-- The main agent still owns `git`, `gh`, integration, and merge actions.
+- The main agent still owns `git`, Batch-executed `gh`, integration, and merge actions.
 - Each worker must have a disjoint file or module scope.
 - Workers must not push branches, create PRs, merge changes, or edit shared progress files.
 - Use workers for bounded implementation or validation slices, not for the critical-path decision making that the main agent needs immediately.

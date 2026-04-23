@@ -28,13 +28,27 @@ Parse free-form arguments from the user:
 - Scope: `all`, `resume`, `epic-NN`, or a case-insensitive epic name. Default: `all`.
 - Flags: `--dry-run`, `--auto`, `--limit=N`, `--sequential`, `--skip-preflight`, `--skip-coverage`, `--coverage-threshold=N`, `--e2e-gate=block|warn|off`, `--skip-e2e`.
 
+## GitHub CLI Execution
+
+All GitHub CLI commands in this workflow must run through Batch or another
+non-sandboxed execution path that preserves the user's authenticated `gh`
+session.
+
+Rules:
+
+- Do not run `gh` commands through the default sandboxed shell path if that
+  path is unauthenticated in this environment.
+- Run `gh auth status` and every PR or issue operation through Batch.
+- If Batch or the authenticated non-sandbox path is unavailable, stop and
+  report that GitHub operations cannot be completed safely from this session.
+
 ## Preflight
 
 Before mutating anything:
 
 1. Run `git status --porcelain` and block on a dirty worktree unless the user explicitly confirms working with the dirty state.
 2. Confirm current branch with `git branch --show-current`.
-3. Check `gh auth status` before any GitHub issue/PR operation.
+3. Check `gh auth status` through Batch before any GitHub issue/PR operation.
 4. Run the detected test command unless `--skip-preflight` is present.
 
 Detect tests in this order:
@@ -89,7 +103,7 @@ Main agent responsibilities:
 - Create non-overlapping worker assignments.
 - Spawn workers only after explicit user authorization.
 - Integrate worker results one at a time.
-- Own all `git`, `gh`, PR, merge, DoD, and progress-file operations.
+- Own all `git`, Batch-executed `gh`, PR, merge, DoD, and progress-file operations.
 
 Worker responsibilities:
 

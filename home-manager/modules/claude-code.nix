@@ -274,6 +274,107 @@ in {
           echo "⚠️  Warning: Could not list Claude plugins; skipping Codex plugin installation"
         fi
       fi
+
+      # Install the local autonomous-sdlc Codex plugin globally for Codex.
+      # Codex discovers home-level plugins via ~/.agents/plugins/marketplace.json,
+      # where ./plugins/<name> resolves relative to the user's home directory.
+      # Mark the plugin installed by default so its skills are available without
+      # an extra install step in the Codex UI.
+      CODEX_PLUGIN_REPO="$REPO_ROOT/plugins/autonomous-sdlc"
+      CODEX_PLUGIN_HOME_DIR="${config.home.homeDirectory}/plugins"
+      CODEX_PLUGIN_HOME="$CODEX_PLUGIN_HOME_DIR/autonomous-sdlc"
+      CODEX_AGENTS_DIR="${config.home.homeDirectory}/.agents/plugins"
+      CODEX_MARKETPLACE="$CODEX_AGENTS_DIR/marketplace.json"
+      CODEX_MARKETPLACE_TMP="$CODEX_MARKETPLACE.tmp"
+      CODEX_BIN="/run/current-system/sw/bin/codex"
+      CODEX_CONFIG="${config.home.homeDirectory}/.codex/config.toml"
+
+      if [ -d "$CODEX_PLUGIN_REPO" ]; then
+        $DRY_RUN_CMD mkdir -p "$CODEX_PLUGIN_HOME_DIR" "$CODEX_AGENTS_DIR"
+        $DRY_RUN_CMD ln -sfn "$CODEX_PLUGIN_REPO" "$CODEX_PLUGIN_HOME"
+        echo "✓ Linked ~/plugins/autonomous-sdlc → $REPO_ROOT/plugins/autonomous-sdlc"
+
+        if [ -f "$CODEX_MARKETPLACE" ]; then
+          if ${jq}/bin/jq '
+            .name = (.name // "fx-codex-global")
+            | .interface = (.interface // {"displayName":"FX Codex Global"})
+            | .plugins = (
+                ((.plugins // [])
+                | map(select(.name != "autonomous-sdlc")))
+                + [{
+                    "name": "autonomous-sdlc",
+                    "source": {
+                      "source": "local",
+                      "path": "./plugins/autonomous-sdlc"
+                    },
+                    "policy": {
+                      "installation": "INSTALLED_BY_DEFAULT",
+                      "authentication": "ON_INSTALL"
+                    },
+                    "category": "Productivity"
+                  }]
+              )
+          ' "$CODEX_MARKETPLACE" > "$CODEX_MARKETPLACE_TMP"; then
+            $DRY_RUN_CMD mv "$CODEX_MARKETPLACE_TMP" "$CODEX_MARKETPLACE"
+          else
+            rm -f "$CODEX_MARKETPLACE_TMP"
+            echo "⚠️  Warning: Failed to update $CODEX_MARKETPLACE"
+          fi
+        else
+          cat > "$CODEX_MARKETPLACE_TMP" <<'EOF'
+{
+  "name": "fx-codex-global",
+  "interface": {
+    "displayName": "FX Codex Global"
+  },
+  "plugins": [
+    {
+      "name": "autonomous-sdlc",
+      "source": {
+        "source": "local",
+        "path": "./plugins/autonomous-sdlc"
+      },
+      "policy": {
+        "installation": "INSTALLED_BY_DEFAULT",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
+EOF
+          $DRY_RUN_CMD mv "$CODEX_MARKETPLACE_TMP" "$CODEX_MARKETPLACE"
+        fi
+        echo "✓ Ensured Codex global marketplace entry for autonomous-sdlc"
+
+        if [ ! -x "$CODEX_BIN" ]; then
+          CODEX_BIN="$(command -v codex || true)"
+        fi
+
+        if [ -z "$CODEX_BIN" ]; then
+          echo "⚠️  Warning: codex CLI not found; skipping Codex marketplace registration"
+        elif [ -f "$CODEX_CONFIG" ] \
+          && grep -Fq "[marketplaces.fx-codex-global]" "$CODEX_CONFIG" \
+          && grep -Fq "source = \"${config.home.homeDirectory}\"" "$CODEX_CONFIG"; then
+          echo "✓ Codex marketplace fx-codex-global already registered"
+        elif [ -f "$CODEX_CONFIG" ] && grep -Fq "[marketplaces.fx-codex-global]" "$CODEX_CONFIG"; then
+          echo "Refreshing Codex marketplace fx-codex-global..."
+          if $DRY_RUN_CMD "$CODEX_BIN" plugin marketplace upgrade fx-codex-global; then
+            echo "✓ Refreshed Codex marketplace fx-codex-global"
+          else
+            echo "⚠️  Warning: Failed to refresh Codex marketplace fx-codex-global"
+          fi
+        else
+          echo "Registering Codex marketplace fx-codex-global..."
+          if $DRY_RUN_CMD "$CODEX_BIN" plugin marketplace add "${config.home.homeDirectory}"; then
+            echo "✓ Registered Codex marketplace fx-codex-global"
+          else
+            echo "⚠️  Warning: Failed to register Codex marketplace fx-codex-global"
+          fi
+        fi
+      else
+        echo "⚠️  Warning: $CODEX_PLUGIN_REPO directory not found"
+      fi
     else
       echo "⚠️  Warning: Could not find nix-install repository"
       echo "  Searched: ~/nix-install, ~/.config/nix-install, ~/Documents/nix-install"

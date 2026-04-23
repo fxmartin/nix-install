@@ -17,6 +17,8 @@ set -euo pipefail
 
 LOG_FILE="${HOME}/.claude/cleanup.log"
 mkdir -p "$(dirname "${LOG_FILE}")"
+ARCHIVE_DIR="${HOME}/.claude/archive"
+mkdir -p "${ARCHIVE_DIR}"
 
 # ---------------------------------------------------------------------------
 # Orphan process killer (default mode)
@@ -58,6 +60,79 @@ kill_orphans() {
 
     printf '%s cleaned %d orphaned Claude Code processes\n' \
         "$(date '+%Y-%m-%d %H:%M:%S')" "${killed}" >> "${LOG_FILE}"
+}
+
+# ---------------------------------------------------------------------------
+# Virtualization.framework orphan reaper (Claude Desktop VM leak)
+# ---------------------------------------------------------------------------
+
+vm_orphan_candidates() {
+    ps -axo pid=,ppid=,comm= \
+        | awk '$2 == 1 && $3 ~ /com\.apple\.Virtualization\.VirtualMachine$/ { print $1 }'
+}
+
+vm_owner() {
+    local pid="$1"
+    local paths
+    paths=$(lsof -p "${pid}" 2>/dev/null | awk 'NR>1 {print $NF}' || true)
+
+    if grep -Fq "/Library/Application Support/Claude/vm_bundles/" <<< "${paths}"; then
+        echo "claude"
+    elif grep -Fq "/Library/Containers/com.docker.docker/" <<< "${paths}"; then
+        echo "docker"
+    elif grep -Fq "/.local/share/containers/" <<< "${paths}"; then
+        echo "podman"
+    else
+        echo "unknown"
+    fi
+}
+
+reap_vm_orphans() {
+    local manifest="${ARCHIVE_DIR}/vm-reaped-$(date '+%Y-%m-%d').txt"
+    local reaped=0
+    local skipped=0
+
+    while IFS= read -r pid; do
+        [[ -z "${pid}" ]] && continue
+
+        local owner
+        owner="$(vm_owner "${pid}")"
+        case "${owner}" in
+            claude)
+                local rss_kb cmd
+                rss_kb="$(ps -o rss= -p "${pid}" 2>/dev/null | awk '{print $1}' || echo 0)"
+                cmd="$(ps -o command= -p "${pid}" 2>/dev/null || echo unknown)"
+                kill -TERM "${pid}" 2>/dev/null || true
+                sleep 2
+                if kill -0 "${pid}" 2>/dev/null; then
+                    kill -KILL "${pid}" 2>/dev/null || true
+                fi
+                if ! kill -0 "${pid}" 2>/dev/null; then
+                    printf '%s pid=%s owner=%s rss_kb=%s cmd=%s\n' \
+                        "$(date '+%Y-%m-%dT%H:%M:%S')" "${pid}" "${owner}" "${rss_kb}" "${cmd}" >> "${manifest}"
+                    printf '%s reaped orphaned Claude Desktop VM pid=%s rss_kb=%s\n' \
+                        "$(date '+%Y-%m-%d %H:%M:%S')" "${pid}" "${rss_kb}" >> "${LOG_FILE}"
+                    reaped=$((reaped + 1))
+                else
+                    printf '%s failed to reap orphaned Claude Desktop VM pid=%s\n' \
+                        "$(date '+%Y-%m-%d %H:%M:%S')" "${pid}" >> "${LOG_FILE}"
+                fi
+                ;;
+            docker|podman)
+                printf '%s skipped orphan VM pid=%s owner=%s (managed elsewhere)\n' \
+                    "$(date '+%Y-%m-%d %H:%M:%S')" "${pid}" "${owner}" >> "${LOG_FILE}"
+                skipped=$((skipped + 1))
+                ;;
+            *)
+                printf '%s skipped orphan VM pid=%s owner=unknown\n' \
+                    "$(date '+%Y-%m-%d %H:%M:%S')" "${pid}" >> "${LOG_FILE}"
+                skipped=$((skipped + 1))
+                ;;
+        esac
+    done < <(vm_orphan_candidates)
+
+    printf '%s VM orphan sweep complete: reaped=%d skipped=%d\n' \
+        "$(date '+%Y-%m-%d %H:%M:%S')" "${reaped}" "${skipped}" >> "${LOG_FILE}"
 }
 
 # ---------------------------------------------------------------------------
@@ -176,6 +251,7 @@ main() {
     case "${mode}" in
         "" | orphans)
             kill_orphans
+            reap_vm_orphans
             ;;
         --prune-old)
             local dry=""

@@ -39,6 +39,7 @@ VIRT_VM_LOG="${LOG_DIR}/virt-vm-orphan-watch.log"
 # digest can surface week-over-week deltas and flag silent growth.
 HISTORY_DIR="${HOME}/.local/share/nix-install"
 HISTORY_FILE="${HISTORY_DIR}/disk-history.json"
+VITALS_HISTORY_FILE="${HISTORY_DIR}/vitals-history.json"
 HISTORY_MAX_SAMPLES=12
 GROWTH_WARN_GB=1  # Flag consumers growing more than this GB/week
 
@@ -266,6 +267,75 @@ render_orphan_vm_section() {
 }
 
 # =============================================================================
+# SYSTEM VITALS SECTION (Issue #288)
+# =============================================================================
+
+render_vitals_section() {
+    if [[ ! -f "${VITALS_HISTORY_FILE}" ]]; then
+        echo "No vitals history yet — sampler baseline will appear after the first hourly run."
+        return 0
+    fi
+
+    /usr/bin/python3 - "${VITALS_HISTORY_FILE}" <<'PY'
+import json
+import sys
+from collections import defaultdict
+from pathlib import Path
+
+history_path = Path(sys.argv[1])
+try:
+    history = json.loads(history_path.read_text(encoding="utf-8"))
+except (FileNotFoundError, json.JSONDecodeError):
+    print("Vitals history unreadable.")
+    raise SystemExit(0)
+
+samples = history.get("samples", [])
+if not samples:
+    print("No vitals samples yet.")
+    raise SystemExit(0)
+
+peak_cpu = max(samples, key=lambda s: s.get("cpu_temp_c", 0))
+peak_gpu = max(samples, key=lambda s: s.get("gpu_temp_c", 0))
+peak_power = max(samples, key=lambda s: s.get("power_watts", 0))
+
+idle_samples = [
+    s for s in samples
+    if max((p.get("cpu_percent", 0) for p in s.get("top_cpu", [])), default=0) <= 5
+]
+avg_idle = sum(s.get("power_watts", 0) for s in idle_samples) / len(idle_samples) if idle_samples else None
+high_power_hours = sum(1 for s in samples if s.get("power_watts", 0) > 30)
+swap_warn_hours = sum(1 for s in samples if s.get("swap_used_gb", 0) > 2)
+
+proc_hours = defaultdict(int)
+for sample in samples:
+    for proc in sample.get("top_cpu", []):
+        if proc.get("cpu_percent", 0) > 5:
+            proc_hours[proc.get("name", "unknown")] += 1
+
+top_procs = sorted(proc_hours.items(), key=lambda item: (-item[1], item[0]))[:3]
+
+def stamp(sample):
+    return sample.get("ts", "unknown").replace("T", " ").replace("Z", " UTC")
+
+print(f"Peak CPU temp:      {peak_cpu.get('cpu_temp_c', 0):.1f}°C ({stamp(peak_cpu)})")
+print(f"Peak GPU temp:      {peak_gpu.get('gpu_temp_c', 0):.1f}°C ({stamp(peak_gpu)})")
+print(f"Peak power draw:    {peak_power.get('power_watts', 0):.1f}W ({stamp(peak_power)})")
+if avg_idle is None:
+    print("Average idle power: n/a (no low-load samples yet)")
+else:
+    print(f"Average idle power: {avg_idle:.1f}W")
+print(f"Hours >30W draw:    {high_power_hours}h")
+print(f"Hours >2GB swap:    {swap_warn_hours}h" + (" ⚠" if swap_warn_hours else ""))
+if top_procs:
+    print("Top 3 CPU-heavy processes (>5% CPU in hourly samples):")
+    for index, (name, hours) in enumerate(top_procs, start=1):
+        print(f"  {index}. {name:<20} {hours}h")
+else:
+    print("Top 3 CPU-heavy processes: n/a")
+PY
+}
+
+# =============================================================================
 # GATHER METRICS
 # =============================================================================
 
@@ -278,6 +348,7 @@ GROWTH_SECTION=$(render_growth_section)
 # Orphan VM watch summary (post-2026-04-22 panic mitigation)
 ORPHAN_VM_SECTION=$(render_orphan_vm_section)
 ORPHAN_VM_COUNT=$(count_orphan_vm_detections)
+VITALS_SECTION=$(render_vitals_section)
 
 # Count GC runs from log
 GC_RUNS=0
@@ -405,6 +476,10 @@ ${GROWTH_SECTION}
 ORPHAN VM WATCH (7-day summary)
 -------------------------------
 ${ORPHAN_VM_SECTION}
+
+SYSTEM VITALS (past 7 days)
+---------------------------
+${VITALS_SECTION}
 
 SECURITY STATUS
 ---------------

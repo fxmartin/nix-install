@@ -245,6 +245,7 @@
           "ollama-pressure-guard.sh"  # 60s guard; Story 08.2-002
           "ollama-lru.sh"             # monthly opt-in prune; Story 08.1-004
           "virt-vm-orphan-watch.sh"   # 10min notify-only orphan-VM detector
+          "vitals-sampler.sh"         # hourly /metrics sampler for weekly digest
         )
 
         for script in "''${COMMON_SCRIPTS[@]}"; do

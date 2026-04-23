@@ -1,0 +1,125 @@
+---
+name: build-stories
+description: Use when the user asks Codex to discover, plan, or execute story-based SDLC work from STORIES.md or epic files. Supports dry-run queue generation, sequential story builds, and opt-in parallel worker orchestration with main-agent-owned Git/PR/progress integration.
+metadata:
+  short-description: Build story queues with Codex
+---
+
+# Build Stories
+
+This is a Codex-native port of the Claude Code `build-stories` workflow.
+
+The core rule is:
+
+> Parallel agents produce isolated candidate changes; the main Codex agent owns integration, Git state, PR lifecycle, shared progress, and merges.
+
+## Invocation
+
+- Sequential/default: `Use build-stories all --auto --limit=5`
+- Dry run: `Use build-stories epic-01 --dry-run`
+- Parallel opt-in: `Use build-stories epic-01 --limit=2 with parallel agents`
+
+Only use subagents when the user explicitly says `parallel agents`, `subagents`, `delegate`, or equivalent. Without that explicit permission, run sequentially in the main agent.
+
+## Arguments
+
+Parse free-form arguments from the user:
+
+- Scope: `all`, `resume`, `epic-NN`, or a case-insensitive epic name. Default: `all`.
+- Flags: `--dry-run`, `--auto`, `--limit=N`, `--sequential`, `--skip-preflight`, `--skip-coverage`, `--coverage-threshold=N`, `--e2e-gate=block|warn|off`, `--skip-e2e`.
+
+## Preflight
+
+Before mutating anything:
+
+1. Run `git status --porcelain` and block on a dirty worktree unless the user explicitly confirms working with the dirty state.
+2. Confirm current branch with `git branch --show-current`.
+3. Check `gh auth status` before any GitHub issue/PR operation.
+4. Run the detected test command unless `--skip-preflight` is present.
+
+Detect tests in this order:
+
+1. `package.json` with `scripts.test` -> `npm test`
+2. `pyproject.toml` and pytest available -> `uv run pytest`
+3. `Makefile` with `test` target -> `make test`
+4. BATS files -> `bats tests/*.bats` or `bats test/*.bats`
+
+## Discovery
+
+Use `scripts/discover-stories.py` from this plugin to parse story files and produce a queue:
+
+```bash
+python3 plugins/autonomous-sdlc/scripts/discover-stories.py all --dry-run
+```
+
+The script emits a display table and a single-line `QUEUE_JSON:` record. Parse that JSON to drive the workflow. For detailed parsing semantics, read only the needed files in `references/`:
+
+- `story-parser.md`
+- `story-validation.md`
+- `dependency-resolver.md`
+- `batch-progress.md`
+
+## Sequential Mode
+
+For each queued story:
+
+1. Mark it `IN_PROGRESS` with `scripts/update-build-progress.py`.
+2. Implement the story in the main workspace.
+3. Run tests and coverage gate unless skipped.
+4. Run review checks.
+5. Create branch/commit/PR if requested by the surrounding task.
+6. Merge sequentially only after gates pass.
+7. Mark DoD complete and update `.build-progress.md`.
+
+Use the reference prompts as guidance when needed:
+
+- `coverage-gate-prompt.md`
+- `bugfix-agent-prompt.md`
+- `merge-update-prompt.md`
+- `summary-prompt.md`
+- `e2e-gate.md`
+
+## Parallel Mode
+
+Parallel mode is opt-in and must be driven by the main agent.
+
+Main agent responsibilities:
+
+- Compute dependency cohorts.
+- Create non-overlapping worker assignments.
+- Spawn workers only after explicit user authorization.
+- Integrate worker results one at a time.
+- Own all `git`, `gh`, PR, merge, DoD, and progress-file operations.
+
+Worker responsibilities:
+
+- Work on exactly one story or validation slice.
+- Write only within the explicit file/module scope assigned.
+- Do not push branches.
+- Do not create or merge PRs.
+- Do not write `.build-progress.md`.
+- Return a final contract:
+
+```text
+STORY_ID: ...
+STATUS: COMPLETE | PARTIAL | FAILED
+CHANGED_FILES: ...
+TESTS_RUN: ...
+RISKS: ...
+INTEGRATION_NOTES: ...
+```
+
+External isolation rules:
+
+- Unique ports for dev servers.
+- Unique test DB/schema/container/project names.
+- Worker-specific temp dirs under `/tmp`.
+- Main agent alone writes shared files and talks to GitHub.
+
+## Notifications
+
+Use `scripts/codex-sdlc-bridge.sh` only as an optional adapter. The workflow must remain correct if cmux, desktop notifications, or Telegram are unavailable.
+
+## Do Not Migrate
+
+Do not read or port Claude runtime/session state from `~/.claude/tasks`, `projects`, `sessions`, `todos`, or telemetry. Repo-managed `config/claude-code-config` is the migration source of truth.

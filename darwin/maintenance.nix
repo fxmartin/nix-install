@@ -145,6 +145,38 @@ in {
     };
 
     # =========================================================================
+    # HOURLY VITALS SAMPLER (Issue #288)
+    # =========================================================================
+    # Captures one /metrics sample per hour into a 7-day rolling history file
+    # consumed by weekly-maintenance-digest.sh for trend summaries.
+    vitals-sampler = {
+      serviceConfig = {
+        Label = "org.nixos.vitals-sampler";
+        ProgramArguments = [
+          "/bin/bash" "-c"
+          ''
+            SCRIPT="${scriptsDir}/vitals-sampler.sh"
+            if [[ -x "$SCRIPT" ]]; then
+              "$SCRIPT"
+            else
+              echo "vitals-sampler script not found: $SCRIPT" >> /tmp/vitals-sampler.err
+              exit 1
+            fi
+          ''
+        ];
+        StartInterval = 3600;  # Hourly
+        StandardOutPath = "/tmp/vitals-sampler.log";
+        StandardErrorPath = "/tmp/vitals-sampler.err";
+        EnvironmentVariables = {
+          PATH = agentPath;
+          HOME = agentHome;
+        };
+        RunAtLoad = false;
+        Umask = 77;
+      };
+    };
+
+    # =========================================================================
     # RELEASE MONITOR (Feature 06.6, Story 06.6-004)
     # =========================================================================
     # Runs weekly on Monday at 7:00 AM to check for upstream updates

@@ -10,6 +10,7 @@ import socket
 import hmac
 import threading
 import time
+import re
 from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
@@ -325,6 +326,9 @@ def build_health_response() -> dict:
 _metrics_cache: dict = {"status": "pending", "detail": "first macmon sample in progress"}
 _metrics_cache_time: float = 0.0
 _metrics_lock = threading.Lock()
+_fast_metrics_cache: dict = {}
+_fast_metrics_cache_time: float = 0.0
+_fast_metrics_lock = threading.Lock()
 
 # Interval between macmon samples. macmon on M3 Max takes ~3-4s per
 # --samples 1 --interval 500 call (startup + sensor enumeration).
@@ -332,11 +336,28 @@ _metrics_lock = threading.Lock()
 # Power/temp/ANE/freq are trend indicators — 15s staleness is fine.
 # Override with METRICS_REFRESH_INTERVAL env var (e.g. for testing or
 # machines where macmon is fast).
-METRICS_REFRESH_INTERVAL = int(os.environ.get("METRICS_REFRESH_INTERVAL", "15"))
+METRICS_REFRESH_INTERVAL = int(os.environ.get("METRICS_REFRESH_INTERVAL", "30"))
+FAST_METRICS_REFRESH_INTERVAL = int(os.environ.get("FAST_METRICS_REFRESH_INTERVAL", "3"))
 
 # Subprocess timeout for a single macmon invocation.  Runs on a
 # background thread; nothing blocks on it, so generous is fine.
 MACMON_TIMEOUT_SEC = int(os.environ.get("MACMON_TIMEOUT_SEC", "15"))
+
+
+def _run_lines(command: list[str], timeout: int = 5) -> list[str]:
+    try:
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            check=False,
+        )
+    except Exception:
+        return []
+    if result.returncode != 0:
+        return []
+    return result.stdout.splitlines()
 
 
 def _top_cpu_processes(n: int = 5) -> list[dict]:
@@ -524,6 +545,117 @@ def _probe_system_metrics() -> dict | None:
     return response
 
 
+def _parse_vm_stat() -> dict | None:
+    lines = _run_lines(["/usr/bin/vm_stat"], timeout=3)
+    if not lines:
+        return None
+
+    page_size = 4096
+    counters: dict[str, int] = {}
+    page_match = re.search(r"page size of (\d+) bytes", lines[0])
+    if page_match:
+        page_size = int(page_match.group(1))
+
+    for line in lines[1:]:
+        match = re.match(r"(.+?):\s+(\d+)\.", line.strip())
+        if match:
+            counters[match.group(1)] = int(match.group(2))
+
+    mem_total_raw = run("sysctl -n hw.memsize")
+    try:
+        mem_total = int(mem_total_raw)
+    except ValueError:
+        return None
+
+    free_pages = counters.get("Pages free", 0) + counters.get("Pages speculative", 0)
+    free_bytes = free_pages * page_size
+    used_bytes = max(mem_total - free_bytes, 0)
+    return {
+        "total_gb": round(mem_total / (1024 ** 3), 1),
+        "used_gb": round(used_bytes / (1024 ** 3), 1),
+        "available_gb": round(free_bytes / (1024 ** 3), 1),
+    }
+
+
+def _parse_swap_usage() -> dict[str, float]:
+    out = run("sysctl vm.swapusage")
+    total_match = re.search(r"total = ([0-9.]+)([MGT])", out)
+    used_match = re.search(r"used = ([0-9.]+)([MGT])", out)
+
+    def to_gb(value: str, unit: str) -> float:
+        multipliers = {"M": 1 / 1024, "G": 1.0, "T": 1024.0}
+        return round(float(value) * multipliers[unit], 1)
+
+    swap_total = to_gb(*total_match.groups()) if total_match else 0.0
+    swap_used = to_gb(*used_match.groups()) if used_match else 0.0
+    return {"swap_total_gb": swap_total, "swap_used_gb": swap_used}
+
+
+def _fast_cpu_usage_percent() -> float:
+    lines = _run_lines(["/usr/bin/top", "-l", "1"], timeout=3)
+    for line in lines:
+        if "CPU usage:" not in line:
+            continue
+        numbers = [float(value) for value in re.findall(r"([0-9]+(?:\.[0-9]+)?)%", line)]
+        if len(numbers) >= 3:
+            return round(numbers[0] + numbers[1], 1)
+    return 0.0
+
+
+def _probe_fast_metrics() -> dict:
+    memory = _parse_vm_stat() or {}
+    memory.update(_parse_swap_usage())
+    return {
+        "cpu": {"usage_percent": _fast_cpu_usage_percent()},
+        "memory": memory,
+        "processes": {"top_cpu": _top_cpu_processes(5)},
+    }
+
+
+def _fast_metrics_refresher() -> None:
+    global _fast_metrics_cache, _fast_metrics_cache_time  # noqa: PLW0603
+    while True:
+        start = time.monotonic()
+        fresh = _probe_fast_metrics()
+        with _fast_metrics_lock:
+            _fast_metrics_cache = fresh
+            _fast_metrics_cache_time = time.monotonic()
+        elapsed = time.monotonic() - start
+        time.sleep(max(FAST_METRICS_REFRESH_INTERVAL - elapsed, 0.5))
+
+
+def _merge_metric_caches(slow: dict, fast: dict) -> dict:
+    merged = dict(slow)
+    if "status" in merged:
+        return merged
+
+    if fast:
+        merged_cpu = dict(merged.get("cpu", {}))
+        merged_cpu.update(fast.get("cpu", {}))
+        merged["cpu"] = merged_cpu
+
+        merged_memory = dict(merged.get("memory", {}))
+        merged_memory.update(fast.get("memory", {}))
+        merged["memory"] = merged_memory
+
+        merged_processes = dict(merged.get("processes", {}))
+        merged_processes.update(fast.get("processes", {}))
+        merged["processes"] = merged_processes
+
+    swap_used = merged.get("memory", {}).get("swap_used_gb", 0)
+    status_flags = dict(merged.get("status_flags", {}))
+    if swap_used > SWAP_WARNING_GB:
+        status_flags["memory_swap"] = "warn"
+    else:
+        status_flags.pop("memory_swap", None)
+    if status_flags:
+        merged["status_flags"] = status_flags
+    else:
+        merged.pop("status_flags", None)
+
+    return merged
+
+
 def _metrics_refresher() -> None:
     """Daemon-thread loop that refreshes the metrics cache every
     METRICS_REFRESH_INTERVAL seconds.  Guarantees at most one macmon
@@ -554,9 +686,10 @@ def get_system_metrics() -> dict:
     error by checking `status`.
     """
     with _metrics_lock:
-        # Return a shallow copy so caller mutations (e.g. adding stale
-        # markers downstream) don't corrupt the shared cache.
-        return dict(_metrics_cache)
+        slow = dict(_metrics_cache)
+    with _fast_metrics_lock:
+        fast = dict(_fast_metrics_cache)
+    return _merge_metric_caches(slow, fast)
 
 
 # Optional bearer token authentication
@@ -633,6 +766,10 @@ def main():
         target=_metrics_refresher, name="metrics-refresher", daemon=True
     )
     metrics_refresher.start()
+    fast_metrics_refresher = threading.Thread(
+        target=_fast_metrics_refresher, name="fast-metrics-refresher", daemon=True
+    )
+    fast_metrics_refresher.start()
 
     server = ThreadedHTTPServer(("0.0.0.0", PORT), HealthHandler)
     print(f"Health API listening on 0.0.0.0:{PORT}")

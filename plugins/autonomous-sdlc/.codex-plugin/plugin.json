@@ -1,0 +1,59 @@
+{
+  "name": "autonomous-sdlc",
+  "version": "0.1.0",
+  "description": "Codex-native SDLC workflows for project bootstrap, product discovery, epic/story planning, issue handling, review, coverage, and implementation orchestration.",
+  "author": {
+    "name": "FX Martin",
+    "email": "fx@example.com",
+    "url": "https://github.com/fxmartin"
+  },
+  "homepage": "https://github.com/fxmartin/nix-install",
+  "repository": "https://github.com/fxmartin/nix-install",
+  "license": "MIT",
+  "keywords": [
+    "sdlc",
+    "stories",
+    "codex",
+    "automation",
+    "issues",
+    "github",
+    "planning",
+    "review",
+    "testing"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks.json",
+  "interface": {
+    "displayName": "Autonomous SDLC",
+    "shortDescription": "Plan, review, and execute SDLC workflows with Codex.",
+    "longDescription": "Ports Claude Code SDLC workflows to Codex-native skills for project bootstrap, product discovery, epic creation, issue handling, coverage work, code review, and story execution.",
+    "developerName": "FX Martin",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/fxmartin/nix-install",
+    "privacyPolicyURL": "https://github.com/fxmartin/nix-install",
+    "termsOfServiceURL": "https://github.com/fxmartin/nix-install",
+    "defaultPrompt": [
+      "Use build-stories all --dry-run",
+      "Use build-stories epic-01 --limit=1 --sequential",
+      "Use build-stories epic-01 --limit=2 with parallel agents",
+      "Use brainstorm internal release-monitoring dashboard",
+      "Use resume-build-agents next",
+      "Use generate-epics docs/REQUIREMENTS.md",
+      "Use project-init release-monitor",
+      "Use create-epic 09 release automation",
+      "Use create-issue app crashes on startup after login",
+      "Use fix-issue 42",
+      "Use coverage for bootstrap scripts",
+      "Use roast focus on security and reliability",
+      "Use project-review focus on release readiness",
+      "Use create-project-summary-stats",
+      "Use check-releases",
+      "Use plan-release-update 123"
+    ],
+    "brandColor": "#10A37F"
+  }
+}

@@ -167,7 +167,8 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 
 **AI & LLM Tools**:
 - Claude Desktop, Claude Code CLI (from `claude-code-nix` flake)
-- ChatGPT, Perplexity (MAS), Inferencer (MAS, on-device models)
+- ChatGPT, Codex CLI (OpenAI's terminal coding agent)
+- Perplexity (MAS), Inferencer (MAS, on-device models)
 - Ollama (Power: `gemma4:e4b` + `gemma4:26b` + `nomic-embed-text`; Standard: `ministral-3:14b` + `nomic-embed-text`; AI-Assistant: `nomic-embed-text`)
 
 **Terminal & Editor**:

@@ -85,6 +85,7 @@ in {
       # AI & LLM Tools (Story 02.1-001, 02.1-002)
       "claude" # Claude Desktop - Anthropic's AI assistant
       "chatgpt" # ChatGPT Desktop - OpenAI's conversational AI
+      "codex"   # OpenAI Codex CLI - terminal coding agent (single-binary cask, depends on ripgrep which is already in Nix)
 
       # Development Environment
       "zed" # Zed Editor - Fast, modern code editor with GPU acceleration

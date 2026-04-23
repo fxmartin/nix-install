@@ -1,6 +1,7 @@
 # ABOUTME: Common utilities, logging, colors, and system validation functions
 # ABOUTME: Sourced by bootstrap.sh and all other library modules
 # ABOUTME: Provides foundational logging and system checking capabilities
+# shellcheck shell=bash
 
 # Guard against double-sourcing
 [[ -n "${_COMMON_SH_LOADED:-}" ]] && return 0

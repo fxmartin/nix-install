@@ -1,6 +1,7 @@
 # ABOUTME: Phase 9 - Installation summary and next steps
 # ABOUTME: Displays installation results, FileVault prompt, useful commands
 # ABOUTME: Depends on: lib/common.sh for logging functions
+# shellcheck shell=bash
 
 # Guard against double-sourcing
 [[ -n "${_SUMMARY_SH_LOADED:-}" ]] && return 0

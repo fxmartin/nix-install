@@ -1,6 +1,7 @@
 # ABOUTME: Phase 6 - SSH key generation and GitHub authentication
 # ABOUTME: Generates SSH keys, uploads to GitHub, tests SSH connection
 # ABOUTME: Depends on: lib/common.sh, lib/nix-darwin.sh (for gh CLI)
+# shellcheck shell=bash
 
 # Guard against double-sourcing
 [[ -n "${_SSH_GITHUB_SH_LOADED:-}" ]] && return 0

@@ -1,6 +1,7 @@
 # ABOUTME: Phase 7 - Repository cloning and user config deployment
 # ABOUTME: Clones nix-install repo, copies user-config.nix to proper location
 # ABOUTME: Depends on: lib/common.sh, lib/ssh-github.sh
+# shellcheck shell=bash
 
 # Guard against double-sourcing
 [[ -n "${_REPO_CLONE_SH_LOADED:-}" ]] && return 0

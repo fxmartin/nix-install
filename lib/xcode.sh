@@ -1,6 +1,7 @@
 # ABOUTME: Phase 3 - Xcode Command Line Tools installation
 # ABOUTME: Installs and verifies Xcode CLI Tools (required for Nix)
 # ABOUTME: Depends on: lib/common.sh for logging functions
+# shellcheck shell=bash
 
 # Guard against double-sourcing
 [[ -n "${_XCODE_SH_LOADED:-}" ]] && return 0

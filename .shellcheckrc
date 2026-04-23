@@ -5,9 +5,12 @@
 enable=all
 
 # Disable specific checks that conflict with our style
+# SC2034: Bootstrap library globals are consumed after sourcing or by tests.
+# SC2154: Bootstrap libraries intentionally reference globals from lib/common.sh
+#         and phase state variables initialized by earlier sourced modules.
 # SC2155: Declare and assign separately to avoid masking return values
-# (We're okay with this pattern for simple variable assignments)
-disable=SC2155
+#         (we're okay with this pattern for simple variable assignments).
+disable=SC2034,SC2154,SC2155
 
 # Source directive for better path resolution
 source-path=SCRIPTDIR

@@ -35,6 +35,15 @@ bats --version
 # Should output: Bats 1.x.x or newer
 ```
 
+### Installing Test Helpers
+
+Some suites use `bats-support` and `bats-assert`. Install or update the helper
+clones before running the full suite:
+
+```bash
+./tests/setup-bats-helpers.sh
+```
+
 ## Running Tests
 
 ### Run all tests

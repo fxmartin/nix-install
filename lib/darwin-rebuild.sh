@@ -1,6 +1,7 @@
 # ABOUTME: Phase 8 - Final darwin-rebuild with full configuration
 # ABOUTME: Loads profile, runs darwin-rebuild, verifies Home Manager symlinks
 # ABOUTME: Depends on: lib/common.sh, lib/repo-clone.sh
+# shellcheck shell=bash
 
 # Guard against double-sourcing
 [[ -n "${_DARWIN_REBUILD_SH_LOADED:-}" ]] && return 0
@@ -313,7 +314,7 @@ final_darwin_rebuild_phase() {
         mv "${HOME}/.zshrc" "${HOME}/.zshrc.pre-nix-install"
         log_success "✓ Backed up existing .zshrc - Home Manager will create new one"
     elif [[ -L "${HOME}/.zshrc" ]]; then
-        log_info "~/.zshrc is already a symlink (likely Home Manager managed)"
+        log_info "${HOME}/.zshrc is already a symlink (likely Home Manager managed)"
     else
         log_info "No existing ~/.zshrc found - Home Manager will create one"
     fi

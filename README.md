@@ -1,8 +1,8 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.0% Complete (144/147 stories) | **Version**: 1.0.0 + Epic-08 | **🎉 2 MacBooks Running!**
+> **Status**: 98.0% Complete (144/147 stories) | **Version**: 1.0.0 + Epic-08 | **2 MacBooks deployed, M4 Air pending**
 
-**Four MacBooks. One config. Zero drift.**
+**Two deployed MacBooks. One config. Zero drift.**
 
 I got tired of my machines slowly becoming strangers — different tools here, tweaked settings there, no idea what I changed six months ago. So I built this.
 
@@ -452,6 +452,10 @@ nix-install/
 - Rebuild time: 14 seconds (target <5min) ✅
 - All 27 Homebrew apps installed, 5 Ollama models verified
 
+**Milestone (2026-01-15)**: MacBook Pro M1 successfully running AI-Assistant profile.
+
+**Pending**: MacBook Air M4 migration to the Standard profile.
+
 **🎉 Milestone (2026-04-22)**: Epic-08 — Resource Optimization & Deep Telemetry, 22/23 stories shipped in ~18 hours across 24 PRs. SketchyBar now exposes per-cluster E/P CPU, GPU + ANE, power (W), silicon temps (°C) and a full mactop-replacement vitals popup — all driven by a single `/metrics` poll per tick.
 
 ### Project Statistics
@@ -466,7 +470,7 @@ nix-install/
 | **GitHub Issues** | Epic-08 #236–#258 (23 stories) + follow-up fixes #269–#285 |
 | **Packages** | 32 casks (17 on AI-Assistant), 7 brews, 8 MAS, 50+ Nix |
 
-**Next**: MacBook Air migrations (Phase 11) · Story 08.3-008 (one-day mactop-free validation)
+**Next**: MacBook Air M4 migration (Phase 11) · Story 08.3-008 (one-day mactop-free validation)
 
 ---
 

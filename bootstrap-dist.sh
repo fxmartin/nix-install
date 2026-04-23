@@ -43,6 +43,8 @@ set -euo pipefail  # Strict error handling
 # MODULE: lib/common.sh
 # ==============================================================================
 
+# shellcheck shell=bash
+
 # Guard against double-sourcing
 
 # ==============================================================================
@@ -262,6 +264,8 @@ display_system_info() {
 # MODULE: lib/preflight.sh
 # ==============================================================================
 
+# shellcheck shell=bash
+
 # Guard against double-sourcing
 
 # ==============================================================================
@@ -318,6 +322,8 @@ preflight_checks() {
 # ==============================================================================
 # MODULE: lib/user-config.sh
 # ==============================================================================
+
+# shellcheck shell=bash
 
 # Guard against double-sourcing
 
@@ -1025,6 +1031,8 @@ prompt_mas_apps_preference() {
 # MODULE: lib/xcode.sh
 # ==============================================================================
 
+# shellcheck shell=bash
+
 # Guard against double-sourcing
 
 # PHASE 3: XCODE COMMAND LINE TOOLS INSTALLATION
@@ -1159,6 +1167,8 @@ install_xcode_phase() {
 # ==============================================================================
 # MODULE: lib/nix-install.sh
 # ==============================================================================
+
+# shellcheck shell=bash
 
 # Guard against double-sourcing
 
@@ -1828,6 +1838,8 @@ configure_nix_phase() {
 # ==============================================================================
 # MODULE: lib/nix-darwin.sh
 # ==============================================================================
+
+# shellcheck shell=bash
 
 # Guard against double-sourcing
 
@@ -2962,6 +2974,8 @@ validate_nix_darwin_phase() {
 # MODULE: lib/ssh-github.sh
 # ==============================================================================
 
+# shellcheck shell=bash
+
 # Guard against double-sourcing
 
 # PHASE 6: SSH KEY GENERATION FUNCTIONS
@@ -4078,6 +4092,8 @@ test_github_ssh_phase() {
 # MODULE: lib/repo-clone.sh
 # ==============================================================================
 
+# shellcheck shell=bash
+
 # Guard against double-sourcing
 
 # PHASE 7: REPOSITORY CLONE
@@ -4454,6 +4470,8 @@ clone_repository_phase() {
 # MODULE: lib/darwin-rebuild.sh
 # ==============================================================================
 
+# shellcheck shell=bash
+
 # Guard against double-sourcing
 
 # PHASE 8: FINAL DARWIN REBUILD
@@ -4763,7 +4781,7 @@ final_darwin_rebuild_phase() {
         mv "${HOME}/.zshrc" "${HOME}/.zshrc.pre-nix-install"
         log_success "✓ Backed up existing .zshrc - Home Manager will create new one"
     elif [[ -L "${HOME}/.zshrc" ]]; then
-        log_info "~/.zshrc is already a symlink (likely Home Manager managed)"
+        log_info "${HOME}/.zshrc is already a symlink (likely Home Manager managed)"
     else
         log_info "No existing ~/.zshrc found - Home Manager will create one"
     fi
@@ -4804,6 +4822,8 @@ final_darwin_rebuild_phase() {
 # ==============================================================================
 # MODULE: lib/summary.sh
 # ==============================================================================
+
+# shellcheck shell=bash
 
 # Guard against double-sourcing
 

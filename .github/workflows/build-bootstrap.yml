@@ -59,7 +59,6 @@ jobs:
         with:
           scandir: './lib'
           severity: error
-        continue-on-error: true  # Don't fail on warnings, only errors
 
       - name: Run shellcheck on bootstrap.sh
         uses: ludeeus/action-shellcheck@master
@@ -67,7 +66,6 @@ jobs:
           scandir: '.'
           additional_files: 'bootstrap.sh'
           severity: error
-        continue-on-error: true
 
       - name: Build bootstrap-dist.sh
         run: |
@@ -88,8 +86,15 @@ jobs:
 
           # Show file stats
           lines=$(wc -l < bootstrap-dist.sh)
-          size=$(ls -lh bootstrap-dist.sh | awk '{print $5}')
+          size=$(du -h bootstrap-dist.sh | awk '{print $1}')
           echo "Build complete: bootstrap-dist.sh ($lines lines, $size)"
+
+      - name: Verify bootstrap-dist.sh is up to date
+        run: |
+          if ! git diff --exit-code bootstrap-dist.sh; then
+            echo "::error::bootstrap-dist.sh is out of date. Run scripts/build-bootstrap.sh and commit the result."
+            exit 1
+          fi
 
       - name: Compare line counts
         run: |

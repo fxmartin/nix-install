@@ -20,7 +20,7 @@ Welcome to the nix-install development documentation. This directory contains al
   - **Epic-06: 100% COMPLETE** (18/18 stories, 97/97 points) ✅ Maintenance & monitoring complete!
   - **Epic-07: 100% COMPLETE** (8/8 stories, 34/34 points) ✅ Documentation & UX complete!
   - **NFR: 93% COMPLETE** (14/15 stories, 76/79 points) ✅ Nearly complete!
-  - Next: MacBook Air migrations (Phase 11)
+  - Next: MacBook Air M4 migration (Phase 11)
 
 ### Development Guides
 - **[multi-agent-workflow.md](./multi-agent-workflow.md)** - Agent selection strategy and usage patterns
@@ -44,6 +44,7 @@ Welcome to the nix-install development documentation. This directory contains al
 **Overall Project**: 98.4% complete (122/124 stories, 641/650 points) 🎉
 
 **🎉 MILESTONE (2025-12-07)**: MacBook Pro M3 Max successfully running Power profile!
+**🎉 MILESTONE (2026-01-15)**: MacBook Pro M1 successfully running AI-Assistant profile!
 **📝 CHANGELOG.md**: Created 2025-12-07 - v1.0.0 release documented
 
 **Epic-01: Bootstrap & Installation System** - 94.7% complete (18/19 stories, 107/113 points) 🟢

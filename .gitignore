@@ -8,10 +8,19 @@ tests/test_helper/bats-assert/
 .DS_Store
 
 # User config backup (generated during bootstrap)
+user-config.nix
 user-config.nix.backup
+
+# Local/tool caches and generated outputs
+.dev_time_cache.json
+.ruff_cache/
+scripts/__pycache__/
+plugins/**/__pycache__/
+result
 
 # Calibre secrets (contain Kindle serial, Adobe credentials, API keys)
 # Store locally in ~/.config/calibre-secrets/ instead
+config/calibre/SECRETS.md
 config/calibre/plugins/dedrm.json
 config/calibre/plugins/bookfusion.json
 config/calibre/plugins/DeACSM/account/

@@ -1,6 +1,7 @@
 # ABOUTME: Phase 4 - Nix package manager installation and configuration
 # ABOUTME: Installs Nix multi-user, enables flakes, configures binary cache
 # ABOUTME: Depends on: lib/common.sh for logging functions
+# shellcheck shell=bash
 
 # Guard against double-sourcing
 [[ -n "${_NIX_INSTALL_SH_LOADED:-}" ]] && return 0

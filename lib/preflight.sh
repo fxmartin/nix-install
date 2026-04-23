@@ -1,6 +1,7 @@
 # ABOUTME: Phase 1 - Pre-flight system validation orchestrator
 # ABOUTME: Runs all system validation checks before starting installation
 # ABOUTME: Depends on: lib/common.sh for validation functions
+# shellcheck shell=bash
 
 # Guard against double-sourcing
 [[ -n "${_PREFLIGHT_SH_LOADED:-}" ]] && return 0

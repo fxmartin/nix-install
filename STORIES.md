@@ -22,7 +22,7 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 ### Primary Personas
 
 #### FX (Power User with Multiple Machines)
-- **Role**: Technical professional managing 3 MacBooks with periodic reinstalls
+- **Role**: Technical professional managing 2 deployed MacBooks, with a MacBook Air M4 migration pending
 - **Goals**:
   - Automate MacBook setup to reduce time from 4+ hours to <30 minutes
   - Maintain consistency across all machines
@@ -36,7 +36,8 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
   - Documentation gets out of sync with reality
 - **Context**:
   - Split usage: Office 365 work + weekend Python development
-  - Owns MacBook Pro M3 Max + 2 MacBook Air models
+  - Deployed: MacBook Pro M3 Max on Power profile, MacBook Pro M1 on AI-Assistant profile
+  - Pending: MacBook Air M4 on Standard profile
   - Values automation, consistency, and minimal manual intervention
 
 ## Epic Overview
@@ -176,7 +177,7 @@ graph TD
 - **Week 6**: Documentation (Epic-07)
 - **Week 6**: VM Testing (Phase 9)
 - **Week 7**: MacBook Pro M3 Max migration (Phase 10)
-- **Week 8**: MacBook Air migrations (Phase 11)
+- **Week 8**: MacBook Air M4 migration (Phase 11, pending)
 
 ## Story Management
 - **Backlog Refinement**: Weekly epic review during implementation phases
@@ -196,7 +197,7 @@ graph TD
 
 ### Definition of "MVP Complete"
 1. ✅ VM testing successful: Bootstrap works in fresh VM with zero manual intervention
-2. ✅ All 3 MacBooks migrated to Nix-based config (MacBook Pro M3 Max + 2 MacBook Airs)
+2. 🟢 2 MacBooks migrated to Nix-based config (MacBook Pro M3 Max + MacBook Pro M1); MacBook Air M4 pending
 3. ✅ Bootstrap script proven on both VM and physical hardware without manual intervention (except license entry)
 4. ✅ Documentation complete: Non-technical user can follow README and succeed
 5. ✅ All P0 requirements met: Apps installed, system configured, shell working

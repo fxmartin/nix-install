@@ -1,6 +1,7 @@
 # ABOUTME: Phase 2 - User configuration and installation profile selection
 # ABOUTME: Handles user information prompting, validation, and config file generation
 # ABOUTME: Depends on: lib/common.sh for logging functions
+# shellcheck shell=bash
 
 # Guard against double-sourcing
 [[ -n "${_USER_CONFIG_SH_LOADED:-}" ]] && return 0

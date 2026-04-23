@@ -8,5 +8,4 @@
   description = "nix-install global allowlist"
   paths = [
     '''config/calibre/plugins/DeACSM/''',
-    '''config/calibre/SECRETS\.md''',
   ]

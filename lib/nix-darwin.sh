@@ -1,6 +1,7 @@
 # ABOUTME: Phase 5 - nix-darwin installation and validation
 # ABOUTME: Downloads flake files, runs darwin-rebuild, validates installation
 # ABOUTME: Depends on: lib/common.sh, lib/nix-install.sh
+# shellcheck shell=bash
 
 # Guard against double-sourcing
 [[ -n "${_NIX_DARWIN_SH_LOADED:-}" ]] && return 0

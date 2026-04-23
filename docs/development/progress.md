@@ -30,7 +30,7 @@
 | 2026-04-22 | 🎉 **Epic-08 SketchyBar Deep Telemetry** - `/metrics` aggregator, per-cluster CPU, GPU+ANE, power/temp, vitals popup (Sprint 13) |
 | 2026-04-21 | 🎉 **Epic-08 Memory & Observability** - Ollama pressure guard, swap alerting, top-5 processes, Beszel custom sensors (Sprints 12 & 14) |
 | 2026-04-21 | 🎉 **Epic-08 Disk Optimization** - System GC daemon, HF/browser/Docker pruning, pre-rebuild guard, growth telemetry (Sprint 11) |
-| 2026-01-15 | 🎉 **MacBook Pro M1 (2021) Deployed** - Standard profile, second machine running |
+| 2026-01-15 | 🎉 **MacBook Pro M1 (2021) Deployed** - AI-Assistant profile, second machine running |
 | 2025-12-07 | 🎉 **Epic-01 Complete** - Story 01.1-004 Modular Bootstrap Architecture implemented |
 | 2025-12-07 | 🎉 **v1.0.0 Released** - MacBook Pro M3 Max running Power profile |
 | 2025-12-06 | Epic-07 Documentation Complete |
@@ -47,7 +47,7 @@
 |------|-------|--------|----------|-------|
 | Epic-08 | 08.3-008 Retire mactop habit | 1 | P1 | Acceptance-only validation (one day mactop-free) |
 | NFR | 1-week auto-update verification | 5 | P1 | Monitoring period |
-| NFR | MacBook Air cross-machine test | 3 | P0 | Phase 11 |
+| NFR | MacBook Air M4 cross-machine test | 3 | P0 | Phase 11, not yet deployed |
 
 ### Performance Metrics (MacBook Pro M3 Max)
 

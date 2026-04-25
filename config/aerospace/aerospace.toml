@@ -4,10 +4,10 @@
 # Reference: https://nikitabobko.github.io/AeroSpace/guide
 # Workspace layout:
 #   1 Terminal — Ghostty
-#   2 Code     — cmux, VSCode
-#   3 Editor   — Zed
+#   2 Code     — cmux, VSCode, Zed
+#   3 Preview  — Preview, Chrome
 #   4 AI       — Claude, ChatGPT, Perplexity, Inferencer
-#   5 Web      — Chrome, Chrome for Testing, Arc, Brave, Firefox, Safari, Preview
+#   5 Web      — Chrome for Testing, Arc, Brave, Firefox, Safari
 #   6 Mail     — Outlook, Mail
 #   7 Office   — Microsoft Teams, Word, Excel, PowerPoint
 #   8 Chat     — Telegram, WhatsApp
@@ -44,7 +44,7 @@ exec-on-workspace-change = ['/bin/bash', '-c',
 [workspace-to-monitor-force-assignment]
 1 = 'main'       # Terminal
 2 = 'main'       # Code
-3 = 'main'       # Editor
+3 = 'secondary'  # Preview
 4 = 'secondary'  # AI
 5 = 'secondary'  # Web
 6 = 'secondary'  # Mail
@@ -124,6 +124,7 @@ alt-shift-f     = 'fullscreen'              # AeroSpace fullscreen (keeps Sketch
 alt-shift-space = 'layout floating tiling'  # float/unfloat the current window
 
 # --- Service mode: reload, reset, close-all-but-current ---
+alt-shift-r = 'exec-and-forget /bin/bash -lc "$HOME/.config/aerospace/reload-ui.sh"'
 alt-shift-semicolon = 'mode service'
 
 [mode.service.binding]
@@ -158,9 +159,17 @@ run = 'move-node-to-workspace 2'
 if.app-id = 'com.microsoft.VSCode'
 run = 'move-node-to-workspace 2'
 
-# --- Workspace 3: Editor ---
 [[on-window-detected]]
 if.app-id = 'dev.zed.Zed'
+run = ['move-node-to-workspace 2', 'layout accordion']
+
+# --- Workspace 3: Preview ---
+[[on-window-detected]]
+if.app-id = 'com.google.Chrome'
+run = ['move-node-to-workspace 3', 'layout accordion']
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Preview'
 run = ['move-node-to-workspace 3', 'layout accordion']
 
 # --- Workspace 4: AI ---
@@ -182,10 +191,6 @@ run = 'move-node-to-workspace 4'
 
 # --- Workspace 5: Web ---
 [[on-window-detected]]
-if.app-id = 'com.google.Chrome'
-run = ['move-node-to-workspace 5', 'layout accordion']
-
-[[on-window-detected]]
 if.app-id = 'com.google.chrome.for.testing'
 run = ['move-node-to-workspace 5', 'layout accordion']
 
@@ -203,10 +208,6 @@ run = ['move-node-to-workspace 5', 'layout accordion']
 
 [[on-window-detected]]
 if.app-id = 'com.apple.Safari'
-run = ['move-node-to-workspace 5', 'layout accordion']
-
-[[on-window-detected]]
-if.app-id = 'com.apple.Preview'
 run = ['move-node-to-workspace 5', 'layout accordion']
 
 # --- Workspace 6: Mail ---

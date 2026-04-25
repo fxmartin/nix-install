@@ -60,6 +60,7 @@ PAYLOAD=$(echo "$JSON" | jq -r '
     "CPU_USER=" + ((.cpu.user_percent // 0) | tostring),
     "CPU_SYS=" + ((.cpu.system_percent // 0) | tostring),
     "CPU_IDLE=" + ((.cpu.idle_percent // 0) | tostring),
+    "CPU_CORE_MAX=" + (([.cpu.cores[]?.active_percent] | max // 0) | tostring),
     "CPU_CORES=" + (
       [.cpu.cores[]? | (.active_percent // 0) as $p |
         if $p >= 90 then "█"

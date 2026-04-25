@@ -4,8 +4,7 @@
 # ABOUTME: Consumes CPU_CORES from system_metrics_update; no local polling
 
 GREY=0xff585b70
-GREEN=0xffa6e3a1
-YELLOW=0xfff9e2af
+AMBER=0xfff9e2af
 RED=0xfff38ba8
 TEXT=0xffcdd6f4
 SUBTEXT=0xffa6adc8
@@ -35,15 +34,14 @@ if [ "$STALE" = "1" ] || [ -z "$CPU_CORES" ]; then
   exit 0
 fi
 
-HOT=$(printf '%s' "$CPU_CORES" | grep -o "█" | wc -l | tr -d ' ')
-WARM=$(printf '%s' "$CPU_CORES" | grep -o "▇\\|▆" | wc -l | tr -d ' ')
+CORE_MAX=${CPU_CORE_MAX:-0}
 
-if [ "$HOT" -gt 0 ]; then
+if awk -v v="$CORE_MAX" 'BEGIN { exit !(v > 60) }'; then
   COLOR=$RED
-elif [ "$WARM" -gt 0 ]; then
-  COLOR=$YELLOW
+elif awk -v v="$CORE_MAX" 'BEGIN { exit !(v >= 25) }'; then
+  COLOR=$AMBER
 else
-  COLOR=$GREEN
+  COLOR=$GREY
 fi
 
 sketchybar --set "$NAME" \

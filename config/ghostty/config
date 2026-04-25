@@ -1,8 +1,9 @@
 # =========================
 # THEME & COLORS
 # =========================
-# Catppuccin theme with automatic macOS light/dark switching.
-theme = dark:Catppuccin Mocha,light:Catppuccin Latte
+# cmux currently renders mixed/low-contrast panes with conditional light/dark
+# themes, so keep the terminal palette stable and readable.
+theme = Catppuccin Mocha
 # theme = "light:Builtin Solarized Light,dark:Builtin Solarized Dark"
 
 # Alternatively, for a single theme:
@@ -15,8 +16,8 @@ theme = dark:Catppuccin Mocha,light:Catppuccin Latte
 # selection-foreground = cdd6f4
 # cursor-color = f5e0dc
 
-# Minimum contrast for readability without distorting Catppuccin light mode.
-minimum-contrast = 1.2
+# Minimum contrast for better readability.
+minimum-contrast = 1.5
 
 # =========================
 # FONT CONFIGURATION
@@ -55,8 +56,8 @@ window-padding-color = background
 # Enable native decorations based on your desktop environment
 window-decoration = auto
 
-# Theme follows system light/dark mode
-window-theme = auto
+# Keep terminal chrome aligned with the dark terminal palette.
+window-theme = dark
 
 # Keep unfocused splits readable. cmux handles split dividers inside its own UI.
 unfocused-split-opacity = 1

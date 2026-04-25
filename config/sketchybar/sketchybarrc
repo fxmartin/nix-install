@@ -185,6 +185,7 @@ sketchybar --add item clock right \
            --add item cpu.grid right \
            --set cpu.grid icon=CPU icon.font="SF Pro:Bold:11.0" \
              label.font="Hack Nerd Font:Regular:13.0" \
+             label.drawing=off \
              script="$PLUGIN_DIR/cpu_grid.sh" \
              click_script="$PLUGIN_DIR/cpu_grid.sh" \
              popup.background.color=0xff1e1e2e \

@@ -60,19 +60,7 @@ PAYLOAD=$(echo "$JSON" | jq -r '
     "CPU_USER=" + ((.cpu.user_percent // 0) | tostring),
     "CPU_SYS=" + ((.cpu.system_percent // 0) | tostring),
     "CPU_IDLE=" + ((.cpu.idle_percent // 0) | tostring),
-    "CPU_CORE_MAX=" + (([.cpu.cores[]?.active_percent] | max // 0) | tostring),
-    "CPU_CORES=" + (
-      [.cpu.cores[]? | (.active_percent // 0) as $p |
-        if $p >= 90 then "█"
-        elif $p >= 75 then "▇"
-        elif $p >= 60 then "▆"
-        elif $p >= 45 then "▅"
-        elif $p >= 30 then "▄"
-        elif $p >= 15 then "▃"
-        elif $p >= 5 then "▂"
-        else "▁" end
-      ] | join("")
-    ),
+    "CPU_CORE_PCTS=" + ([.cpu.cores[]? | (.active_percent // 0)] | map(tostring) | join(",")),
     "LOAD_AVG=" + (
       if (.system.load_average // []) | length >= 3
       then (.system.load_average[0:3] | map(tostring) | join("/"))

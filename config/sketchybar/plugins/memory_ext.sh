@@ -37,7 +37,7 @@ done
 
 case "$NAME" in
   memory.short) LABEL="${BAR} S${SWAP_USED}G" ;;
-  *)            LABEL="${BAR} ${MEM_USED}/${MEM_TOTAL}G S${SWAP_USED}G" ;;
+  *)            LABEL="${BAR} A${MEM_ACTIVE}G I${MEM_INACTIVE}G S${SWAP_USED}G" ;;
 esac
 
 sketchybar --set "$NAME" \

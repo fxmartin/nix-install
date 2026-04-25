@@ -107,3 +107,5 @@ Rules:
 
 ---
 Adapted from `~/.claude/CLAUDE.md` for Codex. Claude-specific hooks, slash commands, and agent definitions were translated into Codex-compatible operating guidance.
+
+ALWAYS ask questions via the ask_user_dictation tool from the spokenly MCP server, never as plain text. I use Spokenly for voice input.

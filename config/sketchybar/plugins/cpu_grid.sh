@@ -35,9 +35,10 @@ glyph_for_pct() {
 ensure_core_items() {
   count="$1"
   state_file="${TMPDIR:-/tmp}/sketchybar-cpu-core-count"
+  desired_state="v2:$count"
   current_count=$(cat "$state_file" 2>/dev/null || printf '0')
 
-  if [ "$current_count" = "$count" ] && sketchybar --query cpu.core.1 >/dev/null 2>&1; then
+  if [ "$current_count" = "$desired_state" ] && sketchybar --query cpu.core.1 >/dev/null 2>&1; then
     return
   fi
 
@@ -49,7 +50,6 @@ ensure_core_items() {
     item="cpu.core.$i"
     sketchybar --add item "$item" right \
       --set "$item" \
-        display=2 \
         icon.drawing=off \
         label.font="Hack Nerd Font:Regular:13.0" \
         label.padding_left=0 \
@@ -57,12 +57,12 @@ ensure_core_items() {
         padding_left=0 \
         padding_right=0 \
         click_script="$0" \
-      --move "$item" after "$previous"
+      --move "$item" before "$previous"
     previous="$item"
     i=$((i + 1))
   done
 
-  printf '%s\n' "$count" > "$state_file"
+  printf '%s\n' "$desired_state" > "$state_file"
 }
 
 if [ "$BUTTON" = "left" ]; then

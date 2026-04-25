@@ -775,23 +775,24 @@ def _parse_vm_stat() -> dict | None:
         return None
 
     free_pages = counters.get("Pages free", 0) + counters.get("Pages speculative", 0)
-    free_bytes = free_pages * page_size
-    used_bytes = max(mem_total - free_bytes, 0)
+    inactive_pages = counters.get("Pages inactive", 0)
+    available_bytes = (free_pages + inactive_pages) * page_size
+    used_bytes = max(mem_total - available_bytes, 0)
     wired_bytes = counters.get("Pages wired down", 0) * page_size
     compressed_bytes = counters.get("Pages occupied by compressor", 0) * page_size
     active_bytes = counters.get("Pages active", 0) * page_size
-    inactive_bytes = counters.get("Pages inactive", 0) * page_size
+    inactive_bytes = inactive_pages * page_size
 
     memory = {
         "total_gb": round(mem_total / (1024 ** 3), 1),
         "used_gb": round(used_bytes / (1024 ** 3), 1),
-        "available_gb": round(free_bytes / (1024 ** 3), 1),
+        "available_gb": round(available_bytes / (1024 ** 3), 1),
         "wired_gb": round(wired_bytes / (1024 ** 3), 1),
         "compressed_gb": round(compressed_bytes / (1024 ** 3), 1),
         "active_gb": round(active_bytes / (1024 ** 3), 1),
         "inactive_gb": round(inactive_bytes / (1024 ** 3), 1),
     }
-    available_ratio = free_bytes / mem_total if mem_total else 0
+    available_ratio = available_bytes / mem_total if mem_total else 0
     if available_ratio < 0.05:
         memory["pressure_label"] = "critical"
     elif available_ratio < 0.10:

@@ -184,6 +184,27 @@ class HealthApiHardwareTests(unittest.TestCase):
         self.assertEqual(metrics["system"]["uptime_seconds"], 123)
         self.assertEqual(metrics["memory"]["swap_used_gb"], 0.3)
 
+    def test_parse_vm_stat_treats_inactive_memory_as_available(self):
+        vm_stat_lines = [
+            "Mach Virtual Memory Statistics: (page size of 4096 bytes)",
+            "Pages free:                               100000.",
+            "Pages speculative:                         50000.",
+            "Pages inactive:                          5000000.",
+            "Pages active:                            5000000.",
+            "Pages wired down:                        1000000.",
+            "Pages occupied by compressor:             500000.",
+        ]
+
+        with mock.patch.object(self.health_api, "_run_lines", return_value=vm_stat_lines), \
+                mock.patch.object(self.health_api, "run", return_value=str(48 * 1024 ** 3)):
+            memory = self.health_api._parse_vm_stat()
+
+        self.assertIsNotNone(memory)
+        self.assertEqual(memory["inactive_gb"], 19.1)
+        self.assertEqual(memory["available_gb"], 19.6)
+        self.assertEqual(memory["used_gb"], 28.4)
+        self.assertEqual(memory["pressure_label"], "normal")
+
 
 if __name__ == "__main__":
     unittest.main()

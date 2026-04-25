@@ -1,15 +1,8 @@
-# ============================================================================
-# GHOSTTY CONFIGURATION FOR UBUNTU/LINUX
-# Place this file at: ~/.config/ghostty/config
-# ============================================================================
-
 # =========================
 # THEME & COLORS
 # =========================
-# Beautiful dark theme with automatic light/dark switching
-# NOTE: Ghostty 1.2.0 changed theme names to Title Case
-# Run 'ghostty +list-themes' to see all available theme names
-theme = "light:Catppuccin Latte,dark:Catppuccin Mocha"
+# Catppuccin theme with automatic macOS light/dark switching.
+theme = dark:Catppuccin Mocha,light:Catppuccin Latte
 # theme = "light:Builtin Solarized Light,dark:Builtin Solarized Dark"
 
 # Alternatively, for a single theme:
@@ -22,9 +15,8 @@ theme = "light:Catppuccin Latte,dark:Catppuccin Mocha"
 # selection-foreground = cdd6f4
 # cursor-color = f5e0dc
 
-# Minimum contrast for better readability (1.0 = no adjustment, higher = more contrast)
-# Increased to 1.5 for much better text visibility on dark backgrounds
-minimum-contrast = 1.5
+# Minimum contrast for readability without distorting Catppuccin light mode.
+minimum-contrast = 1.2
 
 # =========================
 # FONT CONFIGURATION
@@ -66,9 +58,8 @@ window-decoration = auto
 # Theme follows system light/dark mode
 window-theme = auto
 
-# Split configuration - increased from 0.85 to 0.95 for better readability in unfocused splits
-unfocused-split-opacity = 0.95
-split-divider-color = 45475a
+# Keep unfocused splits readable. cmux handles split dividers inside its own UI.
+unfocused-split-opacity = 1
 
 # Resize overlay settings
 resize-overlay = after-first
@@ -81,16 +72,6 @@ window-save-state = always
 # =========================
 # PERFORMANCE & BEHAVIOR
 # =========================
-# GTK single instance mode for faster subsequent launches
-gtk-single-instance = desktop
-
-# Enable Adwaita for better GNOME integration (if available)
-# gtk-adwaita = true  # Uncomment if your Ghostty version supports it
-
-# Tab bar configuration
-gtk-tabs-location = top
-gtk-wide-tabs = true
-
 # Scrollback buffer (in bytes, ~100MB)
 scrollback-limit = 100000000
 
@@ -243,13 +224,6 @@ link-url = true
 # custom-shader = /path/to/shader.glsl
 # custom-shader-animation = false
 
-# Linux-specific optimizations
-linux-cgroup = single-instance
-# Memory limit per terminal (2GB)
-linux-cgroup-memory-limit = 2147483648
-# Process limit per terminal
-linux-cgroup-processes-limit = 1000
-
 # Initial window size (in cells)
 window-width = 120
 window-height = 40
@@ -263,21 +237,12 @@ quick-terminal-autohide = true
 # =========================
 # PLATFORM-SPECIFIC SETTINGS
 # =========================
-# GTK/GNOME specific
-# gtk-titlebar = true
-# gtk-titlebar-hide-when-maximized = false
-# Toolbar style (if available in your version)
-# adw-toolbar-style = raised
-
-# Darwin (MacOs) specific
+# Darwin (macOS) specific
 macos-titlebar-style = transparent
 macos-titlebar-proxy-icon = hidden
 macos-dock-drop-behavior = window
 macos-icon = glass
 auto-update = off
-
-# For KDE users, you might want:
-# window-decoration = server
 
 # =========================
 # TROUBLESHOOTING OPTIONS

@@ -37,6 +37,7 @@ sketchybar --default "${default[@]}"
 
 sketchybar --add item apple left \
   --set apple icon= \
+  display=1 \
   icon.font="Hack Nerd Font:Bold:17.0" \
   label.drawing=off \
   padding_right=10 \
@@ -84,7 +85,7 @@ sketchybar --add event system_metrics_update
 sketchybar --add event aerospace_workspace_change
 sketchybar --add event system_metrics_update
 
-WORKSPACE_LABELS=("Term" "Code" "Edit" "AI" "Web" "Mail" "Office" "Chat" "Misc")
+WORKSPACE_LABELS=("Term" "Code" "Preview" "AI" "Web" "Mail" "Office" "Chat" "Misc")
 for i in "${!WORKSPACE_LABELS[@]}"
 do
   sid="$(($i+1))"
@@ -98,6 +99,7 @@ do
     label.padding_right=7
     background.corner_radius=5
     background.height=25
+    display=2
     script="$PLUGIN_DIR/aerospace_workspace.sh"
     click_script="aerospace workspace $sid"
   )
@@ -111,9 +113,9 @@ done
 # only the properties deviating from the current defaults need to be set
 
 sketchybar --add item chevron left \
-           --set chevron icon= icon.font="Hack Nerd Font:Bold:13.0" label.drawing=off \
+           --set chevron display=1 icon= icon.font="Hack Nerd Font:Bold:13.0" label.drawing=off \
            --add item front_app left \
-           --set front_app icon.drawing=off script="$PLUGIN_DIR/front_app.sh" \
+           --set front_app display=1 icon.drawing=off script="$PLUGIN_DIR/front_app.sh" \
            --subscribe front_app front_app_switched
 
 ##### Adding Right Items #####
@@ -128,15 +130,15 @@ sketchybar --add item chevron left \
 # https://felixkratz.github.io/SketchyBar/config/events
 
 sketchybar --add item clock right \
-           --set clock update_freq=10 icon= icon.font="Hack Nerd Font:Bold:15.0" script="$PLUGIN_DIR/clock.sh" \
+           --set clock display=1 update_freq=10 icon= icon.font="Hack Nerd Font:Bold:15.0" script="$PLUGIN_DIR/clock.sh" \
            --add item volume right \
-           --set volume script="$PLUGIN_DIR/volume.sh" \
+           --set volume display=1 script="$PLUGIN_DIR/volume.sh" \
            --subscribe volume volume_change \
            --add item battery right \
-           --set battery update_freq=120 icon.font="Hack Nerd Font:Bold:15.0" script="$PLUGIN_DIR/battery.sh" \
+           --set battery display=1 update_freq=120 icon.font="Hack Nerd Font:Bold:15.0" script="$PLUGIN_DIR/battery.sh" \
            --subscribe battery system_woke power_source_change \
            --add item docker right \
-           --set docker update_freq=10 icon=󰡨 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 \
+           --set docker display=2 update_freq=10 icon=󰡨 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 \
              script="$PLUGIN_DIR/docker.sh" \
              click_script="$PLUGIN_DIR/docker.sh" \
              popup.background.color=0xff1e1e2e \
@@ -146,9 +148,9 @@ sketchybar --add item clock right \
              popup.background.height=32 \
              popup.y_offset=5 \
            --add item wifi right \
-           --set wifi update_freq=10 icon=󰤨 icon.font="Hack Nerd Font:Bold:15.0" label.drawing=off click_script="open x-apple.systempreferences:com.apple.wifi-settings-extension" script="$PLUGIN_DIR/wifi.sh" \
+           --set wifi display=1 update_freq=10 icon=󰤨 icon.font="Hack Nerd Font:Bold:15.0" label.drawing=off click_script="open x-apple.systempreferences:com.apple.wifi-settings-extension" script="$PLUGIN_DIR/wifi.sh" \
            --add item tailscale right \
-           --set tailscale update_freq=10 icon=󰖂 icon.font="Hack Nerd Font:Bold:15.0" label.drawing=off \
+           --set tailscale display=2 update_freq=10 icon=󰖂 icon.font="Hack Nerd Font:Bold:15.0" label.drawing=off \
              script="$PLUGIN_DIR/tailscale.sh" \
              click_script="$PLUGIN_DIR/tailscale.sh" \
              popup.background.color=0xff1e1e2e \
@@ -158,9 +160,9 @@ sketchybar --add item clock right \
              popup.background.height=32 \
              popup.y_offset=5 \
            --add item disk right \
-           --set disk update_freq=60 icon=󰋊 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/disk.sh" \
+           --set disk display=2 update_freq=60 icon=󰋊 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/disk.sh" \
            --add item memory right \
-           --set memory icon=󰍛 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xff94e2d5 \
+           --set memory display=2 icon=󰍛 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xff94e2d5 \
              script="$PLUGIN_DIR/memory.sh" \
              click_script="$PLUGIN_DIR/memory.sh" \
              popup.background.color=0xff1e1e2e \
@@ -171,19 +173,19 @@ sketchybar --add item clock right \
              popup.y_offset=5 \
            --subscribe memory system_metrics_update \
            --add item power right \
-           --set power icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/power.sh" \
+           --set power display=2 icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/power.sh" \
            --subscribe power system_metrics_update \
            --add item temp right \
-           --set temp icon=󰔏 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/temp.sh" \
+           --set temp display=2 icon=󰔏 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/temp.sh" \
            --subscribe temp system_metrics_update \
            --add item gpu right \
-           --set gpu icon=󰏔 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/gpu.sh" \
+           --set gpu display=2 icon=󰏔 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/gpu.sh" \
            --subscribe gpu system_metrics_update \
            --add item ane right \
-           --set ane icon="AI" icon.font="SF Pro:Bold:11.0" icon.color=0xff585b70 script="$PLUGIN_DIR/ane.sh" \
+           --set ane display=2 icon="AI" icon.font="SF Pro:Bold:11.0" icon.color=0xff585b70 script="$PLUGIN_DIR/ane.sh" \
            --subscribe ane system_metrics_update \
            --add item cpu.p right \
-           --set cpu.p icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffcba6f7 \
+           --set cpu.p display=2 icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffcba6f7 \
              script="$PLUGIN_DIR/cpu_cluster.sh" \
              click_script="$PLUGIN_DIR/vitals.sh" \
              popup.background.color=0xff1e1e2e \
@@ -194,10 +196,10 @@ sketchybar --add item clock right \
              popup.y_offset=5 \
            --subscribe cpu.p system_metrics_update \
            --add item cpu.e right \
-           --set cpu.e icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xff94e2d5 script="$PLUGIN_DIR/cpu_cluster.sh" \
+           --set cpu.e display=2 icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xff94e2d5 script="$PLUGIN_DIR/cpu_cluster.sh" \
            --subscribe cpu.e system_metrics_update \
            --add item network right \
-           --set network update_freq=5 icon=󰛳 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 \
+           --set network display=2 update_freq=5 icon=󰛳 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 \
              script="$PLUGIN_DIR/network.sh" \
              click_script="$PLUGIN_DIR/network.sh" \
              popup.background.color=0xff1e1e2e \
@@ -206,6 +208,40 @@ sketchybar --add item clock right \
              popup.background.corner_radius=12 \
              popup.background.height=32 \
              popup.y_offset=5
+
+##### External display telemetry console #####
+# Display 1 is the laptop bar; display 2 is the external telemetry surface.
+# All items below consume the single system_metrics_update event from system.sh.
+sketchybar --add item cpu.grid right \
+           --set cpu.grid display=2 icon=CPU icon.font="SF Pro:Bold:11.0" \
+             label.font="Hack Nerd Font:Regular:13.0" \
+             script="$PLUGIN_DIR/cpu_grid.sh" \
+           --subscribe cpu.grid system_metrics_update \
+           --add item cpu.split right \
+           --set cpu.split display=2 icon=U/S/I icon.font="SF Pro:Bold:10.0" \
+             label.font="SF Pro:Regular:12.0" \
+             script="$PLUGIN_DIR/cpu_split.sh" \
+           --subscribe cpu.split system_metrics_update \
+           --add item load right \
+           --set load display=2 icon=LOAD icon.font="SF Pro:Bold:10.0" \
+             label.font="SF Pro:Regular:12.0" \
+             script="$PLUGIN_DIR/load.sh" \
+           --subscribe load system_metrics_update \
+           --add item silicon.ext right \
+           --set silicon.ext display=2 icon=SoC icon.font="SF Pro:Bold:10.0" \
+             label.font="SF Pro:Regular:12.0" \
+             script="$PLUGIN_DIR/silicon_ext.sh" \
+           --subscribe silicon.ext system_metrics_update \
+           --add item memory.ext right \
+           --set memory.ext display=2 icon=MEM icon.font="SF Pro:Bold:10.0" \
+             label.font="SF Pro:Regular:12.0" \
+             script="$PLUGIN_DIR/memory_ext.sh" \
+           --subscribe memory.ext system_metrics_update \
+           --add item top.cpu.ext right \
+           --set top.cpu.ext display=2 icon=TOP icon.font="SF Pro:Bold:10.0" \
+             label.font="SF Pro:Regular:12.0" \
+             script="$PLUGIN_DIR/top_cpu_ext.sh" \
+           --subscribe top.cpu.ext system_metrics_update
 
 ##### System metrics aggregator (Story 08.3-001 + 08.3-007 adaptive) #####
 # Invisible item that polls /metrics every update_freq (2s on AC, 10s on

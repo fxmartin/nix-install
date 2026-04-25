@@ -11,6 +11,8 @@ import hmac
 import threading
 import time
 import re
+import ctypes
+import sys
 from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
@@ -329,6 +331,7 @@ _metrics_lock = threading.Lock()
 _fast_metrics_cache: dict = {}
 _fast_metrics_cache_time: float = 0.0
 _fast_metrics_lock = threading.Lock()
+_last_core_cpu_sample: list[tuple[int, int, int, int]] | None = None
 
 # Interval between macmon samples. macmon on M3 Max takes ~3-4s per
 # --samples 1 --interval 500 call (startup + sensor enumeration).
@@ -342,6 +345,22 @@ FAST_METRICS_REFRESH_INTERVAL = int(os.environ.get("FAST_METRICS_REFRESH_INTERVA
 # Subprocess timeout for a single macmon invocation.  Runs on a
 # background thread; nothing blocks on it, so generous is fine.
 MACMON_TIMEOUT_SEC = int(os.environ.get("MACMON_TIMEOUT_SEC", "15"))
+DEFAULT_HARDWARE_INFO = {
+    "name": "Apple Silicon",
+    "cores": 0,
+    "e_cores": 0,
+    "p_cores": 0,
+    "gpu_cores": 0,
+}
+_hardware_info_cache: dict | None = None
+_hardware_info_lock = threading.Lock()
+
+CPU_STATE_USER = 0
+CPU_STATE_SYSTEM = 1
+CPU_STATE_IDLE = 2
+CPU_STATE_NICE = 3
+CPU_STATE_MAX = 4
+PROCESSOR_CPU_LOAD_INFO = 2
 
 
 def _run_lines(command: list[str], timeout: int = 5) -> list[str]:
@@ -358,6 +377,202 @@ def _run_lines(command: list[str], timeout: int = 5) -> list[str]:
     if result.returncode != 0:
         return []
     return result.stdout.splitlines()
+
+
+def _run_json(command: list[str], timeout: int = 10) -> dict:
+    try:
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            check=False,
+        )
+    except Exception:
+        return {}
+    if result.returncode != 0 or not result.stdout.strip():
+        return {}
+    try:
+        return json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return {}
+
+
+def _parse_cpu_core_info(hardware_json: dict) -> dict:
+    hardware = hardware_json.get("SPHardwareDataType", [])
+    if not hardware:
+        return {}
+
+    overview = hardware[0]
+    info: dict = {}
+    chip_type = overview.get("chip_type")
+    if isinstance(chip_type, str) and chip_type:
+        info["name"] = chip_type
+
+    processors = overview.get("number_processors", "")
+    if not isinstance(processors, str):
+        return info
+
+    match = re.search(r"proc\s+(\d+):(\d+):(\d+):", processors)
+    if not match:
+        return info
+
+    cores, p_cores, e_cores = (int(value) for value in match.groups())
+    info.update({
+        "cores": cores,
+        "p_cores": p_cores,
+        "e_cores": e_cores,
+    })
+    return info
+
+
+def _parse_gpu_core_info(displays_json: dict) -> dict:
+    for display in displays_json.get("SPDisplaysDataType", []):
+        if not isinstance(display, dict):
+            continue
+        cores = display.get("sppci_cores")
+        if cores is None:
+            continue
+        try:
+            return {"gpu_cores": int(cores)}
+        except (TypeError, ValueError):
+            return {}
+    return {}
+
+
+def _probe_hardware_info() -> dict:
+    info = dict(DEFAULT_HARDWARE_INFO)
+
+    cpu_json = _run_json(["/usr/sbin/system_profiler", "SPHardwareDataType", "-json"])
+    display_json = _run_json(["/usr/sbin/system_profiler", "SPDisplaysDataType", "-json"])
+    info.update(_parse_cpu_core_info(cpu_json))
+    info.update(_parse_gpu_core_info(display_json))
+
+    if info == DEFAULT_HARDWARE_INFO:
+        print("health-api: hardware core counts unavailable; using zero defaults")
+    return info
+
+
+def get_hardware_info() -> dict:
+    global _hardware_info_cache  # noqa: PLW0603
+    with _hardware_info_lock:
+        if _hardware_info_cache is None:
+            _hardware_info_cache = _probe_hardware_info()
+        return dict(_hardware_info_cache)
+
+
+def _sample_core_cpu_times() -> list[tuple[int, int, int, int]]:
+    """Return per-core Mach CPU tick counters as user/system/idle/nice tuples."""
+    if sys.platform != "darwin":
+        return []
+
+    try:
+        libsystem = ctypes.CDLL("/usr/lib/libSystem.dylib")
+        processor_count = ctypes.c_uint(0)
+        processor_info = ctypes.POINTER(ctypes.c_int)()
+        processor_info_count = ctypes.c_uint(0)
+
+        host_processor_info = libsystem.host_processor_info
+        host_processor_info.argtypes = [
+            ctypes.c_uint,
+            ctypes.c_int,
+            ctypes.POINTER(ctypes.c_uint),
+            ctypes.POINTER(ctypes.POINTER(ctypes.c_int)),
+            ctypes.POINTER(ctypes.c_uint),
+        ]
+        host_processor_info.restype = ctypes.c_int
+        libsystem.mach_host_self.restype = ctypes.c_uint
+
+        result = host_processor_info(
+            libsystem.mach_host_self(),
+            PROCESSOR_CPU_LOAD_INFO,
+            ctypes.byref(processor_count),
+            ctypes.byref(processor_info),
+            ctypes.byref(processor_info_count),
+        )
+        if result != 0 or not processor_info:
+            return []
+
+        core_count = int(processor_count.value)
+        times = []
+        for index in range(core_count):
+            offset = index * CPU_STATE_MAX
+            times.append((
+                int(processor_info[offset + CPU_STATE_USER]),
+                int(processor_info[offset + CPU_STATE_SYSTEM]),
+                int(processor_info[offset + CPU_STATE_IDLE]),
+                int(processor_info[offset + CPU_STATE_NICE]),
+            ))
+
+        try:
+            task = ctypes.c_uint.in_dll(libsystem, "mach_task_self_").value
+            byte_count = int(processor_info_count.value) * ctypes.sizeof(ctypes.c_int)
+            libsystem.vm_deallocate(task, ctypes.cast(processor_info, ctypes.c_void_p).value, byte_count)
+        except Exception:
+            pass
+
+        return times
+    except Exception:
+        return []
+
+
+def _core_usage_from_samples(
+    previous: list[tuple[int, int, int, int]] | None,
+    current: list[tuple[int, int, int, int]],
+) -> dict:
+    if not previous or len(previous) != len(current):
+        return {
+            "cores": [
+                {"id": index, "active_percent": 0.0, "user_percent": 0.0, "system_percent": 0.0}
+                for index in range(len(current))
+            ],
+            "user_percent": 0.0,
+            "system_percent": 0.0,
+            "idle_percent": 0.0,
+        }
+
+    cores = []
+    totals = {"user": 0, "system": 0, "idle": 0, "nice": 0}
+    for index, (before, after) in enumerate(zip(previous, current)):
+        user = max(after[CPU_STATE_USER] - before[CPU_STATE_USER], 0)
+        system_time = max(after[CPU_STATE_SYSTEM] - before[CPU_STATE_SYSTEM], 0)
+        idle = max(after[CPU_STATE_IDLE] - before[CPU_STATE_IDLE], 0)
+        nice = max(after[CPU_STATE_NICE] - before[CPU_STATE_NICE], 0)
+        total = user + system_time + idle + nice
+
+        totals["user"] += user
+        totals["system"] += system_time
+        totals["idle"] += idle
+        totals["nice"] += nice
+
+        if total <= 0:
+            cores.append({"id": index, "active_percent": 0.0, "user_percent": 0.0, "system_percent": 0.0})
+            continue
+
+        cores.append({
+            "id": index,
+            "active_percent": round((user + system_time + nice) / total * 100, 1),
+            "user_percent": round((user + nice) / total * 100, 1),
+            "system_percent": round(system_time / total * 100, 1),
+        })
+
+    grand_total = sum(totals.values())
+    if grand_total <= 0:
+        return {"cores": cores, "user_percent": 0.0, "system_percent": 0.0, "idle_percent": 0.0}
+
+    return {
+        "cores": cores,
+        "user_percent": round((totals["user"] + totals["nice"]) / grand_total * 100, 1),
+        "system_percent": round(totals["system"] / grand_total * 100, 1),
+        "idle_percent": round(totals["idle"] / grand_total * 100, 1),
+    }
+
+
+def _load_average() -> list[float]:
+    try:
+        return [round(value, 2) for value in os.getloadavg()]
+    except OSError:
+        return []
 
 
 def _top_cpu_processes(n: int = 5) -> list[dict]:
@@ -480,15 +695,7 @@ def _probe_system_metrics() -> dict | None:
 
     response = {
         "timestamp": sample.get("timestamp", datetime.now(timezone.utc).astimezone().isoformat()),
-        "system": {
-            "name": "Apple Silicon",
-            # macmon pipe does not expose core counts; keep keys for
-            # backwards compatibility but report 0.
-            "cores": 0,
-            "e_cores": 0,
-            "p_cores": 0,
-            "gpu_cores": 0,
-        },
+        "system": get_hardware_info(),
         "cpu": {
             "usage_percent": round((ecpu_active + pcpu_active) / 2 * 100, 1),
             "e_cluster": {
@@ -570,11 +777,28 @@ def _parse_vm_stat() -> dict | None:
     free_pages = counters.get("Pages free", 0) + counters.get("Pages speculative", 0)
     free_bytes = free_pages * page_size
     used_bytes = max(mem_total - free_bytes, 0)
-    return {
+    wired_bytes = counters.get("Pages wired down", 0) * page_size
+    compressed_bytes = counters.get("Pages occupied by compressor", 0) * page_size
+    active_bytes = counters.get("Pages active", 0) * page_size
+    inactive_bytes = counters.get("Pages inactive", 0) * page_size
+
+    memory = {
         "total_gb": round(mem_total / (1024 ** 3), 1),
         "used_gb": round(used_bytes / (1024 ** 3), 1),
         "available_gb": round(free_bytes / (1024 ** 3), 1),
+        "wired_gb": round(wired_bytes / (1024 ** 3), 1),
+        "compressed_gb": round(compressed_bytes / (1024 ** 3), 1),
+        "active_gb": round(active_bytes / (1024 ** 3), 1),
+        "inactive_gb": round(inactive_bytes / (1024 ** 3), 1),
     }
+    available_ratio = free_bytes / mem_total if mem_total else 0
+    if available_ratio < 0.05:
+        memory["pressure_label"] = "critical"
+    elif available_ratio < 0.10:
+        memory["pressure_label"] = "warn"
+    else:
+        memory["pressure_label"] = "normal"
+    return memory
 
 
 def _parse_swap_usage() -> dict[str, float]:
@@ -603,10 +827,28 @@ def _fast_cpu_usage_percent() -> float:
 
 
 def _probe_fast_metrics() -> dict:
+    global _last_core_cpu_sample  # noqa: PLW0603
     memory = _parse_vm_stat() or {}
     memory.update(_parse_swap_usage())
+    core_sample = _sample_core_cpu_times()
+    cpu = {"usage_percent": 0.0}
+    if core_sample:
+        previous_sample = _last_core_cpu_sample
+        cpu.update(_core_usage_from_samples(_last_core_cpu_sample, core_sample))
+        _last_core_cpu_sample = core_sample
+        if previous_sample:
+            cpu["usage_percent"] = round(100.0 - cpu.get("idle_percent", 100.0), 1)
+        else:
+            cpu["usage_percent"] = _fast_cpu_usage_percent()
+    else:
+        cpu["usage_percent"] = _fast_cpu_usage_percent()
+
     return {
-        "cpu": {"usage_percent": _fast_cpu_usage_percent()},
+        "cpu": cpu,
+        "system": {
+            "load_average": _load_average(),
+            "uptime_seconds": int(time.monotonic()),
+        },
         "memory": memory,
         "processes": {"top_cpu": _top_cpu_processes(5)},
     }
@@ -637,6 +879,10 @@ def _merge_metric_caches(slow: dict, fast: dict) -> dict:
         merged_memory = dict(merged.get("memory", {}))
         merged_memory.update(fast.get("memory", {}))
         merged["memory"] = merged_memory
+
+        merged_system = dict(merged.get("system", {}))
+        merged_system.update(fast.get("system", {}))
+        merged["system"] = merged_system
 
         merged_processes = dict(merged.get("processes", {}))
         merged_processes.update(fast.get("processes", {}))
@@ -751,6 +997,10 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
 
 
 def main():
+    # Static hardware metadata is cheap enough at startup, but too slow/noisy
+    # to run on the request path or every macmon sample.
+    get_hardware_info()
+
     # Start the nix-store refresher daemon before serving so /health never blocks
     # on `du -sh /nix/store`. It runs an initial refresh immediately and then
     # sleeps for NIX_STORE_CACHE_TTL seconds between refreshes.

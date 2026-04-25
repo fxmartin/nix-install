@@ -55,6 +55,32 @@ PAYLOAD=$(echo "$JSON" | jq -r '
     "MEM_USED=" + ((.memory.used_gb // 0) | tostring),
     "MEM_TOTAL=" + ((.memory.total_gb // 0) | tostring),
     "SWAP_USED=" + ((.memory.swap_used_gb // 0) | tostring),
+    "CPU_USER=" + ((.cpu.user_percent // 0) | tostring),
+    "CPU_SYS=" + ((.cpu.system_percent // 0) | tostring),
+    "CPU_IDLE=" + ((.cpu.idle_percent // 0) | tostring),
+    "CPU_CORES=" + (
+      [.cpu.cores[]? | (.active_percent // 0) as $p |
+        if $p >= 90 then "█"
+        elif $p >= 75 then "▇"
+        elif $p >= 60 then "▆"
+        elif $p >= 45 then "▅"
+        elif $p >= 30 then "▄"
+        elif $p >= 15 then "▃"
+        elif $p >= 5 then "▂"
+        else "▁" end
+      ] | join("")
+    ),
+    "LOAD_AVG=" + (
+      if (.system.load_average // []) | length >= 3
+      then (.system.load_average[0:3] | map(tostring) | join("/"))
+      else "0/0/0" end
+    ),
+    "MEM_PRESSURE=" + ((.memory.pressure_label // "unknown") | tostring),
+    "TOP_CPU=" + (
+      [.processes.top_cpu[0:3][]? |
+        (((.cpu_percent // 0) | round | tostring) + "%:" + ((.name // "") | split("/") | last | gsub("[^A-Za-z0-9._-]"; "_")))
+      ] | join("|")
+    ),
     "STALE=0"
   ] | join(" ")
 ' 2>/dev/null)

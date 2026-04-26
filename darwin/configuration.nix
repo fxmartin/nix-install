@@ -33,10 +33,16 @@
       allowUnfree = true;
     };
     overlays = [
-      # nushell 0.112.1 tests env_shlvl_in_repl and env_shlvl_in_exec_repl fail
-      # under the macOS build sandbox (exec blocked → "Operation not permitted").
-      # Upstream nixpkgs skip list is missing these two; disable checks until fixed.
+      # Some upstream checks are flaky or blocked under the macOS build sandbox.
+      # Keep this list narrow so normal package builds still get test coverage.
       (_final: prev: {
+        # direnv 2.37.1 can hang in checkPhase while loading test fixtures on
+        # aarch64-darwin, blocking darwin-rebuild after a flake update.
+        direnv = prev.direnv.overrideAttrs (_: { doCheck = false; });
+
+        # nushell 0.112.1 tests env_shlvl_in_repl and env_shlvl_in_exec_repl fail
+        # under the macOS build sandbox (exec blocked: "Operation not permitted").
+        # Upstream nixpkgs skip list is missing these two; disable checks until fixed.
         nushell = prev.nushell.overrideAttrs (_: { doCheck = false; });
       })
     ];

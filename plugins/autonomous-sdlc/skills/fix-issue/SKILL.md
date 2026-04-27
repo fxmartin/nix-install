@@ -34,6 +34,59 @@ Defaults:
 - Batch targets (`next --limit=N`, `all`) also run sequentially unless the user explicitly asks for parallel workers.
 - `--skip-e2e` means `--e2e-gate=off`.
 
+## Progress Notifications
+
+Use `scripts/codex-sdlc-bridge.sh` as the standard progress API for this
+workflow. The bridge logs every call and forwards to cmux only when
+`CMUX_SOCKET_PATH` and `~/.claude/hooks/cmux-bridge.sh` are available, so these
+calls are safe outside cmux.
+
+Emit deterministic progress from the main Codex agent at phase boundaries:
+
+```bash
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh status fix-issue "Validating issue" --icon hammer --color "#007AFF"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh progress 0.1 --label "Phase 1: Validate"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh log info "Fix issue started: #[ISSUE_NUMBER]" --source fix-issue
+
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh status fix-issue "Fetching issue" --icon hammer --color "#007AFF"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh progress 0.2 --label "Phase 2: Fetch issue"
+
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh status fix-issue "Investigating" --icon search --color "#007AFF"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh progress 0.35 --label "Phase 3: Investigate"
+
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh status fix-issue "Building fix" --icon hammer --color "#FF9500"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh progress 0.55 --label "Phase 4: Build"
+
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh status fix-issue "Verifying" --icon flask --color "#FF9500"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh progress 0.7 --label "Phase 5: Verify"
+
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh status fix-issue "Reviewing" --icon magnifier --color "#FF9500"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh progress 0.85 --label "Phase 6: Review"
+```
+
+On bugfix loops or verification failures, emit a warning or error log with the
+failed gate:
+
+```bash
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh log warning "Gate failure: [STEP] -- [SUMMARY]" --source fix-issue
+```
+
+On completion:
+
+```bash
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh progress 1.0 --label "Complete"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh status fix-issue "Complete" --icon sparkle --color "#34C759"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh log success "Fix complete: #[ISSUE_NUMBER] -- [ISSUE_TITLE]" --source fix-issue
+```
+
+On abort or unrecoverable failure, leave the progress bar at the current phase,
+set the status to failed, and log the blocker:
+
+```bash
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh status fix-issue "Failed" --icon x.circle --color "#FF3B30"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh log error "Fix failed: #[ISSUE_NUMBER] -- [SUMMARY]" --source fix-issue
+```
+
 ## GitHub CLI Execution
 
 All GitHub CLI commands in this workflow must run through Batch or another
@@ -114,7 +167,7 @@ INTEGRATION_NOTES: ...
 - re-check repo state between issues
 - stop on blocking repo-state problems instead of trying to automate around them
 
-Do not port Claude-only worktree batch orchestration, cmux sidebar updates, Telegram hooks, or Claude session/task state.
+Do not port Claude-only worktree batch orchestration, Telegram hooks, or Claude session/task state. Use the Codex bridge above for cmux-compatible sidebar updates.
 
 ## Guardrails
 

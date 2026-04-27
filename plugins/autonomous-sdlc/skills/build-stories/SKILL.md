@@ -130,9 +130,55 @@ External isolation rules:
 - Worker-specific temp dirs under `/tmp`.
 - Main agent alone writes shared files and talks to GitHub.
 
-## Notifications
+## Progress Notifications
 
-Use `scripts/codex-sdlc-bridge.sh` only as an optional adapter. The workflow must remain correct if cmux, desktop notifications, or Telegram are unavailable.
+Use `scripts/codex-sdlc-bridge.sh` as the standard progress API for this
+workflow. The bridge logs every call and forwards to cmux only when
+`CMUX_SOCKET_PATH` and `~/.claude/hooks/cmux-bridge.sh` are available, so these
+calls are safe outside cmux.
+
+Use exactly two status keys throughout the run:
+
+- `phase`: macro phase (`Preflight`, `Discovery`, `Building`, `Summarizing`, `Complete`)
+- `current`: current story, cohort, or verification step
+
+Emit these updates from the main Codex agent:
+
+```bash
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh status phase "Preflight" --icon shield --color "#007AFF"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh progress 0.0 --label "Preflight"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh log info "Preflight started" --source build-stories
+
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh status phase "Discovery" --icon search --color "#007AFF"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh progress 0.1 --label "Discovering stories"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh log info "Story discovery started" --source build-stories
+
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh status phase "Building" --icon hammer --color "#FF9500"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh progress 0.2 --label "Story 0/[TOTAL]"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh log info "Build started: [TOTAL] stories" --source build-stories
+```
+
+For each story, update `current`, progress, and the ledger:
+
+```bash
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh status current "[ID] [STEP]" --icon hammer --color "#FF9500"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh progress [FRACTION] --label "Story [N]/[TOTAL]: [ID]"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh log info "[ID] [STEP] started" --source build-stories
+```
+
+Use `[FRACTION] = 0.2 + (0.7 * [N] / [TOTAL])`, capped at `0.9`, while
+building stories. On failure, log the failed step and keep the progress label
+on the failing story. On completion:
+
+```bash
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh clear current
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh status phase "Complete" --icon sparkle --color "#34C759"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh progress 1.0 --label "Done: [COMPLETED]/[TOTAL]"
+./plugins/autonomous-sdlc/scripts/codex-sdlc-bridge.sh log success "Build finished: [COMPLETED] done, [FAILED] failed, [SKIPPED] skipped" --source build-stories
+```
+
+Workers must not update shared progress state. In parallel mode, only the main
+agent emits aggregate cohort/stage progress after integrating worker results.
 
 ## Do Not Migrate
 

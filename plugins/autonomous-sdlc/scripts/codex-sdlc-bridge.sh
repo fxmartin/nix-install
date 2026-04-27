@@ -14,6 +14,7 @@ log() {
     local level="$1"
     local timestamp
     shift
+    mkdir -p "${log_dir}"
     timestamp="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
     printf '[%s] [%s] %s\n' "${timestamp}" "${level}" "$*" >> "${log_file}"
 }
@@ -22,14 +23,14 @@ case "${subcommand}" in
     post-write)
         log info "Post-write hook observed"
         ;;
-    status|progress|notify|telegram)
+    status|progress|log|notify|telegram|clear)
         log "${subcommand}" "$*"
         if [[ -n "${CMUX_SOCKET_PATH:-}" && -x "${HOME}/.claude/hooks/cmux-bridge.sh" ]]; then
             "${HOME}/.claude/hooks/cmux-bridge.sh" "${subcommand}" "$@" || true
         fi
         ;;
     "")
-        echo "Usage: codex-sdlc-bridge.sh <post-write|status|progress|notify|telegram> [args...]" >&2
+        echo "Usage: codex-sdlc-bridge.sh <post-write|status|progress|log|notify|telegram|clear> [args...]" >&2
         exit 2
         ;;
     *)

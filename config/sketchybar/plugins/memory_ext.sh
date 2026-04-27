@@ -19,8 +19,9 @@ case "$MEM_PRESSURE" in
   *) COLOR=$GREEN ;;
 esac
 
-PCT=$(awk -v u="$MEM_USED" -v t="$MEM_TOTAL" 'BEGIN { if (t > 0) printf "%d", (u/t)*100; else print 0 }')
-FILLED=$(awk -v p="$PCT" 'BEGIN { printf "%d", (p + 19) / 20 }')
+BAR_USED=${MEM_ACTIVE:-$MEM_USED}
+PCT=$(awk -v u="$BAR_USED" -v t="$MEM_TOTAL" 'BEGIN { if (t > 0) printf "%d", (u/t)*100; else print 0 }')
+FILLED=$(awk -v p="$PCT" 'BEGIN { printf "%d", (p / 20) + 1 }')
 [ "$FILLED" -lt 0 ] && FILLED=0
 [ "$FILLED" -gt 5 ] && FILLED=5
 

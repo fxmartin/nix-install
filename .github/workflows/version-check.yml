@@ -1,0 +1,35 @@
+# ABOUTME: GitHub Actions workflow for release version metadata checks
+# ABOUTME: Fails when VERSION, README.md, and CLAUDE.md drift
+
+name: Version Check
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'VERSION'
+      - 'README.md'
+      - 'CLAUDE.md'
+      - 'scripts/verify-version.sh'
+      - '.github/workflows/version-check.yml'
+  pull_request:
+    paths:
+      - 'VERSION'
+      - 'README.md'
+      - 'CLAUDE.md'
+      - 'scripts/verify-version.sh'
+      - '.github/workflows/version-check.yml'
+  workflow_dispatch:
+
+jobs:
+  version-check:
+    name: Verify Version Metadata
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify version metadata
+        run: ./scripts/verify-version.sh

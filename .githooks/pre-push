@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# ABOUTME: Local pre-push gate for release version metadata
+# ABOUTME: Blocks pushes when VERSION, README.md, and CLAUDE.md drift
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+exec "${ROOT_DIR}/scripts/verify-version.sh"

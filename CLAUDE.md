@@ -75,6 +75,31 @@ The bootstrap system uses a modular architecture:
 - `update`: Update flake.lock (gets latest versions) + rebuild
 - Auto-updates disabled via: `HOMEBREW_NO_AUTO_UPDATE=1`, app configs, system defaults
 
+### Release Versioning
+
+Release numbering continues from the existing `v1.0.0` tag and uses semantic
+versioning.
+
+- `VERSION` is the repo-local release version mirror.
+- `README.md` and this file must contain the same version as `VERSION`.
+- Git tag `vX.Y.Z` is the release authority.
+- Bump minor (`X.Y.0`) when a release contains feature enrichment.
+- Bump patch (`X.Y.Z`) when a release contains only fixes.
+- Never decrement versions.
+- Breaking changes before a future `v2.0.0` may ship in minor releases, but
+  they must be called out in the annotated tag message and release notes.
+- Run `make bump-minor` for feature releases.
+- Run `make bump-patch` for fix-only releases.
+- Run `make verify-version` before tagging.
+- Run `make release-tag` to create the annotated tag.
+- `make release-tag` refuses dirty trees, non-`main` branches, duplicate tags,
+  and version drift.
+- Tag pushes stay manual: `git push origin main --tags`.
+- Run `make install-hooks` once per clone to enable the tracked local pre-push
+  version drift gate. The tracked pre-commit hook delegates to the Home Manager
+  gitleaks hook when present.
+- GitHub Actions also runs the same version drift check on PRs and `main`.
+
 ## Project Structure
 
 ```

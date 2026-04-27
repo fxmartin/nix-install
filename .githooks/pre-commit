@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# ABOUTME: Delegates to the user-level pre-commit hook when tracked hooks are enabled
+# ABOUTME: Preserves Home Manager managed gitleaks scanning with core.hooksPath=.githooks
+
+set -euo pipefail
+
+GLOBAL_PRE_COMMIT="${HOME}/.config/git/hooks/pre-commit"
+
+if [[ -x "${GLOBAL_PRE_COMMIT}" ]]; then
+    exec "${GLOBAL_PRE_COMMIT}" "$@"
+fi

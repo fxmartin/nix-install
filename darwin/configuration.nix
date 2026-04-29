@@ -383,7 +383,7 @@
     knownSha256Hashes = [
       # nix-darwin managed hosts (this config's output) - required for re-activation
       # UPDATE THIS HASH if you change the 'text' block above!
-      "11de5c726f376240c78682814efe4e14a9c096d27e8ed34ec6e86f63c3e34c56"
+      "93f7f98e530fe33544de2978b3ba426de9af5a86eb1922bcacf49ecbc716ebfa"
       # Default macOS hosts (with header comments, tabs)
       "c7dd0e2ed261ce76d76f852596c5b54026b9a894fa481381ffd399b556c0e2da"
       # Default macOS hosts (with header comments, spaces)

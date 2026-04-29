@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
-# ABOUTME: Delegates to the user-level pre-commit hook when tracked hooks are enabled
+# ABOUTME: Runs local release metadata checks and delegates to the user-level pre-commit hook
 # ABOUTME: Preserves Home Manager managed gitleaks scanning with core.hooksPath=.githooks
 
 set -euo pipefail
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GLOBAL_PRE_COMMIT="${HOME}/.config/git/hooks/pre-commit"
 
 if [[ -x "${GLOBAL_PRE_COMMIT}" ]]; then
-    exec "${GLOBAL_PRE_COMMIT}" "$@"
+    "${GLOBAL_PRE_COMMIT}" "$@"
 fi
+
+exec "${ROOT_DIR}/scripts/verify-release-change.sh"

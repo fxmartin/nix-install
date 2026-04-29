@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-04-29
+
+### Added
+
+- Enforced semantic release workflow with major/minor/patch bump helper, dated changelog entries, and commit/push metadata gates.
+
 ### Added — Epic-08: Resource Optimization & Deep Telemetry (2026-04-21 → 2026-04-22)
 
 **Feature 08.1: Disk Consumption Optimization**
@@ -262,7 +268,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Milestone |
 |---------|------|-----------|
-| 1.1.0 | TBD | Health API, CI/CD, DRY refactors, Podman health check, Epic-08 Resource Optimization & Deep Telemetry (22/23 stories) |
+| 1.1.0 | 2026-04-29 | Health API, CI/CD, DRY refactors, Podman health check, release management workflow, Epic-08 Resource Optimization & Deep Telemetry (22/23 stories) |
 | 1.0.0 | 2025-12-07 | Initial release - MacBook Pro M3 Max running Power profile |
 
 ## Migration Notes

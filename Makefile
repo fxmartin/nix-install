@@ -1,13 +1,16 @@
 # ABOUTME: Release automation targets for nix-install
 # ABOUTME: Wraps version bumping, verification, tag creation, and hook install
 
-.PHONY: bump-minor bump-patch verify-version release-tag install-hooks
+.PHONY: bump-major bump-minor bump-patch verify-version release-tag install-hooks
+
+bump-major:
+	./scripts/bump-version.sh major "$${RELEASE_NOTE:?set RELEASE_NOTE='release summary'}"
 
 bump-minor:
-	./scripts/bump-version.sh minor
+	./scripts/bump-version.sh minor "$${RELEASE_NOTE:?set RELEASE_NOTE='release summary'}"
 
 bump-patch:
-	./scripts/bump-version.sh patch
+	./scripts/bump-version.sh patch "$${RELEASE_NOTE:?set RELEASE_NOTE='release summary'}"
 
 verify-version:
 	./scripts/verify-version.sh

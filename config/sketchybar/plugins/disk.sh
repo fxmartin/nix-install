@@ -1,27 +1,48 @@
 #!/bin/sh
 
-# ABOUTME: SketchyBar plugin — Disk usage percentage matching Finder (includes purgeable space)
+# ABOUTME: SketchyBar plugin — Compact disk free-space status icon
+# ABOUTME: Uses Finder-equivalent free space and colors the icon by remaining capacity
 
-# Use Swift to get volumeAvailableCapacityForImportantUsage (same as Finder)
-DISK=$(swift -e '
+GREEN=0xffa6e3a1
+YELLOW=0xfff9e2af
+RED=0xfff38ba8
+
+if [ -n "${SKETCHYBAR_DISK_AVAILABLE_BYTES:-}" ] && [ -n "${SKETCHYBAR_DISK_TOTAL_BYTES:-}" ]; then
+  AVAILABLE="$SKETCHYBAR_DISK_AVAILABLE_BYTES"
+  TOTAL="$SKETCHYBAR_DISK_TOTAL_BYTES"
+else
+  # Use Swift to get volumeAvailableCapacityForImportantUsage (same as Finder).
+  CAPACITY=$(swift -e '
 import Foundation
 let url = URL(fileURLWithPath: "/")
 let values = try url.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey, .volumeTotalCapacityKey])
 let available = values.volumeAvailableCapacityForImportantUsage ?? 0
 let total = Int64(values.volumeTotalCapacity ?? 0)
-let usedPct = Int(Double(total - available) / Double(total) * 100)
-print(usedPct)
+print("\(available) \(total)")
 ' 2>/dev/null)
 
-[ -z "$DISK" ] && exit 0
-
-# Color based on current value
-if [ "$DISK" -ge 85 ]; then
-  COLOR="0xfff38ba8"  # Red (Catppuccin)
-elif [ "$DISK" -ge 60 ]; then
-  COLOR="0xfff9e2af"  # Yellow
-else
-  COLOR="0xffa6e3a1"  # Green
+  [ -z "$CAPACITY" ] && exit 0
+  AVAILABLE=$(printf '%s\n' "$CAPACITY" | awk '{print $1}')
+  TOTAL=$(printf '%s\n' "$CAPACITY" | awk '{print $2}')
 fi
 
-sketchybar --set "$NAME" label="${DISK}%" label.color="$COLOR"
+case "$AVAILABLE:$TOTAL" in
+  *[!0-9:]* | :* | *: | *::*) exit 0 ;;
+esac
+
+[ "$TOTAL" -le 0 ] && exit 0
+
+FREE_PCT=$((AVAILABLE * 100 / TOTAL))
+
+if [ "$FREE_PCT" -lt 10 ]; then
+  COLOR=$RED
+elif [ "$FREE_PCT" -lt 20 ]; then
+  COLOR=$YELLOW
+else
+  COLOR=$GREEN
+fi
+
+sketchybar --set "$NAME" \
+  icon.color="$COLOR" \
+  label="${FREE_PCT}%" \
+  label.drawing=off

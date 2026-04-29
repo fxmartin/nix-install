@@ -11,7 +11,7 @@ set -euo pipefail
 # =============================================================================
 
 # Script version
-RSYNC_BACKUP_VERSION="3.0.0"
+RSYNC_BACKUP_VERSION="3.0.1"
 
 # Color codes for output
 RED='\033[0;31m'
@@ -384,6 +384,15 @@ run_backup_job() {
         # --timeout: I/O timeout (seconds) - prevents indefinite hangs
         rsync_args=(-av --progress --whole-file --partial --inplace --timeout=120)
         dest_full="${dest_full}/"
+    fi
+
+    # iCloud Drive's File Provider can raise EDEADLK while rsync verifies the
+    # transferred file by mapping it again after a successful whole-file copy.
+    # For iCloud sources, rely on whole-file transfer plus transport integrity
+    # and skip rsync's post-transfer file checksum verification.
+    if [[ "${source_full}" == *"Mobile Documents/com~apple~CloudDocs"* ]]; then
+        rsync_args+=(--checksum-choice=none)
+        print_status "info" "iCloud source detected: disabling rsync transfer checksum verification"
     fi
 
     # Run rsync with retry logic

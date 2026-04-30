@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.1.3] - 2026-04-29
+## [1.1.4] - 2026-04-30
+
+### Fixed
+
+- Show disk status icon on all SketchyBar displays## [1.1.3] - 2026-04-29
 
 ### Fixed
 

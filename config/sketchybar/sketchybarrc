@@ -175,7 +175,7 @@ sketchybar --add item clock right \
              script="$PLUGIN_DIR/memory_ext.sh" \
            --subscribe memory.ext system_metrics_update \
            --add item disk right \
-           --set disk display=1 update_freq=60 icon=󰋊 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 label.drawing=off script="$PLUGIN_DIR/disk.sh" \
+           --set disk update_freq=60 icon=󰋊 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 label.drawing=off script="$PLUGIN_DIR/disk.sh" \
            --add item gpu right \
            --set gpu display=2 icon=󰏔 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/gpu.sh" \
            --subscribe gpu system_metrics_update \

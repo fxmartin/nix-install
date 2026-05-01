@@ -160,7 +160,7 @@ update_flake() {
         log_info "No changes to flake.lock"
     else
         log_info "Changes to flake.lock:"
-        git diff flake.lock | /usr/bin/grep -E '^\+|^\-' | /usr/bin/grep -v '^\+\+\+|^\-\-\-' || true
+        git diff -- flake.lock | awk '/^[+-]/ && !/^(---|\+\+\+)/ { print }' || true
         echo ""
         commit_and_push_flake_lock
     fi
@@ -175,7 +175,7 @@ commit_and_push_flake_lock() {
         log_warning "flake.lock has uncommitted changes"
         echo ""
         echo "To commit and push:"
-        echo "  git add flake.lock && git commit -m 'chore: update flake.lock' && git push"
+        echo "  git add flake.lock && scripts/bump-version.sh patch 'Update Nix flake inputs' && git push"
         echo ""
         return 0
     fi
@@ -189,7 +189,7 @@ commit_and_push_flake_lock() {
                 log_error "Failed to stage flake.lock"
                 return 1
             fi
-            if ! git commit -m "chore: update flake.lock"; then
+            if ! scripts/bump-version.sh patch "Update Nix flake inputs"; then
                 log_error "Failed to commit flake.lock (pre-commit hook?)"
                 return 1
             fi
@@ -202,7 +202,7 @@ commit_and_push_flake_lock() {
             ;;
         *)
             log_info "Skipped commit. To do it later:"
-            echo "  git add flake.lock && git commit -m 'chore: update flake.lock' && git push"
+            echo "  git add flake.lock && scripts/bump-version.sh patch 'Update Nix flake inputs' && git push"
             ;;
     esac
 }

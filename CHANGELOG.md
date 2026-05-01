@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.1.4] - 2026-04-30
+## [1.1.5] - 2026-05-01
+
+### Fixed
+
+- Fix update command lockfile commit flow## [1.1.4] - 2026-04-30
 
 ### Fixed
 

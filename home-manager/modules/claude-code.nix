@@ -288,6 +288,7 @@ in {
       CODEX_MARKETPLACE_TMP="$CODEX_MARKETPLACE.tmp"
       CODEX_BIN="/run/current-system/sw/bin/codex"
       CODEX_CONFIG="${config.home.homeDirectory}/.codex/config.toml"
+      CODEX_CONFIG_DIR="${config.home.homeDirectory}/.codex"
 
       if [ -d "$CODEX_PLUGIN_REPO" ]; then
         $DRY_RUN_CMD mkdir -p "$CODEX_PLUGIN_HOME_DIR" "$CODEX_AGENTS_DIR"
@@ -374,6 +375,19 @@ EOF
         fi
       else
         echo "⚠️  Warning: $CODEX_PLUGIN_REPO directory not found"
+      fi
+
+      $DRY_RUN_CMD mkdir -p "$CODEX_CONFIG_DIR"
+      if [ -f "$CODEX_CONFIG" ] && grep -Fq "[mcp_servers.gitnexus]" "$CODEX_CONFIG"; then
+        echo "✓ Codex MCP server gitnexus already configured"
+      else
+        $DRY_RUN_CMD tee -a "$CODEX_CONFIG" > /dev/null <<'EOF'
+
+[mcp_servers.gitnexus]
+command = "npx"
+args = ["-y", "gitnexus@1.6.3", "mcp"]
+EOF
+        echo "✓ Added Codex MCP server gitnexus"
       fi
     else
       echo "⚠️  Warning: Could not find nix-install repository"

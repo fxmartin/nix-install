@@ -86,6 +86,13 @@
     # Required by Claude Code plugins such as codex@openai-codex, including
     # on ai-assistant where the heavier JS/TS language-server stack is omitted.
     nodejs
+    (writeShellApplication {
+      name = "gitnexus";
+      runtimeInputs = [nodejs];
+      text = ''
+        exec npx -y gitnexus@1.6.3 "$@"
+      '';
+    })
 
     # NOTE: MCP servers are configured via Home Manager using mcp-servers-nix.lib.mkConfig
     # See home-manager/modules/claude-code.nix for MCP server configuration

@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.1.5] - 2026-05-01
+## [1.2.0] - 2026-05-03
+
+### Added
+
+- Install GitNexus CLI and Codex MCP## [1.1.5] - 2026-05-01
 
 ### Fixed
 

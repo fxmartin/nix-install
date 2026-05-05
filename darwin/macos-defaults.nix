@@ -3,6 +3,7 @@
 {
   config,
   lib,
+  pkgs,
   userConfig,
   isPowerProfile,
   ...
@@ -203,6 +204,88 @@
     # No grace period - password required instantly upon wake
     askForPasswordDelay = 0;
   };
+
+  # macOS Sonoma/Sequoia stores Apple aerial screen saver selection in
+  # WallpaperAgent's binary plist, not only in com.apple.screensaver defaults.
+  # Sequoia Sunrise asset ID is documented by Apple's local aerial assets and
+  # appears as /Library/Application Support/com.apple.idleassetsd/.../6D6834A4-...
+  system.activationScripts.postActivation.text = lib.mkAfter ''
+    echo "Setting macOS screen saver to Sequoia Sunrise..."
+
+    WALLPAPER_INDEX="/Users/${userConfig.username}/Library/Application Support/com.apple.wallpaper/Store/Index.plist"
+    WALLPAPER_USER="${userConfig.username}"
+    WALLPAPER_UID="$(/usr/bin/id -u "$WALLPAPER_USER" 2>/dev/null || true)"
+
+    if [[ ! -f "$WALLPAPER_INDEX" ]]; then
+      echo "⚠️  Warning: WallpaperAgent index not found: $WALLPAPER_INDEX"
+      echo "   Open System Settings → Screen Saver once, then rerun rebuild."
+    elif [[ -z "$WALLPAPER_UID" ]]; then
+      echo "⚠️  Warning: Could not resolve user $WALLPAPER_USER; skipping screen saver setup"
+    else
+      WALLPAPER_INDEX="$WALLPAPER_INDEX" ${pkgs.python312}/bin/python3 <<'PY'
+import datetime
+import os
+import plistlib
+import tempfile
+
+asset_id = "6D6834A4-2F0F-479A-B053-7D4DC5CB8EB7"
+index_path = os.environ["WALLPAPER_INDEX"]
+
+with open(index_path, "rb") as plist_file:
+    wallpaper_index = plistlib.load(plist_file)
+
+configuration = plistlib.dumps({"assetID": asset_id}, fmt=plistlib.FMT_BINARY)
+encoded_options = plistlib.dumps({"values": []}, fmt=plistlib.FMT_BINARY)
+now = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
+
+def configure_idle(node):
+    if not isinstance(node, dict):
+        return 0
+
+    updated = 0
+    idle = node.get("Idle")
+    if isinstance(idle, dict):
+        idle["LastSet"] = now
+        idle["LastUse"] = now
+        content = idle.setdefault("Content", {})
+        content["Choices"] = [
+            {
+                "Provider": "com.apple.wallpaper.choice.aerials",
+                "Files": [],
+                "Configuration": configuration,
+            }
+        ]
+        content["Shuffle"] = "$null"
+        content["EncodedOptionValues"] = encoded_options
+        updated += 1
+
+    for value in node.values():
+        if isinstance(value, dict):
+            updated += configure_idle(value)
+        elif isinstance(value, list):
+            for item in value:
+                updated += configure_idle(item)
+
+    return updated
+
+updated_count = configure_idle(wallpaper_index)
+if updated_count == 0:
+    raise SystemExit("no Idle screen saver entries found in WallpaperAgent index")
+
+directory = os.path.dirname(index_path)
+with tempfile.NamedTemporaryFile("wb", dir=directory, delete=False) as temp_file:
+    plistlib.dump(wallpaper_index, temp_file, fmt=plistlib.FMT_BINARY)
+    temp_path = temp_file.name
+
+os.replace(temp_path, index_path)
+print(f"Updated {updated_count} screen saver entries to Sequoia Sunrise")
+PY
+      /usr/sbin/chown "$WALLPAPER_USER":staff "$WALLPAPER_INDEX"
+      /bin/launchctl asuser "$WALLPAPER_UID" /usr/bin/killall WallpaperAgent 2>/dev/null || true
+      /bin/launchctl asuser "$WALLPAPER_UID" /usr/bin/killall cfprefsd 2>/dev/null || true
+      echo "✓ Screen saver set to Sequoia Sunrise"
+    fi
+  '';
 
   # Touch ID for sudo is ALREADY configured in darwin/configuration.nix:
   # security.pam.services.sudo_local.touchIdAuth = true;

@@ -85,11 +85,11 @@ sketchybar --add event system_metrics_update
 sketchybar --add event aerospace_workspace_change
 sketchybar --add event system_metrics_update
 
-WORKSPACE_LABELS=("Term" "Code" "Preview" "AI" "Web" "Mail" "Office" "Chat" "Misc")
-for i in "${!WORKSPACE_LABELS[@]}"
+WORKSPACES=("0:Work" "1:Term" "2:Code" "3:Preview" "4:AI" "5:Web" "6:Mail" "7:Office" "8:Chat" "9:Misc")
+for workspace_entry in "${WORKSPACES[@]}"
 do
-  sid="$(($i+1))"
-  label="${WORKSPACE_LABELS[i]}"
+  sid="${workspace_entry%%:*}"
+  label="${workspace_entry#*:}"
   workspace=(
     icon="$sid"
     icon.padding_left=7

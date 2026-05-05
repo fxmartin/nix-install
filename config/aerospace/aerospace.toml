@@ -3,6 +3,7 @@
 #
 # Reference: https://nikitabobko.github.io/AeroSpace/guide
 # Workspace layout:
+#   0 Work     — general work staging area
 #   1 Terminal — Ghostty
 #   2 Code     — cmux, VSCode, Zed
 #   3 Preview  — Preview, Chrome
@@ -42,6 +43,7 @@ exec-on-workspace-change = ['/bin/bash', '-c',
 #               display this is the built-in panel.
 #   secondary — the first non-main monitor (external display when docked).
 [workspace-to-monitor-force-assignment]
+0 = 'secondary'  # Work
 1 = 'main'       # Terminal
 2 = 'main'       # Code
 3 = 'secondary'  # Preview
@@ -88,7 +90,8 @@ alt-shift-l = 'move right'
 alt-minus = 'resize smart -50'
 alt-equal = 'resize smart +50'
 
-# --- Workspace switch (1..9) ---
+# --- Workspace switch (0..9) ---
+alt-0 = 'workspace 0'
 alt-1 = 'workspace 1'
 alt-2 = 'workspace 2'
 alt-3 = 'workspace 3'
@@ -99,7 +102,8 @@ alt-7 = 'workspace 7'
 alt-8 = 'workspace 8'
 alt-9 = 'workspace 9'
 
-# --- Send focused window to workspace (1..9) ---
+# --- Send focused window to workspace (0..9) ---
+alt-shift-0 = 'move-node-to-workspace 0'
 alt-shift-1 = 'move-node-to-workspace 1'
 alt-shift-2 = 'move-node-to-workspace 2'
 alt-shift-3 = 'move-node-to-workspace 3'

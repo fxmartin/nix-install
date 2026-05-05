@@ -93,6 +93,13 @@
         exec npx -y gitnexus@1.6.3 "$@"
       '';
     })
+    (writeShellApplication {
+      name = "ccusage";
+      runtimeInputs = [nodejs];
+      text = ''
+        exec npx -y ccusage@18.0.11 "$@"
+      '';
+    })
 
     # NOTE: MCP servers are configured via Home Manager using mcp-servers-nix.lib.mkConfig
     # See home-manager/modules/claude-code.nix for MCP server configuration

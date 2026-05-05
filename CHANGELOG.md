@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.2.2] - 2026-05-04
+## [1.3.0] - 2026-05-05
+
+### Added
+
+- Add ccusage, Work workspace, and Sequoia Sunrise screensaver## [1.2.2] - 2026-05-04
 
 ### Fixed
 

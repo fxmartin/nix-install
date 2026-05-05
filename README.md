@@ -1,6 +1,6 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.0% Complete (144/147 stories) | **Version**: 1.2.2 | **2 MacBooks deployed, M4 Air pending**
+> **Status**: 98.0% Complete (144/147 stories) | **Version**: 1.3.0 | **2 MacBooks deployed, M4 Air pending**
 
 **Two deployed MacBooks. One config. Zero drift.**
 

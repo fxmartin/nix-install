@@ -451,6 +451,62 @@
       }
 
       # =============================================================================
+      # PRIVACY FILTER HELPERS (OpenAI Privacy Filter via MLX)
+      # =============================================================================
+      # Talks to the localhost LaunchAgent on 127.0.0.1:7790 (darwin/privacy-filter.nix).
+      # Functions, not aliases — survive the grep→rg / find→fd / cat→bat rewrites.
+
+      # Redact text from a positional arg or stdin; print result to stdout.
+      # Usage: redact "Email me at fx@example.com"
+      #        echo "..." | redact
+      redact() {
+        local input
+        if [[ $# -gt 0 ]]; then
+          input="$*"
+        else
+          input="$(command cat)"
+        fi
+        if ! curl -sf -o /dev/null http://127.0.0.1:7790/health; then
+          echo "✗ privacy-filter daemon not responding on 127.0.0.1:7790" >&2
+          echo "  launchctl print gui/$UID/org.nixos.privacy-filter" >&2
+          return 1
+        fi
+        local payload
+        payload=$(printf '%s' "$input" | jq -Rs '{text: ., method: "mask"}')
+        curl -sf -X POST http://127.0.0.1:7790/pii/deidentify \
+          -H 'content-type: application/json' \
+          -d "$payload" \
+        | jq -r '.redacted // .text // empty'
+      }
+
+      # Clipboard-in / clipboard-out: redact whatever is on the macOS clipboard
+      # and put the cleaned text back. Designed for the "paste into Claude/ChatGPT"
+      # workflow — copy first, run `redact-clip`, then paste.
+      redact-clip() {
+        local cleaned
+        cleaned=$(pbpaste | redact) || return $?
+        printf '%s' "$cleaned" | pbcopy
+        echo "✓ clipboard redacted ($(printf '%s' "$cleaned" | wc -c | tr -d ' ') bytes)"
+      }
+
+      # Show the entity spans the model would extract, without redacting.
+      # Useful when you want to know *what* was found before substituting.
+      redact-spans() {
+        local input
+        if [[ $# -gt 0 ]]; then
+          input="$*"
+        else
+          input="$(command cat)"
+        fi
+        local payload
+        payload=$(printf '%s' "$input" | jq -Rs '{text: .}')
+        curl -sf -X POST http://127.0.0.1:7790/pii/extract \
+          -H 'content-type: application/json' \
+          -d "$payload" \
+        | jq '.entities // .spans // []'
+      }
+
+      # =============================================================================
       # ZSH OPTIONS (Story 04.1-003)
       # =============================================================================
 

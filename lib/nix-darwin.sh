@@ -70,6 +70,7 @@ fetch_flake_from_github() {
         "stylix.nix"
         "maintenance.nix"
         "health-api.nix"
+        "privacy-filter.nix"
         "monitoring.nix"
         "calibre.nix"
         # Power profile only (downloaded for both but only used by power)
@@ -189,6 +190,16 @@ fetch_flake_from_github() {
     fi
     [[ -s "home-manager/modules/python.nix" ]] || {
         log_error "Downloaded home-manager/modules/python.nix is empty"
+        return 1
+    }
+
+    log_info "  - home-manager/modules/privacy-filter.nix"
+    if ! curl -fsSL -o "home-manager/modules/privacy-filter.nix" "${base_url}/home-manager/modules/privacy-filter.nix"; then
+        log_error "Failed to fetch home-manager/modules/privacy-filter.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/privacy-filter.nix" ]] || {
+        log_error "Downloaded home-manager/modules/privacy-filter.nix is empty"
         return 1
     }
 

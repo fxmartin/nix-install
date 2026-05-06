@@ -245,6 +245,11 @@
       # Accessible via Tailscale for remote health monitoring
       ./darwin/health-api.nix
 
+      # Privacy Filter LaunchAgent (localhost-only PII redaction on port 7790)
+      # MLX-backed OpenAI Privacy Filter port; daemon resident on all profiles.
+      # Variant per profile: BF16 on Power, 8-bit on Standard / AI-Assistant.
+      ./darwin/privacy-filter.nix
+
       # Beszel Monitoring Agent (system resource metrics on port 45876)
       # Ships CPU, memory, disk, network data to Beszel hub on Nyx
       ./darwin/monitoring.nix

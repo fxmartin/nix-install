@@ -93,6 +93,13 @@ collect_disk_sizes() {
     printf '%s\t%s\n' "nix_store"    "$(du_kb /nix/store)"
     printf '%s\t%s\n' "ollama"       "$(du_kb "${HOME}/.ollama")"
     printf '%s\t%s\n' "huggingface"  "$(du_kb "${HOME}/.cache/huggingface")"
+    # Subset of huggingface — privacy-filter MLX weights are the largest single
+    # bucket added on top of the existing HF cache. Surface separately so the
+    # week-over-week delta isolates Privacy-Filter growth from other HF use.
+    local pf_8bit pf_bf16
+    pf_8bit=$(du_kb "${HOME}/.cache/huggingface/hub/models--OpenMed--privacy-filter-mlx-8bit")
+    pf_bf16=$(du_kb "${HOME}/.cache/huggingface/hub/models--OpenMed--privacy-filter-mlx")
+    printf '%s\t%s\n' "privacy_filter" "$((pf_8bit + pf_bf16))"
     printf '%s\t%s\n' "docker"       "$(du_kb "${HOME}/Library/Containers/com.docker.docker")"
     printf '%s\t%s\n' "library_caches" "$(du_kb "${HOME}/Library/Caches")"
     printf '%s\t%s\n' "claude"       "$(du_kb "${HOME}/.claude")"

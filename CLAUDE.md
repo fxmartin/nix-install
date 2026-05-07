@@ -127,14 +127,16 @@ nix-install/
 │   ├── maintenance-system.nix # Root LaunchDaemons (system-level nix-gc, Sunday 04:00)
 │   ├── monitoring.nix        # Beszel agent LaunchAgent (port 45876) + custom sensors
 │   ├── health-api.nix        # Health API HTTP server (port 7780)
+│   ├── privacy-filter.nix    # PII redaction LaunchAgent on 127.0.0.1:7790 (Epic-09; openmed[mlx,service])
 │   └── stylix.nix            # Catppuccin theming
 ├── home-manager/modules/     # User-level dotfiles
-│   ├── shell.nix             # Zsh + Oh My Zsh + Starship + FZF + ollama-warm/evict + rebuild guard
+│   ├── shell.nix             # Zsh + Oh My Zsh + Starship + FZF + ollama-warm/evict + redact + rebuild guard
 │   ├── git.nix               # Git config + LFS
 │   ├── ghostty.nix           # Terminal with Catppuccin
 │   ├── zed.nix / vscode.nix  # Editor configs
 │   ├── python.nix            # Python + uv + ruff
 │   ├── podman.nix            # Container development
+│   ├── privacy-filter.nix    # uv venv + openmed[mlx,service] + profile-aware HF weight pre-pull (Epic-09)
 │   └── claude-code.nix       # Claude Code CLI + MCP servers
 ├── config/sketchybar/        # Status bar (Epic-08 telemetry)
 │   ├── sketchybarrc          # Bar layout, subscribes items to system_metrics_update
@@ -313,13 +315,14 @@ programs.vscode.userSettings."update.mode" = "none";
 Labels are managed via `scripts/setup-github-labels.sh`. Key categories:
 - **Severity**: critical, high, medium, low
 - **Type**: bug, enhancement, documentation, refactor
-- **Epic**: epic-01 through epic-08, epic-nfr
+- **Epic**: epic-01 through epic-09, epic-nfr (epic-09 label needs adding to `scripts/setup-github-labels.sh` — tracked in #303)
 - **Profile**: profile/standard, profile/power, profile/both
 
 ## Completed Milestones
 
 | Date | Milestone |
 |------|-----------|
+| 2026-05-07 | Epic-09 Foundation in flight — 7/8 stories on branch `claude/add-openai-privacy-filter-EOYR7` (#303); MLX-backed Privacy Filter daemon on `127.0.0.1:7790`, `redact` / `redact-clip` shell helpers |
 | 2026-04-22 | Epic-08 SketchyBar Deep Telemetry shipped (Sprint 13, 7/8 stories; 08.3-008 validation pending) |
 | 2026-04-21 | Epic-08 Disk Optimization + Memory Mitigation + Observability Polish shipped (Sprints 11, 12, 14) |
 | 2025-12-07 | v1.0.0 Released - MacBook Pro M3 Max running Power profile |

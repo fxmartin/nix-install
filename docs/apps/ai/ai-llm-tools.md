@@ -147,6 +147,73 @@ curl http://localhost:11434/api/version
 
 ---
 
+## Privacy Filter (Local PII Redaction)
+
+**Status**: Always-on LaunchAgent on `127.0.0.1:7790` — Epic-09, branch `claude/add-openai-privacy-filter-EOYR7`, tracker [#303](https://github.com/fxmartin/nix-install/issues/303).
+
+**What it is**: A native MLX port of OpenAI's open-weight Privacy Filter (`OpenMed/privacy-filter-mlx`) wrapped by the [`openmed`](https://pypi.org/project/openmed/) FastAPI service. Runs entirely on Apple Silicon — PII never leaves the host.
+
+**Architecture**:
+- `darwin/privacy-filter.nix` — LaunchAgent runs `uvicorn openmed.service.app:app` on `127.0.0.1:7790` (never bound to `0.0.0.0` or Tailscale; PII is by definition sensitive)
+- `home-manager/modules/privacy-filter.nix` — provisions a uv venv at `~/.local/share/privacy-filter/venv`, pins `openmed[mlx,service]==1.2.0` + `mlx-lm==0.21.0`, pre-pulls HF weights
+- Shell helpers `redact`, `redact-clip`, `redact-spans` defined in `home-manager/modules/shell.nix`
+
+**Profile policy**:
+
+| Profile | Variant | Cache | Steady-state RSS budget |
+|---|---|---|---|
+| Power (M3 Max) | `OpenMed/privacy-filter-mlx` (BF16) | ~3 GB | ≤ 4 GB |
+| Standard (Air) | `OpenMed/privacy-filter-mlx-8bit` | ~1.4 GB | ≤ 2 GB |
+| AI-Assistant | `OpenMed/privacy-filter-mlx-8bit` | ~1.4 GB | ≤ 2 GB |
+
+**PII categories** (BIOES + Viterbi over 55 span classes; see [model card](https://cdn.openai.com/pdf/c66281ed-b638-456a-8ce1-97e9f5264a90/OpenAI-Privacy-Filter-Model-Card.pdf)):
+names, addresses, emails, phone numbers, URLs, dates, account numbers, secrets (API keys / passwords), and finer-grained subclasses thereof.
+
+**HTTP endpoints**:
+- `GET /health` — liveness probe
+- `POST /pii/extract` — `{text}` → `{entities:[{label,word,start,end}]}`
+- `POST /pii/deidentify` — `{text, method:"mask"|"replace"}` → redacted text
+
+**Typical workflows**:
+
+```bash
+# 1. Inline redaction
+echo "Email me at fx@example.com or call 555-1234" | redact
+
+# 2. Clipboard round-trip (the "paste safely into Claude/ChatGPT" path)
+#    Copy text in any app → run → paste cleaned text
+redact-clip
+
+# 3. Inspect what would be masked, without redacting
+pbpaste | redact-spans
+
+# 4. Direct HTTP
+curl -s -X POST http://127.0.0.1:7790/pii/deidentify \
+  -H 'content-type: application/json' \
+  -d '{"text":"Email me at fx@example.com","method":"mask"}' | jq .
+```
+
+**Performance** (per upstream MLX port benchmarks):
+- ~14 ms per ~10-token input on M-series GPU after warmup
+- 8-bit variant ~1.7× faster than BF16
+- First request after boot triggers MLX model load (~1–3 s); subsequent requests are warm
+
+**Auto-update**: Disabled by design. The model variant + `openmed` + `mlx-lm` versions are pinned in `home-manager/modules/privacy-filter.nix`. Updates flow only through `rebuild` / `update`.
+
+**License**: Apache 2.0 (both upstream `openai/privacy-filter` and the OpenMed MLX wrapper).
+
+**Verification**:
+- [ ] `curl 127.0.0.1:7790/health` returns 200 within 30 s of login
+- [ ] `echo "Email me at fx@example.com" | redact` prints redacted text
+- [ ] `audit-launchagents` confirms steady-state RSS within budget
+- [ ] HF cache size visible in weekly maintenance digest under `privacy_filter` row
+
+**Known follow-ups** (tracked in [#302](https://github.com/fxmartin/nix-install/issues/302)):
+- `OPENMED_PII_MODEL` env var name is a best-guess from convention; verify against `openmed/service/app.py` after first boot
+- `/pii/deidentify` response field parsed as `.redacted // .text`; adjust if upstream uses a different field name
+
+---
+
 ## Related Documentation
 
 - [Main Apps Index](../README.md)

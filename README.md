@@ -82,6 +82,10 @@ After installation, manage your system with these aliases:
 | `ollama-evict [model]` | Unload one model (or all loaded) |
 | `ollama-lru` | Report Ollama models not used in >30 days (opt-in `--prune`) |
 | `audit-launchagents` | Sample median RSS of all managed LaunchAgents |
+| `redact "<text>"` / `echo ... \| redact` | Mask PII via local MLX Privacy Filter (`127.0.0.1:7790`) |
+| `redact-clip` | Round-trip the macOS clipboard through the Privacy Filter (copy → run → paste) |
+| `redact-spans` | Show the entity spans the model would mask, without redacting |
+| `curl localhost:7790/health` | Privacy Filter daemon liveness |
 | `brew-upgrade` | Update Homebrew packages |
 | `release-monitor` | Run AI-powered update checker |
 
@@ -170,6 +174,7 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 - ChatGPT, Codex CLI (OpenAI's terminal coding agent)
 - Perplexity (MAS), Inferencer (MAS, on-device models)
 - Ollama (Power: `gemma4:e4b` + `gemma4:26b` + `nomic-embed-text`; Standard: `ministral-3:14b` + `nomic-embed-text`; AI-Assistant: `nomic-embed-text`)
+- **Privacy Filter** — on-device PII redaction (MLX port of OpenAI's open-weight Privacy Filter via OpenMed). Always-on LaunchAgent on `127.0.0.1:7790`; BF16 variant on Power, 8-bit on Standard / AI-Assistant. Workflow: `pbcopy` → `redact-clip` → paste into Claude/ChatGPT (Epic-09).
 
 **Terminal & Editor**:
 - Ghostty (GPU-accelerated, Catppuccin via Stylix)
@@ -404,14 +409,16 @@ nix-install/
 │   ├── maintenance-system.nix # Root-level LaunchDaemons (system GC)
 │   ├── monitoring.nix        # Beszel agent + custom sensors
 │   ├── health-api.nix        # Health API HTTP server (port 7780)
+│   ├── privacy-filter.nix    # PII redaction LaunchAgent — MLX (port 7790, Epic-09)
 │   └── stylix.nix            # Catppuccin theming
 ├── home-manager/modules/     # User-level dotfiles
-│   ├── shell.nix             # Zsh + Oh My Zsh + Starship + FZF + ollama-warm/evict
+│   ├── shell.nix             # Zsh + Oh My Zsh + Starship + FZF + ollama-warm/evict + redact helpers
 │   ├── git.nix               # Git config + LFS
 │   ├── ghostty.nix           # Terminal with Catppuccin
 │   ├── zed.nix / vscode.nix  # Editor configs
 │   ├── python.nix            # Python + uv + ruff
 │   ├── podman.nix            # Container development
+│   ├── privacy-filter.nix    # uv venv + openmed[mlx,service] + HF weight pre-pull (Epic-09)
 │   └── claude-code.nix       # Claude Code CLI + MCP servers
 ├── config/sketchybar/        # Status bar (Epic-08)
 │   └── plugins/              # system.sh, cpu_cluster, gpu, ane, power, temp, memory, vitals
@@ -445,6 +452,7 @@ nix-install/
 | **06** | Maintenance & Monitoring | ✅ 100% |
 | **07** | Documentation & UX | ✅ 100% |
 | **08** | Resource Optimization & Deep Telemetry | 🟢 96% (22/23) |
+| **09** | Local PII Redaction (Privacy Filter via MLX) | 🟡 In flight (7/8 Foundation stories shipped, branch `claude/add-openai-privacy-filter-EOYR7`, [#303](https://github.com/fxmartin/nix-install/issues/303)) |
 | **NFR** | Non-Functional Requirements | 🟢 87% |
 
 **🎉 Milestone (2025-12-07)**: MacBook Pro M3 Max successfully running Power profile!

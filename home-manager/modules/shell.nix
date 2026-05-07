@@ -472,11 +472,11 @@
           return 1
         fi
         local payload
-        payload=$(printf '%s' "$input" | jq -Rs '{text: ., method: "mask"}')
+        payload=$(printf '%s' "$input" | jq -Rs --arg model "''${PRIVACY_FILTER_MODEL:-OpenMed/OpenMed-PII-SuperClinical-Small-44M-v1}" '{text: ., method: "mask", model_name: $model}')
         curl -sf -X POST http://127.0.0.1:7790/pii/deidentify \
           -H 'content-type: application/json' \
           -d "$payload" \
-        | jq -r '.redacted // .text // empty'
+        | jq -r '.deidentified_text // .redacted // .text // empty'
       }
 
       # Clipboard-in / clipboard-out: redact whatever is on the macOS clipboard
@@ -499,11 +499,11 @@
           input="$(command cat)"
         fi
         local payload
-        payload=$(printf '%s' "$input" | jq -Rs '{text: .}')
+        payload=$(printf '%s' "$input" | jq -Rs --arg model "''${PRIVACY_FILTER_MODEL:-OpenMed/OpenMed-PII-SuperClinical-Small-44M-v1}" '{text: ., model_name: $model}')
         curl -sf -X POST http://127.0.0.1:7790/pii/extract \
           -H 'content-type: application/json' \
           -d "$payload" \
-        | jq '.entities // .spans // []'
+        | jq '.entities // .pii_entities // .spans // []'
       }
 
       # =============================================================================

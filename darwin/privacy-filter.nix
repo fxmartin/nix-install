@@ -11,12 +11,12 @@
   homeDir = "/Users/${userConfig.username}";
   venvDir = "${homeDir}/.local/share/privacy-filter/venv";
 
-  # Mirror the variant choice from home-manager/modules/privacy-filter.nix.
+  # Mirror the model choice from home-manager/modules/privacy-filter.nix.
   # Both modules derive from profileName independently — keep these in sync.
   modelRepo =
     if profileName == "power"
-    then "OpenMed/privacy-filter-mlx"
-    else "OpenMed/privacy-filter-mlx-8bit";
+    then "OpenMed/OpenMed-PII-SuperClinical-Large-434M-v1"
+    else "OpenMed/OpenMed-PII-SuperClinical-Small-44M-v1";
 in {
   # =========================================================================
   # PRIVACY FILTER LAUNCHAGENT
@@ -59,7 +59,7 @@ in {
       EnvironmentVariables = {
         HOME = homeDir;
         PATH = "${venvDir}/bin:/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/opt/homebrew/bin:/usr/bin:/bin";
-        OPENMED_PII_MODEL = modelRepo;
+        PRIVACY_FILTER_MODEL = modelRepo;
         HF_HOME = "${homeDir}/.cache/huggingface";
         # MLX picks up the Metal device automatically on aarch64-darwin; no
         # explicit device flag needed. Tokenizer parallelism off to avoid

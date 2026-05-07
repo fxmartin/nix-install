@@ -151,28 +151,28 @@ curl http://localhost:11434/api/version
 
 **Status**: Always-on LaunchAgent on `127.0.0.1:7790` — Epic-09, branch `claude/add-openai-privacy-filter-EOYR7`, tracker [#303](https://github.com/fxmartin/nix-install/issues/303).
 
-**What it is**: A native MLX port of OpenAI's open-weight Privacy Filter (`OpenMed/privacy-filter-mlx`) wrapped by the [`openmed`](https://pypi.org/project/openmed/) FastAPI service. Runs entirely on Apple Silicon — PII never leaves the host.
+**What it is**: The [`openmed`](https://pypi.org/project/openmed/) FastAPI PII service running locally with registry-backed OpenMed PII models. OpenMed uses MLX when possible and falls back to its Hugging Face/PyTorch path when needed; PII never leaves the host except for one-time model downloads from Hugging Face.
 
 **Architecture**:
 - `darwin/privacy-filter.nix` — LaunchAgent runs `uvicorn openmed.service.app:app` on `127.0.0.1:7790` (never bound to `0.0.0.0` or Tailscale; PII is by definition sensitive)
-- `home-manager/modules/privacy-filter.nix` — provisions a uv venv at `~/.local/share/privacy-filter/venv`, pins `openmed[mlx,service]==1.2.0` + `mlx-lm==0.21.0`, pre-pulls HF weights
+- `home-manager/modules/privacy-filter.nix` — provisions a uv venv at `~/.local/share/privacy-filter/venv`, pins `openmed[mlx,service]==1.2.0`, `mlx-lm==0.21.0`, and `torch==2.11.0`, pre-pulls HF weights
 - Shell helpers `redact`, `redact-clip`, `redact-spans` defined in `home-manager/modules/shell.nix`
 
 **Profile policy**:
 
 | Profile | Variant | Cache | Steady-state RSS budget |
 |---|---|---|---|
-| Power (M3 Max) | `OpenMed/privacy-filter-mlx` (BF16) | ~3 GB | ≤ 4 GB |
-| Standard (Air) | `OpenMed/privacy-filter-mlx-8bit` | ~1.4 GB | ≤ 2 GB |
-| AI-Assistant | `OpenMed/privacy-filter-mlx-8bit` | ~1.4 GB | ≤ 2 GB |
+| Power (M3 Max) | `OpenMed/OpenMed-PII-SuperClinical-Large-434M-v1` | larger clinical PII model | ≤ 4 GB |
+| Standard (Air) | `OpenMed/OpenMed-PII-SuperClinical-Small-44M-v1` | small clinical PII model | ≤ 2 GB |
+| AI-Assistant | `OpenMed/OpenMed-PII-SuperClinical-Small-44M-v1` | small clinical PII model | ≤ 2 GB |
 
-**PII categories** (BIOES + Viterbi over 55 span classes; see [model card](https://cdn.openai.com/pdf/c66281ed-b638-456a-8ce1-97e9f5264a90/OpenAI-Privacy-Filter-Model-Card.pdf)):
+**PII categories**:
 names, addresses, emails, phone numbers, URLs, dates, account numbers, secrets (API keys / passwords), and finer-grained subclasses thereof.
 
 **HTTP endpoints**:
 - `GET /health` — liveness probe
-- `POST /pii/extract` — `{text}` → `{entities:[{label,word,start,end}]}`
-- `POST /pii/deidentify` — `{text, method:"mask"|"replace"}` → redacted text
+- `POST /pii/extract` — `{text, model_name}` → `{entities:[{label,text,start,end}]}`
+- `POST /pii/deidentify` — `{text, method:"mask"|"replace", model_name}` → `{deidentified_text, pii_entities, ...}`
 
 **Typical workflows**:
 
@@ -193,10 +193,9 @@ curl -s -X POST http://127.0.0.1:7790/pii/deidentify \
   -d '{"text":"Email me at fx@example.com","method":"mask"}' | jq .
 ```
 
-**Performance** (per upstream MLX port benchmarks):
-- ~14 ms per ~10-token input on M-series GPU after warmup
-- 8-bit variant ~1.7× faster than BF16
-- First request after boot triggers MLX model load (~1–3 s); subsequent requests are warm
+**Performance**:
+- First request after boot may download and load/convert the selected model; subsequent requests are warm
+- Power uses a larger model for quality; Standard and AI-Assistant use the smaller model for lower memory use
 
 **Auto-update**: Disabled by design. The model variant + `openmed` + `mlx-lm` versions are pinned in `home-manager/modules/privacy-filter.nix`. Updates flow only through `rebuild` / `update`.
 
@@ -208,9 +207,9 @@ curl -s -X POST http://127.0.0.1:7790/pii/deidentify \
 - [ ] `audit-launchagents` confirms steady-state RSS within budget
 - [ ] HF cache size visible in weekly maintenance digest under `privacy_filter` row
 
-**Known follow-ups** (tracked in [#302](https://github.com/fxmartin/nix-install/issues/302)):
-- `OPENMED_PII_MODEL` env var name is a best-guess from convention; verify against `openmed/service/app.py` after first boot
-- `/pii/deidentify` response field parsed as `.redacted // .text`; adjust if upstream uses a different field name
+**Runtime notes**:
+- OpenMed 1.2.0 does not read `OPENMED_PII_MODEL`; shell helpers pass `model_name` explicitly
+- `/pii/deidentify` returns `deidentified_text`; shell helpers parse that field first
 
 ---
 

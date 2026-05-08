@@ -59,6 +59,7 @@ mas account
 - Perplexity (6714467650)
 - Kindle (302584613) - if added to masApps
 - WhatsApp (if using mas instead of Homebrew)
+- EDIFIER ConneX (6469028132)
 - Any other Mac App Store apps in your masApps list
 
 ### Requirement 3: Terminal Full Disk Access for Homebrew Cleanup (Hotfix #18)

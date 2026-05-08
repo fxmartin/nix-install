@@ -1,6 +1,6 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.0% Complete (144/147 stories) | **Version**: 1.4.2 | **2 MacBooks deployed, M4 Air pending**
+> **Status**: 98.0% Complete (144/147 stories) | **Version**: 1.5.0 | **2 MacBooks deployed, M4 Air pending**
 
 **Two deployed MacBooks. One config. Zero drift.**
 
@@ -55,6 +55,7 @@ curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh 
    mas install 302584613   # Kindle
    mas install 890031187   # Marked 2
    mas install 310633997   # WhatsApp
+   mas install 6469028132  # EDIFIER ConneX
    ```
 4. **Activate licenses** — See [Licensed Apps Guide](./docs/licensed-apps.md):
    - 1Password, Dropbox, NordVPN (sign in)
@@ -202,6 +203,7 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 - 1Password + 1Password for Safari
 - Obsidian (knowledge base / notes)
 - Plaud (AI voice recorder and transcription)
+- EDIFIER ConneX (MAS, audio device companion app)
 - Amphetamine (MAS, keep-awake utility)
 - Dropbox, Calibre, Kindle (MAS), Marked 2 (MAS), Keka **[S/P]**
 - Office 365 (Word, Excel, PowerPoint, Outlook, OneNote, Teams) **[S/P]**
@@ -476,7 +478,7 @@ nix-install/
 | **Tests** | 1,140 test cases (16 BATS files) |
 | **Documentation** | 46K lines across 137 markdown files |
 | **GitHub Issues** | Epic-08 #236–#258 (23 stories) + follow-up fixes #269–#285 |
-| **Packages** | 32 casks (17 on AI-Assistant), 7 brews, 8 MAS, 50+ Nix |
+| **Packages** | 32 casks (17 on AI-Assistant), 7 brews, 9 MAS, 50+ Nix |
 
 **Next**: MacBook Air M4 migration (Phase 11) · Story 08.3-008 (one-day mactop-free validation)
 

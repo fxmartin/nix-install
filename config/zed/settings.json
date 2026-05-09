@@ -1,4 +1,13 @@
 {
+  "outline_panel": {
+    "dock": "left"
+  },
+  "collaboration_panel": {
+    "dock": "left"
+  },
+  "git_panel": {
+    "dock": "left"
+  },
   "auto_update": false,
   "theme": {
     "mode": "system",
@@ -38,6 +47,7 @@
     "default_width": 240
   },
   "agent": {
+    "dock": "right",
     "enabled": false
   }
 }

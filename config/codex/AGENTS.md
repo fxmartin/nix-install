@@ -68,6 +68,8 @@ Strong success criteria let work proceed independently. Convert fuzzy asks into 
 - Do not revert user changes unless FX explicitly asks.
 - Avoid destructive commands such as `git reset --hard` or `git checkout --` unless explicitly requested.
 - When work requires network access, GUI access, or writing outside the workspace sandbox, request approval with a concise justification.
+- If FX specifically mentions `docs.temenos.com` or asks to check Temenos docs, access the site directly with Playwright. Do not use generic web search for that request.
+- When researching `docs.temenos.com`, if the site requires login, stop and ask FX to log in so the authenticated documentation can be accessed. Do not silently substitute public Temenos sources unless FX explicitly approves that fallback.
 - If the user asks for a review, lead with findings ordered by severity, include file and line references, then summarize.
 
 ## CLI Tools

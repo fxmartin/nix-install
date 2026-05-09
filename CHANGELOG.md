@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.0] - 2026-05-08
+## [1.5.1] - 2026-05-09
+
+### Fixed
+
+- Bump claude-code-config: create-story now infers target epic and gates too-large requirements toward /create-epic.## [1.5.0] - 2026-05-08
 
 ### Added
 

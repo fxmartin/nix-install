@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.3] - 2026-05-09
+## [1.5.4] - 2026-05-11
+
+### Fixed
+
+- Align SketchyBar memory display with mactop## [1.5.3] - 2026-05-09
 
 ### Fixed
 

@@ -1,6 +1,6 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.0% Complete (144/147 stories) | **Version**: 1.5.5 | **2 MacBooks deployed, M4 Air pending**
+> **Status**: 98.0% Complete (144/147 stories) | **Version**: 1.5.6 | **2 MacBooks deployed, M4 Air pending**
 
 **Two deployed MacBooks. One config. Zero drift.**
 
@@ -213,7 +213,7 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 
 **Security**: NordVPN, Tailscale, Little Snitch
 
-**System & Monitoring**: iStat Menus, OnyX **[S/P]**, f.lux **[S/P]**, btop, gotop, macmon, mactop
+**System & Monitoring**: iStat Menus, OnyX **[S/P]**, f.lux **[S/P]**, Stream Deck **[S/P]**, btop, gotop, macmon, mactop
 
 **Remote Access**: RustDesk **[S/P]**
 
@@ -476,7 +476,7 @@ nix-install/
 | **Tests** | 1,140 test cases (16 BATS files) |
 | **Documentation** | 46K lines across 137 markdown files |
 | **GitHub Issues** | Epic-08 #236–#258 (23 stories) + follow-up fixes #269–#285 |
-| **Packages** | 32 casks (17 on AI-Assistant), 7 brews, 9 MAS, 50+ Nix |
+| **Packages** | 35 casks (19 on AI-Assistant), 7 brews, 8 MAS, 50+ Nix |
 
 **Next**: MacBook Air M4 migration (Phase 11) · Story 08.3-008 (one-day mactop-free validation)
 

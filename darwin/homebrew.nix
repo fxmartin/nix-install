@@ -137,8 +137,9 @@ in {
       "keka"    # Keka - Archive utility for zip, rar, 7z, etc.
 
       # System Utilities (Story 02.4-005)
-      "onyx"     # Onyx - System maintenance and optimization utility
-      "flux-app" # f.lux - Display color temperature adjustment
+      "onyx"                # Onyx - System maintenance and optimization utility
+      "flux-app"            # f.lux - Display color temperature adjustment
+      "elgato-stream-deck"  # Stream Deck - Hardware macro controller companion app
 
       # Media Tools (Story 02.6-001)
       "vlc"  # VLC - Universal media player supporting 100+ formats

@@ -78,7 +78,7 @@ Apps for productivity, file management, and system utilities.
 - [Microsoft Office 365](productivity/office-365.md) - Complete productivity suite with Word, Excel, PowerPoint, Outlook, OneNote, Teams (Homebrew cask, subscription required)
 
 ### System Utilities
-- [System Utilities](productivity/system-utilities.md) - Onyx (system maintenance), f.lux (screen temperature)
+- [System Utilities](productivity/system-utilities.md) - Onyx (system maintenance), f.lux (screen temperature), Stream Deck (macro controller)
 
 ---
 
@@ -140,7 +140,7 @@ docs/apps/
 │   ├── dropbox.md                      # Dropbox cloud storage
 │   ├── office-365.md                   # Microsoft Office 365 suite
 │   ├── file-utilities.md               # Calibre, Kindle, Keka, Marked 2
-│   └── system-utilities.md             # Onyx, f.lux
+│   └── system-utilities.md             # Onyx, f.lux, Stream Deck
 ├── communication/
 │   ├── whatsapp.md                     # WhatsApp messaging
 │   ├── zoom.md                         # Zoom video conferencing

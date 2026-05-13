@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.5] - 2026-05-12
+## [1.5.6] - 2026-05-13
+
+### Fixed
+
+- Install Stream Deck app## [1.5.5] - 2026-05-12
 
 ### Fixed
 

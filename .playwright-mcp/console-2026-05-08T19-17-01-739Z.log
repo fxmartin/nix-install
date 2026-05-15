@@ -1,0 +1,4 @@
+[     728ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ https://tlcengine.temenos.com/Error?aspxerrorpath=/Content/WhatsNew:0
+[     866ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ https://tlcengine.temenos.com/Error?aspxerrorpath=/Error/index:0
+[   34774ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ https://tlcengine.temenos.com/Error?aspxerrorpath=/Content/WhatsNew:0
+[   34900ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ https://tlcengine.temenos.com/Error?aspxerrorpath=/Error/index:0

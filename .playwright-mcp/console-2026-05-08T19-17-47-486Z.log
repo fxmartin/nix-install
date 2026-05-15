@@ -1,0 +1,20 @@
+[    3429ms] ReferenceError: AOS is not defined
+    at https://docs.temenos.com/docs/Search.php?start=0&rows=10&facet.field=category&q=%22Model%20Bank%22%20processes:1788:5
+[    3432ms] [WARNING] jQuery.Deferred exception: Cannot read properties of null (reading 'remove') TypeError: Cannot read properties of null (reading 'remove')
+    at clearcontent (https://docs.temenos.com/docs/js/scripts_Search.js:135:7)
+    at HTMLDocument.<anonymous> (https://docs.temenos.com/docs/js/scripts_Search.js:146:1)
+    at j (https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js:2:29999)
+    at https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js:2:30313 undefined @ https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js:1
+[    3435ms] [WARNING] jQuery.Deferred exception: pageNumber is not defined ReferenceError: pageNumber is not defined
+    at HTMLDocument.<anonymous> (https://docs.temenos.com/docs/Search.php?start=0&rows=10&facet.field=category&q=%22Model%20Bank%22%20processes:1657:59)
+    at j (https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js:2:29999)
+    at https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js:2:30313 undefined @ https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js:1
+[    3442ms] Uncaught TypeError: Cannot read properties of null (reading 'remove')
+    at clearcontent (https://docs.temenos.com/docs/js/scripts_Search.js:134:6)
+    at <anonymous> (https://docs.temenos.com/docs/js/scripts_Search.js:145:0)
+    at j (https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js:1:29998)
+    at <anonymous> (https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js:1:30312)
+[    3442ms] Uncaught ReferenceError: pageNumber is not defined
+    at <anonymous> (https://docs.temenos.com/docs/Search.php?start=0&rows=10&facet.field=category&q=%22Model%20Bank%22%20processes:1656:58)
+    at j (https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js:1:29998)
+    at <anonymous> (https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js:1:30312)

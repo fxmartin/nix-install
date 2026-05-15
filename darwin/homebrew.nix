@@ -170,7 +170,6 @@ in {
     #   mas install 302584613   # Kindle
     #   mas install 890031187   # Marked 2
     #   mas install 310633997   # WhatsApp
-    #   mas install 6469028132  # EDIFIER ConneX
     #   mas install 6749861443  # Inferencer
     masApps = lib.mkIf (userConfig.enableMasApps or false) {
       "1Password for Safari" = 1569813296;  # Safari password manager extension
@@ -181,7 +180,6 @@ in {
       "Amphetamine" = 937984704;  # Keep-awake utility to prevent sleep
       "reMarkable desktop" = 1276493162;  # reMarkable tablet sync and screen share
       "Inferencer" = 6749861443;  # Private on-device AI model runner
-      "EDIFIER ConneX" = 6469028132;  # Edifier audio device companion app
     };
   };
 

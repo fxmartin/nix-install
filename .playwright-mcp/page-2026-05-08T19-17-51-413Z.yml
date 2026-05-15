@@ -1,0 +1,228 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "Temenos" [ref=e4] [cursor=pointer]:
+        - /url: index.html
+        - img [ref=e5]
+      - list [ref=e8]:
+        - listitem [ref=e9]:
+          - link "" [ref=e10] [cursor=pointer]:
+            - /url: index.html
+            - generic [ref=e11]: 
+        - listitem [ref=e12]:
+          - link "Products " [ref=e13] [cursor=pointer]:
+            - /url: "#"
+          - text: 
+        - listitem [ref=e14]:
+          - link "Resources " [ref=e15] [cursor=pointer]:
+            - /url: "#"
+          - text:   
+        - listitem
+        - listitem [ref=e16]:
+          - link "Other Releases " [ref=e17] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e18]:
+          - button "Logout " [ref=e19] [cursor=pointer]:
+            - text: Logout
+            - generic [ref=e20]: 
+  - main [ref=e22]:
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - heading "Temenos Documentation Search" [level=1] [ref=e26]
+        - generic [ref=e32]:
+          - textbox "\"Open an Account\" | \"Posting Restriction\" - use quotes for exact match" [active] [ref=e33]: "\"Model Bank\" processes"
+          - button "Search" [ref=e35] [cursor=pointer]
+      - navigation "breadcrumb" [ref=e38]:
+        - list [ref=e39]:
+          - listitem [ref=e40]:
+            - link "" [ref=e41] [cursor=pointer]:
+              - /url: index.html
+              - generic [ref=e42]: 
+          - listitem [ref=e43]: / Temenos Documentation Search
+    - generic [ref=e44]:
+      - generic [ref=e46] [cursor=pointer]: 
+      - generic [ref=e47] [cursor=pointer]:
+        - img [ref=e49]
+        - checkbox [ref=e51]
+      - generic [ref=e52]:
+        - generic [ref=e54]:
+          - generic [ref=e55]:
+            - generic [ref=e57]:
+              - heading "Filter by family" [level=4] [ref=e59]
+              - generic [ref=e61]:
+                - generic [ref=e62]:
+                  - textbox "Search by family" [ref=e65]
+                  - generic [ref=e66] [cursor=pointer]:
+                    - radio "T24 Transact 794" [ref=e67]
+                    - text: T24 Transact
+                    - generic [ref=e68]: "794"
+                  - generic [ref=e69] [cursor=pointer]:
+                    - radio "Lms 573" [ref=e70]
+                    - text: Lms
+                    - generic [ref=e71]: "573"
+                  - generic [ref=e72] [cursor=pointer]:
+                    - radio "Payments 398" [ref=e73]
+                    - text: Payments
+                    - generic [ref=e74]: "398"
+                  - generic [ref=e75] [cursor=pointer]:
+                    - radio "Wealth Suite 363" [ref=e76]
+                    - text: Wealth Suite
+                    - generic [ref=e77]: "363"
+                  - generic [ref=e78] [cursor=pointer]:
+                    - radio "Regionalized Solutions 238" [ref=e79]
+                    - text: Regionalized Solutions
+                    - generic [ref=e80]: "238"
+                  - generic [ref=e81] [cursor=pointer]:
+                    - radio "Infinity 181" [ref=e82]
+                    - text: "Infinity"
+                    - generic [ref=e83]: "181"
+                  - generic [ref=e84] [cursor=pointer]:
+                    - radio "Analytics 126" [ref=e85]
+                    - text: Analytics
+                    - generic [ref=e86]: "126"
+                  - generic [ref=e87] [cursor=pointer]:
+                    - radio "Regulatory Compliance 96" [ref=e88]
+                    - text: Regulatory Compliance
+                    - generic [ref=e89]: "96"
+                  - generic [ref=e90] [cursor=pointer]:
+                    - radio "Installation 41" [ref=e91]
+                    - text: Installation
+                    - generic [ref=e92]: "41"
+                  - generic [ref=e93] [cursor=pointer]:
+                    - radio "Composable Banking 39" [ref=e94]
+                    - text: Composable Banking
+                    - generic [ref=e95]: "39"
+                - generic [ref=e96] [cursor=pointer]: Show more
+                - link "Clear All" [ref=e97] [cursor=pointer]:
+                  - /url: Search.php?start=0&rows=10&facet.field=category&q=%22Model%20Bank%22%20processes
+                  - button "Clear All" [ref=e98]
+            - generic [ref=e100]:
+              - heading "Filter by Module" [level=4] [ref=e102]
+              - generic [ref=e103]:
+                - textbox "Search by Module" [ref=e106]
+                - link "Clear All" [ref=e107] [cursor=pointer]:
+                  - /url: ""
+                  - button "Clear All" [ref=e108]
+          - generic [ref=e109]:
+            - generic [ref=e112]:
+              - heading "Your search for \"\"Model Bank\" processes\" returned 3040 result(s)" [level=4] [ref=e113]:
+                - text: Your search for "
+                - mark [ref=e114]: "\"Model Bank\" processes"
+                - text: "\" returned 3040 result(s)"
+              - paragraph [ref=e115]: "Results 1 - 10 of 3040:"
+            - generic [ref=e123]:
+              - generic [ref=e124]:
+                - generic [ref=e126]:
+                  - link "Introduction" [ref=e127] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\Europe\EUR_Business\WEALTH\CMB\Europe\Business\Introduction.htm#:~:text=
+                  - generic [ref=e128]: Management application that supports best practice banking processes for Europe. The model bank can be further configured by clients for their specific needs. The model bank application is an additional layer applied over the standard application, which is pre-configured to support the specific common requirements for each country or economic area. The information in this topic is limited to the features that are part of the model bank layer. Intended Audience This guide is designed for business
+                  - link "https://docs.temenos.com/docs/Solutions\\Wealth_Suite\\Europe\\EUR_Business\\WEALTH\\CMB\\Europe\\Business\\Introduction.htm#:~:text=\"Model Bank\" processes" [ref=e129] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\Europe\EUR_Business\WEALTH\CMB\Europe\Business\Introduction.htm#:~:text=
+                - generic [ref=e131]:
+                  - link "Introduction" [ref=e132] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\Singapore\SGP_Business\WEALTH\CMB\Singapore\Business\Introduction.htm#:~:text=
+                  - generic [ref=e133]: "WealthSuite Channels application. The Singapore Model Bank is developed to provide a financial institution with a working pre-configured version of the WealthSuite Front Office â\x80\x93 Portfolio Management application, supporting best practice banking processes for Singapore that could be further configured by clients for their specific needs. The Model Bank application is a layer applied over the standard application, pre-configured to support the specific common requirements for each country or economic"
+                  - link "https://docs.temenos.com/docs/Solutions\\Wealth_Suite\\Singapore\\SGP_Business\\WEALTH\\CMB\\Singapore\\Business\\Introduction.htm#:~:text=\"Model Bank\" processes" [ref=e134] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\Singapore\SGP_Business\WEALTH\CMB\Singapore\Business\Introduction.htm#:~:text=
+                - generic [ref=e136]:
+                  - link "Introduction" [ref=e137] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\Singapore\SGP_Integration\WEALTH\CMB\Singapore\Integration\Introduction.htm#:~:text=
+                  - generic [ref=e138]: "WealthSuite Channels application. The Singapore Model Bank is developed to provide a financial institution with a working pre-configured version of the WealthSuite Front Office â\x80\x93 Portfolio Management application, supporting best practice banking processes for Singapore that could be further configured by clients for their specific needs. The Model Bank application is a layer applied over the standard application, pre-configured to support the specific common requirements for each country or economic"
+                  - link "https://docs.temenos.com/docs/Solutions\\Wealth_Suite\\Singapore\\SGP_Integration\\WEALTH\\CMB\\Singapore\\Integration\\Introduction.htm#:~:text=\"Model Bank\" processes" [ref=e139] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\Singapore\SGP_Integration\WEALTH\CMB\Singapore\Integration\Introduction.htm#:~:text=
+                - generic [ref=e141]:
+                  - link "Introduction" [ref=e142] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\HongKong\HKG_Business\WEALTH\CMB\HongKong\Business\Introduction.htm#:~:text=
+                  - generic [ref=e143]: "Office â\x80\x93 Portfolio Management application to a financial institution. It includes best practices for banking processes in Hong Kong that can be further configured by clients for their specific needs. The Model Bank application is an additional layer over the standard application, pre-configured to support specific common requirements for each country or economic area. This guide is limited to the features that are part of the Model Bank layer."
+                  - link "https://docs.temenos.com/docs/Solutions\\Wealth_Suite\\HongKong\\HKG_Business\\WEALTH\\CMB\\HongKong\\Business\\Introduction.htm#:~:text=\"Model Bank\" processes" [ref=e144] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\HongKong\HKG_Business\WEALTH\CMB\HongKong\Business\Introduction.htm#:~:text=
+                - generic [ref=e146]:
+                  - link "Introduction" [ref=e147] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\HongKong\HKG_Integration\WEALTH\CMB\HongKong\Integration\Introduction.htm#:~:text=
+                  - generic [ref=e148]: "Office â\x80\x93 Portfolio Management application to a financial institution. It includes best practices for banking processes in Hong Kong that can be further configured by clients for their specific needs. The Model Bank application is an additional layer over the standard application, pre-configured to support specific common requirements for each country or economic area. This guide is limited to the features that are part of the Model Bank layer."
+                  - link "https://docs.temenos.com/docs/Solutions\\Wealth_Suite\\HongKong\\HKG_Integration\\WEALTH\\CMB\\HongKong\\Integration\\Introduction.htm#:~:text=\"Model Bank\" processes" [ref=e149] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\HongKong\HKG_Integration\WEALTH\CMB\HongKong\Integration\Introduction.htm#:~:text=
+                - generic [ref=e151]:
+                  - link "Introduction" [ref=e152] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\Spain\ESP_Business\WEALTH\CMB\Spain\Business\Introduction.htm#:~:text=
+                  - generic [ref=e153]: to a financial institution. It includes best practices for banking processes in Spain that could be further configured by clients for their specific needs. The Model Bank application is an additional layer over the standard application, pre-configured to support specific common requirements for each country or economic area. This guide is limited to the features that are part of the Model Bank layer. Intended Audience This guide is designed for business and technical consultants (in projects and services)
+                  - link "https://docs.temenos.com/docs/Solutions\\Wealth_Suite\\Spain\\ESP_Business\\WEALTH\\CMB\\Spain\\Business\\Introduction.htm#:~:text=\"Model Bank\" processes" [ref=e154] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\Spain\ESP_Business\WEALTH\CMB\Spain\Business\Introduction.htm#:~:text=
+                - generic [ref=e156]:
+                  - link "Introduction" [ref=e157] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\Spain\ESP_Integration\WEALTH\CMB\Spain\Integration\Introduction.htm#:~:text=
+                  - generic [ref=e158]: to a financial institution. It includes best practices for banking processes in Spain that could be further configured by clients for their specific needs. The Model Bank application is an additional layer over the standard application, pre-configured to support specific common requirements for each country or economic area. This guide is limited to the features that are part of the Model Bank layer. Intended Audience This guide is designed for business and technical consultants (in projects and services)
+                  - link "https://docs.temenos.com/docs/Solutions\\Wealth_Suite\\Spain\\ESP_Integration\\WEALTH\\CMB\\Spain\\Integration\\Introduction.htm#:~:text=\"Model Bank\" processes" [ref=e159] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\Spain\ESP_Integration\WEALTH\CMB\Spain\Integration\Introduction.htm#:~:text=
+                - generic [ref=e161]:
+                  - link "Introduction" [ref=e162] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\Europe\EUR_Business\WEALTH\CMB\Europe\Business\UserGuide_Introduction.htm#:~:text=
+                  - generic [ref=e163]: "pre-configured version of the WealthSuite Front Office â\x80\x93 Portfolio Management application, supporting best practice banking processes for Europe that can be further configured for the financial institutionâ\x80\x99s specific needs. The Model Bank application is a layer applied over the standard application. The information contained in this product guide is limited to the features that are part of the Model Bank layer. All product guides are supplied in an electronic form (as PDF files) in the software package."
+                  - link "https://docs.temenos.com/docs/Solutions\\Wealth_Suite\\Europe\\EUR_Business\\WEALTH\\CMB\\Europe\\Business\\UserGuide_Introduction.htm#:~:text=\"Model Bank\" processes" [ref=e164] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\Europe\EUR_Business\WEALTH\CMB\Europe\Business\UserGuide_Introduction.htm#:~:text=
+                - generic [ref=e166]:
+                  - link "Introduction" [ref=e167] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\HongKong\HKG_Business\WEALTH\CMB\HongKong\Business\UserGuide_Introduction.htm#:~:text=
+                  - generic [ref=e168]: "financial institutions with a working pre-configured version of the WealthSuite Front Office â\x80\x93 Portfolio Management application that supports best practice banking processes for Hong Kong, which can be further configured for the financial institutionâ\x80\x99s specific needs. The Model Bank application is a layer applied over the standard application. The information in this guide is limited to the features that are part of the Model Bank layer. All product guides are supplied in electronic form (as PDF"
+                  - link "https://docs.temenos.com/docs/Solutions\\Wealth_Suite\\HongKong\\HKG_Business\\WEALTH\\CMB\\HongKong\\Business\\UserGuide_Introduction.htm#:~:text=\"Model Bank\" processes" [ref=e169] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\HongKong\HKG_Business\WEALTH\CMB\HongKong\Business\UserGuide_Introduction.htm#:~:text=
+                - generic [ref=e171]:
+                  - link "Introduction" [ref=e172] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\Spain\ESP_Business\WEALTH\CMB\Spain\Business\UserGuide_Introduction.htm#:~:text=
+                  - generic [ref=e173]: "institutions with a working pre-configured version of the WealthSuite Front Office â\x80\x93 Portfolio Management application, supporting best practice banking processes for Spain that can be further configured for the financial institutionâ\x80\x99s specific needs. The Model Bank application is a layer applied over the standard application. The information contained in this product guide is limited to the features that are part of the Model Bank layer. All product guides are supplied in an electronic form (as PDF"
+                  - link "https://docs.temenos.com/docs/Solutions\\Wealth_Suite\\Spain\\ESP_Business\\WEALTH\\CMB\\Spain\\Business\\UserGuide_Introduction.htm#:~:text=\"Model Bank\" processes" [ref=e174] [cursor=pointer]:
+                    - /url: https://docs.temenos.com/docs/Solutions\Wealth_Suite\Spain\ESP_Business\WEALTH\CMB\Spain\Business\UserGuide_Introduction.htm#:~:text=
+              - generic [ref=e178]:
+                - list:
+                  - listitem [ref=e179]:
+                    - generic [ref=e180]: Prev
+                  - listitem [ref=e181]:
+                    - generic [ref=e182]: "1"
+                  - listitem [ref=e183]:
+                    - link "2" [ref=e184] [cursor=pointer]:
+                      - /url: "#page-2"
+                  - listitem [ref=e185]:
+                    - link "3" [ref=e186] [cursor=pointer]:
+                      - /url: "#page-3"
+                  - listitem [ref=e187]:
+                    - link "4" [ref=e188] [cursor=pointer]:
+                      - /url: "#page-4"
+                  - listitem [ref=e189]:
+                    - link "5" [ref=e190] [cursor=pointer]:
+                      - /url: "#page-5"
+                  - listitem [ref=e191]:
+                    - generic [ref=e192] [cursor=pointer]: …
+                  - listitem [ref=e193]:
+                    - link "303" [ref=e194] [cursor=pointer]:
+                      - /url: "#page-303"
+                  - listitem [ref=e195]:
+                    - link "304" [ref=e196] [cursor=pointer]:
+                      - /url: "#page-304"
+                  - listitem [ref=e197]:
+                    - link "Next" [ref=e198] [cursor=pointer]:
+                      - /url: "#page-2"
+        - generic [ref=e200] [cursor=pointer]: 
+    - generic [ref=e203]:
+      - generic [ref=e204]:
+        - paragraph [ref=e205]:
+          - img [ref=e206]
+        - paragraph [ref=e209]: Copyright © 2020- 2026 Temenos Headquarters SA
+      - generic [ref=e210]:
+        - heading "Contact Us" [level=6] [ref=e211]
+        - paragraph [ref=e212]:
+          - link "knowledge@temenos.com" [ref=e213] [cursor=pointer]:
+            - /url: mailto:knowledge@temenos.com?subject=Contact Us
+      - list [ref=e215]:
+        - listitem [ref=e216]:
+          - link "" [ref=e217] [cursor=pointer]:
+            - /url: https://urldefense.com/v3/__https://www.facebook.com/TemenosGroup__;!!M3LOjqNU!YhZzkJCP3C0RfUzyHuoh_Zr0m46C6eMYxsdz0y22vIrlqwrxKv7Jkoe0c1c2pA2UJG4-dCDKNTFNr_o_woQSKA$
+            - generic [ref=e218]: 
+        - listitem [ref=e219]:
+          - link "" [ref=e220] [cursor=pointer]:
+            - /url: https://urldefense.com/v3/__https://twitter.com/Temenos__;!!M3LOjqNU!YhZzkJCP3C0RfUzyHuoh_Zr0m46C6eMYxsdz0y22vIrlqwrxKv7Jkoe0c1c2pA2UJG4-dCDKNTFNr_p37Gl9qQ$
+            - generic [ref=e221]: 
+        - listitem [ref=e222]:
+          - link "" [ref=e223] [cursor=pointer]:
+            - /url: https://urldefense.com/v3/__http://www.linkedin.com/company/temenos__;!!M3LOjqNU!YhZzkJCP3C0RfUzyHuoh_Zr0m46C6eMYxsdz0y22vIrlqwrxKv7Jkoe0c1c2pA2UJG4-dCDKNTFNr_pKO11jOg$
+            - generic [ref=e224]: 
+  - status [ref=e225]

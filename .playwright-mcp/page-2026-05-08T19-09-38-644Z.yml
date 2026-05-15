@@ -1,0 +1,29 @@
+- generic [ref=e1]:
+  - generic [ref=e5]:
+    - main [ref=e8]:
+      - generic [ref=e11]:
+        - generic [ref=e12]: Sign in with your Temenos Customer Account
+        - generic [ref=e14]:
+          - textbox "User Account" [active] [ref=e16]:
+            - /placeholder: Enter your Username
+          - textbox "Password" [ref=e18]
+          - button "Sign in" [ref=e20] [cursor=pointer]
+        - link "Need help?" [ref=e21] [cursor=pointer]:
+          - /url: "#"
+    - contentinfo [ref=e23]:
+      - generic [ref=e26]:
+        - text: © 2026 Temenos |
+        - link "Privacy Policy" [ref=e27] [cursor=pointer]:
+          - /url: https://www.temenos.com/legal-information/privacy-policy/
+  - dialog "Privacy" [ref=e29]:
+    - generic [ref=e31]:
+      - generic [ref=e34]:
+        - text: We use cookies to personalise content and ads, to provide social media features and to analyse our traffic. In order to set out your preferences, please click on "Cookie Settings". Otherwise, if you agree to our use of cookies, please click "Accept All Cookies". For more information, please refer to our
+        - link "More information about your privacy, opens in a new tab" [ref=e35] [cursor=pointer]:
+          - /url: https://www.temenos.com/legal-information/cookie-policy/
+          - text: Cookie Policy
+      - generic [ref=e37]:
+        - button "Cookies Settings, Opens the preference center dialog" [ref=e38] [cursor=pointer]: Cookies Settings
+        - button "Reject All Cookies" [ref=e39] [cursor=pointer]
+        - button "Accept All Cookies" [ref=e40] [cursor=pointer]
+    - button "Close" [ref=e42] [cursor=pointer]

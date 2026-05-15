@@ -24,3 +24,4 @@ config/calibre/SECRETS.md
 config/calibre/plugins/dedrm.json
 config/calibre/plugins/bookfusion.json
 config/calibre/plugins/DeACSM/account/
+.gitnexus

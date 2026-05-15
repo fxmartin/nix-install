@@ -103,7 +103,7 @@ bootstrap-dist.sh (standalone, built from lib/*.sh)
 │     Podman, bat, ripgrep, fd, eza, etc.         │
 ├─────────────────────────────────────────────────┤
 │  2. Homebrew Casks (via nix-homebrew)            │
-│     GUI apps: Zed, Ghostty, Arc, Brave,         │
+│     GUI apps: Zed, Ghostty, Brave,              │
 │     Claude Desktop, Ollama, etc.                │
 ├─────────────────────────────────────────────────┤
 │  3. Mac App Store (via mas)                      │

@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.7] - 2026-05-15
+## [1.5.8] - 2026-05-15
+
+### Fixed
+
+- Remove Arc and Dropbox from managed application profile## [1.5.7] - 2026-05-15
 
 ### Fixed
 

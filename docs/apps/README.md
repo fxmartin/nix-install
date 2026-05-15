@@ -56,7 +56,6 @@ Development tools including editors, terminals, containers, and CLI tools.
 Web browsers for development and daily use.
 
 - [Brave Browser](browsers/brave.md) - Privacy-focused Chromium browser with Shields (Homebrew cask)
-- [Arc Browser](browsers/arc.md) - Modern browser with Spaces workspaces (Homebrew cask)
 
 ---
 
@@ -70,9 +69,6 @@ Apps for productivity, file management, and system utilities.
 
 ### File & Document Utilities
 - [File Utilities](productivity/file-utilities.md) - Calibre (ebook manager), Kindle (ebook reader), Keka (archiver), Marked 2 (markdown previewer)
-
-### File Sync & Cloud Storage
-- [Dropbox](productivity/dropbox.md) - Cloud storage and file synchronization (Homebrew cask, account required)
 
 ### Office & Productivity Suites
 - [Microsoft Office 365](productivity/office-365.md) - Complete productivity suite with Word, Excel, PowerPoint, Outlook, OneNote, Teams (Homebrew cask, subscription required)
@@ -132,12 +128,10 @@ docs/apps/
 │   ├── podman.md                       # Container tools
 │   └── claude-code-cli.md              # Claude Code CLI setup
 ├── browsers/
-│   ├── brave.md                        # Brave browser
-│   └── arc.md                          # Arc browser
+│   └── brave.md                        # Brave browser
 ├── productivity/
 │   ├── raycast.md                      # Raycast launcher
 │   ├── 1password.md                    # Password manager
-│   ├── dropbox.md                      # Dropbox cloud storage
 │   ├── office-365.md                   # Microsoft Office 365 suite
 │   ├── file-utilities.md               # Calibre, Kindle, Keka, Marked 2
 │   └── system-utilities.md             # Onyx, f.lux, Stream Deck
@@ -185,6 +179,6 @@ docs/apps/
 - **Original file**: Archived as `app-post-install-configuration.md.backup`
 
 **Story Alignment**:
-- Each complex app (Claude Code CLI, VSCode, Arc, 1Password, etc.) has individual file
+- Each complex app (Claude Code CLI, VSCode, 1Password, etc.) has individual file
 - Small related apps (Calibre, Kindle, Keka, Marked 2) grouped logically
 - Matches Epic-02 feature structure from development stories

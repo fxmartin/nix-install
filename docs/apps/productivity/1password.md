@@ -99,13 +99,7 @@ darwin-rebuild switch # Applies the updates
    - OR: 1Password → Settings → Browser → Click "Install Extension" next to Brave
    - Grant permissions when requested
 
-3. **Arc Browser** (if installed):
-   - Visit Chrome Web Store: https://chrome.google.com/webstore/detail/1password/aeblfdkhhhdcdjpifhhbdiojplfjncoa
-   - Click "Add to Arc"
-   - OR: 1Password → Settings → Browser → Click "Install Extension" next to Arc
-   - Grant permissions when requested
-
-4. **Firefox** (if installed):
+3. **Firefox** (if installed):
    - Visit Firefox Add-ons: https://addons.mozilla.org/en-US/firefox/addon/1password-x-password-manager/
    - Click "Add to Firefox"
    - OR: 1Password → Settings → Browser → Click "Install Extension" next to Firefox
@@ -260,7 +254,7 @@ darwin-rebuild switch # Applies the updates
 - [ ] Secret Key saved in Emergency Kit (if new account)
 - [ ] Touch ID enabled for quick unlock (optional but recommended)
 - [ ] Auto-update disabled (Settings → Advanced → Uncheck "Check for updates automatically")
-- [ ] Browser extensions installed (Safari, Brave, Arc, Firefox)
+- [ ] Browser extensions installed (Safari, Brave, Firefox)
 - [ ] Browser extensions connected to 1Password app
 - [ ] Can autofill passwords in browser
 - [ ] Can generate strong passwords

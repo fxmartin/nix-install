@@ -291,6 +291,14 @@ teardown() {
     [[ "${status}" -eq 0 ]]
 }
 
+@test "check_core_apps_present: ignores Arc when checking supported core apps" {
+    mkdir -p "${MOCK_APPS_DIR}/Arc.app"
+
+    check_core_apps_present "${MOCK_APPS_DIR}" "${MOCK_USER_APPS_DIR}"
+    grep -q "WARN" "${TEST_LOG}"
+    ! grep -q "Found GUI applications" "${TEST_LOG}"
+}
+
 @test "check_core_apps_present: logs success when app found" {
     mkdir -p "${MOCK_APPS_DIR}/Ghostty.app"
 

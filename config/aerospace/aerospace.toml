@@ -8,7 +8,7 @@
 #   2 Code     — cmux, VSCode, Zed
 #   3 Preview  — Preview, Chrome
 #   4 AI       — Claude, ChatGPT, Perplexity, Inferencer
-#   5 Web      — Chrome for Testing, Arc, Brave, Firefox, Safari
+#   5 Web      — Chrome for Testing, Brave, Firefox, Safari
 #   6 Mail     — Outlook, Mail
 #   7 Office   — Microsoft Teams, Word, Excel, PowerPoint
 #   8 Chat     — Telegram, WhatsApp
@@ -196,10 +196,6 @@ run = 'move-node-to-workspace 4'
 # --- Workspace 5: Web ---
 [[on-window-detected]]
 if.app-id = 'com.google.chrome.for.testing'
-run = ['move-node-to-workspace 5', 'layout accordion']
-
-[[on-window-detected]]
-if.app-id = 'company.thebrowser.Browser'  # Arc
 run = ['move-node-to-workspace 5', 'layout accordion']
 
 [[on-window-detected]]

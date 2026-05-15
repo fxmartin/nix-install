@@ -237,5 +237,4 @@ Brave Rewards allows earning BAT cryptocurrency for viewing privacy-respecting a
 ## Related Documentation
 
 - [Main Apps Index](../README.md) - Overview of all application documentation
-- [Arc Browser](arc.md) - Modern workspace-focused browser configuration
 - [Parent Document](../../app-post-install-configuration.md) - Full application post-install configuration guide

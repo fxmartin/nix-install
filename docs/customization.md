@@ -431,7 +431,7 @@ Set specific apps to appear in Dock (requires manual setup after):
 # darwin/macos-defaults.nix
 system.defaults.dock = {
   persistent-apps = [
-    "/Applications/Arc.app"
+    "/Applications/Brave Browser.app"
     "/Applications/Ghostty.app"
     "/Applications/Zed.app"
     "/System/Applications/Mail.app"

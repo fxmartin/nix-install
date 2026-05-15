@@ -120,7 +120,7 @@ Calibre is a powerful ebook management suite with comprehensive features:
 4. Click "OK" to save changes
 
 **Configuration Tips**:
-- **Library Location**: Store in Dropbox or iCloud for cross-device sync
+- **Library Location**: Store in iCloud for cross-device sync
 - **Metadata Sources**: Preferences → Sharing → Metadata download (configure sources)
 - **Reading Preferences**: E-book viewer → Preferences (font, colors, margins)
 - **Device Setup**: Preferences → Sharing → Sharing books by email (for Kindle email delivery)

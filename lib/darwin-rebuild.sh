@@ -253,7 +253,6 @@ display_rebuild_success_message() {
     log_info "2. Activate licensed applications:"
     log_info "   • Office 365: Sign in with your Microsoft account"
     log_info "   • 1Password: Sign in and set up browser extensions"
-    log_info "   • Dropbox: Sign in and configure selective sync"
     echo ""
 
     if [[ "${INSTALL_PROFILE}" == "power" ]]; then

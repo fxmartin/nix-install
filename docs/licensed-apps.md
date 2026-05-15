@@ -16,7 +16,6 @@ This document provides guidance for applications that require licenses, subscrip
 | App | Type | Time | Priority |
 |-----|------|------|----------|
 | **1Password** | Sign-in | 2 min | High (password access) |
-| **Dropbox** | Sign-in | 2 min | Medium (file sync) |
 | **NordVPN** | Sign-in | 2 min | Medium (VPN access) |
 | **Zoom** | Sign-in | 1 min | As needed |
 | **Webex** | Sign-in | 1 min | As needed |
@@ -34,7 +33,6 @@ The following apps require manual setup after installation:
 
 **Productivity & Security**:
 - **1Password**: Requires account sign-in (subscription or license)
-- **Dropbox**: Requires Dropbox account (free or paid subscription)
 - **Microsoft Office 365**: Requires active subscription (Personal, Family, or Company)
 
 **Video Conferencing**:
@@ -235,7 +233,7 @@ The following apps require manual setup after installation:
    - One-time purchase license (v7 or earlier)
    - No subscription required
    - Limited to purchased version (no updates to v8+)
-   - Sync via iCloud/Dropbox (not 1Password.com)
+   - Sync via iCloud (not 1Password.com)
 
 **Activation Steps**:
 
@@ -268,7 +266,6 @@ The following apps require manual setup after installation:
 3. Enter license key (from purchase email or license file)
 4. Choose vault location:
    - **iCloud**: Sync via iCloud Drive
-   - **Dropbox**: Sync via Dropbox
    - **Local**: No sync (Mac only)
 5. Create master password for vault
 6. 1Password unlocks → Ready to use
@@ -297,88 +294,6 @@ The following apps require manual setup after installation:
 - **Company account locked**: Contact IT admin (may be security policy or account suspension)
 
 **Documentation**: For full 1Password usage, see `docs/apps/productivity/1password.md`.
-
----
-
-### Dropbox
-
-**Installation**: Installed via Homebrew cask `dropbox` (Story 02.4-004)
-
-**Account Requirement**: Dropbox requires a Dropbox account (free or paid subscription) for file synchronization.
-
-**Account Plans**:
-
-1. **Free Account** (2GB storage):
-   - **Sign up**: https://www.dropbox.com/register
-   - **Storage**: 2GB
-   - **Cost**: Free forever
-   - **Features**: File sync, mobile access, basic file sharing, 30-day file recovery
-   - **Limitations**: Limited storage, no advanced sharing features
-
-2. **Plus Plan** (2TB storage):
-   - **Storage**: 2TB (2,000GB)
-   - **Cost**: $11.99/month or $119.88/year
-   - **Features**: All free features + advanced sharing, 180-day file recovery, priority support
-
-3. **Family Plan** (2TB shared):
-   - **Storage**: 2TB shared among up to 6 users
-   - **Cost**: $19.99/month or $199.99/year
-   - **Features**: Plus features + family room for shared content
-
-4. **Professional Plan** (3TB storage):
-   - **Storage**: 3TB
-   - **Cost**: $19.99/month or $199.99/year
-   - **Features**: Advanced admin controls, eSignature requests, full-text search, Dropbox Transfer (up to 100GB)
-
-**Activation Steps**:
-
-1. **Launch Dropbox**:
-   - Open from Spotlight (`Cmd+Space`, type "Dropbox")
-   - Or launch from `/Applications/Dropbox.app`
-
-2. **Sign In or Create Account**:
-   - **Existing account**: Click "Sign In" → Enter email and password
-   - **New account**: Click "Sign Up" (opens browser) → Create account at dropbox.com
-   - Complete two-factor authentication if enabled (recommended)
-
-3. **Setup Wizard**:
-   - Choose plan (Free or paid)
-   - Select Dropbox folder location (default: `~/Dropbox`, recommended)
-   - Choose initial sync preferences (all folders or selective)
-   - Click "Get Started"
-
-4. **Verify Installation**:
-   - Menubar icon appears (Dropbox logo)
-   - `~/Dropbox` folder created in home directory
-   - Dropbox appears in Finder sidebar
-   - Initial sync begins automatically
-
-5. **Disable Auto-Update** (REQUIRED):
-   - Click Dropbox menubar icon → Profile icon → Preferences
-   - Navigate to **Account** tab
-   - **Uncheck** "Automatically download and install updates"
-   - Close Preferences
-
-**Activation Time**: ~2 minutes (account sign-in + setup wizard)
-
-**Testing**:
-- [ ] Dropbox launches successfully
-- [ ] Account sign-in completes
-- [ ] `~/Dropbox` folder exists in Finder
-- [ ] Menubar icon visible and shows sync status
-- [ ] Auto-update disabled (Account → Updates unchecked)
-- [ ] Test file sync: Create file in `~/Dropbox`, verify appears in web interface
-
-**Troubleshooting**:
-- **Sign-in fails**: Verify email/password correct, check internet connection
-- **No menubar icon**: Quit Dropbox (Activity Monitor) and relaunch
-- **Sync not working**: Check account storage not full (Preferences → Account → Storage usage)
-- **"Can't sync" error**: Click menubar icon for error details, common causes:
-  - Invalid filename characters (rename file)
-  - File path too long (shorten folder names)
-  - Permission issues (check folder permissions)
-
-**Documentation**: For full Dropbox usage and configuration, see `docs/apps/productivity/dropbox.md`.
 
 ---
 

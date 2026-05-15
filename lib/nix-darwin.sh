@@ -926,12 +926,6 @@ check_core_apps_present() {
         apps_found=1
     fi
 
-    # Check for Arc
-    if [[ -d "${apps_dir}/Arc.app" ]] || [[ -d "${user_apps_dir}/Arc.app" ]]; then
-        found_apps+=("Arc")
-        apps_found=1
-    fi
-
     if [[ ${apps_found} -eq 1 ]]; then
         log_info "✓ Found GUI applications: ${found_apps[*]}"
     else
@@ -1104,10 +1098,8 @@ validate_nix_darwin_phase() {
         # Check if any apps were actually found
         if [[ -d "/Applications/Ghostty.app" ]] || \
            [[ -d "/Applications/Zed.app" ]] || \
-           [[ -d "/Applications/Arc.app" ]] || \
            [[ -d "${HOME}/Applications/Ghostty.app" ]] || \
-           [[ -d "${HOME}/Applications/Zed.app" ]] || \
-           [[ -d "${HOME}/Applications/Arc.app" ]]; then
+           [[ -d "${HOME}/Applications/Zed.app" ]]; then
             apps_result="PASS"
         else
             apps_result="WARN"

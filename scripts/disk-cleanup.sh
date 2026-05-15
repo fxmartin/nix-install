@@ -124,11 +124,9 @@ analyze_caches() {
     total_kb=$((total_kb + hf_kb))
     print_status "info" "Huggingface cache: ${hf_size}"
 
-    # Browser caches (Arc/Brave/Chrome) — roots, not cleanable subdirs
+    # Browser caches (Brave/Chrome) — roots, not cleanable subdirs
     local browser_kb_total=0
-    for path in ~/Library/Caches/Arc \
-                ~/Library/Caches/company.thebrowser.Browser \
-                ~/Library/Caches/BraveSoftware/Brave-Browser \
+    for path in ~/Library/Caches/BraveSoftware/Brave-Browser \
                 ~/Library/Caches/Google/Chrome; do
         local b_size=$(get_size "${path}")
         local b_kb=$(get_size_bytes "${path}")
@@ -266,14 +264,10 @@ cleanup_browsers() {
     # touches profile data, bookmarks, cookies, or sessions.
     # Skips any browser whose process is currently running to avoid DB corruption.
     #
-    # Arc has two cache paths because of a historical path migration; both are
-    # cleaned when Arc is not running.
     print_header "Cleaning Browser Caches"
 
     # Format: "<label>|<process-name>|<cache-root>"
     local browsers=(
-        "Arc|Arc|${HOME}/Library/Caches/Arc"
-        "Arc (legacy path)|Arc|${HOME}/Library/Caches/company.thebrowser.Browser"
         "Brave|Brave Browser|${HOME}/Library/Caches/BraveSoftware/Brave-Browser"
         "Chrome|Google Chrome|${HOME}/Library/Caches/Google/Chrome"
     )

@@ -70,7 +70,7 @@ in {
     # - Development: Zed, VSCode, Cursor, Docker Desktop
     # - Browsers: Brave
     # - Communication: Zoom, Webex, Slack, WhatsApp
-    # - Productivity: 1Password, Obsidian, Dropbox
+    # - Productivity: 1Password, Obsidian
     # - Terminal: Ghostty
     # - Fonts: JetBrains Mono Nerd Font, etc.
     # - Power profile only: additional apps as needed
@@ -126,11 +126,7 @@ in {
       "tableplus" # TablePlus - Modern database management GUI
 
       # Additional Browsers
-      "brave-browser"    # Brave Browser - Privacy-focused browser
-      "arc"              # Arc Browser - Modern workspace browser with Spaces
-
-      # Productivity
-      "dropbox" # Dropbox - Cloud storage and file sync (Story 02.4-004)
+      "brave-browser" # Brave Browser - Privacy-focused browser
 
       # File Utilities (Story 02.4-003)
       "calibre" # Calibre - Ebook library manager and converter

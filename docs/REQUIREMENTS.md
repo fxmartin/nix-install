@@ -183,7 +183,7 @@ Consistency: 100% (declarative config)
 ### What We're NOT Building
 
 ❌ **Not building**:
-- Cloud backup/sync solution (use existing Dropbox)
+- Cloud backup/sync solution (use existing iCloud/NAS workflow)
 - Secrets management system (manual license entry for paid apps)
 - Multi-user configurations (single user per machine)
 - Windows/Linux support (macOS only)
@@ -258,7 +258,7 @@ Consistency: 100% (declarative config)
    - Maximum reproducibility via flake.lock, despite "unstable" name
 
 2. **Homebrew Casks** (for GUI apps that don't work well in Nix)
-   - Applications: Arc, Firefox, Zed, Claude Desktop, etc.
+   - Applications: Firefox, Zed, Claude Desktop, etc.
    - System tools: Raycast, 1Password, iStat Menus
    - Managed declaratively via nix-darwin's homebrew module
 
@@ -341,15 +341,14 @@ Consistency: 100% (declarative config)
 **REQ-APP-004**: Browsers
 - Safari (built-in, no action needed)
 - Firefox
-- Arc
-- Acceptance: All browsers launch, set Arc as default (or prompt user)
+- Brave
+- Acceptance: All browsers launch, set default browser (or prompt user)
 
 **REQ-APP-005**: Productivity & Utilities
 - Raycast (launcher)
 - 1Password (password manager) 🔒
 - Calibre (ebook manager)
 - Kindle (via mas)
-- Dropbox 🔒
 - Onyx (system maintenance)
 - Keka (archiver)
 - flux-app (f.lux - display color temperature)
@@ -554,7 +553,7 @@ Consistency: 100% (declarative config)
 - Acceptance: Non-technical user can follow and complete install
 
 **REQ-DOC-002**: Licensed App Activation Guide
-- List of apps requiring manual activation: 1Password, iStat Menus, Little Snitch, NordVPN, Zoom, Webex, Dropbox
+- List of apps requiring manual activation: 1Password, iStat Menus, Little Snitch, NordVPN, Zoom, Webex
 - Step-by-step for each app
 - Acceptance: User can activate all licenses within 15 minutes
 
@@ -722,9 +721,7 @@ Consistency: 100% (declarative config)
 - Homebrew: `HOMEBREW_NO_AUTO_UPDATE=1` in environment
 - Zed: Disable auto-update in settings (`"auto_update": false` in config)
 - VSCode: `"update.mode": "none"`
-- Arc browser: Disable auto-update in settings
 - Firefox: `app.update.auto = false`
-- Dropbox: Preferences → General → Disable auto-update
 - 1Password: Preferences → Advanced → Disable auto-update
 - Zoom: Preferences → Disable auto-update
 - Webex: Preferences → Disable auto-update
@@ -828,7 +825,7 @@ Consistency: 100% (declarative config)
 - [ ] Basic darwin configuration (minimal apps)
 - [ ] Test: Nix flake checks pass
 
-**Deliverable**: Buildable flake with 5 essential apps (Ghostty, Zed, Arc, Firefox, Claude Desktop)
+**Deliverable**: Buildable flake with 5 essential apps (Ghostty, Zed, Google Chrome, Firefox, Claude Desktop)
 
 ---
 
@@ -1212,7 +1209,7 @@ Consistency: 100% (declarative config)
 | **Browsers** | | |
 | Safari | Built-in (macOS) | No installation needed |
 | Firefox | Homebrew Cask | GUI app |
-| Arc | Homebrew Cask | GUI app |
+| Brave | Homebrew Cask | GUI app |
 | **AI/LLM Tools** | | |
 | Claude Desktop | Homebrew Cask | GUI app |
 | ChatGPT Desktop | Homebrew Cask (chatgpt) | GUI app |
@@ -1223,7 +1220,6 @@ Consistency: 100% (declarative config)
 | 1Password | Homebrew Cask | GUI app, auto-updates |
 | Calibre | Homebrew Cask | GUI app |
 | Kindle | mas (Mac App Store) | Only available on App Store |
-| Dropbox | Homebrew Cask | GUI app |
 | Onyx | Homebrew Cask (onyx) | GUI app |
 | Keka | Homebrew Cask | GUI app |
 | flux | Homebrew Cask (flux) | GUI app |
@@ -1455,7 +1451,7 @@ Consistency: 100% (declarative config)
 | **Ollama Models** | `ministral-3:14b`, `nomic-embed-text` (~9GB) | `gemma4:e4b`, `gemma4:26b`, `nomic-embed-text` (~19GB) |
 | **Development Tools** | ✅ Same (Python, Podman, Git LFS) | ✅ Same |
 | **AI Apps** | ✅ Same (Claude, ChatGPT, Perplexity) | ✅ Same |
-| **Browsers** | ✅ Same (Safari, Firefox, Arc) | ✅ Same |
+| **Browsers** | ✅ Same (Safari, Firefox, Brave) | ✅ Same |
 | **Productivity** | ✅ Same (Raycast, 1Password, etc.) | ✅ Same |
 | **Communication** | ✅ Same (Zoom, Webex, WhatsApp) | ✅ Same |
 | **Media** | ✅ Same (VLC, GIMP) | ✅ Same |

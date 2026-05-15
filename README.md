@@ -1,6 +1,6 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.0% Complete (144/147 stories) | **Version**: 1.5.7 | **2 MacBooks deployed, M4 Air pending**
+> **Status**: 98.0% Complete (144/147 stories) | **Version**: 1.5.8 | **2 MacBooks deployed, M4 Air pending**
 
 **Two deployed MacBooks. One config. Zero drift.**
 
@@ -57,7 +57,7 @@ curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh 
    mas install 310633997   # WhatsApp
    ```
 4. **Activate licenses** — See [Licensed Apps Guide](./docs/licensed-apps.md):
-   - 1Password, Dropbox, NordVPN (sign in)
+   - 1Password, NordVPN (sign in)
    - iStat Menus, Little Snitch (enter license key)
    - Zoom, Webex (sign in)
    - Office 365 (Microsoft account sign-in)
@@ -196,14 +196,14 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 
 **Browsers**:
 - Google Chrome (all profiles)
-- Brave, Arc **[S/P]**
+- Brave **[S/P]**
 
 **Productivity**:
 - 1Password + 1Password for Safari
 - Obsidian (knowledge base / notes)
 - Plaud (AI voice recorder and transcription)
 - Amphetamine (MAS, keep-awake utility)
-- Dropbox, Calibre, Kindle (MAS), Marked 2 (MAS), Keka **[S/P]**
+- Calibre, Kindle (MAS), Marked 2 (MAS), Keka **[S/P]**
 - Office 365 (Word, Excel, PowerPoint, Outlook, OneNote, Teams) **[S/P]**
 - reMarkable desktop (MAS) **[S/P]**
 
@@ -260,7 +260,7 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 ### Package Sources (Priority Order)
 
 1. **Nix** (nixpkgs-unstable): CLI tools, Python, Podman, dev tools
-2. **Homebrew Casks**: GUI apps (Zed, Ghostty, Arc, Claude Desktop)
+2. **Homebrew Casks**: GUI apps (Zed, Ghostty, Claude Desktop)
 3. **Mac App Store**: Only when no alternative (Kindle, WhatsApp)
 
 ### Key Design Principles

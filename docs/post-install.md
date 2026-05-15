@@ -47,7 +47,6 @@ Activate apps requiring sign-in or license keys. See [Licensed Apps Guide](./lic
 
 **Sign-in Apps** (~5 minutes):
 - [ ] **1Password** - Sign in with email + Secret Key + master password
-- [ ] **Dropbox** - Sign in, choose sync folder (default: ~/Dropbox)
 - [ ] **NordVPN** - Sign in, grant network extension permission
 - [ ] **Zoom** - Sign in (or use free account)
 - [ ] **Webex** - Sign in with company credentials
@@ -125,7 +124,7 @@ Both commands refuse if the Ollama daemon isn't running on
 
 - [ ] **Set default browser** (optional)
   1. System Settings → Desktop & Dock → Default web browser
-  2. Choose Arc or Brave
+  2. Choose Brave or Google Chrome
 
 ---
 
@@ -167,7 +166,7 @@ podman machine list  # Should show default machine
 ### Applications
 - [ ] Open **Ghostty** terminal - should have Catppuccin theme
 - [ ] Open **Zed** editor - theme should match system (light/dark)
-- [ ] Open **Arc** browser - should launch without issues
+- [ ] Open **Brave** browser - should launch without issues
 - [ ] Run `podman run hello-world` - should complete successfully
 
 ---

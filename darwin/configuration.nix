@@ -261,6 +261,10 @@
           "create-release-issues.sh"
           "send-release-summary.sh"
           "send-notification.sh"      # email helper, reused by virt-vm-orphan-watch
+          "start-ollama"              # extensionless command wrapper
+          "start-ollama.sh"           # guarded manual Ollama starter for external model drive
+          "stop-ollama"               # extensionless command wrapper
+          "stop-ollama.sh"            # manual Ollama stopper paired with start-ollama.sh
           # Epic-08: invoked by always-on / opt-in LaunchAgents (darwin/maintenance.nix)
           "ollama-pressure-guard.sh"  # 60s guard; Story 08.2-002
           "ollama-lru.sh"             # monthly opt-in prune; Story 08.1-004

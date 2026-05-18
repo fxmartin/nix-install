@@ -34,6 +34,11 @@
   # Uncomment to override — format matches Go duration strings.
   # ollamaKeepAlive = "10m";
 
+  # Ollama server LaunchAgent
+  # Disabled by default so Ollama does not start automatically at login,
+  # especially when models live on an external drive.
+  # enableOllamaServeAgent = true;
+
   # Ollama LRU pruning (Story 08.1-004) — opt-in
   # When true, runs ollama-lru.sh --auto monthly (1st @ 05:00) to remove
   # models idle >threshold days. Profile-expected models are ALWAYS

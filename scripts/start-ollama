@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# ABOUTME: Extensionless wrapper for start-ollama.sh.
+
+set -euo pipefail
+
+exec "$(dirname "$0")/start-ollama.sh" "$@"

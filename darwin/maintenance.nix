@@ -34,6 +34,7 @@
     else if profileName == "ai-assistant" then "30s"
     else "2m"
   );
+  enableOllamaServeAgent = userConfig.enableOllamaServeAgent or false;
 
   # Standard PATH for scheduled LaunchAgents (includes per-user Nix profile)
   agentPath = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
@@ -479,16 +480,12 @@ in {
       };
     };
 
+  } // lib.optionalAttrs enableOllamaServeAgent {
     # =========================================================================
     # OLLAMA SERVER (Network-accessible via Tailscale)
     # =========================================================================
-    # Starts Ollama server at login bound to all interfaces (0.0.0.0)
-    # Allows access via Tailscale from other devices on the mesh network
-    # Security: OLLAMA_ORIGINS restricts API access to Tailscale IPs only (100.x.x.x)
-    #
-    # NOTE: Uses a bash wrapper to kill any existing Ollama process first.
-    # Safety measure in case another Ollama instance is running (e.g., manually started).
-    # The pkill ensures this LaunchAgent always owns the 0.0.0.0 binding.
+    # Optional LaunchAgent for users who want Ollama always running.
+    # Disabled by default because models may live on an external drive.
     ollama-serve = mkScheduledAgent {
       name = "ollama-serve";
       # Schedule unused for KeepAlive services but required by mkScheduledAgent

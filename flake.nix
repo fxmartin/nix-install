@@ -111,61 +111,74 @@
       ];
     };
 
-    # Generate Ollama model pull activation script for a given profile
-    mkOllamaModelScript = profileName: models: let
-      modelCount = builtins.length models;
-      modelNames = builtins.map (m: m.name) models;
-      totalSize = builtins.concatStringsSep ", " (builtins.map (m: "${m.name} (${m.size})") models);
-    in ''
-      # Check if Ollama CLI is available (installed by Homebrew)
-      if [ -x /opt/homebrew/bin/ollama ]; then
-        echo "Checking Ollama models for ${profileName} profile..."
+    # Generate Ollama model pull activation script for a given profile.
+    # Disabled by default so rebuilds do not start Ollama or download models.
+    mkOllamaModelScript = profileName: models:
+      if userConfig.enableOllamaModelPulls or false
+      then let
+        modelCount = builtins.length models;
+        totalSize = builtins.concatStringsSep ", " (builtins.map (m: "${m.name} (${m.size})") models);
+      in ''
+        # Check if Ollama CLI is available (installed by Homebrew)
+        if [ -x /opt/homebrew/bin/ollama ]; then
+          echo "Checking Ollama models for ${profileName} profile..."
+          OLLAMA_STARTED_BY_ACTIVATION=0
 
-        # Check if Ollama daemon is running, start if needed
-        if ! pgrep -q ollama; then
-          echo "Starting Ollama daemon..."
-          /opt/homebrew/bin/ollama serve > /dev/null 2>&1 &
+          # Check if Ollama daemon is running, start if needed
+          if ! pgrep -q ollama; then
+            echo "Starting temporary Ollama daemon for model check..."
+            /opt/homebrew/bin/ollama serve > /dev/null 2>&1 &
+            OLLAMA_STARTED_BY_ACTIVATION=1
 
-          # Wait for daemon to be ready (up to 10 seconds)
-          for _ in {1..10}; do
-            if /opt/homebrew/bin/ollama list > /dev/null 2>&1; then
-              echo "✓ Ollama daemon ready"
-              break
-            fi
-            sleep 1
-          done
-        fi
-
-        # Define models to pull (${toString modelCount} models: ${totalSize})
-        MODELS=(
-          ${builtins.concatStringsSep "\n          " (builtins.map (m: ''"${m.name}"  # ${m.size} - ${m.desc}'') models)}
-        )
-
-        # Pull each model sequentially with progress tracking
-        for model in "''${MODELS[@]}"; do
-          # Check if model already exists (idempotent)
-          if ! /opt/homebrew/bin/ollama list 2>/dev/null | grep -q "$model"; then
-            echo "Pulling Ollama model: $model (this may take several minutes)..."
-
-            # Pull model (requires network and running daemon)
-            if /opt/homebrew/bin/ollama pull "$model" 2>&1; then
-              echo "✓ Successfully pulled Ollama model: $model"
-            else
-              echo "⚠️  Warning: Failed to pull Ollama model $model"
-              echo "   This may be due to network issues or Ollama daemon not starting."
-              echo "   You can manually pull the model later with: ollama pull $model"
-            fi
-          else
-            echo "✓ Ollama model $model already installed"
+            # Wait for daemon to be ready (up to 10 seconds)
+            for _ in {1..10}; do
+              if /opt/homebrew/bin/ollama list > /dev/null 2>&1; then
+                echo "✓ Ollama daemon ready"
+                break
+              fi
+              sleep 1
+            done
           fi
-        done
 
-        echo "✓ Ollama model check complete for ${profileName} profile"
-      else
-        echo "⚠️  Warning: Ollama CLI not found at /opt/homebrew/bin/ollama"
-        echo "   Model pull will be skipped. Install Ollama first."
-      fi
-    '';
+          # Define models to pull (${toString modelCount} models: ${totalSize})
+          MODELS=(
+            ${builtins.concatStringsSep "\n          " (builtins.map (m: ''"${m.name}"  # ${m.size} - ${m.desc}'') models)}
+          )
+
+          # Pull each model sequentially with progress tracking
+          for model in "''${MODELS[@]}"; do
+            # Check if model already exists (idempotent)
+            if ! /opt/homebrew/bin/ollama list 2>/dev/null | grep -q "$model"; then
+              echo "Pulling Ollama model: $model (this may take several minutes)..."
+
+              # Pull model (requires network and running daemon)
+              if /opt/homebrew/bin/ollama pull "$model" 2>&1; then
+                echo "✓ Successfully pulled Ollama model: $model"
+              else
+                echo "⚠️  Warning: Failed to pull Ollama model $model"
+                echo "   This may be due to network issues or Ollama daemon not starting."
+                echo "   You can manually pull the model later with: ollama pull $model"
+              fi
+            else
+              echo "✓ Ollama model $model already installed"
+            fi
+          done
+
+          echo "✓ Ollama model check complete for ${profileName} profile"
+
+          if [ "$OLLAMA_STARTED_BY_ACTIVATION" = "1" ]; then
+            echo "Stopping temporary Ollama daemon..."
+            /usr/bin/pkill -f "ollama serve" 2>/dev/null || true
+            /usr/bin/pkill -x ollama 2>/dev/null || true
+          fi
+        else
+          echo "⚠️  Warning: Ollama CLI not found at /opt/homebrew/bin/ollama"
+          echo "   Model pull will be skipped. Install Ollama first."
+        fi
+      ''
+      else ''
+        echo "Skipping Ollama model check for ${profileName} profile (enableOllamaModelPulls=false)"
+      '';
 
     # Common configuration modules shared by both profiles
     commonModules = [

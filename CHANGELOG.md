@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.14] - 2026-05-21
+## [1.5.15] - 2026-05-21
+
+### Fixed
+
+- Disable rebuild-time Ollama model pulls by default## [1.5.14] - 2026-05-21
 
 ### Fixed
 

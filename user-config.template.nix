@@ -39,6 +39,10 @@
   # especially when models live on an external drive.
   # enableOllamaServeAgent = true;
 
+  # Ollama model downloads during rebuild
+  # Disabled by default so rebuilds do not start Ollama or pull large models.
+  # enableOllamaModelPulls = true;
+
   # Ollama LRU pruning (Story 08.1-004) — opt-in
   # When true, runs ollama-lru.sh --auto monthly (1st @ 05:00) to remove
   # models idle >threshold days. Profile-expected models are ALWAYS

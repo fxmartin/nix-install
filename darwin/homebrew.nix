@@ -152,6 +152,11 @@ in {
 
       # Office 365 (Story 02.9-001)
       "microsoft-office-businesspro" # Office 365 - Word, Excel, PowerPoint, Outlook, OneNote, Teams
+    ]
+    # === Power profile additional apps ===
+    ++ lib.optionals isPowerProfile [
+      # Development Environment
+      "visual-studio-code" # VSCode - Power profile only; enables Claude Code extension workflow
     ];
 
     # Global Homebrew options

@@ -20,8 +20,6 @@
     ./modules/ssh.nix
     # Zed editor configuration (Story 02.2-001)
     ./modules/zed.nix
-    # VSCode configuration (Story 02.2-002) - DISABLED: Electron crash issues
-    # ./modules/vscode.nix
     # Ghostty terminal configuration (Story 02.2-003)
     ./modules/ghostty.nix
     # Claude Code CLI and MCP servers configuration (Story 02.2-006)
@@ -46,6 +44,10 @@
   # Modules excluded from ai-assistant profile
   ++ lib.optionals (profileName != "ai-assistant") [
     ./modules/docker.nix      # Docker container development environment (Feature 04.8)
+  ]
+  # Modules included only in the power profile
+  ++ lib.optionals (profileName == "power") [
+    ./modules/vscode.nix      # VSCode configuration (Story 02.2-002)
   ];
 
   home = {

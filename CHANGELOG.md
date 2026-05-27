@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.20] - 2026-05-27
+## [1.5.21] - 2026-05-27
+
+### Fixed
+
+- Add VS Code to the power profile## [1.5.20] - 2026-05-27
 
 ### Fixed
 

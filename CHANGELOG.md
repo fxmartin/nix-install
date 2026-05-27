@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.23] - 2026-05-27
+## [1.5.24] - 2026-05-27
+
+### Fixed
+
+- Set VS Code default theme to Catppuccin Latte## [1.5.23] - 2026-05-27
 
 ### Fixed
 

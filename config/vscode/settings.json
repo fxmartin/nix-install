@@ -18,7 +18,7 @@
 
   // === Theme and Appearance ===
   // Default theme (overridden by Auto Dark Mode extension for system appearance sync)
-  "workbench.colorTheme": "Catppuccin Mocha",
+  "workbench.colorTheme": "Catppuccin Latte",
   "workbench.iconTheme": "catppuccin-mocha",
 
   // Auto Dark Mode Extension (Issue #28)

@@ -52,6 +52,7 @@
     inherit username;
     homeDirectory = "/Users/${username}";
     stateVersion = "23.11";
+    enableNixpkgsReleaseCheck = false;
 
     # User packages installed via Home Manager
     # Epic-04 will expand with development tools:

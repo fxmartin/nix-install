@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.19] - 2026-05-26
+## [1.5.20] - 2026-05-27
+
+### Fixed
+
+- Fix Home Manager rebuild warnings## [1.5.19] - 2026-05-26
 
 ### Fixed
 

@@ -39,82 +39,82 @@
     '';
 
     # Host-specific SSH configurations
-    matchBlocks = {
+    settings = {
       # GitHub.com configuration
       "github.com" = {
-        hostname = "github.com";
-        user = "git";
-        identityFile = "~/.ssh/id_ed25519";
+        HostName = "github.com";
+        User = "git";
+        IdentityFile = "~/.ssh/id_ed25519";
         # Persist connection for faster subsequent operations
-        controlMaster = "auto";
-        controlPath = "~/.ssh/control-%r@%h:%p";
-        controlPersist = "600";
+        ControlMaster = "auto";
+        ControlPath = "~/.ssh/control-%r@%h:%p";
+        ControlPersist = "600";
       };
 
       # NAS Luxembourg (TerraMaster) - Local network
       "nas-lux" = {
-        hostname = "tnas.local";
-        user = "fxmartin";
-        port = 2222;
-        identityFile = "~/.ssh/id_nas_luxembourg";
+        HostName = "tnas.local";
+        User = "fxmartin";
+        Port = 2222;
+        IdentityFile = "~/.ssh/id_nas_luxembourg";
       };
 
       # NAS Luxembourg via Tailscale (accessible from anywhere)
       "nas.ts" = {
-        hostname = "100.98.9.111";  # Tailscale IP
-        user = "fxmartin";
-        port = 2222;
-        identityFile = "~/.ssh/id_nas_luxembourg";
+        HostName = "100.98.9.111";  # Tailscale IP
+        User = "fxmartin";
+        Port = 2222;
+        IdentityFile = "~/.ssh/id_nas_luxembourg";
       };
 
       # Dev Server via Public IP (Hetzner Helsinki)
       "dev dev-server" = {
-        hostname = "46.62.232.199";  # Hetzner public IP (hel1)
-        user = "fx";
-        identityFile = "~/.ssh/id_devserver";
+        HostName = "46.62.232.199";  # Hetzner public IP (hel1)
+        User = "fx";
+        IdentityFile = "~/.ssh/id_devserver";
       };
 
       # Nyx server via Tailscale
       "nyx" = {
-        hostname = "100.115.38.12";  # Tailscale IP
-        user = "fx";
-        identityFile = "~/.ssh/id_nyx";
+        HostName = "100.115.38.12";  # Tailscale IP
+        User = "fx";
+        IdentityFile = "~/.ssh/id_nyx";
       };
 
       # Nyx server root access
       "nyx-root" = {
-        hostname = "100.115.38.12";
-        user = "root";
-        identityFile = "~/.ssh/id_nyx";
+        HostName = "100.115.38.12";
+        User = "root";
+        IdentityFile = "~/.ssh/id_nyx";
       };
 
       # Nyx DR server via Tailscale
       "nyx-dr" = {
-        hostname = "100.112.184.36";
-        user = "fx";
-        identityFile = "~/.ssh/id_nyx-dr";
+        HostName = "100.112.184.36";
+        User = "fx";
+        IdentityFile = "~/.ssh/id_nyx-dr";
       };
 
       # Nyx DR root access
       "nyx-dr-root" = {
-        hostname = "100.112.184.36";
-        user = "root";
-        identityFile = "~/.ssh/id_nyx-dr";
+        HostName = "100.112.184.36";
+        User = "root";
+        IdentityFile = "~/.ssh/id_nyx-dr";
       };
 
       # Generic SSH settings for all hosts
       "*" = {
         # Add keys to SSH agent automatically (moved from deprecated top-level option)
-        addKeysToAgent = "yes";
+        AddKeysToAgent = "yes";
         # Forward SSH agent (disabled for security)
-        forwardAgent = false;
+        ForwardAgent = false;
         # Server alive settings (keep connection alive)
-        serverAliveInterval = 60;
-        serverAliveCountMax = 3;
+        ServerAliveInterval = 60;
+        ServerAliveCountMax = 3;
         # Security settings - use only specified identity files
-        identitiesOnly = true;
+        IdentitiesOnly = true;
         # Default identity file
-        identityFile = "~/.ssh/id_ed25519";
+        IdentityFile = "~/.ssh/id_ed25519";
       };
     };
   };

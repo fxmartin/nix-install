@@ -63,6 +63,9 @@ in {
       # Note: yt-dlp broken in nixpkgs (curl-impersonate AppleIDN check fails on macOS 15.3)
       "yt-dlp"          # YouTube/video downloader (active fork of youtube-dl)
 
+      # Apple Intelligence CLI
+      "apfel"           # Apple Intelligence CLI with OpenAI-compatible API server
+
     ];
 
     # GUI Applications (Casks)

@@ -46,6 +46,7 @@ PAYLOAD=$(echo "$JSON" | jq -r '
   [
     "CPU_E="  + ((.cpu.e_cluster.active_percent // 0) | tostring),
     "CPU_P="  + ((.cpu.p_cluster.active_percent // 0) | tostring),
+    "CPU_TOTAL=" + ((.cpu.usage_percent // 0) | tostring),
     "GPU="    + ((.gpu.usage_percent // 0) | tostring),
     "GPU_MHZ=" + ((.gpu.freq_mhz // 0) | tostring),
     "ANE_W="  + ((.power.ane_watts // 0) | tostring),
@@ -60,7 +61,6 @@ PAYLOAD=$(echo "$JSON" | jq -r '
     "CPU_USER=" + ((.cpu.user_percent // 0) | tostring),
     "CPU_SYS=" + ((.cpu.system_percent // 0) | tostring),
     "CPU_IDLE=" + ((.cpu.idle_percent // 0) | tostring),
-    "CPU_CORE_PCTS=" + ([.cpu.cores[]? | (.active_percent // 0)] | map(tostring) | join(",")),
     "LOAD_AVG=" + (
       if (.system.load_average // []) | length >= 3
       then (.system.load_average[0:3] | map(tostring) | join("/"))

@@ -33,88 +33,40 @@ default=(
 )
 sketchybar --default "${default[@]}"
 
-##### Adding Apple icon and dropdown menu #####
-
-sketchybar --add item apple left \
-  --set apple icon= \
-  display=1 \
-  icon.font="Hack Nerd Font:Bold:17.0" \
-  label.drawing=off \
-  padding_right=10 \
-  click_script="sketchybar --set apple popup.drawing=toggle"
-
-# Adding link to Settings
-sketchybar --add item apple.preferences popup.apple \
-  --set apple.preferences icon=⚙️ \
-  label="Preferences" \
-  click_script="open -a 'System Settings' ; sketchybar --set apple popup.drawing=off"
-
-# Adding link to Finder
-sketchybar --add item apple.start popup.apple \
-  --set apple.start icon=▶️ \
-  label="Finder" \
-  click_script="open -a Finder ; sketchybar --set apple popup.drawing=off"
-
-# Adding link to Shutdown
-sketchybar --add item apple.shutdown popup.apple \
-  --set apple.shutdown icon=⏻ \
-  label="Shutdown" \
-  click_script="osascript -e 'tell app \"System Events\" to shut down' ; sketchybar --set apple popup.drawing=off"
-
-# Styling the pop-up window
-sketchybar --set apple \
-  popup.background.color=0xff1e1e2e \
-  popup.background.border_width=1 \
-  popup.background.border_color=0xffffffff \
-  popup.background.corner_radius=12 \
-  popup.background.height=32 \
-  popup.background.shadow.drawing=on \
-  popup.y_offset=5
-
-##### Custom events #####
-# Centralized /metrics aggregator — Story 08.3-001.
-# All CPU/GPU/memory/thermal/power items subscribe to this event and update
-# from parsed env vars rather than spawning their own silicon probes.
-sketchybar --add event system_metrics_update
-
 ##### Adding AeroSpace Workspace Indicators #####
 # AeroSpace manages its own workspaces on top of a single macOS Space.
 # We subscribe to the custom `aerospace_workspace_change` event, triggered by
 # exec-on-workspace-change in aerospace.toml, and highlight the active one.
 
 sketchybar --add event aerospace_workspace_change
-sketchybar --add event system_metrics_update
 
-WORKSPACES=("0:Work" "1:Term" "2:Code" "3:Preview" "4:AI" "5:Web" "6:Mail" "7:Office" "8:Chat" "9:Misc")
-for workspace_entry in "${WORKSPACES[@]}"
+for workspace_entry in "0:Work" "1:Term" "2:Code" "3:Preview" "4:AI" "5:Web" "6:Mail" "7:Office" "8:Chat" "9:Misc"
 do
   sid="${workspace_entry%%:*}"
   label="${workspace_entry#*:}"
-  workspace=(
-    icon="$sid"
-    icon.padding_left=7
-    icon.padding_right=3
-    label="$label"
-    label.padding_left=0
-    label.padding_right=7
-    background.corner_radius=5
-    background.height=25
-    script="$PLUGIN_DIR/aerospace_workspace.sh"
-    click_script="aerospace workspace $sid"
-  )
   sketchybar --add item workspace."$sid" left \
-             --set workspace."$sid" "${workspace[@]}" \
+             --set workspace."$sid" \
+               drawing=on \
+               icon="$sid" \
+               icon.padding_left=7 \
+               icon.padding_right=3 \
+               label="$label" \
+               label.drawing=on \
+               label.padding_left=0 \
+               label.padding_right=7 \
+               background.drawing=on \
+               background.color=0x40585b70 \
+               background.corner_radius=5 \
+               background.height=25 \
+               script="$PLUGIN_DIR/aerospace_workspace.sh" \
+               click_script="aerospace workspace $sid" \
              --subscribe workspace."$sid" aerospace_workspace_change
 done
 
-##### Adding Left Items #####
-# We add some regular items to the left side of the bar, where
-# only the properties deviating from the current defaults need to be set
+##### Adding Active Window #####
 
-sketchybar --add item chevron left \
-           --set chevron display=1 icon= icon.font="Hack Nerd Font:Bold:13.0" label.drawing=off \
-           --add item front_app left \
-           --set front_app display=1 icon.drawing=off script="$PLUGIN_DIR/front_app.sh" \
+sketchybar --add item front_app left \
+           --set front_app icon.drawing=off script="$PLUGIN_DIR/front_app.sh" \
            --subscribe front_app front_app_switched
 
 ##### Adding Right Items #####
@@ -157,64 +109,7 @@ sketchybar --add item clock right \
              popup.background.border_color=0xff585b70 \
              popup.background.corner_radius=12 \
              popup.background.height=32 \
-             popup.y_offset=5 \
-           --add item temp right \
-           --set temp icon=󰔏 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/temp.sh" \
-           --subscribe temp system_metrics_update \
-           --add item power right \
-           --set power icon= icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/power.sh" \
-           --subscribe power system_metrics_update \
-           --add item memory.short right \
-           --set memory.short display=1 icon=MEM icon.font="SF Pro:Bold:10.0" \
-             label.font="SF Pro:Regular:12.0" \
-             script="$PLUGIN_DIR/memory_ext.sh" \
-           --subscribe memory.short system_metrics_update \
-           --add item memory.ext right \
-           --set memory.ext display=2 icon=MEM icon.font="SF Pro:Bold:10.0" \
-             label.font="SF Pro:Regular:12.0" \
-             script="$PLUGIN_DIR/memory_ext.sh" \
-           --subscribe memory.ext system_metrics_update \
-           --add item disk right \
-           --set disk update_freq=60 icon=󰋊 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 label.drawing=off script="$PLUGIN_DIR/disk.sh" \
-           --add item gpu right \
-           --set gpu display=2 icon=󰏔 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 script="$PLUGIN_DIR/gpu.sh" \
-           --subscribe gpu system_metrics_update \
-           --add item ane right \
-           --set ane display=2 icon="AI" icon.font="SF Pro:Bold:11.0" icon.color=0xff585b70 script="$PLUGIN_DIR/ane.sh" \
-           --subscribe ane system_metrics_update \
-           --add item cpu.grid right \
-           --set cpu.grid icon=CPU icon.font="SF Pro:Bold:11.0" \
-             label.font="Hack Nerd Font:Regular:13.0" \
-             label.drawing=off \
-             script="$PLUGIN_DIR/cpu_grid.sh" \
-             click_script="$PLUGIN_DIR/cpu_grid.sh" \
-             popup.background.color=0xff1e1e2e \
-             popup.background.border_width=1 \
-             popup.background.border_color=0xff585b70 \
-             popup.background.corner_radius=12 \
-             popup.background.height=32 \
-             popup.y_offset=5 \
-           --subscribe cpu.grid system_metrics_update \
-           --add item network right \
-           --set network update_freq=5 icon=󰛳 icon.font="Hack Nerd Font:Bold:15.0" icon.color=0xffa6adc8 \
-             script="$PLUGIN_DIR/network.sh" \
-             click_script="$PLUGIN_DIR/network.sh" \
-             popup.background.color=0xff1e1e2e \
-             popup.background.border_width=1 \
-             popup.background.border_color=0xff585b70 \
-             popup.background.corner_radius=12 \
-             popup.background.height=32 \
              popup.y_offset=5
-
-##### System metrics aggregator (Story 08.3-001 + 08.3-007 adaptive) #####
-# Invisible item that polls /metrics every update_freq (2s on AC, 10s on
-# battery) and fans values out via system_metrics_update. Subscribes to
-# power_source_change so it re-tunes its own cadence on plug/unplug.
-sketchybar --add item system right \
-           --set system update_freq=2 \
-             drawing=off \
-             script="$PLUGIN_DIR/system.sh" \
-           --subscribe system power_source_change
 
 ##### Force all scripts to run the first time (never do this in a script) #####
 sketchybar --update

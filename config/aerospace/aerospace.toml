@@ -12,7 +12,7 @@
 #   6 Mail     — Outlook, Mail
 #   7 Office   — Microsoft Teams, Word, Excel, PowerPoint
 #   8 Chat     — Telegram, WhatsApp
-#   9 Misc     — System Settings, 1Password, Calculator, Calendar, Docker, NordVPN
+#   9 Misc     — System Settings, 1Password, Calculator, Calendar, Music, Docker, NordVPN
 
 # Start AeroSpace at login (replaces the need for macOS Login Items entry)
 start-at-login = true
@@ -260,6 +260,10 @@ run = ['layout floating', 'move-node-to-workspace 9']
 
 [[on-window-detected]]
 if.app-id = 'com.apple.iCal'
+run = 'move-node-to-workspace 9'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Music'
 run = 'move-node-to-workspace 9'
 
 [[on-window-detected]]

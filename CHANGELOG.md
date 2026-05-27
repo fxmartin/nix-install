@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.22] - 2026-05-27
+## [1.5.23] - 2026-05-27
+
+### Fixed
+
+- Route Music to the Misc workspace## [1.5.22] - 2026-05-27
 
 ### Fixed
 

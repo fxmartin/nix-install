@@ -92,15 +92,21 @@
 
   # Stylix Target Configuration (Epic-05)
   # Configure which applications Stylix should theme
-  stylix.targets = {
-    # System monitoring - Stylix auto-themes btop with Catppuccin colors
-    btop.enable = true;
+  stylix = {
+    # Darwin-level release checks are disabled in darwin/stylix.nix; this
+    # suppresses the matching Home Manager profile warning.
+    enableReleaseChecks = false;
 
-    # bat - Stylix can theme bat but we use custom Catppuccin theme
-    bat.enable = false;  # Using catppuccin/bat theme instead
+    targets = {
+      # System monitoring - Stylix auto-themes btop with Catppuccin colors
+      btop.enable = true;
 
-    # Disable targets we don't use
-    vim.enable = false;
-    firefox.enable = false;
+      # bat - Stylix can theme bat but we use custom Catppuccin theme
+      bat.enable = false;  # Using catppuccin/bat theme instead
+
+      # Disable targets we don't use
+      vim.enable = false;
+      firefox.enable = false;
+    };
   };
 }

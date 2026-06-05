@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.30] - 2026-06-05
+## [1.5.31] - 2026-06-05
+
+### Fixed
+
+- Fix GTK4 theme conflict## [1.5.30] - 2026-06-05
 
 ### Fixed
 

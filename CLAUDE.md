@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repository implements an automated, declarative MacBook configuration system using Nix, nix-darwin, and Home Manager. The goal is to transform a fresh macOS install into a fully configured development environment in <30 minutes with zero manual intervention (except license activations).
 
-**Status**: ✅ **v1.5.33 Released** - All 7 epics complete, ~78 hours development effort
+**Status**: ✅ **v1.5.34 Released** - All 7 epics complete, ~78 hours development effort
 
 **Target User**: FX manages 4 MacBooks (1x MacBook Pro M3 Max, 1x MacBook Pro M1 2021, 2x MacBook Air) with periodic reinstalls. Split usage between Office 365 work and weekend Python development.
 
@@ -138,9 +138,6 @@ nix-install/
 │   ├── podman.nix            # Container development
 │   ├── privacy-filter.nix    # uv venv + openmed[mlx,service] + profile-aware HF weight pre-pull (Epic-09)
 │   └── claude-code.nix       # Claude Code CLI + MCP servers
-├── config/sketchybar/        # Status bar (Epic-08 telemetry)
-│   ├── sketchybarrc          # Bar layout, subscribes items to system_metrics_update
-│   └── plugins/              # system.sh (aggregator), cpu_cluster, gpu, ane, power, temp, memory, vitals
 ├── scripts/                  # Build and maintenance scripts
 │   ├── build-bootstrap.sh    # Build bootstrap-dist.sh from modules
 │   ├── health-api.py         # /metrics endpoint (macmon on background thread, top-5 processes)
@@ -323,7 +320,7 @@ Labels are managed via `scripts/setup-github-labels.sh`. Key categories:
 | Date | Milestone |
 |------|-----------|
 | 2026-05-07 | Epic-09 Foundation in flight — 7/8 stories on branch `claude/add-openai-privacy-filter-EOYR7` (#303); MLX-backed Privacy Filter daemon on `127.0.0.1:7790`, `redact` / `redact-clip` shell helpers |
-| 2026-04-22 | Epic-08 SketchyBar Deep Telemetry shipped (Sprint 13, 7/8 stories; 08.3-008 validation pending) |
+| 2026-04-22 | Epic-08 deep telemetry shipped (Sprint 13, 7/8 stories; 08.3-008 validation pending) |
 | 2026-04-21 | Epic-08 Disk Optimization + Memory Mitigation + Observability Polish shipped (Sprints 11, 12, 14) |
 | 2025-12-07 | v1.0.0 Released - MacBook Pro M3 Max running Power profile |
 | 2025-12-07 | Epic-01 Complete - Modular Bootstrap Architecture |

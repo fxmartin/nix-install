@@ -36,10 +36,6 @@
     ./modules/ripgrep.nix  # Grep replacement with smart defaults
     ./modules/fd.nix       # Find replacement with ignore patterns
     ./modules/httpie.nix   # HTTP client with developer defaults
-    # SketchyBar status bar — needed in all profiles since macOS menu bar is auto-hidden
-    ./modules/sketchybar.nix
-    # AeroSpace tiling window manager — universal 7-workspace layout
-    ./modules/aerospace.nix
   ]
   # Modules excluded from ai-assistant profile
   ++ lib.optionals (profileName != "ai-assistant") [

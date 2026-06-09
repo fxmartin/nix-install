@@ -16,9 +16,7 @@ in {
     # Homebrew taps (repositories)
     # Epic-02 will add: homebrew/cask-fonts, etc.
     taps = [
-      "felixkratz/formulae" # SketchyBar - highly customizable macOS status bar replacement
       "manaflow-ai/cmux" # cmux terminal - Ghostty-based terminal with vertical tabs for AI coding agents
-      "nikitabobko/tap" # AeroSpace - i3-like tiling window manager for macOS
       "koekeishiya/formulae" # skhd - simple hotkey daemon for macOS
     ];
 
@@ -52,9 +50,6 @@ in {
       # System Monitoring (Apple Silicon)
       # Note: Not available in nixpkgs, Homebrew formula only
       "mactop"          # Real-time Apple Silicon CPU/GPU/ANE monitor (TUI)
-
-      # Status Bar
-      "felixkratz/formulae/sketchybar" # SketchyBar - Highly customizable macOS status bar replacement
 
       # Hotkey Daemon
       "koekeishiya/formulae/skhd" # skhd - Simple hotkey daemon for macOS (https://github.com/koekeishiya/skhd)
@@ -97,13 +92,11 @@ in {
       "google-chrome"    # Google Chrome - Web browser (auto-update managed by Homebrew)
 
       # Productivity & Utilities
+      "raycast" # Raycast - Keyboard-first launcher and productivity tool (Story 02.4-001)
       "1password" # 1Password - Password manager and secure vault (Story 02.4-002)
       "obsidian" # Obsidian - Markdown-based knowledge base and note-taking app
       "plaud"    # Plaud - AI voice recorder and transcription companion
       "spokenly" # Spokenly - Dictation and transcription app with AI-powered editing
-
-      # Window Management
-      "nikitabobko/tap/aerospace" # AeroSpace - i3-like tiling window manager for macOS
 
       # System Monitoring
       "istat-menus" # iStat Menus - Professional menubar system monitoring (licensed app)
@@ -117,8 +110,8 @@ in {
       "little-snitch" # Little Snitch - Application-level network firewall and monitor
 
       # Fonts
-      "font-sf-pro"         # SF Pro - Apple's system font for native macOS look (used by SketchyBar)
-      "font-hack-nerd-font" # Hack Nerd Font - Patched font for SketchyBar and dev tools
+      "font-sf-pro"         # SF Pro - Apple's system font for native macOS look
+      "font-hack-nerd-font" # Hack Nerd Font - Patched font for dev tools
     ]
     # === Standard/Power profile additional apps ===
     ++ lib.optionals (!isAiAssistant) [

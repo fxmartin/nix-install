@@ -580,7 +580,7 @@ def _top_cpu_processes(n: int = 5) -> list[dict]:
 
     Uses BSD ps (macOS) with whitespace-stripped columns, sorts numerically on
     pcpu desc. Skips the health-api server itself to avoid self-referential
-    noise in the SketchyBar vitals popup. Truncates long process names to 40
+    noise in compact vitals displays. Truncates long process names to 40
     chars for compact rendering.
     """
     # Ask for n+1 rows to have headroom when filtering out our own process.
@@ -745,7 +745,7 @@ def _probe_system_metrics() -> dict | None:
     if status_flags:
         response["status_flags"] = status_flags
 
-    # Top CPU processes — consumed by SketchyBar vitals popup (Story 08.3-005)
+    # Top CPU processes — consumed by vitals dashboards and custom sensors
     # to avoid forking `ps` inside the click handler.
     response["processes"] = {"top_cpu": _top_cpu_processes(5)}
 
@@ -982,7 +982,7 @@ class HealthHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(payload)
         except (BrokenPipeError, ConnectionResetError):
-            # The client (typically SketchyBar's system.sh with --max-time)
+            # The client timeout
             # disconnected before we finished writing. Noise, not an error —
             # the cached response is already populated for the next request.
             pass

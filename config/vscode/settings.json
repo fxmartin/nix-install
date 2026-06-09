@@ -9,18 +9,12 @@
   //   - Changes in VSCode → Instantly appear in repo (git will show them)
   //   - Changes in repo → Instantly apply to VSCode
   //   - Version controlled, can commit/revert changes
-
   // === CRITICAL: Disable Auto-Update ===
   // Updates ONLY via 'rebuild' or 'update' commands
   "update.mode": "none",
   "extensions.autoUpdate": false,
   "extensions.autoCheckUpdates": false,
-
-  // === Theme and Appearance ===
-  // Default theme (overridden by Auto Dark Mode extension for system appearance sync)
-  "workbench.colorTheme": "Catppuccin Latte",
   "workbench.iconTheme": "catppuccin-mocha",
-
   // Auto Dark Mode Extension (Issue #28)
   // Automatically switches theme based on macOS system appearance (like Zed)
   // REQUIRED EXTENSIONS:
@@ -28,25 +22,25 @@
   //   2. Auto Dark Mode (monitors system appearance and switches themes)
   "autoDarkMode.darkTheme": "Catppuccin Mocha",
   "autoDarkMode.lightTheme": "Catppuccin Latte",
-
   // === Font Configuration ===
   // JetBrains Mono Nerd Font with ligatures (matches Ghostty and Zed)
   "editor.fontFamily": "JetBrains Mono, Menlo, Monaco, 'Courier New', monospace",
   "editor.fontSize": 14,
   "editor.fontLigatures": true,
   "editor.lineHeight": 1.6,
-
   // Terminal font (matches editor)
   "terminal.integrated.fontFamily": "JetBrains Mono",
   "terminal.integrated.fontSize": 14,
-
   // === Editor Behavior ===
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.detectIndentation": true,
   "editor.wordWrap": "on",
   "editor.minimap.enabled": true,
-  "editor.rulers": [80, 120],
+  "editor.rulers": [
+    80,
+    120
+  ],
   "editor.renderWhitespace": "selection",
   "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": "active",
@@ -54,35 +48,29 @@
   "editor.formatOnPaste": true,
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
-
   // === Window and Startup ===
   "workbench.startupEditor": "none",
   "window.titleBarStyle": "custom",
   "window.restoreWindows": "none",
-  "window.autoDetectColorScheme": true,  // Required for Auto Dark Mode extension to work
-
+  "window.autoDetectColorScheme": true, // Required for Auto Dark Mode extension to work
   // === Privacy and Telemetry ===
   "telemetry.telemetryLevel": "off",
   "redhat.telemetry.enabled": false,
-
   // === Git Integration ===
   "git.autofetch": false,
   "git.confirmSync": false,
   "git.enableSmartCommit": true,
   "git.decorations.enabled": true,
   "scm.defaultViewMode": "tree",
-
   // === Terminal Integration ===
   "terminal.integrated.defaultProfile.osx": "zsh",
   "terminal.integrated.shell.osx": "/bin/zsh",
-
   // === File Associations ===
   "files.associations": {
     "*.nix": "nix",
     "flake.lock": "json",
     "*.md": "markdown"
   },
-
   // === Language-Specific Settings ===
   "[nix]": {
     "editor.tabSize": 2,
@@ -107,12 +95,10 @@
   "[jsonc]": {
     "editor.defaultFormatter": "vscode.json-language-features"
   },
-
   // === Explorer Settings ===
   "explorer.confirmDelete": false,
   "explorer.confirmDragAndDrop": false,
   "explorer.sortOrder": "type",
-
   // === Search Settings ===
   "search.exclude": {
     "**/.git": true,
@@ -120,7 +106,7 @@
     "**/result": true,
     "**/.direnv": true
   },
-
+  "workbench.colorTheme": "Catppuccin Latte",
   // === Extension Recommendations ===
   // REQUIRED (install first, in order):
   //   1. Catppuccin Theme (Catppuccin for VSCode) - Provides Mocha/Latte themes

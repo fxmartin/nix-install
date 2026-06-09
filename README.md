@@ -1,6 +1,6 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.0% Complete (144/147 stories) | **Version**: 1.5.33 | **2 MacBooks deployed, M4 Air pending**
+> **Status**: 98.0% Complete (144/147 stories) | **Version**: 1.5.34 | **2 MacBooks deployed, M4 Air pending**
 
 **Two deployed MacBooks. One config. Zero drift.**
 
@@ -189,9 +189,7 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 - Node.js (for npx/npm tooling)
 - Language servers (pyright, typescript, bash, yaml, etc.)
 
-**Window Management & Status Bar**:
-- AeroSpace (i3-like tiling window manager)
-- SketchyBar (custom status bar with deep Apple Silicon telemetry — Epic-08)
+**Hotkeys**:
 - skhd (simple hotkey daemon)
 
 **Browsers**:
@@ -420,8 +418,6 @@ nix-install/
 │   ├── podman.nix            # Container development
 │   ├── privacy-filter.nix    # uv venv + openmed[mlx,service] + HF weight pre-pull (Epic-09)
 │   └── claude-code.nix       # Claude Code CLI + MCP servers
-├── config/sketchybar/        # Status bar (Epic-08)
-│   └── plugins/              # system.sh, cpu_cluster, gpu, ane, power, temp, memory, vitals
 ├── scripts/                  # Maintenance & monitoring
 │   ├── health-api.py         # /metrics endpoint (macmon background thread)
 │   ├── health-check.sh       # System health validation
@@ -464,7 +460,7 @@ nix-install/
 
 **Pending**: MacBook Air M4 migration to the Standard profile.
 
-**🎉 Milestone (2026-04-22)**: Epic-08 — Resource Optimization & Deep Telemetry, 22/23 stories shipped in ~18 hours across 24 PRs. SketchyBar now exposes per-cluster E/P CPU, GPU + ANE, power (W), silicon temps (°C) and a full mactop-replacement vitals popup — all driven by a single `/metrics` poll per tick.
+**Milestone (2026-04-22)**: Epic-08 — Resource Optimization & Deep Telemetry, 22/23 stories shipped in ~18 hours across 24 PRs. The `/metrics` service exposes per-cluster E/P CPU, GPU + ANE, power (W), silicon temps (°C), and top-process vitals for local dashboards and sensors.
 
 ### Project Statistics
 

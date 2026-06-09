@@ -461,7 +461,6 @@ PY
     # ============================================================================
     # Automatically hide and show the menu bar: Always
     # Options: 0 = Never, 1 = In Full Screen Only, 2 = Always
-    # Pairs well with SketchyBar as a replacement status bar
     # Both keys must be set: NSGlobalDomain._HIHideMenuBar (set via system.defaults)
     # and com.apple.controlcenter.AutoHideMenuBarOption (the actual ControlCenter key)
     /usr/bin/sudo -u ${userConfig.username} /usr/bin/osascript -e 'tell application "System Events" to tell dock preferences to set autohide menu bar to true'
@@ -484,15 +483,6 @@ PY
     /usr/bin/defaults write com.apple.Safari ExcludePrivateWindowWhenRestoringSessionAtLaunch -bool false
 
     echo "✅ Safari configured (tabs, restore last session)"
-
-    # ============================================================================
-    # SKETCHYBAR SERVICE
-    # ============================================================================
-    # Start SketchyBar as a brew service (runs as LaunchAgent for current user)
-    if /opt/homebrew/bin/brew list sketchybar &>/dev/null; then
-      /usr/bin/sudo -u ${userConfig.username} /opt/homebrew/bin/brew services start sketchybar 2>/dev/null || true
-      echo "✅ SketchyBar service started"
-    fi
 
     # ============================================================================
     # SKHD SERVICE

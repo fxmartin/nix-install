@@ -326,38 +326,10 @@ if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.icloud-sync"; then
 fi
 
 # ---------------------------------------------------------------------------
-# Check 11: Window management & status bar
+# Check 11: Hotkey daemon
 # ---------------------------------------------------------------------------
-echo "Checking window management..."
+echo "Checking hotkey daemon..."
 
-# SketchyBar (managed by Homebrew service)
-if pgrep -x sketchybar > /dev/null 2>&1; then
-    SKETCHYBAR_ITEMS=$(sketchybar --query bar 2>/dev/null | python3 -c "
-import json, sys
-try:
-    d = json.load(sys.stdin)
-    print(len(d.get('items', [])))
-except:
-    print('?')
-" 2>/dev/null || echo "?")
-    print_status "ok" "SketchyBar running (${SKETCHYBAR_ITEMS} items)"
-else
-    print_status "warn" "SketchyBar not running"
-    echo "    → Run: brew services start sketchybar"
-fi
-
-# AeroSpace window manager
-if command -v aerospace &> /dev/null; then
-    if pgrep -x AeroSpace > /dev/null 2>&1; then
-        WORKSPACE=$(aerospace list-workspaces --focused 2>/dev/null || echo "?")
-        print_status "ok" "AeroSpace running (workspace: ${WORKSPACE})"
-    else
-        print_status "warn" "AeroSpace not running"
-        echo "    → Launch AeroSpace from Applications or login items"
-    fi
-fi
-
-# skhd hotkey daemon
 if command -v skhd &> /dev/null; then
     if pgrep -x skhd > /dev/null 2>&1; then
         print_status "ok" "skhd hotkey daemon running"

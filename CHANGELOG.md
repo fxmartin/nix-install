@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.33] - 2026-06-09
+## [1.5.34] - 2026-06-09
+
+### Fixed
+
+- Remove AeroSpace and SketchyBar config; add Raycast cask## [1.5.33] - 2026-06-09
 
 ### Fixed
 

@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.38] - 2026-06-11
+## [1.5.39] - 2026-06-11
+
+### Fixed
+
+- sync claude-code-config submodule (live pilot resequenced to epic-09 capstone, story 9.3-001)## [1.5.38] - 2026-06-11
 
 ### Fixed
 

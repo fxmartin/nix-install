@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.37] - 2026-06-11
+## [1.5.38] - 2026-06-11
+
+### Fixed
+
+- sync claude-code-config submodule (onboarding contributing docs, epic-02/05 DoD boxes closed)## [1.5.37] - 2026-06-11
 
 ### Fixed
 

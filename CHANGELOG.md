@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.35] - 2026-06-11
+## [1.5.36] - 2026-06-11
+
+### Fixed
+
+- machine-local Claude Code model via ANTHROPIC_MODEL; claude-code-config submodule fixes (submodule init in installer/CI, template model ids, tests merge)## [1.5.35] - 2026-06-11
 
 ### Fixed
 

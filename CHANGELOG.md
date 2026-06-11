@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.36] - 2026-06-11
+## [1.5.37] - 2026-06-11
+
+### Fixed
+
+- sync claude-code-config submodule (v1.13.2 release, deploy-key release push for main PR ruleset)## [1.5.36] - 2026-06-11
 
 ### Fixed
 

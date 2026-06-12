@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.40] - 2026-06-12
+## [1.5.41] - 2026-06-12
+
+### Fixed
+
+- sync claude-code-config submodule (epic-07 complete: sdlc controller CLI, typed agent contracts, orchestration port, codex mirror sync; v1.17.1)## [1.5.40] - 2026-06-12
 
 ### Fixed
 

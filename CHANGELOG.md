@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.39] - 2026-06-11
+## [1.5.40] - 2026-06-12
+
+### Fixed
+
+- disable menu bar auto-hide (set to Never via osascript on macOS Tahoe)## [1.5.39] - 2026-06-11
 
 ### Fixed
 

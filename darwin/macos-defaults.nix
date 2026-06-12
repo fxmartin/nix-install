@@ -327,8 +327,6 @@ PY
       # "Light" = Clean light appearance for icons and widgets
       AppleIconAppearanceTheme = "Light";
 
-      # Menu bar auto-hide is managed via osascript in the activation script below
-      # (defaults write alone doesn't apply immediately on macOS 26 Tahoe)
     };
   };
 
@@ -457,14 +455,13 @@ PY
     # TIME MACHINE CONFIGURATION
     # ============================================================================
     # ============================================================================
-    # MENU BAR AUTO-HIDE
+    # MENU BAR VISIBILITY
     # ============================================================================
-    # Automatically hide and show the menu bar: Always
+    # Automatically hide and show the menu bar: Never
     # Options: 0 = Never, 1 = In Full Screen Only, 2 = Always
-    # Both keys must be set: NSGlobalDomain._HIHideMenuBar (set via system.defaults)
-    # and com.apple.controlcenter.AutoHideMenuBarOption (the actual ControlCenter key)
-    /usr/bin/sudo -u ${userConfig.username} /usr/bin/osascript -e 'tell application "System Events" to tell dock preferences to set autohide menu bar to true'
-    echo "✅ Menu bar auto-hide set to Always"
+    # Use osascript because defaults writes alone do not apply immediately on macOS 26 Tahoe.
+    /usr/bin/sudo -u ${userConfig.username} /usr/bin/osascript -e 'tell application "System Events" to tell dock preferences to set autohide menu bar to false'
+    echo "✅ Menu bar auto-hide disabled"
 
     # ============================================================================
     # SAFARI CONFIGURATION

@@ -45,11 +45,11 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 | Epic ID | Epic Name | Business Value | Story Count | Total Points | Priority |
 |---------|-----------|----------------|-------------|--------------|----------|
 | Epic-01 | Bootstrap & Installation System | Automated one-command installation | 19 | 113 | Must Have |
-| Epic-02 | Application Installation & Configuration | Declarative app management across profiles | 23 | 118 | Must Have |
+| Epic-02 | Application Installation & Configuration | Declarative app management across profiles | 25 | 118 | Must Have |
 | Epic-03 | System Configuration & macOS Preferences | Automated macOS system preferences | 14 | 76 | Must Have |
-| Epic-04 | Development Environment & Shell | Complete dev tooling setup | 18 | 97 | Must Have |
-| Epic-05 | Theming & Visual Consistency | System-wide consistent theming | 8 | 42 | Should Have |
-| Epic-06 | Maintenance & Monitoring | Self-maintaining system with monitoring | 10 | 55 | Must Have |
+| Epic-04 | Development Environment & Shell | Complete dev tooling setup | 19 | 105 | Must Have |
+| Epic-05 | Theming & Visual Consistency | System-wide consistent theming | 7 | 36 | Should Have |
+| Epic-06 | Maintenance & Monitoring | Self-maintaining system with monitoring | 18 | 97 | Must Have |
 | Epic-07 | Documentation & User Experience | Complete user documentation | 8 | 34 | Must Have |
 | Epic-08 | Resource Optimization & Deep Telemetry | Post-v1.0 disk/memory leaks closed and mactop-grade bar telemetry | 23 | 118 | Should Have |
 | NFR | Non-Functional Requirements | Performance, security, reliability | 15 | 79 | Must Have |
@@ -74,17 +74,17 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 **Time Constraints**: 6-8 week delivery timeline with VM testing before physical hardware
 
 ### MVP Scope
-**Total MVP Stories**: 115
-**Total MVP Points**: 614
+**Total MVP Stories**: 125
+**Total MVP Points**: 658
 **Estimated Duration**: 6-8 weeks (implementation) + 2 weeks (migrations)
 
 ### MVP Epic Breakdown _(Epic-08 is post-v1.0 enhancement, not MVP)_
 | Epic | MVP Stories | MVP Points | Completed Stories | Completed Points | % Complete |
 |------|-------------|------------|-------------------|------------------|------------|
-| Epic-01 | 19/19 | 113/113 | 18 | 107 | 94.7% |
+| Epic-01 | 19/19 | 113/113 | 19 | 113 | 100% ✅ |
 | Epic-02 | 25/25 | 118/118 | 25 | 118 | 100% ✅ |
 | Epic-03 | 14/14 | 76/76 | 14 | 76 | 100% ✅ |
-| Epic-04 | 18/18 | 97/97 | 18 | 97 | 100% ✅ |
+| Epic-04 | 19/19 | 105/105 | 19 | 105 | 100% ✅ |
 | Epic-05 | 7/7 | 36/36 | 7 | 36 | 100% ✅ |
 | Epic-06 | 18/18 | 97/97 | 18 | 97 | 100% ✅ |
 | Epic-07 | 8/8 | 34/34 | 8 | 34 | 100% ✅ |
@@ -101,12 +101,12 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 - **2026-04-22**: Epic-08 22/23 shipped (all P0 + all P2 + 7/8 P1). Only 08.3-008 (mactop retirement validation) outstanding.
 
 ## Project Metrics
-- **Total Stories**: 147 (124 MVP + 23 Epic-08)
-- **Total Story Points**: 768 (650 MVP + 118 Epic-08)
+- **Total Stories**: 148 (125 MVP + 23 Epic-08)
+- **Total Story Points**: 776 (658 MVP + 118 Epic-08)
 - **Average Story Size**: 5.2 points
-- **Completed Stories**: 144 (98.0%)
-- **Completed Points**: 758 (98.7%)
-- **MVP Completion**: 98.4% by stories, 98.6% by points
+- **Completed Stories**: 146 (98.6%)
+- **Completed Points**: 772 (99.5%)
+- **MVP Completion**: 99.2% by stories, 99.5% by points
 - **🎉 MILESTONE**: MacBook Pro M3 Max successfully running Power profile (2025-12-07)
 - **🎉 MILESTONE**: Epic-08 Resource Optimization & Deep Telemetry — 22/23 stories shipped over 18 hours (2026-04-21 to 2026-04-22)
 - **CHANGELOG.md**: Created 2025-12-07 - v1.0.0 release documented

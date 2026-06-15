@@ -1,7 +1,7 @@
 # ABOUTME: Release automation targets for nix-install
 # ABOUTME: Wraps version bumping, verification, tag creation, and hook install
 
-.PHONY: bump-major bump-minor bump-patch verify-version release-tag install-hooks
+.PHONY: bump-major bump-minor bump-patch verify-version fmt-check release-tag install-hooks
 
 bump-major:
 	./scripts/bump-version.sh major "$${RELEASE_NOTE:?set RELEASE_NOTE='release summary'}"
@@ -14,6 +14,9 @@ bump-patch:
 
 verify-version:
 	./scripts/verify-version.sh
+
+fmt-check:
+	git ls-files '*.nix' ':!:user-config.nix' ':!:user-config.template.nix' | xargs nix run nixpkgs#nixfmt-rfc-style -- --check
 
 install-hooks:
 	./scripts/install-git-hooks.sh

@@ -6,6 +6,8 @@
 setup() {
     # Store the path to bootstrap script
     BOOTSTRAP_SCRIPT="${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    COMMON_LIB="${BATS_TEST_DIRNAME}/../lib/common.sh"
+    PREFLIGHT_LIB="${BATS_TEST_DIRNAME}/../lib/preflight.sh"
 
     # Load bootstrap functions without running main()
     # We'll source it in a way that doesn't execute main
@@ -33,117 +35,117 @@ setup() {
 }
 
 @test "check_macos_version function exists" {
-    run grep -E "^check_macos_version\(\)" "$BOOTSTRAP_SCRIPT"
+    run grep -E "^check_macos_version\(\)" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "check_not_root function exists" {
-    run grep -E "^check_not_root\(\)" "$BOOTSTRAP_SCRIPT"
+    run grep -E "^check_not_root\(\)" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "check_internet function exists" {
-    run grep -E "^check_internet\(\)" "$BOOTSTRAP_SCRIPT"
+    run grep -E "^check_internet\(\)" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "display_system_info function exists" {
-    run grep -E "^display_system_info\(\)" "$BOOTSTRAP_SCRIPT"
+    run grep -E "^display_system_info\(\)" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "preflight_checks function exists" {
-    run grep -E "^preflight_checks\(\)" "$BOOTSTRAP_SCRIPT"
+    run grep -E "^preflight_checks\(\)" "$PREFLIGHT_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "script uses sw_vers for macOS version detection" {
-    run grep "sw_vers" "$BOOTSTRAP_SCRIPT"
+    run grep "sw_vers" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "script checks for macOS 14 (Sonoma) or newer" {
-    run grep -E "MIN_MACOS_VERSION.*14|\[\[ .* -lt.*MIN_MACOS_VERSION" "$BOOTSTRAP_SCRIPT"
+    run grep -E "MIN_MACOS_VERSION.*14|\[\[ .* -lt.*MIN_MACOS_VERSION" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "script checks internet connectivity to nixos.org" {
-    run grep "nixos.org" "$BOOTSTRAP_SCRIPT"
+    run grep "nixos.org" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "script checks internet connectivity to github.com as fallback" {
-    run grep "github.com" "$BOOTSTRAP_SCRIPT"
+    run grep "github.com" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "script uses EUID to check for root user" {
-    run grep "EUID" "$BOOTSTRAP_SCRIPT"
+    run grep "EUID" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "script has log_info function with color support" {
-    run grep -E "log_info\(\)" "$BOOTSTRAP_SCRIPT"
+    run grep -E "log_info\(\)" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "script has log_error function with color support" {
-    run grep -E "log_error\(\)" "$BOOTSTRAP_SCRIPT"
+    run grep -E "log_error\(\)" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "script has log_warn function with color support" {
-    run grep -E "log_warn\(\)" "$BOOTSTRAP_SCRIPT"
+    run grep -E "log_warn\(\)" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "error messages mention 'macOS Sonoma (14.0) or newer required'" {
-    run grep -i "sonoma.*14.*required\|14.*sonoma.*required" "$BOOTSTRAP_SCRIPT"
+    run grep -i "sonoma.*14.*required\|14.*sonoma.*required" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "error messages are actionable for macOS version failure" {
-    run grep -i "upgrade.*macos\|please.*upgrade" "$BOOTSTRAP_SCRIPT"
+    run grep -i "upgrade.*macos\|please.*upgrade" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "error messages are actionable for root user failure" {
-    run grep -i "not.*run.*root\|regular user" "$BOOTSTRAP_SCRIPT"
+    run grep -i "not.*run.*root\|regular user" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "error messages are actionable for internet connectivity failure" {
-    run grep -i "network connection\|internet access" "$BOOTSTRAP_SCRIPT"
+    run grep -i "network connection\|internet access" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "script displays system information including macOS version" {
-    run grep -E "sw_vers.*productVersion|macOS Version" "$BOOTSTRAP_SCRIPT"
+    run grep -E "sw_vers.*productVersion|macOS Version" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "script displays system information including hostname" {
-    run grep "hostname" "$BOOTSTRAP_SCRIPT"
+    run grep "hostname" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "script displays system information including architecture" {
-    run grep "uname -m" "$BOOTSTRAP_SCRIPT"
+    run grep "uname -m" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "script displays system information including current user" {
-    run grep "whoami" "$BOOTSTRAP_SCRIPT"
+    run grep "whoami" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "script exits with error on pre-flight failure" {
-    run grep -E "exit 1" "$BOOTSTRAP_SCRIPT"
+    run grep -E "exit 1|return 1" "$PREFLIGHT_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "script uses curl with timeout for connectivity checks" {
-    run grep -E "curl.*--connect-timeout|curl.*timeout" "$BOOTSTRAP_SCRIPT"
+    run grep -E "curl.*--connect-timeout|curl.*timeout" "$COMMON_LIB"
     [ "$status" -eq 0 ]
 }
 
@@ -153,7 +155,7 @@ setup() {
 }
 
 @test "main function calls preflight_checks" {
-    run bash -c "grep -A 20 '^main()' '$BOOTSTRAP_SCRIPT' | grep 'preflight_checks'"
+    run bash -c "grep -A 40 '^main()' '$BOOTSTRAP_SCRIPT' | grep 'preflight_checks'"
     [ "$status" -eq 0 ]
 }
 

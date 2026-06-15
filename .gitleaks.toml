@@ -6,6 +6,14 @@
 
 [allowlist]
   description = "nix-install global allowlist"
+  commits = [
+    # Historical docs examples used the placeholder text
+    # `Authorization: token YOUR_TOKEN`; these are not real credentials.
+    '''c12cebb688a3e5567da7194d6d74abd3c9928985''',
+    '''82d6a815526d15aa04d1e89dde369cdc15d320e2''',
+    '''d75706e0ba5605817ba3c13aae911fef6862f505''',
+    '''c6fadc31285e9007b31083e031c93e82ce7eb911''',
+  ]
   paths = [
     '''config/calibre/plugins/DeACSM/''',
   ]

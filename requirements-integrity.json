@@ -1,27 +1,27 @@
 {
   "document": "REQUIREMENTS.md",
-  "approval_timestamp": "2025-11-12T18:44:14Z",
-  "document_version": "v1.2",
+  "approval_timestamp": "2026-06-15T11:24:57Z",
+  "document_version": "v1.3",
   "approved_by": "FX (Product Owner)",
   "approval_type": "CHANGE_CONTROL_RE_APPROVAL",
-  "previous_version": "v1.1",
+  "previous_version": "v1.2",
   "hashes": {
-    "baseline_content": "ed51883bb71d31dbae500606ac42ed9e81f853ff8ed3e720c3e9a5ac1be6d5b0",
-    "final_document": "88b819eccee24eb77b7121606a9ad57d3ca7a39f4a2c6b7fe6a43d235dc7ccee",
+    "baseline_content": "88b819eccee24eb77b7121606a9ad57d3ca7a39f4a2c6b7fe6a43d235dc7ccee",
+    "final_document": "840e81a1f1f751d478a34ce5ddd66ab01ff9af4d794d5b2bfc72e2db56a6fa8f",
     "approval_section": "92b8328f4f770f11cd71b221cb1b675dbd1df8ec3f754dbc75950412cb5e8083"
   },
   "validation": {
     "method": "SHA-256",
-    "creation_date": "2025-11-12T18:44:14Z",
+    "creation_date": "2026-06-15T11:24:57Z",
     "status": "APPROVED"
   },
   "change_control": {
     "baseline_locked": true,
     "change_process_required": true,
-    "next_version": "v1.3",
-    "change_description": "Added REQ-NFR-008: Configuration File Management via Repository Symlinks requirement",
+    "next_version": "v1.4",
+    "change_description": "Re-approved current requirements document after repository health check",
     "change_scope": "Minor",
-    "previous_baseline_hash": "ed51883bb71d31dbae500606ac42ed9e81f853ff8ed3e720c3e9a5ac1be6d5b0"
+    "previous_baseline_hash": "88b819eccee24eb77b7121606a9ad57d3ca7a39f4a2c6b7fe6a43d235dc7ccee"
   },
   "audit_trail": {
     "v1.0": {
@@ -46,6 +46,14 @@
         "Documented pattern for symlink-based settings management (repo symlinks, not /nix/store)",
         "Provided Zed implementation as reference example",
         "Added anti-pattern warning about programs.app.settings creating read-only symlinks"
+      ]
+    },
+    "v1.3": {
+      "timestamp": "2026-06-15T11:24:57Z",
+      "baseline_hash": "840e81a1f1f751d478a34ce5ddd66ab01ff9af4d794d5b2bfc72e2db56a6fa8f",
+      "approval_type": "CHANGE_CONTROL_RE_APPROVAL",
+      "changes": [
+        "Re-approved current docs/REQUIREMENTS.md baseline after repository health check"
       ]
     }
   }

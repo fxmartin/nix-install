@@ -301,11 +301,6 @@
       # Prevent flickering in Claude Code terminal sessions
       CLAUDE_CODE_NO_FLICKER = "1";
 
-      # Default Claude Code model (machine-local preference).
-      # Lives here, NOT in claude-code-config/settings.json — that file is
-      # shared with LTM colleagues who may not have Fable access.
-      ANTHROPIC_MODEL = "claude-fable-5[1m]";
-
     };
 
     # Shell initialization code (runs after .zshrc setup)

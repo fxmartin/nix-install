@@ -15,5 +15,12 @@
     '''c6fadc31285e9007b31083e031c93e82ce7eb911''',
   ]
   paths = [
-    '''config/calibre/plugins/DeACSM/''',
+    # Calibre plugin directory — contains vendored DRM/sync plugin configs; pre-existing
+    '''config/calibre/plugins/''',
+    # Synthetic test fixture — contains fabricated credentials for bats test coverage only
+    '''tests/fixtures/leaked-key\.txt''',
+    # GitNexus tool-generated files (parse cache + debug log) — entropy false positives
+    '''\.gitnexus/''',
+    # Claude Code agent worktrees — ephemeral scratch space, not committed to main
+    '''config/claude-code-config/\.claude/worktrees/''',
   ]

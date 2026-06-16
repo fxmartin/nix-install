@@ -1,5 +1,6 @@
 # ABOUTME: GitHub Actions workflow for secret detection using gitleaks
-# ABOUTME: Prevents accidental credential commits on PRs and pushes
+# ABOUTME: Prevents accidental credential commits on PRs and pushes to main
+# ABOUTME: Story 9.2-001 — runs on every PR and push, uses .gitleaks.toml allowlists
 
 name: Security Scan
 
@@ -19,9 +20,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for scanning all commits
+          fetch-depth: 0  # Full history — gitleaks scans all commits on the branch
 
       - name: Run gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Explicit config path so PR diffs to .gitleaks.toml are exercised in CI
+          GITLEAKS_CONFIG: .gitleaks.toml

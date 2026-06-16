@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-06-16
+
+### Added
+
+- Add gitleaks secrets scan CI gate on every PR with bats test suite (Story 9.2-001)
+
 ## [1.5.48] - 2026-06-16
 
 ### Fixed

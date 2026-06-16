@@ -1,0 +1,15 @@
+# ABOUTME: Synthetic test fixture for gitleaks detection tests (Story 9.2-001)
+# ABOUTME: Contains fabricated credentials used ONLY to validate the CI scanning gate
+# ABOUTME: Allowlisted in .gitleaks.toml — must NOT trip the real scan
+
+# These are NOT real credentials — they are fabricated strings for test coverage only.
+# The RSA private key block below is a crafted fake; it cannot decrypt anything.
+
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEA2a2rwplBQLzYYYYYYYYYYYYYYYYYYYFAKEKEYFAKEKEYFAKE
+FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE
+FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE
+-----END RSA PRIVATE KEY-----
+
+# Fabricated GitHub PAT placeholder (not a real token):
+# FAKE_GITHUB_PAT=ghp_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA

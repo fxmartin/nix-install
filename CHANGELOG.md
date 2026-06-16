@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.46] - 2026-06-15
+## [1.5.47] - 2026-06-16
+
+### Fixed
+
+- Fix nix-darwin managed hosts activation## [1.5.46] - 2026-06-15
 
 ### Fixed
 

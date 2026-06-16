@@ -393,6 +393,7 @@
       46.224.44.190  dev dev-server dev-public
 
       # Local network IPs (accessible only on local network)
+      192.168.178.58  macbook-pro-m1
       192.168.178.76  nas-lux nas-local
     '';
 
@@ -401,6 +402,8 @@
     knownSha256Hashes = [
       # nix-darwin managed hosts (this config's output) - required for re-activation
       # UPDATE THIS HASH if you change the 'text' block above!
+      "b3e203d48228bf13fe4451826b0f56b2df876113e54a64db1e92834425324649"
+      # Previous nix-darwin managed hosts (safe to overwrite during this migration)
       "93f7f98e530fe33544de2978b3ba426de9af5a86eb1922bcacf49ecbc716ebfa"
       # Default macOS hosts (with header comments, tabs)
       "c7dd0e2ed261ce76d76f852596c5b54026b9a894fa481381ffd399b556c0e2da"
@@ -410,6 +413,14 @@
       "d6d72f8fc83a8334319cd03c53b9af97ce873b8f2970611279e642e1967dc4d7"
     ];
   };
+
+  system.activationScripts.networking.text = lib.mkAfter ''
+    if [ -L /etc/static/hosts ] && [ "$(readlink -- /etc/hosts 2>/dev/null || true)" != /etc/static/hosts ]; then
+      rm -f /etc/hosts.before-nix-darwin
+      rm -f /etc/hosts
+      ln -s /etc/static/hosts /etc/hosts
+    fi
+  '';
 
   # System Configuration Validation
   assertions = [

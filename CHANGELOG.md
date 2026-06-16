@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.47] - 2026-06-16
+## [1.5.48] - 2026-06-16
+
+### Fixed
+
+- Add SSH alias for MacBook Pro M1## [1.5.47] - 2026-06-16
 
 ### Fixed
 

@@ -67,6 +67,14 @@
         IdentityFile = "~/.ssh/id_nas_luxembourg";
       };
 
+      # MacBook Pro M1 via local network
+      "macbook-pro-m1" = {
+        HostName = "192.168.178.58";
+        HostKeyAlias = "192.168.178.58";
+        User = "fxmartin";
+        IdentityFile = "~/.ssh/id_ed25519";
+      };
+
       # Dev Server via Public IP (Hetzner Helsinki)
       "dev dev-server" = {
         HostName = "46.62.232.199";  # Hetzner public IP (hel1)

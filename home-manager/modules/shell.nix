@@ -534,7 +534,14 @@
       # PATH ADDITIONS (Story 04.1-003)
       # =============================================================================
       # Note: Nix and Homebrew paths are added automatically by nix-darwin
-      # Only add additional paths here
+      # Prefer managed tool directories over app-bundled shims such as the
+      # Codex cask's quarantined codex-path/rg.
+      path=(
+        /run/current-system/sw/bin(N-/)
+        /opt/homebrew/bin(N-/)
+        $path
+      )
+      typeset -U path PATH
 
       # Local user binaries (for pip install --user, etc.)
       export PATH="$HOME/.local/bin:$PATH"

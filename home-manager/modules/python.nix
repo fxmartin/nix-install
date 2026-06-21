@@ -20,7 +20,7 @@
   #
   # Configuration includes:
   # - Python environment variables (no bytecode, unbuffered output)
-  # - uv environment variables (system Python, native TLS)
+  # - uv environment variables (system Python, system certificates)
   # - Shell aliases for Python/uv workflows
   # - direnv integration for per-project environments
 
@@ -32,7 +32,7 @@
 
     # uv configuration
     UV_SYSTEM_PYTHON = "1";           # Use system Python by default
-    UV_NATIVE_TLS = "1";              # Use native TLS for faster operations
+    UV_SYSTEM_CERTS = "1";            # Use system certificate store for TLS
   };
 
   # direnv integration for automatic environment activation

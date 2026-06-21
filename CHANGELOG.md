@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-06-21
+
+### Fixed
+
+- Replace deprecated uv native TLS session variable with system certificate configuration
+
 ## [1.6.1] - 2026-06-20
 
 ### Fixed

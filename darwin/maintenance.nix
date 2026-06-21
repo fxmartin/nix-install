@@ -519,4 +519,19 @@ in {
   environment.variables.OLLAMA_MAX_LOADED_MODELS = ollamaMaxLoadedModels;
   environment.variables.OLLAMA_NUM_PARALLEL = ollamaNumParallel;
   environment.variables.OLLAMA_KEEP_ALIVE = ollamaKeepAlive;
+
+  # Homebrew's ollama formula can leave behind an auto-starting LaunchAgent.
+  # Keep the CLI installed, but ensure the Homebrew daemon does not reappear
+  # after rebuilds. The repo-managed ollama-serve agent remains opt-in above.
+  system.activationScripts.disableHomebrewOllamaService.text = lib.mkAfter ''
+    uid=$(/usr/bin/id -u ${userConfig.username} 2>/dev/null || true)
+    if [ -n "$uid" ]; then
+      /bin/launchctl bootout "gui/$uid/homebrew.mxcl.ollama" 2>/dev/null || true
+      /bin/launchctl disable "gui/$uid/homebrew.mxcl.ollama" 2>/dev/null || true
+    fi
+
+    ${lib.optionalString (!enableOllamaServeAgent) ''
+      /usr/bin/pkill -x ollama 2>/dev/null || true
+    ''}
+  '';
 }

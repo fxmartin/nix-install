@@ -21,13 +21,15 @@ This directory contains step-by-step configuration guides for applications insta
 
 Desktop applications for AI-powered assistance and local language models.
 
-- [AI & LLM Tools Overview](ai/ai-llm-tools.md) - Claude Desktop, ChatGPT Desktop, Perplexity, Ollama Desktop
+- [AI & LLM Tools Overview](ai/ai-llm-tools.md) - Claude Desktop, ChatGPT Desktop, Perplexity, Ollama, DFlash/TurboQuant, Privacy Filter
 
 **Individual Apps Covered**:
 - Claude Desktop (Homebrew cask)
 - ChatGPT Desktop (Homebrew cask)
 - Perplexity (Mac App Store)
-- Ollama Desktop (Homebrew cask)
+- Ollama CLI (Homebrew formula)
+- DFlash and TurboQuant local-code-bench servers (uv-managed Python/MLX tools)
+- Privacy Filter (uv-managed Python/MLX service)
 
 ---
 

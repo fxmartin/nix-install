@@ -114,17 +114,20 @@
 
 ---
 
-## Ollama (CLI + LaunchAgent)
+## Ollama (CLI + Optional LaunchAgent)
 
 **Status**: Installed via Homebrew formula `ollama` (in Nix system PATH) — **CLI only, no GUI app**
 
-The Ollama GUI app (`ollama-app` cask) has been removed to eliminate the port conflict where two Ollama servers competed for port 11434. The nix-darwin LaunchAgent `ollama-serve` (defined in `darwin/maintenance.nix`) now runs Ollama bound to `0.0.0.0:11434` for Tailscale access.
+The Ollama GUI app (`ollama-app` cask) has been removed to eliminate the port conflict where two Ollama servers competed for port 11434. This repo also disables Homebrew's `homebrew.mxcl.ollama` LaunchAgent during rebuilds so the formula does not auto-start a background daemon.
 
 **Daemon Management**:
-- Managed by nix-darwin LaunchAgent `ollama-serve` (starts at login)
-- Bound to `0.0.0.0:11434` (accessible via Tailscale)
+- Default: no Ollama daemon is auto-started
+- Homebrew LaunchAgent `homebrew.mxcl.ollama` is unloaded and disabled by activation
+- Manual control: use `start-ollama` and `stop-ollama`
+- Optional always-on mode: set `enableOllamaServeAgent = true` in `user-config.nix`
+- The optional nix-darwin LaunchAgent binds to `0.0.0.0:11434` for Tailscale access
 - OLLAMA_ORIGINS restricts API access to localhost and Tailscale IPs (100.x.x.x)
-- The LaunchAgent kills any existing Ollama process before starting to avoid conflicts
+- The optional LaunchAgent kills any existing Ollama process before starting to avoid conflicts
 
 **CLI Verification**:
 ```bash
@@ -141,9 +144,60 @@ curl http://localhost:11434/api/version
 **Model Storage**:
 - Models stored in: `~/.ollama/models`
 - Can be large (12GB-70GB per model)
-- Models are pulled automatically during `darwin-rebuild` via activation scripts
+- Model downloads during `darwin-rebuild` are disabled by default; set `enableOllamaModelPulls = true` to opt in
 
 **Web Interface**: Use **Open WebUI** (see below) for a browser-based chat interface.
+
+---
+
+## Local Code Bench Servers (DFlash + TurboQuant)
+
+**Status**: Installed via Home Manager activation into `~/.local/share/local-code-bench-servers/venv`, with CLI shims in `~/.local/bin`.
+
+These tools support the separate `~/dev/local-code-bench` harness. They are Python/MLX servers rather than nixpkgs packages, so this repo provisions them with `uv` and pins the PyPI packages:
+
+- `dflash-mlx==0.1.8` provides `dflash`
+- `turboquant-mlx-full==0.11.0` provides `turboquant-serve`
+
+**Verification**:
+
+```bash
+command -v dflash
+command -v turboquant-serve
+```
+
+**Default server commands** are exported by Home Manager:
+
+```bash
+echo "$DFLASH_COMMAND"
+echo "$TURBOQUANT_COMMAND"
+```
+
+**Bring-up with local-code-bench**:
+
+```bash
+cd ~/dev/local-code-bench
+
+scripts/bring-up-local.sh dflash
+uv run bench --suite humaneval --model local-dflash-qwen --limit 3 --run-file results/manual-local-dflash.jsonl
+
+scripts/bring-up-local.sh turboquant
+uv run bench --suite humaneval --model local-turboquant-qwen-moe --limit 3 --run-file results/manual-local-turboquant.jsonl
+```
+
+**Expected endpoints**:
+
+- DFlash: `http://localhost:8000/v1/chat/completions`
+- TurboQuant: `http://localhost:8002/v1/chat/completions`
+
+**Quick checks**:
+
+```bash
+curl http://localhost:8000/v1/models
+curl http://localhost:8002/v1/models
+```
+
+If TurboQuant is listening on port 8002 but benchmark requests fail, confirm it started in OpenAI-compatible API mode. A native/custom API mode can answer on the port without exposing `/v1/chat/completions`.
 
 ---
 

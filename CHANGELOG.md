@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.7.0] - 2026-06-21
+## [1.7.1] - 2026-06-23
+
+### Fixed
+
+- bump claude-code-config to 9f7358d: command files relative-symlink into shared-skills (#155), and install.sh --core no longer rewrites them as absolute or dirties the repo (#156)## [1.7.0] - 2026-06-21
 
 ### Added
 

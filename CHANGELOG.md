@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.7.1] - 2026-06-23
+## [1.7.2] - 2026-06-24
+
+### Fixed
+
+- Update Nix flake inputs## [1.7.1] - 2026-06-23
 
 ### Fixed
 

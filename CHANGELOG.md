@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.8.1] - 2026-06-27
+## [1.8.2] - 2026-06-27
+
+### Fixed
+
+- Update Claude config submodule to the merged Qwen harness release.## [1.8.1] - 2026-06-27
 
 ### Fixed
 

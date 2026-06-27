@@ -5,7 +5,9 @@
     { "pattern": "^https://github.com/.*/compare/" },
     { "pattern": "^http://localhost" },
     { "pattern": "^http://127\\.0\\.0\\.1" },
-    { "pattern": "^http://100\\." }
+    { "pattern": "^http://100\\." },
+    { "pattern": "^\\./.*/$" },
+    { "pattern": "^\\.\\./.*/$" }
   ],
   "timeout": "10s",
   "retryOn429": true,

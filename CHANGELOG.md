@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.7.2] - 2026-06-24
+## [1.7.3] - 2026-06-27
+
+### Fixed
+
+- Update Nix flake inputs## [1.7.2] - 2026-06-24
 
 ### Fixed
 
@@ -267,9 +271,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Nix flake inputs## [1.2.0] - 2026-05-03
 
-### Added
-
-- Install GitNexus CLI and Codex MCP## [1.1.5] - 2026-05-01
+## [1.1.5] - 2026-05-01
 
 ### Fixed
 

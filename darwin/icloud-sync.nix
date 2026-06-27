@@ -68,6 +68,10 @@ in {
         }
       ];
 
+      # Catch up after login/reload and retry while the Mac is awake. Calendar
+      # triggers are missed if the machine is asleep at 12:30.
+      StartInterval = 21600;
+
       # Logging configuration
       StandardOutPath = "/tmp/icloud-sync.log";
       StandardErrorPath = "/tmp/icloud-sync.err";
@@ -78,8 +82,7 @@ in {
         HOME = "/Users/${userConfig.username}";
       };
 
-      # Don't run on load, wait for scheduled time
-      RunAtLoad = false;
+      RunAtLoad = true;
       KeepAlive = false;
     };
   };

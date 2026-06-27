@@ -47,6 +47,7 @@ in {
       # AI & LLM Tools
       "ollama"          # Ollama CLI - Local LLM server (replaces ollama-app cask)
       "opencode"        # OpenCode - Open source AI coding agent for the terminal
+      "qwen-code"       # Qwen Code - Open source AI coding agent for the terminal
 
       # System Monitoring (Apple Silicon)
       # Note: Not available in nixpkgs, Homebrew formula only

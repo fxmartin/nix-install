@@ -300,6 +300,12 @@
 
       # Prevent flickering in Claude Code terminal sessions
       CLAUDE_CODE_NO_FLICKER = "1";
+      DISABLE_AUTOUPDATER = "1";
+      CLAUDE_CODE_ENABLE_TELEMETRY = "0";
+      CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1";
+      OTEL_METRICS_EXPORTER = "none";
+      OTEL_TRACES_EXPORTER = "none";
+      OTEL_LOGS_EXPORTER = "none";
 
     };
 

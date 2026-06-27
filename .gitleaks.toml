@@ -19,8 +19,6 @@
     '''config/calibre/plugins/''',
     # Synthetic test fixture — contains fabricated credentials for bats test coverage only
     '''tests/fixtures/leaked-key\.txt''',
-    # GitNexus tool-generated files (parse cache + debug log) — entropy false positives
-    '''\.gitnexus/''',
     # Claude Code agent worktrees — ephemeral scratch space, not committed to main
     '''config/claude-code-config/\.claude/worktrees/''',
   ]

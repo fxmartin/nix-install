@@ -1,6 +1,6 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.0% Complete (144/147 stories) | **Version**: 1.7.3 | **2 MacBooks deployed, M4 Air pending**
+> **Status**: 98.0% Complete (144/147 stories) | **Version**: 1.8.0 | **2 MacBooks deployed, M4 Air pending**
 
 **Two deployed MacBooks. One config. Zero drift.**
 
@@ -172,7 +172,7 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 **AI & LLM Tools**:
 - Claude Desktop, Claude Code CLI (from `claude-code-nix` flake)
 - ChatGPT, Codex CLI (OpenAI's terminal coding agent)
-- OpenCode (open source AI coding agent for the terminal)
+- OpenCode and Qwen Code (open source AI coding agents for the terminal)
 - Perplexity (MAS), Inferencer (MAS, on-device models)
 - Ollama (Power: `gemma4:e4b` + `gemma4:26b` + `nomic-embed-text`; Standard: `ministral-3:14b` + `nomic-embed-text`; AI-Assistant: `nomic-embed-text`)
 - **Privacy Filter** — on-device PII redaction (MLX port of OpenAI's open-weight Privacy Filter via OpenMed). Always-on LaunchAgent on `127.0.0.1:7790`; BF16 variant on Power, 8-bit on Standard / AI-Assistant. Workflow: `pbcopy` → `redact-clip` → paste into Claude/ChatGPT (Epic-09).

@@ -13,6 +13,7 @@ SCRIPT_VERSION="2.0.0"
 
 # Config file location
 CONFIG_FILE="${HOME}/.config/icloud-sync/config.conf"
+ICLOUD_DRIVE_DIR="${HOME}/Library/Mobile Documents/com~apple~CloudDocs"
 
 # Logging
 LOG_FILE="/tmp/icloud-sync.log"
@@ -98,6 +99,22 @@ load_config() {
 # SYNC EXECUTION
 # =============================================================================
 
+validate_icloud_destination() {
+    local dest_dir="$1"
+
+    if [[ "${dest_dir}" != "${ICLOUD_DRIVE_DIR}" && "${dest_dir}" != "${ICLOUD_DRIVE_DIR}/"* ]]; then
+        print_status "error" "Destination must be inside iCloud Drive: ${dest_dir}"
+        print_status "info" "Expected path prefix: ${ICLOUD_DRIVE_DIR}"
+        return 1
+    fi
+
+    if [[ ! -d "${ICLOUD_DRIVE_DIR}" ]]; then
+        print_status "error" "iCloud Drive is not available: ${ICLOUD_DRIVE_DIR}"
+        print_status "info" "Sign in to iCloud Drive or enable it in System Settings, then rerun sync"
+        return 1
+    fi
+}
+
 run_sync_job() {
     local job_spec="$1"
 
@@ -114,6 +131,11 @@ run_sync_job() {
         return 1
     fi
 
+    # shellcheck disable=SC2310
+    if ! validate_icloud_destination "${dest_dir}"; then
+        return 1
+    fi
+
     # Create destination directory if needed
     if [[ ! -d "${dest_dir}" ]]; then
         print_status "info" "Creating destination directory..."
@@ -121,7 +143,7 @@ run_sync_job() {
     fi
 
     # Build rsync command based on mode
-    local rsync_opts=("-avz" "--progress")
+    local rsync_opts=("-av" "--progress")
 
     if [[ "${sync_mode}" == "mirror" ]]; then
         rsync_opts+=("--delete")
@@ -168,6 +190,7 @@ main() {
     date_str=$(date '+%Y-%m-%d %H:%M:%S')
 
     # Rotate log file if too large (>1MB)
+    # shellcheck disable=SC2312
     if [[ -f "${LOG_FILE}" ]] && [[ $(stat -f%z "${LOG_FILE}" 2>/dev/null || echo 0) -gt 1048576 ]]; then
         mv "${LOG_FILE}" "${LOG_FILE}.old"
     fi
@@ -189,6 +212,7 @@ main() {
         local job_name
         job_name=$(echo "${job}" | cut -d'|' -f1)
 
+        # shellcheck disable=SC2310
         if run_sync_job "${job}"; then
             SUCCESSFUL_JOBS=$((SUCCESSFUL_JOBS + 1))
         else

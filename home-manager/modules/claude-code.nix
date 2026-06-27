@@ -289,6 +289,13 @@ in {
       CODEX_BIN="/run/current-system/sw/bin/codex"
       CODEX_CONFIG="${config.home.homeDirectory}/.codex/config.toml"
       CODEX_CONFIG_DIR="${config.home.homeDirectory}/.codex"
+      CODEX_CONFIG_PRIVACY_TMP="$CODEX_CONFIG.privacy.tmp"
+      QWEN_CONFIG_DIR="${config.home.homeDirectory}/.qwen"
+      QWEN_SETTINGS="$QWEN_CONFIG_DIR/settings.json"
+      QWEN_SETTINGS_TMP="$QWEN_SETTINGS.tmp"
+      OPENCODE_CONFIG_DIR="${config.home.homeDirectory}/.config/opencode"
+      OPENCODE_CONFIG="$OPENCODE_CONFIG_DIR/opencode.json"
+      OPENCODE_CONFIG_TMP="$OPENCODE_CONFIG.tmp"
 
       if [ -d "$CODEX_PLUGIN_REPO" ]; then
         $DRY_RUN_CMD mkdir -p "$CODEX_PLUGIN_HOME_DIR" "$CODEX_AGENTS_DIR"
@@ -378,6 +385,47 @@ EOF
       fi
 
       $DRY_RUN_CMD mkdir -p "$CODEX_CONFIG_DIR"
+      if [ ! -f "$CODEX_CONFIG" ]; then
+        $DRY_RUN_CMD touch "$CODEX_CONFIG"
+      fi
+
+      if [ -f "$CODEX_CONFIG" ]; then
+        if awk '
+          BEGIN {
+            saw_otel = 0
+            in_otel = 0
+            print "# Managed by nix-install: agent harness privacy/update policy."
+            print "check_for_update_on_startup = false"
+            print ""
+          }
+          /^# Managed by nix-install: agent harness privacy\/update policy\.$/ { next }
+          /^[[:space:]]*check_for_update_on_startup[[:space:]]*=/ { next }
+          /^[[:space:]]*\[otel\][[:space:]]*$/ {
+            print
+            print "exporter = \"none\""
+            saw_otel = 1
+            in_otel = 1
+            next
+          }
+          /^[[:space:]]*\[/ { in_otel = 0 }
+          in_otel && /^[[:space:]]*exporter[[:space:]]*=/ { next }
+          { print }
+          END {
+            if (!saw_otel) {
+              print ""
+              print "[otel]"
+              print "exporter = \"none\""
+            }
+          }
+        ' "$CODEX_CONFIG" > "$CODEX_CONFIG_PRIVACY_TMP"; then
+          $DRY_RUN_CMD mv "$CODEX_CONFIG_PRIVACY_TMP" "$CODEX_CONFIG"
+          echo "✓ Disabled Codex startup update checks and telemetry exporter"
+        else
+          $DRY_RUN_CMD rm -f "$CODEX_CONFIG_PRIVACY_TMP"
+          echo "⚠️  Warning: Failed to update Codex privacy/update settings"
+        fi
+      fi
+
       if [ -f "$CODEX_CONFIG" ] && grep -Fq "[mcp_servers.gitnexus]" "$CODEX_CONFIG"; then
         echo "✓ Codex MCP server gitnexus already configured"
       else
@@ -389,6 +437,68 @@ args = ["-y", "gitnexus@1.6.3", "mcp"]
 EOF
         echo "✓ Added Codex MCP server gitnexus"
       fi
+
+      $DRY_RUN_CMD mkdir -p "$QWEN_CONFIG_DIR"
+      if [ -f "$QWEN_SETTINGS" ]; then
+        if ${jq}/bin/jq '
+          .general = (.general // {})
+          | .general.enableAutoUpdate = false
+          | .privacy = (.privacy // {})
+          | .privacy.usageStatisticsEnabled = false
+          | .telemetry = (.telemetry // {})
+          | .telemetry.enabled = false
+          | .telemetry.logPrompts = false
+        ' "$QWEN_SETTINGS" > "$QWEN_SETTINGS_TMP"; then
+          $DRY_RUN_CMD mv "$QWEN_SETTINGS_TMP" "$QWEN_SETTINGS"
+          echo "✓ Disabled Qwen Code auto-update, telemetry, prompt logging, and usage statistics"
+        else
+          $DRY_RUN_CMD rm -f "$QWEN_SETTINGS_TMP"
+          echo "⚠️  Warning: Failed to update Qwen Code privacy/update settings"
+        fi
+      else
+        cat > "$QWEN_SETTINGS_TMP" <<'EOF'
+{
+  "general": {
+    "enableAutoUpdate": false
+  },
+  "privacy": {
+    "usageStatisticsEnabled": false
+  },
+  "telemetry": {
+    "enabled": false,
+    "logPrompts": false
+  }
+}
+EOF
+        $DRY_RUN_CMD mv "$QWEN_SETTINGS_TMP" "$QWEN_SETTINGS"
+        echo "✓ Created Qwen Code privacy/update settings"
+      fi
+
+      $DRY_RUN_CMD mkdir -p "$OPENCODE_CONFIG_DIR"
+      if [ -f "$OPENCODE_CONFIG" ]; then
+        if ${jq}/bin/jq '
+          ."$schema" = (."$schema" // "https://opencode.ai/config.json")
+          | .autoupdate = false
+          | .share = "disabled"
+        ' "$OPENCODE_CONFIG" > "$OPENCODE_CONFIG_TMP"; then
+          $DRY_RUN_CMD mv "$OPENCODE_CONFIG_TMP" "$OPENCODE_CONFIG"
+          echo "✓ Disabled OpenCode auto-update and sharing"
+        else
+          $DRY_RUN_CMD rm -f "$OPENCODE_CONFIG_TMP"
+          echo "⚠️  Warning: Failed to update OpenCode privacy/update settings"
+        fi
+      else
+        cat > "$OPENCODE_CONFIG_TMP" <<'EOF'
+{
+  "$schema": "https://opencode.ai/config.json",
+  "autoupdate": false,
+  "share": "disabled"
+}
+EOF
+        $DRY_RUN_CMD mv "$OPENCODE_CONFIG_TMP" "$OPENCODE_CONFIG"
+        echo "✓ Created OpenCode privacy/update settings"
+      fi
+
     else
       echo "⚠️  Warning: Could not find nix-install repository"
       echo "  Searched: ~/nix-install, ~/.config/nix-install, ~/Documents/nix-install"

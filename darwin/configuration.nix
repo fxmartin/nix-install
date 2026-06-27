@@ -87,13 +87,6 @@
     # on ai-assistant where the heavier JS/TS language-server stack is omitted.
     nodejs
     (writeShellApplication {
-      name = "gitnexus";
-      runtimeInputs = [nodejs];
-      text = ''
-        exec npx -y gitnexus@1.6.3 "$@"
-      '';
-    })
-    (writeShellApplication {
       name = "ccusage";
       runtimeInputs = [nodejs];
       text = ''
@@ -171,6 +164,11 @@
   # Container Tools (excluded from ai-assistant profile)
   ++ lib.optionals (profileName != "ai-assistant") [
     lazydocker          # Simple terminal UI for Docker and docker-compose
+  ]
+  # Go development (Power profile only)
+  ++ lib.optionals isPowerProfile [
+    go                  # Go programming language toolchain
+    gopls               # Go language server
   ]
   ++ [
     # Cloud CLI Tools

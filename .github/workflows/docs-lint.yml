@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Check Markdown links
         uses: gaurav-nelson/github-action-markdown-link-check@v1
@@ -25,5 +27,7 @@ jobs:
           use-quiet-mode: 'yes'
           use-verbose-mode: 'no'
           config-file: '.github/markdown-link-check-config.json'
+          check-modified-files-only: 'yes'
+          base-branch: 'main'
           folder-path: '.'
           file-extension: '.md'

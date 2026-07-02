@@ -150,20 +150,36 @@ curl http://localhost:11434/api/version
 
 ---
 
-## Local Code Bench Servers (DFlash + TurboQuant)
+## Local Code Bench Inferencers
 
-**Status**: Installed via Home Manager activation into `~/.local/share/local-code-bench-servers/venv`, with CLI shims in `~/.local/bin`.
+**Status**: Installed via the Power profile. Python/MLX CLIs are provisioned by Home
+Manager activation into `~/.local/share/local-code-bench-servers/venv`, with CLI shims
+in `~/.local/bin`. Homebrew installs the formula/cask-managed engines.
 
-These tools support the separate `~/dev/local-code-bench` harness. They are Python/MLX servers rather than nixpkgs packages, so this repo provisions them with `uv` and pins the PyPI packages:
+These tools support the separate `~/dev/local-code-bench` harness:
 
 - `dflash-mlx==0.1.8` provides `dflash`
 - `turboquant-mlx-full==0.11.0` provides `turboquant-serve`
+- `vllm-mlx` provides `vllm-mlx`
+- `mtplx` provides `mtplx`
+- `mlx-lm==0.21.0`, `mlc-llm`, and `mlc-ai` are installed into `~/dev/local-code-bench/.venv` so module detection succeeds
+- Homebrew installs `llama.cpp`, `omlx`, and `lm-studio`
+
+`exo` and GPT4All are intentionally excluded from this deployment.
 
 **Verification**:
 
 ```bash
 command -v dflash
 command -v turboquant-serve
+command -v vllm-mlx
+command -v mtplx
+command -v llama-server
+command -v omlx
+test -d "/Applications/LM Studio.app"
+
+cd ~/dev/local-code-bench
+uv run bench inferencer status
 ```
 
 **Default server commands** are exported by Home Manager:

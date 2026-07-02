@@ -18,6 +18,9 @@ in {
     taps = [
       "manaflow-ai/cmux" # cmux terminal - Ghostty-based terminal with vertical tabs for AI coding agents
       "koekeishiya/formulae" # skhd - simple hotkey daemon for macOS
+    ]
+    ++ lib.optionals isPowerProfile [
+      "jundot/omlx" # OMLX - MLX-native local inference server for coding-agent workloads
     ];
 
     onActivation = {
@@ -63,6 +66,11 @@ in {
       # Apple Intelligence CLI
       "apfel"           # Apple Intelligence CLI with OpenAI-compatible API server
 
+    ]
+    ++ lib.optionals isPowerProfile [
+      # Local-code-bench inferencers
+      "llama.cpp" # llama-server - C++/Metal OpenAI-compatible inference server
+      "omlx"      # OMLX CLI - MLX-native local inference server
     ];
 
     # GUI Applications (Casks)
@@ -155,6 +163,9 @@ in {
     ++ lib.optionals isPowerProfile [
       # Development Environment
       "visual-studio-code" # VSCode - Power profile only; enables Claude Code extension workflow
+
+      # Local-code-bench detect-only GUI inferencer
+      "lm-studio" # LM Studio - local model runner with OpenAI-compatible server
     ];
 
     # Global Homebrew options

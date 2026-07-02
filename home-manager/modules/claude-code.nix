@@ -426,18 +426,6 @@ EOF
         fi
       fi
 
-      if [ -f "$CODEX_CONFIG" ] && grep -Fq "[mcp_servers.gitnexus]" "$CODEX_CONFIG"; then
-        echo "✓ Codex MCP server gitnexus already configured"
-      else
-        $DRY_RUN_CMD tee -a "$CODEX_CONFIG" > /dev/null <<'EOF'
-
-[mcp_servers.gitnexus]
-command = "npx"
-args = ["-y", "gitnexus@1.6.3", "mcp"]
-EOF
-        echo "✓ Added Codex MCP server gitnexus"
-      fi
-
       $DRY_RUN_CMD mkdir -p "$QWEN_CONFIG_DIR"
       if [ -f "$QWEN_SETTINGS" ]; then
         if ${jq}/bin/jq '

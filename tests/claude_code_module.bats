@@ -64,6 +64,14 @@
     [ "$status" -eq 0 ]
 }
 
+@test "codex activation does not redeploy removed GitHub MCP server" {
+    module="${BATS_TEST_DIRNAME}/../home-manager/modules/claude-code.nix"
+    removed_server='git''nexus'
+
+    run rg -n -i "$removed_server" "$module"
+    [ "$status" -eq 1 ]
+}
+
 @test "qwen activation disables update telemetry prompt logging and usage stats" {
     module="${BATS_TEST_DIRNAME}/../home-manager/modules/claude-code.nix"
 

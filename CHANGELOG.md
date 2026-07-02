@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-07-02
+
+### Added
+
+- Add Power-profile local-code-bench inferencer deployment and remove GitNexus redeploy hook
+
 ## [1.8.4] - 2026-07-02
 
 ### Fixed

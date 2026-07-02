@@ -33,6 +33,7 @@
 
   # jq is needed for JSON manipulation in the activation script
   jq = pkgs.jq;
+  awk = pkgs.gawk;
 in {
   # Claude Code CLI and MCP Servers Configuration
   # Story 02.2-006: Install Claude Code CLI with Context7 and Playwright MCP servers
@@ -355,6 +356,10 @@ EOF
         fi
         echo "✓ Ensured Codex global marketplace entry for autonomous-sdlc"
 
+        if [ ! -x "$CODEX_BIN" ] && [ -x "/opt/homebrew/bin/codex" ]; then
+          CODEX_BIN="/opt/homebrew/bin/codex"
+        fi
+
         if [ ! -x "$CODEX_BIN" ]; then
           CODEX_BIN="$(command -v codex || true)"
         fi
@@ -390,7 +395,7 @@ EOF
       fi
 
       if [ -f "$CODEX_CONFIG" ]; then
-        if awk '
+        if ${awk}/bin/awk '
           BEGIN {
             saw_otel = 0
             in_otel = 0

@@ -57,6 +57,12 @@
 @test "codex activation disables update checks and telemetry exporter" {
     module="${BATS_TEST_DIRNAME}/../home-manager/modules/claude-code.nix"
 
+    run rg -n 'awk = pkgs.gawk;' "$module"
+    [ "$status" -eq 0 ]
+
+    run rg -n '\$\{awk\}/bin/awk' "$module"
+    [ "$status" -eq 0 ]
+
     run rg -n 'check_for_update_on_startup = false' "$module"
     [ "$status" -eq 0 ]
 
@@ -70,6 +76,13 @@
 
     run rg -n -i "$removed_server" "$module"
     [ "$status" -eq 1 ]
+}
+
+@test "codex activation checks Homebrew cask CLI path" {
+    module="${BATS_TEST_DIRNAME}/../home-manager/modules/claude-code.nix"
+
+    run rg -n '/opt/homebrew/bin/codex' "$module"
+    [ "$status" -eq 0 ]
 }
 
 @test "qwen activation disables update telemetry prompt logging and usage stats" {

@@ -100,15 +100,23 @@ in
       if [ ! -f "$PROJECT_MARKER" ] \
         || ! "$PROJECT_PYTHON" -c 'import mlx_lm, mlc_llm' >/dev/null 2>&1; then
         echo "Installing module-detected local-code-bench inferencers into $PROJECT_VENV"
-        (
+        if (
           cd "$LOCAL_CODE_BENCH_REPO"
+
+          $DRY_RUN_CMD env -u UV_NATIVE_TLS UV_SYSTEM_CERTS=1 UV_SYSTEM_PYTHON=0 VIRTUAL_ENV="$PROJECT_VENV" \
+            "${uvBin}" pip install \
+            "mlx-lm==${mlxLmVersion}" >/dev/null
+
           $DRY_RUN_CMD env -u UV_NATIVE_TLS UV_SYSTEM_CERTS=1 UV_SYSTEM_PYTHON=0 VIRTUAL_ENV="$PROJECT_VENV" \
             "${uvBin}" pip install --pre -U -f https://mlc.ai/wheels \
-            "mlx-lm==${mlxLmVersion}" \
             "mlc-llm" \
             "mlc-ai" >/dev/null
-        )
-        $DRY_RUN_CMD touch "$PROJECT_MARKER"
+        ); then
+          $DRY_RUN_CMD touch "$PROJECT_MARKER"
+        else
+          echo "Warning: module-detected local-code-bench inferencer setup failed; continuing rebuild."
+          echo "   Retry later with: cd $LOCAL_CODE_BENCH_REPO && uv pip install mlx-lm==${mlxLmVersion} && uv pip install --pre -U -f https://mlc.ai/wheels mlc-llm mlc-ai"
+        fi
       fi
     else
       echo "Warning: $LOCAL_CODE_BENCH_REPO not found; skipping module-detected inferencer setup."

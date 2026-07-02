@@ -41,6 +41,14 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
+@test "module-detected inferencer install failure does not fail rebuild" {
+    run rg -n 'continuing rebuild' "$HOME_MANAGER_MODULE"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'Retry later with:' "$HOME_MANAGER_MODULE"
+    [ "$status" -eq 0 ]
+}
+
 @test "local-code-bench deployment keeps exo and GPT4All excluded" {
     run rg -n -i '(^|[^a-z])exo([^a-z]|$)|gpt4all' "$HOME_MANAGER_MODULE" "$HOMEBREW_MODULE"
     [ "$status" -eq 1 ]

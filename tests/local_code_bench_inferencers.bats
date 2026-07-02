@@ -11,6 +11,9 @@ setup() {
     run rg -n '"jundot/omlx"' "$HOMEBREW_MODULE"
     [ "$status" -eq 0 ]
 
+    run rg -n 'clone_target = "https://github.com/jundot/omlx";' "$HOMEBREW_MODULE"
+    [ "$status" -eq 0 ]
+
     run rg -n '"llama.cpp"' "$HOMEBREW_MODULE"
     [ "$status" -eq 0 ]
 

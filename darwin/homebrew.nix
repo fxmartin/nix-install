@@ -20,7 +20,10 @@ in {
       "koekeishiya/formulae" # skhd - simple hotkey daemon for macOS
     ]
     ++ lib.optionals isPowerProfile [
-      "jundot/omlx" # OMLX - MLX-native local inference server for coding-agent workloads
+      {
+        name = "jundot/omlx";
+        clone_target = "https://github.com/jundot/omlx";
+      }
     ];
 
     onActivation = {

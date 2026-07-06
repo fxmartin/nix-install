@@ -609,19 +609,23 @@
     ];
 
     # Ctrl+T: File finder options (Story 04.5-003: use bat for preview)
-    fileWidgetCommand = "fd --type f --hidden --follow --exclude .git";
-    fileWidgetOptions = [
-      "--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
-    ];
+    fileWidget = {
+      command = "fd --type f --hidden --follow --exclude .git";
+      options = [
+        "--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
+      ];
+    };
 
     # Alt+C: Directory finder options (Story 04.5-003: use eza for preview)
-    changeDirWidgetCommand = "fd --type d --hidden --follow --exclude .git";
-    changeDirWidgetOptions = [
-      "--preview 'eza --tree --level=2 --icons --color=always {}'"
-    ];
+    changeDirWidget = {
+      command = "fd --type d --hidden --follow --exclude .git";
+      options = [
+        "--preview 'eza --tree --level=2 --icons --color=always {}'"
+      ];
+    };
 
     # Ctrl+R: History search options
-    historyWidgetOptions = [
+    historyWidget.options = [
       "--sort"
       "--exact"
     ];

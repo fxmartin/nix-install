@@ -15,6 +15,20 @@
   # Nix package manager settings
   nix.enable = true;
 
+  # Avoid building generated nix-darwin docs on rebuilds. The upstream manual
+  # derivation currently passes removed nixos-render-docs flags.
+  documentation = {
+    enable = false;
+    doc.enable = false;
+    info.enable = false;
+    man.enable = false;
+  };
+
+  # The generated uninstaller evaluates a separate default nix-darwin system,
+  # which currently pulls in the broken manual derivation even when this profile
+  # disables docs.
+  system.tools.darwin-uninstaller.enable = false;
+
   # Nix configuration settings
   nix.settings = {
     # Enable modern Nix features (required for flakes)

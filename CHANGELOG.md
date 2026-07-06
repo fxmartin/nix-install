@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.9.5] - 2026-07-06
+## [1.9.6] - 2026-07-06
+
+### Fixed
+
+- Fix Power rebuild manual and fzf warnings## [1.9.5] - 2026-07-06
 
 ### Fixed
 

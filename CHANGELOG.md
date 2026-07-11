@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.9.7] - 2026-07-10
+## [1.9.8] - 2026-07-11
+
+### Fixed
+
+- bump claude-code-config submodule to v2.11.0 (deploy script, epic-26, cross-harness + GitLab pipeline work)## [1.9.7] - 2026-07-10
 
 ### Fixed
 

@@ -8,6 +8,9 @@ set -euo pipefail
 LOG_DIR="${HOME}/.local/log"
 LOG_FILE="${LOG_DIR}/release-monitor.log"
 OUTPUT_FILE="${1:-/tmp/release-notes.json}"
+SOFTWAREUPDATE_BIN="${SOFTWAREUPDATE_BIN:-/usr/sbin/softwareupdate}"
+SW_VERS_BIN="${SW_VERS_BIN:-/usr/bin/sw_vers}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Ensure log directory exists
 mkdir -p "${LOG_DIR}"
@@ -23,23 +26,32 @@ log "=== Starting release note fetch ==="
 fetch_macos_updates() {
     log "Checking for macOS updates..."
 
-    local current_version current_build updates_available
+    local current_version current_build updates_available check_status check_error
 
     # Get current macOS version
-    current_version=$(sw_vers -productVersion 2>/dev/null || echo "unknown")
-    current_build=$(sw_vers -buildVersion 2>/dev/null || echo "unknown")
+    current_version=$("${SW_VERS_BIN}" -productVersion 2>/dev/null || echo "unknown")
+    current_build=$("${SW_VERS_BIN}" -buildVersion 2>/dev/null || echo "unknown")
 
     log "Current macOS: ${current_version} (${current_build})"
 
-    # Check for available updates (this can take a few seconds)
-    # softwareupdate -l lists available updates
-    updates_available=$(softwareupdate -l 2>&1 || echo "")
+    # launchd jobs do not inherit an interactive shell PATH. Use the system
+    # binary explicitly and preserve failures instead of reporting a false zero.
+    updates_available=""
+    check_status="error"
+    check_error=""
+    if [[ ! -x "${SOFTWAREUPDATE_BIN}" ]]; then
+        check_error="softwareupdate is not executable: ${SOFTWAREUPDATE_BIN}"
+    elif updates_available=$("${SOFTWAREUPDATE_BIN}" -l 2>&1); then
+        check_status="success"
+    else
+        check_error="${updates_available:-softwareupdate exited with a non-zero status}"
+    fi
 
     # Parse update information
     local update_count=0
     local updates_json="[]"
 
-    if echo "${updates_available}" | grep -q "Software Update found"; then
+    if [[ "${check_status}" == "success" ]] && echo "${updates_available}" | grep -q "Software Update found"; then
         # Extract update names and versions
         updates_json=$(echo "${updates_available}" | \
             grep -E "^\*|Label:" | \
@@ -50,18 +62,26 @@ fetch_macos_updates() {
         update_count=$(echo "${updates_json}" | jq 'length' 2>/dev/null || echo "0")
     fi
 
-    log "Found ${update_count} macOS update(s) available"
+    if [[ "${check_status}" == "success" ]]; then
+        log "Found ${update_count} macOS update(s) available"
+    else
+        log "ERROR: macOS update check failed: ${check_error}"
+    fi
 
     jq -n \
         --arg current_version "${current_version}" \
         --arg current_build "${current_build}" \
         --argjson updates "${updates_json}" \
+        --arg check_status "${check_status}" \
+        --arg check_error "${check_error}" \
         --arg raw_output "$(echo "${updates_available}" | head -20)" \
         '{
             current_version: $current_version,
             current_build: $current_build,
+            check_status: $check_status,
+            check_error: (if $check_error == "" then null else $check_error end),
             updates_available: $updates,
-            update_count: ($updates | length),
+            update_count: (if $check_status == "success" then ($updates | length) else null end),
             raw_check: $raw_output
         }'
 }
@@ -203,9 +223,23 @@ fetch_ollama_models() {
 get_flake_versions() {
     log "Reading flake.lock versions..."
 
-    local flake_lock="${HOME}/Documents/nix-install/flake.lock"
+    local flake_lock="${NIX_INSTALL_FLAKE_LOCK:-}"
 
-    if [[ -f "${flake_lock}" ]]; then
+    if [[ -z "${flake_lock}" ]]; then
+        local candidate
+        for candidate in \
+            "${SCRIPT_DIR}/../flake.lock" \
+            "${HOME}/.config/nix-install/flake.lock" \
+            "${HOME}/nix-install/flake.lock" \
+            "${HOME}/Documents/nix-install/flake.lock"; do
+            if [[ -f "${candidate}" ]]; then
+                flake_lock="${candidate}"
+                break
+            fi
+        done
+    fi
+
+    if [[ -n "${flake_lock}" && -f "${flake_lock}" ]]; then
         local result
         # Use a filter file to avoid shell escaping issues
         result=$(jq '[.nodes | to_entries[] | select(.value.locked.rev) | {
@@ -219,7 +253,7 @@ get_flake_versions() {
         log "Extracted flake.lock versions"
         echo "${result}"
     else
-        log "WARNING: flake.lock not found at ${flake_lock}"
+        log "WARNING: flake.lock not found"
         echo '{}'
     fi
 }
@@ -263,4 +297,6 @@ main() {
     echo "${OUTPUT_FILE}"
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main "$@"
+fi

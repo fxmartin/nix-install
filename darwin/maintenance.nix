@@ -217,6 +217,7 @@ in
       };
       env = {
         NOTIFICATION_EMAIL = userConfig.notificationEmail;
+        NIX_INSTALL_FLAKE_LOCK = "/Users/${userConfig.username}/${userConfig.directories.dotfiles}/flake.lock";
       };
       command = ''
         SCRIPT="${scriptsDir}/release-monitor.sh"

@@ -25,6 +25,7 @@ safe_bats_suites=(
     tests/local_code_bench_inferencers.bats
     tests/network_security.bats
     tests/rebuild_regressions.bats
+    tests/release_monitor.bats
 )
 
 bats "${safe_bats_suites[@]}"

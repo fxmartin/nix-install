@@ -22,7 +22,7 @@ safe_bats_suites=(
     tests/flake_ollama_activation.bats
     tests/gitleaks-secrets.bats
     tests/icloud_sync.bats
-    tests/local_code_bench_inferencers.bats
+    tests/mlx_lm_inferencer.bats
     tests/network_security.bats
     tests/rebuild_regressions.bats
     tests/release_monitor.bats
@@ -31,5 +31,6 @@ safe_bats_suites=(
 bats "${safe_bats_suites[@]}"
 python3 -m unittest tests/test_health_api.py
 bash tests/codex_sdlc_bridge_test.sh
+bash tests/llm-inferencer-cleanup-test.sh
 bash tests/release-management-test.sh
 bash tests/setup-integrity-test.sh

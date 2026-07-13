@@ -48,7 +48,7 @@ readonly CHECKSUMS_FILE="SHA256SUMS"
 readonly TEMP_DIR="/tmp/nix-install-setup-$$"
 
 # Release version. scripts/bump-version.sh keeps this synchronized with VERSION.
-readonly SETUP_VERSION="2.0.3"
+readonly SETUP_VERSION="2.0.4"
 
 # Tagged releases are the secure default. Branch installs are available only as
 # an explicit development override and use files from the same requested ref.

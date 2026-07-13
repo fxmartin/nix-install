@@ -26,12 +26,6 @@ in
     taps = [
       "manaflow-ai/cmux" # cmux terminal - Ghostty-based terminal with vertical tabs for AI coding agents
       "koekeishiya/formulae" # skhd - simple hotkey daemon for macOS
-    ]
-    ++ lib.optionals isPowerProfile [
-      {
-        name = "jundot/omlx";
-        clone_target = "https://github.com/jundot/omlx";
-      }
     ];
 
     onActivation = {
@@ -78,11 +72,6 @@ in
       # Apple Intelligence CLI
       "apfel" # Apple Intelligence CLI with OpenAI-compatible API server
 
-    ]
-    ++ lib.optionals isPowerProfile [
-      # Local-code-bench inferencers
-      "llama.cpp" # llama-server - C++/Metal OpenAI-compatible inference server
-      "omlx" # OMLX CLI - MLX-native local inference server
     ];
 
     # GUI Applications (Casks)
@@ -187,8 +176,6 @@ in
       # Development Environment
       "visual-studio-code" # VSCode - Power profile only; enables Claude Code extension workflow
 
-      # Local-code-bench detect-only GUI inferencer
-      "lm-studio" # LM Studio - local model runner with OpenAI-compatible server
     ];
 
     # Global Homebrew options
@@ -207,7 +194,6 @@ in
     #   mas install 302584613   # Kindle
     #   mas install 890031187   # Marked 2
     #   mas install 310633997   # WhatsApp
-    #   mas install 6749861443  # Inferencer
     masApps = lib.mkIf (userConfig.enableMasApps or false) {
       "1Password for Safari" = 1569813296; # Safari password manager extension
       "Perplexity" = 6714467650; # AI search assistant
@@ -216,7 +202,6 @@ in
       "WhatsApp" = 310633997; # Messaging app
       "Amphetamine" = 937984704; # Keep-awake utility to prevent sleep
       "reMarkable desktop" = 1276493162; # reMarkable tablet sync and screen share
-      "Inferencer" = 6749861443; # Private on-device AI model runner
     };
   };
 

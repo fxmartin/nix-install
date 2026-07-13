@@ -29,8 +29,8 @@
     ./modules/python.nix
     # OpenAI Privacy Filter (MLX): venv + weight pre-pull (companion to darwin/privacy-filter.nix)
     ./modules/privacy-filter.nix
-    # Local code benchmark MLX server CLIs: dflash + turboquant-serve
-    ./modules/local-code-bench.nix
+    # Apple-native local inference through a dedicated MLX-LM environment
+    ./modules/mlx-lm.nix
     # Email notifications for maintenance (Feature 06.5)
     ./modules/msmtp.nix
     # CLI tool configurations with Catppuccin theming and sensible defaults

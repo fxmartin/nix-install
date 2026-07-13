@@ -51,6 +51,7 @@ in
     brews = [
       "gh" # GitHub CLI - Required for automated SSH key upload in bootstrap
       "mas" # Mac App Store CLI - Required for masApps installations (Issue #25)
+      "pkgconf" # pkg-config implementation required by native Python extension builds
 
       # AI & LLM Tools
       "ollama" # Ollama CLI - Local LLM server (replaces ollama-app cask)

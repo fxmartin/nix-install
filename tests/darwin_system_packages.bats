@@ -4,6 +4,12 @@
 
 setup() {
     DARWIN_CONFIG="${BATS_TEST_DIRNAME}/../darwin/configuration.nix"
+    HOMEBREW_CONFIG="${BATS_TEST_DIRNAME}/../darwin/homebrew.nix"
+}
+
+@test "pkgconf remains declarative for native extension builds" {
+    run rg -n '"pkgconf"' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 0 ]
 }
 
 common_bats_package_lines() {

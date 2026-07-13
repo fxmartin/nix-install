@@ -60,6 +60,17 @@ run_cleanup() {
         bash "$cleanup_script" "$@"
 }
 
+run_cleanup_with_rm() {
+    local rm_command="$1"
+    shift
+    CLEANUP_HOME="$test_home" \
+        CLEANUP_APPLICATIONS_DIR="$applications_dir" \
+        CLEANUP_SKIP_PACKAGE_MANAGERS=1 \
+        CLEANUP_SKIP_PROCESS_STOP=1 \
+        CLEANUP_RM_BIN="$rm_command" \
+        bash "$cleanup_script" "$@"
+}
+
 assert_exists() {
     if [ ! -e "$1" ] && [ ! -L "$1" ]; then
         echo "Expected path to exist: $1" >&2
@@ -103,6 +114,28 @@ assert_exists "${test_home}/dev/local-code-bench/src/keep.py"
 
 # A second apply must be a safe no-op.
 run_cleanup --apply
+
+# A protected target must not prevent later allowlisted targets from cleanup.
+mkdir -p "${test_home}/Library/Containers/com.inferencer"
+touch "${test_home}/Library/Containers/com.inferencer/protected"
+ln -s "${test_home}/retired/dflash" "${test_home}/.local/bin/dflash"
+mock_rm="${test_root}/mock-rm"
+cat >"$mock_rm" <<'MOCK'
+#!/usr/bin/env bash
+for argument in "$@"; do
+    if [[ "$argument" == */Library/Containers/com.inferencer ]]; then
+        exit 1
+    fi
+done
+exec /bin/rm "$@"
+MOCK
+chmod +x "$mock_rm"
+if run_cleanup_with_rm "$mock_rm" --apply; then
+    echo "Cleanup unexpectedly ignored a target deletion failure" >&2
+    exit 1
+fi
+assert_exists "${test_home}/Library/Containers/com.inferencer"
+assert_absent "${test_home}/.local/bin/dflash"
 
 # Refuse to delete an application if its bundle identity does not match.
 mkdir -p "${applications_dir}/LM Studio.app/Contents"

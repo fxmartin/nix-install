@@ -29,6 +29,7 @@ applications_dir="${CLEANUP_APPLICATIONS_DIR:-/Applications}"
 skip_package_managers="${CLEANUP_SKIP_PACKAGE_MANAGERS:-0}"
 skip_process_stop="${CLEANUP_SKIP_PROCESS_STOP:-0}"
 plist_buddy="${CLEANUP_PLIST_BUDDY:-/usr/libexec/PlistBuddy}"
+rm_bin="${CLEANUP_RM_BIN:-rm}"
 failure=0
 reclaimable_kib=0
 
@@ -81,7 +82,10 @@ remove_allowlisted_path() {
     record_size "$target"
     if [ "$mode" = "apply" ]; then
         echo "Removing $target"
-        rm -rf "$target"
+        if ! "$rm_bin" -rf "$target"; then
+            echo "Failed to remove $target; continuing with remaining targets" >&2
+            failure=1
+        fi
     else
         echo "Would remove $target"
     fi
@@ -117,10 +121,16 @@ remove_validated_app() {
         echo "Would remove $app_path (bundle $actual_bundle_id)"
     elif [ -w "$applications_dir" ]; then
         echo "Removing $app_path"
-        rm -rf "$app_path"
+        if ! "$rm_bin" -rf "$app_path"; then
+            echo "Failed to remove $app_path; continuing with remaining targets" >&2
+            failure=1
+        fi
     else
         echo "Removing $app_path with administrator privileges"
-        sudo rm -rf "$app_path"
+        if ! sudo rm -rf "$app_path"; then
+            echo "Failed to remove $app_path; continuing with remaining targets" >&2
+            failure=1
+        fi
     fi
 }
 

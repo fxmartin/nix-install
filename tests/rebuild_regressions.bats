@@ -8,6 +8,7 @@ setup() {
     SHELL_MODULE="${BATS_TEST_DIRNAME}/../home-manager/modules/shell.nix"
     BUILD_WORKFLOW="${BATS_TEST_DIRNAME}/../.github/workflows/build-bootstrap.yml"
     NIX_WORKFLOW="${BATS_TEST_DIRNAME}/../.github/workflows/nix-flake-check.yml"
+    MAKEFILE="${BATS_TEST_DIRNAME}/../Makefile"
 }
 
 @test "nix-darwin generated documentation is disabled" {
@@ -61,5 +62,10 @@ setup() {
     [ "$status" -eq 0 ]
 
     run rg -n -- "- 'Claude'" "$NIX_WORKFLOW"
+    [ "$status" -eq 0 ]
+}
+
+@test "Nix evaluation uses the sanitized CI config in clean checkouts" {
+    run rg -n '^\s*NIX_INSTALL_CI=1 nix flake show --impure' "$MAKEFILE"
     [ "$status" -eq 0 ]
 }

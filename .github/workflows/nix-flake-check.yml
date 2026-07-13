@@ -11,6 +11,7 @@ on:
       - 'flake.lock'
       - 'darwin/**'
       - 'home-manager/**'
+      - 'Claude'
       - 'tests/**'
       - 'Makefile'
       - '.github/workflows/nix-flake-check.yml'
@@ -21,6 +22,7 @@ on:
       - 'flake.lock'
       - 'darwin/**'
       - 'home-manager/**'
+      - 'Claude'
       - 'tests/**'
       - 'Makefile'
       - '.github/workflows/nix-flake-check.yml'
@@ -34,6 +36,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          submodules: recursive
 
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@a7ad9c4f0c65208097f4d34f3cfa1913b80cce5c # main

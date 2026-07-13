@@ -54,18 +54,8 @@ jobs:
           bash -n bootstrap.sh
           echo "bootstrap.sh passed syntax validation"
 
-      - name: Run shellcheck on lib/*.sh
-        uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca # master
-        with:
-          scandir: './lib'
-          severity: error
-
-      - name: Run shellcheck on bootstrap.sh
-        uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca # master
-        with:
-          scandir: '.'
-          additional_files: 'bootstrap.sh'
-          severity: error
+      - name: Run shellcheck on bootstrap sources
+        run: shellcheck --severity=error bootstrap.sh lib/*.sh
 
       - name: Build bootstrap-dist.sh
         run: |

@@ -6,6 +6,8 @@ setup() {
     DARWIN_CONFIG="${BATS_TEST_DIRNAME}/../darwin/configuration.nix"
     HOMEBREW_MODULE="${BATS_TEST_DIRNAME}/../darwin/homebrew.nix"
     SHELL_MODULE="${BATS_TEST_DIRNAME}/../home-manager/modules/shell.nix"
+    BUILD_WORKFLOW="${BATS_TEST_DIRNAME}/../.github/workflows/build-bootstrap.yml"
+    NIX_WORKFLOW="${BATS_TEST_DIRNAME}/../.github/workflows/nix-flake-check.yml"
 }
 
 @test "nix-darwin generated documentation is disabled" {
@@ -43,5 +45,21 @@ setup() {
     [ "$status" -eq 0 ]
 
     run rg -n '/opt/homebrew/bin/starship' "$SHELL_MODULE"
+    [ "$status" -eq 0 ]
+}
+
+@test "bootstrap CI limits shellcheck to supported shell sources" {
+    run rg -n 'run: shellcheck --severity=error bootstrap\.sh lib/\*\.sh' "$BUILD_WORKFLOW"
+    [ "$status" -eq 0 ]
+
+    run rg -n "scandir: ['\"]?\.['\"]?" "$BUILD_WORKFLOW"
+    [ "$status" -eq 1 ]
+}
+
+@test "Nix CI checks out and watches the Claude submodule" {
+    run rg -n 'submodules: recursive' "$NIX_WORKFLOW"
+    [ "$status" -eq 0 ]
+
+    run rg -n -- "- 'Claude'" "$NIX_WORKFLOW"
     [ "$status" -eq 0 ]
 }

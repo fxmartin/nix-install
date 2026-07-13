@@ -6,7 +6,8 @@
   lib,
   userConfig,
   ...
-}: {
+}:
+{
   # =============================================================================
   # SYSTEM-LEVEL GARBAGE COLLECTION (Story 08.1-001)
   # =============================================================================
@@ -32,7 +33,8 @@
     serviceConfig = {
       Label = "org.nixos.nix-gc-system";
       ProgramArguments = [
-        "/bin/bash" "-c"
+        "/bin/bash"
+        "-c"
         ''
           LOG=/var/log/nix-gc-system.log
           {
@@ -61,7 +63,11 @@
 
       # Weekly: Sunday 04:00
       StartCalendarInterval = [
-        { Weekday = 0; Hour = 4; Minute = 0; }
+        {
+          Weekday = 0;
+          Hour = 4;
+          Minute = 0;
+        }
       ];
 
       # Daemon runs as root (required to prune system-*-link).
@@ -82,7 +88,7 @@
       };
 
       RunAtLoad = false;
-      Umask = 77;  # 0077 — logs owner-readable only
+      Umask = 77; # 0077 — logs owner-readable only
     };
   };
 }

@@ -233,32 +233,32 @@ teardown() {
 # =============================================================================
 
 @test "fetch_flake_from_github function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f fetch_flake_from_github >/dev/null
 }
 
 @test "copy_user_config function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f copy_user_config >/dev/null
 }
 
 @test "initialize_git_for_flake function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f initialize_git_for_flake >/dev/null
 }
 
 @test "run_nix_darwin_build function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f run_nix_darwin_build >/dev/null
 }
 
 @test "verify_nix_darwin_installed function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f verify_nix_darwin_installed >/dev/null
 }
 
 @test "install_nix_darwin_phase function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f install_nix_darwin_phase >/dev/null
 }
 
@@ -267,7 +267,7 @@ teardown() {
 # =============================================================================
 
 @test "fetch_flake_from_github creates darwin directory" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     fetch_flake_from_github
@@ -276,7 +276,7 @@ teardown() {
 }
 
 @test "fetch_flake_from_github creates home-manager/modules directory" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     fetch_flake_from_github
@@ -285,7 +285,7 @@ teardown() {
 }
 
 @test "fetch_flake_from_github fetches flake.nix" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     fetch_flake_from_github
@@ -294,7 +294,7 @@ teardown() {
 }
 
 @test "fetch_flake_from_github fetches flake.lock" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     fetch_flake_from_github
@@ -303,7 +303,7 @@ teardown() {
 }
 
 @test "fetch_flake_from_github fetches darwin configuration files" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     fetch_flake_from_github
@@ -314,7 +314,7 @@ teardown() {
 }
 
 @test "fetch_flake_from_github fetches home-manager files" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     fetch_flake_from_github
@@ -324,7 +324,7 @@ teardown() {
 }
 
 @test "fetch_flake_from_github validates files are non-empty" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     fetch_flake_from_github
@@ -334,7 +334,7 @@ teardown() {
 }
 
 @test "fetch_flake_from_github handles curl failures gracefully" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     export MOCK_CURL_FAIL=1
@@ -344,7 +344,7 @@ teardown() {
 }
 
 @test "fetch_flake_from_github uses correct GitHub URLs" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Override curl to capture URLs
     curl() {
@@ -361,7 +361,7 @@ teardown() {
 }
 
 @test "fetch_flake_from_github exits on fetch failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     export MOCK_CURL_FAIL=1
@@ -371,7 +371,7 @@ teardown() {
 }
 
 @test "fetch_flake_from_github logs progress messages" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     run fetch_flake_from_github
@@ -381,7 +381,7 @@ teardown() {
 }
 
 @test "fetch_flake_from_github creates all required directories" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     fetch_flake_from_github
@@ -392,7 +392,7 @@ teardown() {
 }
 
 @test "fetch_flake_from_github fetches from main branch" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Override curl to capture branch
     curl() {
@@ -410,7 +410,7 @@ teardown() {
 }
 
 @test "fetch_flake_from_github validates all required files present" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     fetch_flake_from_github
@@ -424,7 +424,7 @@ teardown() {
 }
 
 @test "fetch_flake_from_github logs error on failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     export MOCK_CURL_FAIL=1
@@ -438,7 +438,7 @@ teardown() {
 # =============================================================================
 
 @test "copy_user_config validates source file exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     run copy_user_config
@@ -447,7 +447,7 @@ teardown() {
 }
 
 @test "copy_user_config copies to correct destination" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     # Remove existing file to test copy
@@ -459,7 +459,7 @@ teardown() {
 }
 
 @test "copy_user_config preserves file permissions" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     chmod 644 "${USER_CONFIG_FILE}"
     cd "${WORK_DIR}"
@@ -471,7 +471,7 @@ teardown() {
 }
 
 @test "copy_user_config validates destination readable" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     copy_user_config
@@ -480,7 +480,7 @@ teardown() {
 }
 
 @test "copy_user_config handles missing source file" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Remove source file
     rm -f "${USER_CONFIG_FILE}"
@@ -493,7 +493,7 @@ teardown() {
 }
 
 @test "copy_user_config exits on copy failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Make destination read-only
     chmod 000 "${WORK_DIR}"
@@ -507,7 +507,7 @@ teardown() {
 }
 
 @test "copy_user_config logs success message" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     run copy_user_config
@@ -516,7 +516,7 @@ teardown() {
 }
 
 @test "copy_user_config validates file content preserved" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     rm -f "${WORK_DIR}/user-config.nix"
@@ -527,7 +527,7 @@ teardown() {
 }
 
 @test "copy_user_config handles existing destination file" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     # Create existing file
@@ -540,7 +540,7 @@ teardown() {
 }
 
 @test "copy_user_config logs error on failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     rm -f "${USER_CONFIG_FILE}"
     export USER_CONFIG_FILE="${WORK_DIR}/missing.nix"
@@ -556,7 +556,7 @@ teardown() {
 # =============================================================================
 
 @test "initialize_git_for_flake runs git init in correct directory" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     initialize_git_for_flake
@@ -565,7 +565,7 @@ teardown() {
 }
 
 @test "initialize_git_for_flake adds all files" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     # Create some test files
@@ -578,7 +578,7 @@ teardown() {
 }
 
 @test "initialize_git_for_flake creates initial commit" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     touch "${WORK_DIR}/flake.nix"
@@ -589,7 +589,7 @@ teardown() {
 }
 
 @test "initialize_git_for_flake handles git not installed" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export MOCK_GIT_FAIL=1
     cd "${WORK_DIR}"
@@ -601,7 +601,7 @@ teardown() {
 }
 
 @test "initialize_git_for_flake is idempotent" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     touch "${WORK_DIR}/flake.nix"
@@ -614,7 +614,7 @@ teardown() {
 }
 
 @test "initialize_git_for_flake logs warning on failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export MOCK_GIT_FAIL=1
     cd "${WORK_DIR}"
@@ -625,7 +625,7 @@ teardown() {
 }
 
 @test "initialize_git_for_flake continues on failure (non-critical)" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export MOCK_GIT_FAIL=1
     cd "${WORK_DIR}"
@@ -637,7 +637,7 @@ teardown() {
 }
 
 @test "initialize_git_for_flake logs success message" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     touch "${WORK_DIR}/flake.nix"
@@ -652,7 +652,7 @@ teardown() {
 # =============================================================================
 
 @test "run_nix_darwin_build uses correct profile standard" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export INSTALL_PROFILE="standard"
     cd "${WORK_DIR}"
@@ -664,7 +664,7 @@ teardown() {
 }
 
 @test "run_nix_darwin_build uses correct profile power" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export INSTALL_PROFILE="power"
     cd "${WORK_DIR}"
@@ -676,7 +676,7 @@ teardown() {
 }
 
 @test "run_nix_darwin_build changes to work directory" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd /tmp
     export WORK_DIR="${TEST_TMP_DIR}/nix-bootstrap"
@@ -689,7 +689,7 @@ teardown() {
 }
 
 @test "run_nix_darwin_build runs nix run nix-darwin command" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     touch "${WORK_DIR}/flake.nix"
@@ -700,7 +700,7 @@ teardown() {
 }
 
 @test "run_nix_darwin_build uses flake path format" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     touch "${WORK_DIR}/flake.nix"
@@ -721,7 +721,7 @@ teardown() {
 }
 
 @test "run_nix_darwin_build displays progress messages" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     touch "${WORK_DIR}/flake.nix"
@@ -732,7 +732,7 @@ teardown() {
 }
 
 @test "run_nix_darwin_build shows Nix output" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     touch "${WORK_DIR}/flake.nix"
@@ -743,7 +743,7 @@ teardown() {
 }
 
 @test "run_nix_darwin_build exits on build failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export MOCK_NIX_BUILD_FAIL=1
     cd "${WORK_DIR}"
@@ -755,7 +755,7 @@ teardown() {
 }
 
 @test "run_nix_darwin_build returns 0 on success" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     touch "${WORK_DIR}/flake.nix"
@@ -766,7 +766,7 @@ teardown() {
 }
 
 @test "run_nix_darwin_build displays build duration estimate" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     touch "${WORK_DIR}/flake.nix"
@@ -777,7 +777,7 @@ teardown() {
 }
 
 @test "run_nix_darwin_build mentions Homebrew installation" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     touch "${WORK_DIR}/flake.nix"
@@ -788,7 +788,7 @@ teardown() {
 }
 
 @test "run_nix_darwin_build logs error on failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export MOCK_NIX_BUILD_FAIL=1
     cd "${WORK_DIR}"
@@ -804,7 +804,7 @@ teardown() {
 # =============================================================================
 
 @test "verify_nix_darwin_installed checks darwin-rebuild exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create mock darwin-rebuild
     mkdir -p "${TEST_TMP_DIR}/bin"
@@ -821,7 +821,7 @@ SCRIPT
 }
 
 @test "verify_nix_darwin_installed checks Homebrew exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create mock Homebrew
     mkdir -p /opt/homebrew/bin
@@ -840,7 +840,7 @@ SCRIPT
 }
 
 @test "verify_nix_darwin_installed exits on missing darwin-rebuild" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Ensure darwin-rebuild doesn't exist
     export PATH="/usr/bin:/bin"
@@ -851,7 +851,7 @@ SCRIPT
 }
 
 @test "verify_nix_darwin_installed exits on missing Homebrew" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Mock darwin-rebuild exists
     mkdir -p "${TEST_TMP_DIR}/bin"
@@ -868,7 +868,7 @@ SCRIPT
 }
 
 @test "verify_nix_darwin_installed logs success on all checks passing" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Mock both commands
     mkdir -p "${TEST_TMP_DIR}/bin"
@@ -886,7 +886,7 @@ SCRIPT
 }
 
 @test "verify_nix_darwin_installed uses command -v for darwin-rebuild" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     mkdir -p "${TEST_TMP_DIR}/bin"
     touch "${TEST_TMP_DIR}/bin/darwin-rebuild"
@@ -903,7 +903,7 @@ SCRIPT
 }
 
 @test "verify_nix_darwin_installed checks Homebrew at /opt/homebrew/bin/brew" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     mkdir -p "${TEST_TMP_DIR}/bin"
     touch "${TEST_TMP_DIR}/bin/darwin-rebuild"
@@ -920,7 +920,7 @@ SCRIPT
 }
 
 @test "verify_nix_darwin_installed logs error on darwin-rebuild missing" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export PATH="/usr/bin:/bin"
 
@@ -930,7 +930,7 @@ SCRIPT
 }
 
 @test "verify_nix_darwin_installed logs error on Homebrew missing" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     mkdir -p "${TEST_TMP_DIR}/bin"
     touch "${TEST_TMP_DIR}/bin/darwin-rebuild"
@@ -945,7 +945,7 @@ SCRIPT
 }
 
 @test "verify_nix_darwin_installed returns 0 on success" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     mkdir -p "${TEST_TMP_DIR}/bin"
     touch "${TEST_TMP_DIR}/bin/darwin-rebuild"
@@ -966,7 +966,7 @@ SCRIPT
 # =============================================================================
 
 @test "install_nix_darwin_phase calls fetch_flake_from_github" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     run install_nix_darwin_phase
@@ -976,7 +976,7 @@ SCRIPT
 }
 
 @test "install_nix_darwin_phase calls copy_user_config" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     run install_nix_darwin_phase
@@ -986,7 +986,7 @@ SCRIPT
 }
 
 @test "install_nix_darwin_phase calls initialize_git_for_flake" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     run install_nix_darwin_phase
@@ -996,7 +996,7 @@ SCRIPT
 }
 
 @test "install_nix_darwin_phase calls run_nix_darwin_build" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     run install_nix_darwin_phase
@@ -1006,7 +1006,7 @@ SCRIPT
 }
 
 @test "install_nix_darwin_phase calls verify_nix_darwin_installed" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Mock verification commands
     mkdir -p "${TEST_TMP_DIR}/bin"
@@ -1025,7 +1025,7 @@ SCRIPT
 }
 
 @test "install_nix_darwin_phase logs phase start" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     run install_nix_darwin_phase
@@ -1034,7 +1034,7 @@ SCRIPT
 }
 
 @test "install_nix_darwin_phase logs phase end" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     mkdir -p "${TEST_TMP_DIR}/bin"
     touch "${TEST_TMP_DIR}/bin/darwin-rebuild"
@@ -1052,7 +1052,7 @@ SCRIPT
 }
 
 @test "install_nix_darwin_phase exits on function failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export MOCK_CURL_FAIL=1
     cd "${WORK_DIR}"
@@ -1063,7 +1063,7 @@ SCRIPT
 }
 
 @test "install_nix_darwin_phase returns 0 on success" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     mkdir -p "${TEST_TMP_DIR}/bin"
     touch "${TEST_TMP_DIR}/bin/darwin-rebuild"
@@ -1081,7 +1081,7 @@ SCRIPT
 }
 
 @test "install_nix_darwin_phase includes timestamps in logs" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     mkdir -p "${TEST_TMP_DIR}/bin"
     touch "${TEST_TMP_DIR}/bin/darwin-rebuild"
@@ -1104,7 +1104,7 @@ SCRIPT
 # =============================================================================
 
 @test "fetch_flake_from_github is CRITICAL and exits on failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export MOCK_CURL_FAIL=1
     cd "${WORK_DIR}"
@@ -1115,7 +1115,7 @@ SCRIPT
 }
 
 @test "copy_user_config is CRITICAL and exits on failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     rm -f "${USER_CONFIG_FILE}"
     export USER_CONFIG_FILE="${WORK_DIR}/missing.nix"
@@ -1127,7 +1127,7 @@ SCRIPT
 }
 
 @test "initialize_git_for_flake is NON-CRITICAL and logs warnings" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export MOCK_GIT_FAIL=1
     cd "${WORK_DIR}"
@@ -1138,7 +1138,7 @@ SCRIPT
 }
 
 @test "run_nix_darwin_build is CRITICAL and exits on failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export MOCK_NIX_BUILD_FAIL=1
     cd "${WORK_DIR}"
@@ -1149,7 +1149,7 @@ SCRIPT
 }
 
 @test "verify_nix_darwin_installed is CRITICAL and exits on failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export PATH="/usr/bin:/bin"
 
@@ -1159,7 +1159,7 @@ SCRIPT
 }
 
 @test "fetch_flake_from_github displays clear error messages" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export MOCK_CURL_FAIL=1
     cd "${WORK_DIR}"
@@ -1170,7 +1170,7 @@ SCRIPT
 }
 
 @test "copy_user_config displays clear error messages" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     rm -f "${USER_CONFIG_FILE}"
     export USER_CONFIG_FILE="${WORK_DIR}/missing.nix"
@@ -1182,7 +1182,7 @@ SCRIPT
 }
 
 @test "run_nix_darwin_build displays clear error messages" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export MOCK_NIX_BUILD_FAIL=1
     cd "${WORK_DIR}"
@@ -1193,7 +1193,7 @@ SCRIPT
 }
 
 @test "verify_nix_darwin_installed displays clear error messages" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export PATH="/usr/bin:/bin"
 
@@ -1203,7 +1203,7 @@ SCRIPT
 }
 
 @test "install_nix_darwin_phase provides actionable guidance on failures" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export MOCK_CURL_FAIL=1
     cd "${WORK_DIR}"
@@ -1218,7 +1218,7 @@ SCRIPT
 # =============================================================================
 
 @test "Phase 5 integration: all variables available" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Verify variables from previous phases
     [[ -n "$INSTALL_PROFILE" ]]
@@ -1228,21 +1228,21 @@ SCRIPT
 }
 
 @test "Phase 5 integration: work directory accessible" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     [[ -d "$WORK_DIR" ]]
     [[ -w "$WORK_DIR" ]]
 }
 
 @test "Phase 5 integration: user-config.nix available from Phase 2" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     [[ -f "$USER_CONFIG_FILE" ]]
     [[ -r "$USER_CONFIG_FILE" ]]
 }
 
 @test "Phase 5 integration: functions callable from main" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # All phase functions should be defined
     declare -f install_nix_darwin_phase >/dev/null
@@ -1254,7 +1254,7 @@ SCRIPT
 }
 
 @test "Phase 5 integration: end-to-end phase execution" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     mkdir -p "${TEST_TMP_DIR}/bin"
     touch "${TEST_TMP_DIR}/bin/darwin-rebuild"

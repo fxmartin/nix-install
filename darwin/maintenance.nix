@@ -8,16 +8,16 @@
   userConfig,
   profileName,
   ...
-}: let
+}:
+let
   # Scripts are installed to ~/.local/bin to avoid macOS TCC (Transparency, Consent, Control)
   # restrictions that block LaunchAgents from accessing ~/Documents
   scriptsDir = "/Users/${userConfig.username}/.local/bin";
 
-  # Ollama network config (used in both LaunchAgent and global environment)
-  # Bind to all interfaces for Tailscale access; restrict origins to localhost + Tailscale CGNAT
-  # NOTE: Only one * per origin pattern (gin-contrib/cors limitation in Ollama 0.15+)
-  ollamaHost = "0.0.0.0";
-  ollamaOrigins = "http://localhost:*,http://127.0.0.1:*,http://100.*";
+  # Ollama is intentionally loopback-only. It has no application authentication,
+  # so CORS settings are not a sufficient remote-access boundary.
+  ollamaHost = "127.0.0.1";
+  ollamaOrigins = "http://localhost:*,http://127.0.0.1:*";
 
   # Ollama memory-residency tuning (Story 08.2-001).
   # MAX_LOADED_MODELS=1: second model evicts the first (prevents 20+ GB RAM pin)
@@ -29,11 +29,15 @@
   # User can override KEEP_ALIVE via userConfig.ollamaKeepAlive attr.
   ollamaMaxLoadedModels = "1";
   ollamaNumParallel = "1";
-  ollamaKeepAlive = userConfig.ollamaKeepAlive or (
-    if profileName == "power" then "5m"
-    else if profileName == "ai-assistant" then "30s"
-    else "2m"
-  );
+  ollamaKeepAlive =
+    userConfig.ollamaKeepAlive or (
+      if profileName == "power" then
+        "5m"
+      else if profileName == "ai-assistant" then
+        "30s"
+      else
+        "2m"
+    );
   enableOllamaServeAgent = userConfig.enableOllamaServeAgent or false;
 
   # Standard PATH for scheduled LaunchAgents (includes per-user Nix profile)
@@ -42,29 +46,37 @@
 
   # Helper to create a scheduled LaunchAgent with consistent defaults
   # Reduces boilerplate across all maintenance agents
-  mkScheduledAgent = {
-    command,                        # Bash command to execute
-    schedule,                       # StartCalendarInterval attrset (e.g., { Hour = 3; Minute = 0; })
-    name,                           # Agent name (used for log file paths)
-    env ? {},                       # Extra environment variables (merged with PATH/HOME defaults)
-    runAtLoad ? false,              # Start immediately at login
-    keepAlive ? false,              # Restart if process exits
-  }: {
-    serviceConfig = {
-      ProgramArguments = [ "/bin/bash" "-c" command ];
-      StartCalendarInterval = [ schedule ];
-      StandardOutPath = "/tmp/${name}.log";
-      StandardErrorPath = "/tmp/${name}.err";
-      EnvironmentVariables = {
-        PATH = agentPath;
-        HOME = agentHome;
-      } // env;
-      RunAtLoad = runAtLoad;
-      KeepAlive = keepAlive;
-      Umask = 77;  # 0077 — restrict log/output files to owner only
+  mkScheduledAgent =
+    {
+      command, # Bash command to execute
+      schedule, # StartCalendarInterval attrset (e.g., { Hour = 3; Minute = 0; })
+      name, # Agent name (used for log file paths)
+      env ? { }, # Extra environment variables (merged with PATH/HOME defaults)
+      runAtLoad ? false, # Start immediately at login
+      keepAlive ? false, # Restart if process exits
+    }:
+    {
+      serviceConfig = {
+        ProgramArguments = [
+          "/bin/bash"
+          "-c"
+          command
+        ];
+        StartCalendarInterval = [ schedule ];
+        StandardOutPath = "/tmp/${name}.log";
+        StandardErrorPath = "/tmp/${name}.err";
+        EnvironmentVariables = {
+          PATH = agentPath;
+          HOME = agentHome;
+        }
+        // env;
+        RunAtLoad = runAtLoad;
+        KeepAlive = keepAlive;
+        Umask = 77; # 0077 — restrict log/output files to owner only
+      };
     };
-  };
-in {
+in
+{
   # =============================================================================
   # MAINTENANCE LAUNCHAGENTS (Epic-06: Maintenance & Monitoring)
   # =============================================================================
@@ -82,7 +94,10 @@ in {
     # Keeps recent generations for rollback capability
     nix-gc = mkScheduledAgent {
       name = "nix-gc";
-      schedule = { Hour = 3; Minute = 0; };
+      schedule = {
+        Hour = 3;
+        Minute = 0;
+      };
       command = ''
         echo "=== Nix Garbage Collection ===" >> /tmp/nix-gc.log
         echo "Started at: $(date)" >> /tmp/nix-gc.log
@@ -107,7 +122,10 @@ in {
     # Saves disk space by linking identical files
     nix-optimize = mkScheduledAgent {
       name = "nix-optimize";
-      schedule = { Hour = 3; Minute = 30; };
+      schedule = {
+        Hour = 3;
+        Minute = 30;
+      };
       command = ''
         echo "=== Nix Store Optimization ===" >> /tmp/nix-optimize.log
         echo "Started at: $(date)" >> /tmp/nix-optimize.log
@@ -132,8 +150,14 @@ in {
     # Aggregates GC/optimization stats and system health metrics
     weekly-digest = mkScheduledAgent {
       name = "weekly-digest";
-      schedule = { Weekday = 0; Hour = 8; Minute = 0; };
-      env = { NOTIFICATION_EMAIL = userConfig.notificationEmail; };
+      schedule = {
+        Weekday = 0;
+        Hour = 8;
+        Minute = 0;
+      };
+      env = {
+        NOTIFICATION_EMAIL = userConfig.notificationEmail;
+      };
       command = ''
         SCRIPT="${scriptsDir}/weekly-maintenance-digest.sh"
         if [[ -x "$SCRIPT" ]]; then
@@ -154,7 +178,8 @@ in {
       serviceConfig = {
         Label = "org.nixos.vitals-sampler";
         ProgramArguments = [
-          "/bin/bash" "-c"
+          "/bin/bash"
+          "-c"
           ''
             SCRIPT="${scriptsDir}/vitals-sampler.sh"
             if [[ -x "$SCRIPT" ]]; then
@@ -165,7 +190,7 @@ in {
             fi
           ''
         ];
-        StartInterval = 3600;  # Hourly
+        StartInterval = 3600; # Hourly
         StandardOutPath = "/tmp/vitals-sampler.log";
         StandardErrorPath = "/tmp/vitals-sampler.err";
         EnvironmentVariables = {
@@ -185,8 +210,14 @@ in {
     # Analyzes with Claude CLI and creates GitHub issues for actionable items
     release-monitor = mkScheduledAgent {
       name = "release-monitor";
-      schedule = { Weekday = 1; Hour = 7; Minute = 0; };
-      env = { NOTIFICATION_EMAIL = userConfig.notificationEmail; };
+      schedule = {
+        Weekday = 1;
+        Hour = 7;
+        Minute = 0;
+      };
+      env = {
+        NOTIFICATION_EMAIL = userConfig.notificationEmail;
+      };
       command = ''
         SCRIPT="${scriptsDir}/release-monitor.sh"
         if [[ -x "$SCRIPT" ]]; then
@@ -206,7 +237,11 @@ in {
     # Sends email report to NOTIFICATION_EMAIL after cleanup
     disk-cleanup = mkScheduledAgent {
       name = "disk-cleanup";
-      schedule = { Day = 1; Hour = 4; Minute = 0; };
+      schedule = {
+        Day = 1;
+        Hour = 4;
+        Minute = 0;
+      };
       env = {
         NOTIFICATION_EMAIL = userConfig.notificationEmail;
         SCRIPTS_DIR = scriptsDir;
@@ -241,7 +276,8 @@ in {
       serviceConfig = {
         Label = "org.nixos.docker-deep-prune";
         ProgramArguments = [
-          "/bin/bash" "-c"
+          "/bin/bash"
+          "-c"
           ''
             LOG=/tmp/docker-deep-prune.log
             echo "=== Docker Deep Prune $(date '+%Y-%m-%d %H:%M:%S') ===" >> "$LOG"
@@ -276,10 +312,30 @@ in {
         ];
         # Fire 1st of Jan/Apr/Jul/Oct at 04:30 (quarterly cadence)
         StartCalendarInterval = [
-          { Month = 1;  Day = 1; Hour = 4; Minute = 30; }
-          { Month = 4;  Day = 1; Hour = 4; Minute = 30; }
-          { Month = 7;  Day = 1; Hour = 4; Minute = 30; }
-          { Month = 10; Day = 1; Hour = 4; Minute = 30; }
+          {
+            Month = 1;
+            Day = 1;
+            Hour = 4;
+            Minute = 30;
+          }
+          {
+            Month = 4;
+            Day = 1;
+            Hour = 4;
+            Minute = 30;
+          }
+          {
+            Month = 7;
+            Day = 1;
+            Hour = 4;
+            Minute = 30;
+          }
+          {
+            Month = 10;
+            Day = 1;
+            Hour = 4;
+            Minute = 30;
+          }
         ];
         StandardOutPath = "/tmp/docker-deep-prune.log";
         StandardErrorPath = "/tmp/docker-deep-prune.err";
@@ -304,24 +360,26 @@ in {
     #     # user-config.nix
     #     enableOllamaLRU = true;
     #     ollamaLRUThresholdDays = 60;  # optional override
-    ollama-lru =
-      lib.mkIf (userConfig.enableOllamaLRU or false)
-        (mkScheduledAgent {
-          name = "ollama-lru";
-          schedule = { Day = 1; Hour = 5; Minute = 0; };  # 1st of month, 05:00
-          env = {
-            PATH = "/opt/homebrew/bin:${agentPath}";
-          };
-          command = ''
-            SCRIPT="${scriptsDir}/ollama-lru.sh"
-            if [[ -x "$SCRIPT" ]]; then
-              "$SCRIPT" --auto --threshold-days=${toString (userConfig.ollamaLRUThresholdDays or 60)}
-            else
-              echo "ollama-lru script not found: $SCRIPT" >> /tmp/ollama-lru.err
-              exit 1
-            fi
-          '';
-        });
+    ollama-lru = lib.mkIf (userConfig.enableOllamaLRU or false) (mkScheduledAgent {
+      name = "ollama-lru";
+      schedule = {
+        Day = 1;
+        Hour = 5;
+        Minute = 0;
+      }; # 1st of month, 05:00
+      env = {
+        PATH = "/opt/homebrew/bin:${agentPath}";
+      };
+      command = ''
+        SCRIPT="${scriptsDir}/ollama-lru.sh"
+        if [[ -x "$SCRIPT" ]]; then
+          "$SCRIPT" --auto --threshold-days=${toString (userConfig.ollamaLRUThresholdDays or 60)}
+        else
+          echo "ollama-lru script not found: $SCRIPT" >> /tmp/ollama-lru.err
+          exit 1
+        fi
+      '';
+    });
 
     # =========================================================================
     # CLAUDE CODE ORPHAN CLEANUP
@@ -337,7 +395,8 @@ in {
     claude-code-cleanup = {
       serviceConfig = {
         ProgramArguments = [
-          "/bin/bash" "-c"
+          "/bin/bash"
+          "-c"
           ''
             SCRIPT="${scriptsDir}/claude-cleanup.sh"
             if [[ -x "$SCRIPT" ]]; then
@@ -348,7 +407,7 @@ in {
             fi
           ''
         ];
-        StartInterval = 5400;  # 90 minutes
+        StartInterval = 5400; # 90 minutes
         StandardOutPath = "/tmp/claude-code-cleanup.log";
         StandardErrorPath = "/tmp/claude-code-cleanup.err";
         EnvironmentVariables = {
@@ -373,10 +432,13 @@ in {
     # (colon-joined into CLAUDE_PROJECTS_KEEP env var).
     claude-project-prune = mkScheduledAgent {
       name = "claude-project-prune";
-      schedule = { Weekday = 6; Hour = 5; Minute = 0; };
+      schedule = {
+        Weekday = 6;
+        Hour = 5;
+        Minute = 0;
+      };
       env = {
-        CLAUDE_PROJECTS_KEEP = builtins.concatStringsSep ":"
-          (userConfig.claudeProjectsKeep or []);
+        CLAUDE_PROJECTS_KEEP = builtins.concatStringsSep ":" (userConfig.claudeProjectsKeep or [ ]);
       };
       command = ''
         SCRIPT="${scriptsDir}/claude-cleanup.sh"
@@ -412,7 +474,8 @@ in {
       serviceConfig = {
         Label = "org.nixos.ollama-pressure-guard";
         ProgramArguments = [
-          "/bin/bash" "-c"
+          "/bin/bash"
+          "-c"
           ''
             SCRIPT="${scriptsDir}/ollama-pressure-guard.sh"
             if [[ -x "$SCRIPT" ]]; then
@@ -423,7 +486,7 @@ in {
             fi
           ''
         ];
-        StartInterval = 60;  # Every minute
+        StartInterval = 60; # Every minute
         StandardOutPath = "/tmp/ollama-pressure-guard.log";
         StandardErrorPath = "/tmp/ollama-pressure-guard.err";
         EnvironmentVariables = {
@@ -455,7 +518,8 @@ in {
       serviceConfig = {
         Label = "org.nixos.virt-vm-orphan-watch";
         ProgramArguments = [
-          "/bin/bash" "-c"
+          "/bin/bash"
+          "-c"
           ''
             SCRIPT="${scriptsDir}/virt-vm-orphan-watch.sh"
             if [[ -x "$SCRIPT" ]]; then
@@ -466,7 +530,7 @@ in {
             fi
           ''
         ];
-        StartInterval = 600;  # 10 minutes
+        StartInterval = 600; # 10 minutes
         StandardOutPath = "/tmp/virt-vm-orphan-watch.log";
         StandardErrorPath = "/tmp/virt-vm-orphan-watch.err";
         EnvironmentVariables = {
@@ -480,7 +544,8 @@ in {
       };
     };
 
-  } // lib.optionalAttrs enableOllamaServeAgent {
+  }
+  // lib.optionalAttrs enableOllamaServeAgent {
     # =========================================================================
     # OLLAMA SERVER (Network-accessible via Tailscale)
     # =========================================================================
@@ -489,7 +554,10 @@ in {
     ollama-serve = mkScheduledAgent {
       name = "ollama-serve";
       # Schedule unused for KeepAlive services but required by mkScheduledAgent
-      schedule = { Hour = 0; Minute = 0; };
+      schedule = {
+        Hour = 0;
+        Minute = 0;
+      };
       runAtLoad = true;
       keepAlive = true;
       env = {
@@ -505,7 +573,7 @@ in {
         /usr/bin/pkill -f "ollama serve" 2>/dev/null || true
         /usr/bin/pkill -x ollama 2>/dev/null || true
         sleep 2
-        # Start Ollama bound to all interfaces via OLLAMA_HOST env var
+        # Start Ollama on loopback only via OLLAMA_HOST.
         exec /opt/homebrew/bin/ollama serve
       '';
     };

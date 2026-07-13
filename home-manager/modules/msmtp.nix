@@ -6,7 +6,8 @@
   lib,
   userConfig,
   ...
-}: {
+}:
+{
   # =============================================================================
   # MSMTP SMTP CLIENT CONFIGURATION (Story 06.5-001)
   # =============================================================================
@@ -54,7 +55,7 @@
   '';
 
   # Ensure log directory exists for msmtp logging
-  home.activation.createMsmtpLogDir = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.createMsmtpLogDir = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     run mkdir -p $HOME/.local/log
   '';
 }

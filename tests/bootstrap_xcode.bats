@@ -53,27 +53,27 @@ teardown() {
 # =============================================================================
 
 @test "check_xcode_installed function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f check_xcode_installed >/dev/null
 }
 
 @test "install_xcode_cli_tools function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f install_xcode_cli_tools >/dev/null
 }
 
 @test "wait_for_xcode_installation function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f wait_for_xcode_installation >/dev/null
 }
 
 @test "verify_xcode_installation function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f verify_xcode_installation >/dev/null
 }
 
 @test "install_xcode_phase function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f install_xcode_phase >/dev/null
 }
 
@@ -83,7 +83,7 @@ teardown() {
 
 @test "check_xcode_installed returns 0 when Xcode CLI tools installed" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run check_xcode_installed
     [ "$status" -eq 0 ]
@@ -91,7 +91,7 @@ teardown() {
 
 @test "check_xcode_installed returns 1 when Xcode CLI tools not installed" {
     export MOCK_XCODE_INSTALLED=0
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run check_xcode_installed
     [ "$status" -eq 1 ]
@@ -99,7 +99,7 @@ teardown() {
 
 @test "check_xcode_installed logs path when installed" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run check_xcode_installed
     [[ "$output" =~ "/Library/Developer/CommandLineTools" ]]
@@ -107,7 +107,7 @@ teardown() {
 
 @test "check_xcode_installed logs not installed message" {
     export MOCK_XCODE_INSTALLED=0
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run check_xcode_installed
     [[ "$output" =~ "not installed" ]]
@@ -115,7 +115,7 @@ teardown() {
 
 @test "check_xcode_installed handles xcode-select command failure gracefully" {
     export MOCK_XCODE_INSTALLED=0
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run check_xcode_installed
     [ "$status" -eq 1 ]
@@ -123,7 +123,7 @@ teardown() {
 
 @test "check_xcode_installed detects valid installation path" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run check_xcode_installed
     [ "$status" -eq 0 ]
@@ -132,7 +132,7 @@ teardown() {
 
 @test "check_xcode_installed is idempotent" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run check_xcode_installed
     local first_status=$status
@@ -150,14 +150,14 @@ teardown() {
     }
     export -f xcode-select
 
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     run check_xcode_installed
     [ "$status" -eq 1 ]
 }
 
 @test "check_xcode_installed validates installation before returning success" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run check_xcode_installed
     [ "$status" -eq 0 ]
@@ -165,7 +165,7 @@ teardown() {
 
 @test "check_xcode_installed logs info level messages" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run check_xcode_installed
     # Should contain log_info output (not error)
@@ -178,7 +178,7 @@ teardown() {
 
 @test "install_xcode_cli_tools calls xcode-select --install" {
     export MOCK_XCODE_INSTALL_FAIL=0
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_cli_tools
     [ "$status" -eq 0 ]
@@ -186,7 +186,7 @@ teardown() {
 
 @test "install_xcode_cli_tools returns 0 on successful trigger" {
     export MOCK_XCODE_INSTALL_FAIL=0
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_cli_tools
     [ "$status" -eq 0 ]
@@ -194,7 +194,7 @@ teardown() {
 
 @test "install_xcode_cli_tools returns 1 on installation trigger failure" {
     export MOCK_XCODE_INSTALL_FAIL=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_cli_tools
     [ "$status" -eq 1 ]
@@ -202,7 +202,7 @@ teardown() {
 
 @test "install_xcode_cli_tools logs starting message" {
     export MOCK_XCODE_INSTALL_FAIL=0
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_cli_tools
     [[ "$output" =~ "Starting" || "$output" =~ "installation" ]]
@@ -210,7 +210,7 @@ teardown() {
 
 @test "install_xcode_cli_tools logs success message" {
     export MOCK_XCODE_INSTALL_FAIL=0
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_cli_tools
     [[ "$output" =~ "dialog opened" || "$output" =~ "✓" ]]
@@ -218,7 +218,7 @@ teardown() {
 
 @test "install_xcode_cli_tools logs error on failure" {
     export MOCK_XCODE_INSTALL_FAIL=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_cli_tools
     [[ "$output" =~ "Failed" || "$output" =~ "ERROR" ]]
@@ -226,7 +226,7 @@ teardown() {
 
 @test "install_xcode_cli_tools handles already-in-progress installation" {
     export MOCK_XCODE_INSTALL_FAIL=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_cli_tools
     [ "$status" -eq 1 ]
@@ -235,7 +235,7 @@ teardown() {
 
 @test "install_xcode_cli_tools does not require sudo" {
     export MOCK_XCODE_INSTALL_FAIL=0
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Should succeed without sudo
     run install_xcode_cli_tools
@@ -247,35 +247,35 @@ teardown() {
 # =============================================================================
 
 @test "wait_for_xcode_installation prompts user" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run wait_for_xcode_installation
     [[ "$output" =~ "MANUAL STEP" || "$output" =~ "Press ENTER" ]]
 }
 
 @test "wait_for_xcode_installation displays clear instructions" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run wait_for_xcode_installation
     [[ "$output" =~ "Click 'Install'" ]]
 }
 
 @test "wait_for_xcode_installation mentions time estimate" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run wait_for_xcode_installation
     [[ "$output" =~ "5-10 minutes" || "$output" =~ "minutes" ]]
 }
 
 @test "wait_for_xcode_installation returns 0 after user input" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run wait_for_xcode_installation
     [ "$status" -eq 0 ]
 }
 
 @test "wait_for_xcode_installation waits for ENTER key" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Mock read is already set up to simulate ENTER
     run wait_for_xcode_installation
@@ -283,21 +283,21 @@ teardown() {
 }
 
 @test "wait_for_xcode_installation displays header separator" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run wait_for_xcode_installation
     [[ "$output" =~ "======" ]]
 }
 
 @test "wait_for_xcode_installation provides numbered steps" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run wait_for_xcode_installation
     [[ "$output" =~ "1." && "$output" =~ "2." && "$output" =~ "3." ]]
 }
 
 @test "wait_for_xcode_installation is non-blocking after user input" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Should return immediately with mocked read
     run wait_for_xcode_installation
@@ -310,7 +310,7 @@ teardown() {
 
 @test "verify_xcode_installation returns 0 when installed" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run verify_xcode_installation
     [ "$status" -eq 0 ]
@@ -318,7 +318,7 @@ teardown() {
 
 @test "verify_xcode_installation returns 1 when not installed" {
     export MOCK_XCODE_INSTALLED=0
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run verify_xcode_installation
     [ "$status" -eq 1 ]
@@ -326,7 +326,7 @@ teardown() {
 
 @test "verify_xcode_installation displays installation path" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run verify_xcode_installation
     [[ "$output" =~ "/Library/Developer/CommandLineTools" ]]
@@ -334,7 +334,7 @@ teardown() {
 
 @test "verify_xcode_installation logs success message" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run verify_xcode_installation
     [[ "$output" =~ "installed successfully" || "$output" =~ "✓" ]]
@@ -342,7 +342,7 @@ teardown() {
 
 @test "verify_xcode_installation logs error on verification failure" {
     export MOCK_XCODE_INSTALLED=0
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run verify_xcode_installation
     [[ "$output" =~ "verification failed" || "$output" =~ "ERROR" ]]
@@ -350,7 +350,7 @@ teardown() {
 
 @test "verify_xcode_installation provides troubleshooting guidance" {
     export MOCK_XCODE_INSTALLED=0
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run verify_xcode_installation
     [[ "$output" =~ "xcode-select --install" ]]
@@ -358,7 +358,7 @@ teardown() {
 
 @test "verify_xcode_installation validates path format" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run verify_xcode_installation
     [ "$status" -eq 0 ]
@@ -367,7 +367,7 @@ teardown() {
 
 @test "verify_xcode_installation uses xcode-select -p" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run verify_xcode_installation
     [ "$status" -eq 0 ]
@@ -379,7 +379,7 @@ teardown() {
 
 @test "install_xcode_phase skips when already installed" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_phase
     [ "$status" -eq 0 ]
@@ -387,7 +387,7 @@ teardown() {
 }
 
 @test "install_xcode_phase orchestrates full installation flow" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Mock the entire flow: not installed → install → verify → license
     export MOCK_XCODE_INSTALL_FAIL=0
@@ -422,7 +422,7 @@ teardown() {
 
 @test "install_xcode_phase displays Phase 3/10 header" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_phase
     [[ "$output" =~ "Phase 3" ]]
@@ -431,7 +431,7 @@ teardown() {
 @test "install_xcode_phase returns 1 on installation failure" {
     export MOCK_XCODE_INSTALLED=0
     export MOCK_XCODE_INSTALL_FAIL=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_phase
     [ "$status" -eq 1 ]
@@ -441,7 +441,7 @@ teardown() {
     export MOCK_XCODE_INSTALLED=0
     export MOCK_XCODE_INSTALL_FAIL=0
 
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Mock verify_xcode_installation to fail
     verify_xcode_installation() {
@@ -465,7 +465,7 @@ teardown() {
     }
     export -f xcode-select
 
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     run install_xcode_phase
     [ "$status" -ne 0 ]
 }
@@ -473,7 +473,7 @@ teardown() {
 @test "install_xcode_phase handles installation dialog cancellation" {
     export MOCK_XCODE_INSTALLED=0
     export MOCK_XCODE_INSTALL_FAIL=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_phase
     [ "$status" -eq 1 ]
@@ -482,7 +482,7 @@ teardown() {
 @test "install_xcode_phase propagates installation trigger errors" {
     export MOCK_XCODE_INSTALLED=0
     export MOCK_XCODE_INSTALL_FAIL=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_phase
     [ "$status" -eq 1 ]
@@ -493,7 +493,7 @@ teardown() {
     export MOCK_XCODE_INSTALLED=0
     export MOCK_XCODE_INSTALL_FAIL=0
 
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Mock verify to always fail
     verify_xcode_installation() {
@@ -507,7 +507,7 @@ teardown() {
 
 @test "error messages include actionable guidance" {
     export MOCK_XCODE_INSTALLED=0
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run verify_xcode_installation
     [[ "$output" =~ "xcode-select --install" ]]
@@ -515,7 +515,7 @@ teardown() {
 
 @test "error messages are clear and descriptive" {
     export MOCK_XCODE_INSTALL_FAIL=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_cli_tools
     [[ "$output" =~ "Failed" ]]
@@ -525,7 +525,7 @@ teardown() {
     export MOCK_XCODE_INSTALLED=0
     export MOCK_XCODE_INSTALL_FAIL=0
 
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Simulate verification failure after installation attempt
     verify_xcode_installation() {
@@ -540,7 +540,7 @@ teardown() {
 
 @test "verification errors suggest manual intervention" {
     export MOCK_XCODE_INSTALLED=0
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run verify_xcode_installation
     [[ "$output" =~ "xcode-select --install" ]]
@@ -548,7 +548,7 @@ teardown() {
 
 @test "installation errors do not expose stack traces" {
     export MOCK_XCODE_INSTALL_FAIL=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_cli_tools
     ! [[ "$output" =~ "line [0-9]" ]]
@@ -557,7 +557,7 @@ teardown() {
 @test "phase errors return non-zero exit codes" {
     export MOCK_XCODE_INSTALLED=0
     export MOCK_XCODE_INSTALL_FAIL=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_phase
     [ "$status" -ne 0 ]
@@ -569,7 +569,7 @@ teardown() {
 
 @test "install_xcode_phase is safe to run multiple times when installed" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_phase
     local first_status=$status
@@ -580,7 +580,7 @@ teardown() {
 
 @test "check_xcode_installed produces consistent results" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run check_xcode_installed
     local first_output="$output"
@@ -591,7 +591,7 @@ teardown() {
 
 @test "install_xcode_phase skips installation when already complete" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run install_xcode_phase
     [[ "$output" =~ "already installed" ]]
@@ -600,7 +600,7 @@ teardown() {
 
 @test "verify_xcode_installation can be called multiple times" {
     export MOCK_XCODE_INSTALLED=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run verify_xcode_installation
     [ "$status" -eq 0 ]

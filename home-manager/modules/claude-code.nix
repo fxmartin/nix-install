@@ -9,7 +9,8 @@
   findRepoRoot,
   mcp-servers-nix,
   ...
-}: let
+}:
+let
   # Generate MCP server configuration using mcp-servers-nix.lib.mkConfig
   # This automatically handles package paths and server configuration
   mcpConfig = mcp-servers-nix.lib.mkConfig pkgs {
@@ -34,7 +35,8 @@
   # jq is needed for JSON manipulation in the activation script
   jq = pkgs.jq;
   awk = pkgs.gawk;
-in {
+in
+{
   # Claude Code CLI and MCP Servers Configuration
   # Story 02.2-006: Install Claude Code CLI with Context7 and Playwright MCP servers
   #
@@ -73,502 +75,502 @@ in {
   # All MCP servers use Nix-installed binaries (managed by mkConfig, not npx/npm)
 
   # Activation script to set up Claude Code configuration and symlink files to repo
-  home.activation.claudeCodeSetup = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    # Find nix-install repo root (shared helper from flake.nix extraSpecialArgs)
-    ${findRepoRoot config.home.homeDirectory}
+  home.activation.claudeCodeSetup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        # Find nix-install repo root (shared helper from flake.nix extraSpecialArgs)
+        ${findRepoRoot config.home.homeDirectory}
 
-    # Create ~/.claude directory
-    CLAUDE_DIR="${config.home.homeDirectory}/.claude"
-    if [ ! -d "$CLAUDE_DIR" ]; then
-      $DRY_RUN_CMD mkdir -p "$CLAUDE_DIR"
-      echo "Created Claude Code directory: $CLAUDE_DIR"
-    fi
-
-    # If repo found, symlink CLAUDE.md, agents/, and commands/ to repository
-    if [ -n "$REPO_ROOT" ]; then
-      # Symlink CLAUDE.md (REQ-NFR-008 compliant)
-      CLAUDE_MD_REPO="$REPO_ROOT/config/claude-code-config/CLAUDE.md"
-      CLAUDE_MD_HOME="$CLAUDE_DIR/CLAUDE.md"
-
-      if [ -f "$CLAUDE_MD_REPO" ]; then
-        # Back up existing file if it's not a symlink
-        if [ -f "$CLAUDE_MD_HOME" ] && [ ! -L "$CLAUDE_MD_HOME" ]; then
-          $DRY_RUN_CMD mv "$CLAUDE_MD_HOME" "$CLAUDE_MD_HOME.backup"
-          echo "Backed up existing CLAUDE.md to: $CLAUDE_MD_HOME.backup"
+        # Create ~/.claude directory
+        CLAUDE_DIR="${config.home.homeDirectory}/.claude"
+        if [ ! -d "$CLAUDE_DIR" ]; then
+          $DRY_RUN_CMD mkdir -p "$CLAUDE_DIR"
+          echo "Created Claude Code directory: $CLAUDE_DIR"
         fi
 
-        $DRY_RUN_CMD ln -sf "$CLAUDE_MD_REPO" "$CLAUDE_MD_HOME"
-        echo "✓ Linked ~/.claude/CLAUDE.md → $REPO_ROOT/config/claude-code-config/CLAUDE.md"
-      else
-        echo "⚠️  Warning: $CLAUDE_MD_REPO not found"
-      fi
+        # If repo found, symlink CLAUDE.md, agents/, and commands/ to repository
+        if [ -n "$REPO_ROOT" ]; then
+          # Symlink CLAUDE.md (REQ-NFR-008 compliant)
+          CLAUDE_MD_REPO="$REPO_ROOT/config/claude-code-config/CLAUDE.md"
+          CLAUDE_MD_HOME="$CLAUDE_DIR/CLAUDE.md"
 
-      # Symlink agents directory
-      AGENTS_REPO="$REPO_ROOT/config/claude-code-config/agents"
-      AGENTS_HOME="$CLAUDE_DIR/agents"
+          if [ -f "$CLAUDE_MD_REPO" ]; then
+            # Back up existing file if it's not a symlink
+            if [ -f "$CLAUDE_MD_HOME" ] && [ ! -L "$CLAUDE_MD_HOME" ]; then
+              $DRY_RUN_CMD mv "$CLAUDE_MD_HOME" "$CLAUDE_MD_HOME.backup"
+              echo "Backed up existing CLAUDE.md to: $CLAUDE_MD_HOME.backup"
+            fi
 
-      if [ -d "$AGENTS_REPO" ]; then
-        # Back up existing directory if it's not a symlink
-        if [ -d "$AGENTS_HOME" ] && [ ! -L "$AGENTS_HOME" ]; then
-          $DRY_RUN_CMD mv "$AGENTS_HOME" "$AGENTS_HOME.backup"
-          echo "Backed up existing agents/ to: $AGENTS_HOME.backup"
-        fi
-
-        $DRY_RUN_CMD ln -sfn "$AGENTS_REPO" "$AGENTS_HOME"
-        echo "✓ Linked ~/.claude/agents/ → $REPO_ROOT/config/claude-code-config/agents/"
-      else
-        echo "⚠️  Warning: $AGENTS_REPO directory not found"
-      fi
-
-      # Symlink commands directory
-      COMMANDS_REPO="$REPO_ROOT/config/claude-code-config/commands"
-      COMMANDS_HOME="$CLAUDE_DIR/commands"
-
-      if [ -d "$COMMANDS_REPO" ]; then
-        # Back up existing directory if it's not a symlink
-        if [ -d "$COMMANDS_HOME" ] && [ ! -L "$COMMANDS_HOME" ]; then
-          $DRY_RUN_CMD mv "$COMMANDS_HOME" "$COMMANDS_HOME.backup"
-          echo "Backed up existing commands/ to: $COMMANDS_HOME.backup"
-        fi
-
-        $DRY_RUN_CMD ln -sfn "$COMMANDS_REPO" "$COMMANDS_HOME"
-        echo "✓ Linked ~/.claude/commands/ → $REPO_ROOT/config/claude-code-config/commands/"
-      else
-        echo "⚠️  Warning: $COMMANDS_REPO directory not found"
-      fi
-
-      # Symlink settings.json (statusline, plugins, theme)
-      SETTINGS_REPO="$REPO_ROOT/config/claude-code-config/settings.json"
-      SETTINGS_HOME="$CLAUDE_DIR/settings.json"
-
-      if [ -f "$SETTINGS_REPO" ]; then
-        # Back up existing file if it's not a symlink
-        if [ -f "$SETTINGS_HOME" ] && [ ! -L "$SETTINGS_HOME" ]; then
-          $DRY_RUN_CMD mv "$SETTINGS_HOME" "$SETTINGS_HOME.backup"
-          echo "Backed up existing settings.json to: $SETTINGS_HOME.backup"
-        fi
-
-        $DRY_RUN_CMD ln -sf "$SETTINGS_REPO" "$SETTINGS_HOME"
-        echo "✓ Linked ~/.claude/settings.json → $REPO_ROOT/config/claude-code-config/settings.json"
-      else
-        echo "⚠️  Warning: $SETTINGS_REPO not found"
-      fi
-
-      # Symlink statusline-command.sh (referenced by settings.json)
-      STATUSLINE_REPO="$REPO_ROOT/config/claude-code-config/statusline-command.sh"
-      STATUSLINE_HOME="$CLAUDE_DIR/statusline-command.sh"
-
-      if [ -f "$STATUSLINE_REPO" ]; then
-        # Back up existing file if it's not a symlink
-        if [ -f "$STATUSLINE_HOME" ] && [ ! -L "$STATUSLINE_HOME" ]; then
-          $DRY_RUN_CMD mv "$STATUSLINE_HOME" "$STATUSLINE_HOME.backup"
-          echo "Backed up existing statusline-command.sh to: $STATUSLINE_HOME.backup"
-        fi
-
-        $DRY_RUN_CMD ln -sf "$STATUSLINE_REPO" "$STATUSLINE_HOME"
-        echo "✓ Linked ~/.claude/statusline-command.sh → $REPO_ROOT/config/claude-code-config/statusline-command.sh"
-      else
-        echo "⚠️  Warning: $STATUSLINE_REPO not found"
-      fi
-
-      # Symlink keybindings.json
-      KEYBINDINGS_REPO="$REPO_ROOT/config/claude-code-config/keybindings.json"
-      KEYBINDINGS_HOME="$CLAUDE_DIR/keybindings.json"
-
-      if [ -f "$KEYBINDINGS_REPO" ]; then
-        if [ -f "$KEYBINDINGS_HOME" ] && [ ! -L "$KEYBINDINGS_HOME" ]; then
-          $DRY_RUN_CMD mv "$KEYBINDINGS_HOME" "$KEYBINDINGS_HOME.backup"
-          echo "Backed up existing keybindings.json to: $KEYBINDINGS_HOME.backup"
-        fi
-
-        $DRY_RUN_CMD ln -sf "$KEYBINDINGS_REPO" "$KEYBINDINGS_HOME"
-        echo "✓ Linked ~/.claude/keybindings.json → $REPO_ROOT/config/claude-code-config/keybindings.json"
-      else
-        echo "⚠️  Warning: $KEYBINDINGS_REPO not found"
-      fi
-
-      # Symlink docs directory
-      DOCS_REPO="$REPO_ROOT/config/claude-code-config/docs"
-      DOCS_HOME="$CLAUDE_DIR/docs"
-
-      if [ -d "$DOCS_REPO" ]; then
-        if [ -d "$DOCS_HOME" ] && [ ! -L "$DOCS_HOME" ]; then
-          $DRY_RUN_CMD mv "$DOCS_HOME" "$DOCS_HOME.backup"
-          echo "Backed up existing docs/ to: $DOCS_HOME.backup"
-        fi
-
-        $DRY_RUN_CMD ln -sfn "$DOCS_REPO" "$DOCS_HOME"
-        echo "✓ Linked ~/.claude/docs/ → $REPO_ROOT/config/claude-code-config/docs/"
-      else
-        echo "⚠️  Warning: $DOCS_REPO directory not found"
-      fi
-
-      # Symlink skills directory
-      SKILLS_REPO="$REPO_ROOT/config/claude-code-config/skills"
-      SKILLS_HOME="$CLAUDE_DIR/skills"
-
-      if [ -d "$SKILLS_REPO" ]; then
-        if [ -d "$SKILLS_HOME" ] && [ ! -L "$SKILLS_HOME" ]; then
-          $DRY_RUN_CMD mv "$SKILLS_HOME" "$SKILLS_HOME.backup"
-          echo "Backed up existing skills/ to: $SKILLS_HOME.backup"
-        fi
-
-        $DRY_RUN_CMD ln -sfn "$SKILLS_REPO" "$SKILLS_HOME"
-        echo "✓ Linked ~/.claude/skills/ → $REPO_ROOT/config/claude-code-config/skills/"
-      else
-        echo "⚠️  Warning: $SKILLS_REPO directory not found"
-      fi
-
-      # Symlink hooks directory
-      HOOKS_REPO="$REPO_ROOT/config/claude-code-config/hooks"
-      HOOKS_HOME="$CLAUDE_DIR/hooks"
-
-      if [ -d "$HOOKS_REPO" ]; then
-        if [ -d "$HOOKS_HOME" ] && [ ! -L "$HOOKS_HOME" ]; then
-          $DRY_RUN_CMD mv "$HOOKS_HOME" "$HOOKS_HOME.backup"
-          echo "Backed up existing hooks/ to: $HOOKS_HOME.backup"
-        fi
-
-        $DRY_RUN_CMD ln -sfn "$HOOKS_REPO" "$HOOKS_HOME"
-        echo "✓ Linked ~/.claude/hooks/ → $REPO_ROOT/config/claude-code-config/hooks/"
-      else
-        echo "⚠️  Warning: $HOOKS_REPO directory not found"
-      fi
-
-      # Install the OpenAI Codex Claude Code plugin declaratively.
-      # settings.json declares the marketplace and enabled plugin; the Claude
-      # CLI owns the runtime plugin registry and cache layout.
-      CLAUDE_BIN="/run/current-system/sw/bin/claude"
-      if [ ! -x "$CLAUDE_BIN" ]; then
-        CLAUDE_BIN="$(command -v claude || true)"
-      fi
-      if [ -z "$CLAUDE_BIN" ]; then
-        echo "⚠️  Warning: claude CLI not found; skipping Codex plugin installation"
-      else
-        $DRY_RUN_CMD mkdir -p "$CLAUDE_DIR/plugins"
-
-        if "$CLAUDE_BIN" plugin marketplace list 2>/dev/null | grep -q "openai-codex"; then
-          echo "✓ Claude plugin marketplace openai-codex already configured"
-        else
-          echo "Adding Claude plugin marketplace openai-codex..."
-          if $DRY_RUN_CMD "$CLAUDE_BIN" plugin marketplace add --scope user openai/codex-plugin-cc; then
-            echo "✓ Added Claude plugin marketplace openai-codex"
+            $DRY_RUN_CMD ln -sf "$CLAUDE_MD_REPO" "$CLAUDE_MD_HOME"
+            echo "✓ Linked ~/.claude/CLAUDE.md → $REPO_ROOT/config/claude-code-config/CLAUDE.md"
           else
-            echo "⚠️  Warning: Failed to add Claude plugin marketplace openai-codex"
+            echo "⚠️  Warning: $CLAUDE_MD_REPO not found"
           fi
-        fi
 
-        PLUGIN_LIST_JSON="$CLAUDE_DIR/plugins/installed_plugins.activation.json"
-        if "$CLAUDE_BIN" plugin list --json > "$PLUGIN_LIST_JSON" 2>/dev/null; then
-          if ${jq}/bin/jq -e 'any(.[]; .id == "codex@openai-codex")' "$PLUGIN_LIST_JSON" >/dev/null; then
-            echo "✓ Claude plugin codex@openai-codex already installed"
+          # Symlink agents directory
+          AGENTS_REPO="$REPO_ROOT/config/claude-code-config/agents"
+          AGENTS_HOME="$CLAUDE_DIR/agents"
+
+          if [ -d "$AGENTS_REPO" ]; then
+            # Back up existing directory if it's not a symlink
+            if [ -d "$AGENTS_HOME" ] && [ ! -L "$AGENTS_HOME" ]; then
+              $DRY_RUN_CMD mv "$AGENTS_HOME" "$AGENTS_HOME.backup"
+              echo "Backed up existing agents/ to: $AGENTS_HOME.backup"
+            fi
+
+            $DRY_RUN_CMD ln -sfn "$AGENTS_REPO" "$AGENTS_HOME"
+            echo "✓ Linked ~/.claude/agents/ → $REPO_ROOT/config/claude-code-config/agents/"
           else
-            echo "Installing Claude plugin codex@openai-codex..."
-            if $DRY_RUN_CMD "$CLAUDE_BIN" plugin install --scope user codex@openai-codex; then
-              echo "✓ Installed Claude plugin codex@openai-codex"
+            echo "⚠️  Warning: $AGENTS_REPO directory not found"
+          fi
+
+          # Symlink commands directory
+          COMMANDS_REPO="$REPO_ROOT/config/claude-code-config/commands"
+          COMMANDS_HOME="$CLAUDE_DIR/commands"
+
+          if [ -d "$COMMANDS_REPO" ]; then
+            # Back up existing directory if it's not a symlink
+            if [ -d "$COMMANDS_HOME" ] && [ ! -L "$COMMANDS_HOME" ]; then
+              $DRY_RUN_CMD mv "$COMMANDS_HOME" "$COMMANDS_HOME.backup"
+              echo "Backed up existing commands/ to: $COMMANDS_HOME.backup"
+            fi
+
+            $DRY_RUN_CMD ln -sfn "$COMMANDS_REPO" "$COMMANDS_HOME"
+            echo "✓ Linked ~/.claude/commands/ → $REPO_ROOT/config/claude-code-config/commands/"
+          else
+            echo "⚠️  Warning: $COMMANDS_REPO directory not found"
+          fi
+
+          # Symlink settings.json (statusline, plugins, theme)
+          SETTINGS_REPO="$REPO_ROOT/config/claude-code-config/settings.json"
+          SETTINGS_HOME="$CLAUDE_DIR/settings.json"
+
+          if [ -f "$SETTINGS_REPO" ]; then
+            # Back up existing file if it's not a symlink
+            if [ -f "$SETTINGS_HOME" ] && [ ! -L "$SETTINGS_HOME" ]; then
+              $DRY_RUN_CMD mv "$SETTINGS_HOME" "$SETTINGS_HOME.backup"
+              echo "Backed up existing settings.json to: $SETTINGS_HOME.backup"
+            fi
+
+            $DRY_RUN_CMD ln -sf "$SETTINGS_REPO" "$SETTINGS_HOME"
+            echo "✓ Linked ~/.claude/settings.json → $REPO_ROOT/config/claude-code-config/settings.json"
+          else
+            echo "⚠️  Warning: $SETTINGS_REPO not found"
+          fi
+
+          # Symlink statusline-command.sh (referenced by settings.json)
+          STATUSLINE_REPO="$REPO_ROOT/config/claude-code-config/statusline-command.sh"
+          STATUSLINE_HOME="$CLAUDE_DIR/statusline-command.sh"
+
+          if [ -f "$STATUSLINE_REPO" ]; then
+            # Back up existing file if it's not a symlink
+            if [ -f "$STATUSLINE_HOME" ] && [ ! -L "$STATUSLINE_HOME" ]; then
+              $DRY_RUN_CMD mv "$STATUSLINE_HOME" "$STATUSLINE_HOME.backup"
+              echo "Backed up existing statusline-command.sh to: $STATUSLINE_HOME.backup"
+            fi
+
+            $DRY_RUN_CMD ln -sf "$STATUSLINE_REPO" "$STATUSLINE_HOME"
+            echo "✓ Linked ~/.claude/statusline-command.sh → $REPO_ROOT/config/claude-code-config/statusline-command.sh"
+          else
+            echo "⚠️  Warning: $STATUSLINE_REPO not found"
+          fi
+
+          # Symlink keybindings.json
+          KEYBINDINGS_REPO="$REPO_ROOT/config/claude-code-config/keybindings.json"
+          KEYBINDINGS_HOME="$CLAUDE_DIR/keybindings.json"
+
+          if [ -f "$KEYBINDINGS_REPO" ]; then
+            if [ -f "$KEYBINDINGS_HOME" ] && [ ! -L "$KEYBINDINGS_HOME" ]; then
+              $DRY_RUN_CMD mv "$KEYBINDINGS_HOME" "$KEYBINDINGS_HOME.backup"
+              echo "Backed up existing keybindings.json to: $KEYBINDINGS_HOME.backup"
+            fi
+
+            $DRY_RUN_CMD ln -sf "$KEYBINDINGS_REPO" "$KEYBINDINGS_HOME"
+            echo "✓ Linked ~/.claude/keybindings.json → $REPO_ROOT/config/claude-code-config/keybindings.json"
+          else
+            echo "⚠️  Warning: $KEYBINDINGS_REPO not found"
+          fi
+
+          # Symlink docs directory
+          DOCS_REPO="$REPO_ROOT/config/claude-code-config/docs"
+          DOCS_HOME="$CLAUDE_DIR/docs"
+
+          if [ -d "$DOCS_REPO" ]; then
+            if [ -d "$DOCS_HOME" ] && [ ! -L "$DOCS_HOME" ]; then
+              $DRY_RUN_CMD mv "$DOCS_HOME" "$DOCS_HOME.backup"
+              echo "Backed up existing docs/ to: $DOCS_HOME.backup"
+            fi
+
+            $DRY_RUN_CMD ln -sfn "$DOCS_REPO" "$DOCS_HOME"
+            echo "✓ Linked ~/.claude/docs/ → $REPO_ROOT/config/claude-code-config/docs/"
+          else
+            echo "⚠️  Warning: $DOCS_REPO directory not found"
+          fi
+
+          # Symlink skills directory
+          SKILLS_REPO="$REPO_ROOT/config/claude-code-config/skills"
+          SKILLS_HOME="$CLAUDE_DIR/skills"
+
+          if [ -d "$SKILLS_REPO" ]; then
+            if [ -d "$SKILLS_HOME" ] && [ ! -L "$SKILLS_HOME" ]; then
+              $DRY_RUN_CMD mv "$SKILLS_HOME" "$SKILLS_HOME.backup"
+              echo "Backed up existing skills/ to: $SKILLS_HOME.backup"
+            fi
+
+            $DRY_RUN_CMD ln -sfn "$SKILLS_REPO" "$SKILLS_HOME"
+            echo "✓ Linked ~/.claude/skills/ → $REPO_ROOT/config/claude-code-config/skills/"
+          else
+            echo "⚠️  Warning: $SKILLS_REPO directory not found"
+          fi
+
+          # Symlink hooks directory
+          HOOKS_REPO="$REPO_ROOT/config/claude-code-config/hooks"
+          HOOKS_HOME="$CLAUDE_DIR/hooks"
+
+          if [ -d "$HOOKS_REPO" ]; then
+            if [ -d "$HOOKS_HOME" ] && [ ! -L "$HOOKS_HOME" ]; then
+              $DRY_RUN_CMD mv "$HOOKS_HOME" "$HOOKS_HOME.backup"
+              echo "Backed up existing hooks/ to: $HOOKS_HOME.backup"
+            fi
+
+            $DRY_RUN_CMD ln -sfn "$HOOKS_REPO" "$HOOKS_HOME"
+            echo "✓ Linked ~/.claude/hooks/ → $REPO_ROOT/config/claude-code-config/hooks/"
+          else
+            echo "⚠️  Warning: $HOOKS_REPO directory not found"
+          fi
+
+          # Install the OpenAI Codex Claude Code plugin declaratively.
+          # settings.json declares the marketplace and enabled plugin; the Claude
+          # CLI owns the runtime plugin registry and cache layout.
+          CLAUDE_BIN="/run/current-system/sw/bin/claude"
+          if [ ! -x "$CLAUDE_BIN" ]; then
+            CLAUDE_BIN="$(command -v claude || true)"
+          fi
+          if [ -z "$CLAUDE_BIN" ]; then
+            echo "⚠️  Warning: claude CLI not found; skipping Codex plugin installation"
+          else
+            $DRY_RUN_CMD mkdir -p "$CLAUDE_DIR/plugins"
+
+            if "$CLAUDE_BIN" plugin marketplace list 2>/dev/null | grep -q "openai-codex"; then
+              echo "✓ Claude plugin marketplace openai-codex already configured"
             else
-              echo "⚠️  Warning: Failed to install Claude plugin codex@openai-codex"
+              echo "Adding Claude plugin marketplace openai-codex..."
+              if $DRY_RUN_CMD "$CLAUDE_BIN" plugin marketplace add --scope user openai/codex-plugin-cc; then
+                echo "✓ Added Claude plugin marketplace openai-codex"
+              else
+                echo "⚠️  Warning: Failed to add Claude plugin marketplace openai-codex"
+              fi
+            fi
+
+            PLUGIN_LIST_JSON="$CLAUDE_DIR/plugins/installed_plugins.activation.json"
+            if "$CLAUDE_BIN" plugin list --json > "$PLUGIN_LIST_JSON" 2>/dev/null; then
+              if ${jq}/bin/jq -e 'any(.[]; .id == "codex@openai-codex")' "$PLUGIN_LIST_JSON" >/dev/null; then
+                echo "✓ Claude plugin codex@openai-codex already installed"
+              else
+                echo "Installing Claude plugin codex@openai-codex..."
+                if $DRY_RUN_CMD "$CLAUDE_BIN" plugin install --scope user codex@openai-codex; then
+                  echo "✓ Installed Claude plugin codex@openai-codex"
+                else
+                  echo "⚠️  Warning: Failed to install Claude plugin codex@openai-codex"
+                fi
+              fi
+              $DRY_RUN_CMD rm -f "$PLUGIN_LIST_JSON"
+            else
+              echo "⚠️  Warning: Could not list Claude plugins; skipping Codex plugin installation"
             fi
           fi
-          $DRY_RUN_CMD rm -f "$PLUGIN_LIST_JSON"
-        else
-          echo "⚠️  Warning: Could not list Claude plugins; skipping Codex plugin installation"
-        fi
-      fi
 
-      # Install the local autonomous-sdlc Codex plugin globally for Codex.
-      # Codex discovers home-level plugins via ~/.agents/plugins/marketplace.json,
-      # where ./plugins/<name> resolves relative to the user's home directory.
-      # Mark the plugin installed by default so its skills are available without
-      # an extra install step in the Codex UI.
-      CODEX_PLUGIN_REPO="$REPO_ROOT/plugins/autonomous-sdlc"
-      CODEX_PLUGIN_HOME_DIR="${config.home.homeDirectory}/plugins"
-      CODEX_PLUGIN_HOME="$CODEX_PLUGIN_HOME_DIR/autonomous-sdlc"
-      CODEX_AGENTS_DIR="${config.home.homeDirectory}/.agents/plugins"
-      CODEX_MARKETPLACE="$CODEX_AGENTS_DIR/marketplace.json"
-      CODEX_MARKETPLACE_TMP="$CODEX_MARKETPLACE.tmp"
-      CODEX_BIN="/run/current-system/sw/bin/codex"
-      CODEX_CONFIG="${config.home.homeDirectory}/.codex/config.toml"
-      CODEX_CONFIG_DIR="${config.home.homeDirectory}/.codex"
-      CODEX_CONFIG_PRIVACY_TMP="$CODEX_CONFIG.privacy.tmp"
-      QWEN_CONFIG_DIR="${config.home.homeDirectory}/.qwen"
-      QWEN_SETTINGS="$QWEN_CONFIG_DIR/settings.json"
-      QWEN_SETTINGS_TMP="$QWEN_SETTINGS.tmp"
-      OPENCODE_CONFIG_DIR="${config.home.homeDirectory}/.config/opencode"
-      OPENCODE_CONFIG="$OPENCODE_CONFIG_DIR/opencode.json"
-      OPENCODE_CONFIG_TMP="$OPENCODE_CONFIG.tmp"
+          # Install the local autonomous-sdlc Codex plugin globally for Codex.
+          # Codex discovers home-level plugins via ~/.agents/plugins/marketplace.json,
+          # where ./plugins/<name> resolves relative to the user's home directory.
+          # Mark the plugin installed by default so its skills are available without
+          # an extra install step in the Codex UI.
+          CODEX_PLUGIN_REPO="$REPO_ROOT/plugins/autonomous-sdlc"
+          CODEX_PLUGIN_HOME_DIR="${config.home.homeDirectory}/plugins"
+          CODEX_PLUGIN_HOME="$CODEX_PLUGIN_HOME_DIR/autonomous-sdlc"
+          CODEX_AGENTS_DIR="${config.home.homeDirectory}/.agents/plugins"
+          CODEX_MARKETPLACE="$CODEX_AGENTS_DIR/marketplace.json"
+          CODEX_MARKETPLACE_TMP="$CODEX_MARKETPLACE.tmp"
+          CODEX_BIN="/run/current-system/sw/bin/codex"
+          CODEX_CONFIG="${config.home.homeDirectory}/.codex/config.toml"
+          CODEX_CONFIG_DIR="${config.home.homeDirectory}/.codex"
+          CODEX_CONFIG_PRIVACY_TMP="$CODEX_CONFIG.privacy.tmp"
+          QWEN_CONFIG_DIR="${config.home.homeDirectory}/.qwen"
+          QWEN_SETTINGS="$QWEN_CONFIG_DIR/settings.json"
+          QWEN_SETTINGS_TMP="$QWEN_SETTINGS.tmp"
+          OPENCODE_CONFIG_DIR="${config.home.homeDirectory}/.config/opencode"
+          OPENCODE_CONFIG="$OPENCODE_CONFIG_DIR/opencode.json"
+          OPENCODE_CONFIG_TMP="$OPENCODE_CONFIG.tmp"
 
-      if [ -d "$CODEX_PLUGIN_REPO" ]; then
-        $DRY_RUN_CMD mkdir -p "$CODEX_PLUGIN_HOME_DIR" "$CODEX_AGENTS_DIR"
-        $DRY_RUN_CMD ln -sfn "$CODEX_PLUGIN_REPO" "$CODEX_PLUGIN_HOME"
-        echo "✓ Linked ~/plugins/autonomous-sdlc → $REPO_ROOT/plugins/autonomous-sdlc"
+          if [ -d "$CODEX_PLUGIN_REPO" ]; then
+            $DRY_RUN_CMD mkdir -p "$CODEX_PLUGIN_HOME_DIR" "$CODEX_AGENTS_DIR"
+            $DRY_RUN_CMD ln -sfn "$CODEX_PLUGIN_REPO" "$CODEX_PLUGIN_HOME"
+            echo "✓ Linked ~/plugins/autonomous-sdlc → $REPO_ROOT/plugins/autonomous-sdlc"
 
-        if [ -f "$CODEX_MARKETPLACE" ]; then
-          if ${jq}/bin/jq '
-            .name = (.name // "fx-codex-global")
-            | .interface = (.interface // {"displayName":"FX Codex Global"})
-            | .plugins = (
-                ((.plugins // [])
-                | map(select(.name != "autonomous-sdlc")))
-                + [{
-                    "name": "autonomous-sdlc",
-                    "source": {
-                      "source": "local",
-                      "path": "./plugins/autonomous-sdlc"
-                    },
-                    "policy": {
-                      "installation": "INSTALLED_BY_DEFAULT",
-                      "authentication": "ON_INSTALL"
-                    },
-                    "category": "Productivity"
-                  }]
-              )
-          ' "$CODEX_MARKETPLACE" > "$CODEX_MARKETPLACE_TMP"; then
-            $DRY_RUN_CMD mv "$CODEX_MARKETPLACE_TMP" "$CODEX_MARKETPLACE"
-          else
-            rm -f "$CODEX_MARKETPLACE_TMP"
-            echo "⚠️  Warning: Failed to update $CODEX_MARKETPLACE"
-          fi
-        else
-          cat > "$CODEX_MARKETPLACE_TMP" <<'EOF'
-{
-  "name": "fx-codex-global",
-  "interface": {
-    "displayName": "FX Codex Global"
-  },
-  "plugins": [
+            if [ -f "$CODEX_MARKETPLACE" ]; then
+              if ${jq}/bin/jq '
+                .name = (.name // "fx-codex-global")
+                | .interface = (.interface // {"displayName":"FX Codex Global"})
+                | .plugins = (
+                    ((.plugins // [])
+                    | map(select(.name != "autonomous-sdlc")))
+                    + [{
+                        "name": "autonomous-sdlc",
+                        "source": {
+                          "source": "local",
+                          "path": "./plugins/autonomous-sdlc"
+                        },
+                        "policy": {
+                          "installation": "INSTALLED_BY_DEFAULT",
+                          "authentication": "ON_INSTALL"
+                        },
+                        "category": "Productivity"
+                      }]
+                  )
+              ' "$CODEX_MARKETPLACE" > "$CODEX_MARKETPLACE_TMP"; then
+                $DRY_RUN_CMD mv "$CODEX_MARKETPLACE_TMP" "$CODEX_MARKETPLACE"
+              else
+                rm -f "$CODEX_MARKETPLACE_TMP"
+                echo "⚠️  Warning: Failed to update $CODEX_MARKETPLACE"
+              fi
+            else
+              cat > "$CODEX_MARKETPLACE_TMP" <<'EOF'
     {
-      "name": "autonomous-sdlc",
-      "source": {
-        "source": "local",
-        "path": "./plugins/autonomous-sdlc"
+      "name": "fx-codex-global",
+      "interface": {
+        "displayName": "FX Codex Global"
       },
-      "policy": {
-        "installation": "INSTALLED_BY_DEFAULT",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
+      "plugins": [
+        {
+          "name": "autonomous-sdlc",
+          "source": {
+            "source": "local",
+            "path": "./plugins/autonomous-sdlc"
+          },
+          "policy": {
+            "installation": "INSTALLED_BY_DEFAULT",
+            "authentication": "ON_INSTALL"
+          },
+          "category": "Productivity"
+        }
+      ]
     }
-  ]
-}
-EOF
-          $DRY_RUN_CMD mv "$CODEX_MARKETPLACE_TMP" "$CODEX_MARKETPLACE"
-        fi
-        echo "✓ Ensured Codex global marketplace entry for autonomous-sdlc"
+    EOF
+              $DRY_RUN_CMD mv "$CODEX_MARKETPLACE_TMP" "$CODEX_MARKETPLACE"
+            fi
+            echo "✓ Ensured Codex global marketplace entry for autonomous-sdlc"
 
-        if [ ! -x "$CODEX_BIN" ] && [ -x "/opt/homebrew/bin/codex" ]; then
-          CODEX_BIN="/opt/homebrew/bin/codex"
-        fi
+            if [ ! -x "$CODEX_BIN" ] && [ -x "/opt/homebrew/bin/codex" ]; then
+              CODEX_BIN="/opt/homebrew/bin/codex"
+            fi
 
-        if [ ! -x "$CODEX_BIN" ]; then
-          CODEX_BIN="$(command -v codex || true)"
-        fi
+            if [ ! -x "$CODEX_BIN" ]; then
+              CODEX_BIN="$(command -v codex || true)"
+            fi
 
-        if [ -z "$CODEX_BIN" ]; then
-          echo "⚠️  Warning: codex CLI not found; skipping Codex marketplace registration"
-        elif [ -f "$CODEX_CONFIG" ] \
-          && grep -Fq "[marketplaces.fx-codex-global]" "$CODEX_CONFIG" \
-          && grep -Fq "source = \"${config.home.homeDirectory}\"" "$CODEX_CONFIG"; then
-          echo "✓ Codex marketplace fx-codex-global already registered"
-        elif [ -f "$CODEX_CONFIG" ] && grep -Fq "[marketplaces.fx-codex-global]" "$CODEX_CONFIG"; then
-          echo "Refreshing Codex marketplace fx-codex-global..."
-          if $DRY_RUN_CMD "$CODEX_BIN" plugin marketplace upgrade fx-codex-global; then
-            echo "✓ Refreshed Codex marketplace fx-codex-global"
+            if [ -z "$CODEX_BIN" ]; then
+              echo "⚠️  Warning: codex CLI not found; skipping Codex marketplace registration"
+            elif [ -f "$CODEX_CONFIG" ] \
+              && grep -Fq "[marketplaces.fx-codex-global]" "$CODEX_CONFIG" \
+              && grep -Fq "source = \"${config.home.homeDirectory}\"" "$CODEX_CONFIG"; then
+              echo "✓ Codex marketplace fx-codex-global already registered"
+            elif [ -f "$CODEX_CONFIG" ] && grep -Fq "[marketplaces.fx-codex-global]" "$CODEX_CONFIG"; then
+              echo "Refreshing Codex marketplace fx-codex-global..."
+              if $DRY_RUN_CMD "$CODEX_BIN" plugin marketplace upgrade fx-codex-global; then
+                echo "✓ Refreshed Codex marketplace fx-codex-global"
+              else
+                echo "⚠️  Warning: Failed to refresh Codex marketplace fx-codex-global"
+              fi
+            else
+              echo "Registering Codex marketplace fx-codex-global..."
+              if $DRY_RUN_CMD "$CODEX_BIN" plugin marketplace add "${config.home.homeDirectory}"; then
+                echo "✓ Registered Codex marketplace fx-codex-global"
+              else
+                echo "⚠️  Warning: Failed to register Codex marketplace fx-codex-global"
+              fi
+            fi
           else
-            echo "⚠️  Warning: Failed to refresh Codex marketplace fx-codex-global"
+            echo "⚠️  Warning: $CODEX_PLUGIN_REPO directory not found"
           fi
-        else
-          echo "Registering Codex marketplace fx-codex-global..."
-          if $DRY_RUN_CMD "$CODEX_BIN" plugin marketplace add "${config.home.homeDirectory}"; then
-            echo "✓ Registered Codex marketplace fx-codex-global"
+
+          $DRY_RUN_CMD mkdir -p "$CODEX_CONFIG_DIR"
+          if [ ! -f "$CODEX_CONFIG" ]; then
+            $DRY_RUN_CMD touch "$CODEX_CONFIG"
+          fi
+
+          if [ -f "$CODEX_CONFIG" ]; then
+            if ${awk}/bin/awk '
+              BEGIN {
+                saw_otel = 0
+                in_otel = 0
+                print "# Managed by nix-install: agent harness privacy/update policy."
+                print "check_for_update_on_startup = false"
+                print ""
+              }
+              /^# Managed by nix-install: agent harness privacy\/update policy\.$/ { next }
+              /^[[:space:]]*check_for_update_on_startup[[:space:]]*=/ { next }
+              /^[[:space:]]*\[otel\][[:space:]]*$/ {
+                print
+                print "exporter = \"none\""
+                saw_otel = 1
+                in_otel = 1
+                next
+              }
+              /^[[:space:]]*\[/ { in_otel = 0 }
+              in_otel && /^[[:space:]]*exporter[[:space:]]*=/ { next }
+              { print }
+              END {
+                if (!saw_otel) {
+                  print ""
+                  print "[otel]"
+                  print "exporter = \"none\""
+                }
+              }
+            ' "$CODEX_CONFIG" > "$CODEX_CONFIG_PRIVACY_TMP"; then
+              $DRY_RUN_CMD mv "$CODEX_CONFIG_PRIVACY_TMP" "$CODEX_CONFIG"
+              echo "✓ Disabled Codex startup update checks and telemetry exporter"
+            else
+              $DRY_RUN_CMD rm -f "$CODEX_CONFIG_PRIVACY_TMP"
+              echo "⚠️  Warning: Failed to update Codex privacy/update settings"
+            fi
+          fi
+
+          $DRY_RUN_CMD mkdir -p "$QWEN_CONFIG_DIR"
+          if [ -f "$QWEN_SETTINGS" ]; then
+            if ${jq}/bin/jq '
+              .general = (.general // {})
+              | .general.enableAutoUpdate = false
+              | .privacy = (.privacy // {})
+              | .privacy.usageStatisticsEnabled = false
+              | .telemetry = (.telemetry // {})
+              | .telemetry.enabled = false
+              | .telemetry.logPrompts = false
+            ' "$QWEN_SETTINGS" > "$QWEN_SETTINGS_TMP"; then
+              $DRY_RUN_CMD mv "$QWEN_SETTINGS_TMP" "$QWEN_SETTINGS"
+              echo "✓ Disabled Qwen Code auto-update, telemetry, prompt logging, and usage statistics"
+            else
+              $DRY_RUN_CMD rm -f "$QWEN_SETTINGS_TMP"
+              echo "⚠️  Warning: Failed to update Qwen Code privacy/update settings"
+            fi
           else
-            echo "⚠️  Warning: Failed to register Codex marketplace fx-codex-global"
+            cat > "$QWEN_SETTINGS_TMP" <<'EOF'
+    {
+      "general": {
+        "enableAutoUpdate": false
+      },
+      "privacy": {
+        "usageStatisticsEnabled": false
+      },
+      "telemetry": {
+        "enabled": false,
+        "logPrompts": false
+      }
+    }
+    EOF
+            $DRY_RUN_CMD mv "$QWEN_SETTINGS_TMP" "$QWEN_SETTINGS"
+            echo "✓ Created Qwen Code privacy/update settings"
           fi
-        fi
-      else
-        echo "⚠️  Warning: $CODEX_PLUGIN_REPO directory not found"
-      fi
 
-      $DRY_RUN_CMD mkdir -p "$CODEX_CONFIG_DIR"
-      if [ ! -f "$CODEX_CONFIG" ]; then
-        $DRY_RUN_CMD touch "$CODEX_CONFIG"
-      fi
+          $DRY_RUN_CMD mkdir -p "$OPENCODE_CONFIG_DIR"
+          if [ -f "$OPENCODE_CONFIG" ]; then
+            if ${jq}/bin/jq '
+              ."$schema" = (."$schema" // "https://opencode.ai/config.json")
+              | .autoupdate = false
+              | .share = "disabled"
+            ' "$OPENCODE_CONFIG" > "$OPENCODE_CONFIG_TMP"; then
+              $DRY_RUN_CMD mv "$OPENCODE_CONFIG_TMP" "$OPENCODE_CONFIG"
+              echo "✓ Disabled OpenCode auto-update and sharing"
+            else
+              $DRY_RUN_CMD rm -f "$OPENCODE_CONFIG_TMP"
+              echo "⚠️  Warning: Failed to update OpenCode privacy/update settings"
+            fi
+          else
+            cat > "$OPENCODE_CONFIG_TMP" <<'EOF'
+    {
+      "$schema": "https://opencode.ai/config.json",
+      "autoupdate": false,
+      "share": "disabled"
+    }
+    EOF
+            $DRY_RUN_CMD mv "$OPENCODE_CONFIG_TMP" "$OPENCODE_CONFIG"
+            echo "✓ Created OpenCode privacy/update settings"
+          fi
 
-      if [ -f "$CODEX_CONFIG" ]; then
-        if ${awk}/bin/awk '
-          BEGIN {
-            saw_otel = 0
-            in_otel = 0
-            print "# Managed by nix-install: agent harness privacy/update policy."
-            print "check_for_update_on_startup = false"
-            print ""
-          }
-          /^# Managed by nix-install: agent harness privacy\/update policy\.$/ { next }
-          /^[[:space:]]*check_for_update_on_startup[[:space:]]*=/ { next }
-          /^[[:space:]]*\[otel\][[:space:]]*$/ {
-            print
-            print "exporter = \"none\""
-            saw_otel = 1
-            in_otel = 1
-            next
-          }
-          /^[[:space:]]*\[/ { in_otel = 0 }
-          in_otel && /^[[:space:]]*exporter[[:space:]]*=/ { next }
-          { print }
-          END {
-            if (!saw_otel) {
-              print ""
-              print "[otel]"
-              print "exporter = \"none\""
-            }
-          }
-        ' "$CODEX_CONFIG" > "$CODEX_CONFIG_PRIVACY_TMP"; then
-          $DRY_RUN_CMD mv "$CODEX_CONFIG_PRIVACY_TMP" "$CODEX_CONFIG"
-          echo "✓ Disabled Codex startup update checks and telemetry exporter"
         else
-          $DRY_RUN_CMD rm -f "$CODEX_CONFIG_PRIVACY_TMP"
-          echo "⚠️  Warning: Failed to update Codex privacy/update settings"
+          echo "⚠️  Warning: Could not find nix-install repository"
+          echo "  Searched: ~/nix-install, ~/.config/nix-install, ~/Documents/nix-install"
+          echo "  Claude Code configuration will not be linked to repository"
         fi
-      fi
 
-      $DRY_RUN_CMD mkdir -p "$QWEN_CONFIG_DIR"
-      if [ -f "$QWEN_SETTINGS" ]; then
-        if ${jq}/bin/jq '
-          .general = (.general // {})
-          | .general.enableAutoUpdate = false
-          | .privacy = (.privacy // {})
-          | .privacy.usageStatisticsEnabled = false
-          | .telemetry = (.telemetry // {})
-          | .telemetry.enabled = false
-          | .telemetry.logPrompts = false
-        ' "$QWEN_SETTINGS" > "$QWEN_SETTINGS_TMP"; then
-          $DRY_RUN_CMD mv "$QWEN_SETTINGS_TMP" "$QWEN_SETTINGS"
-          echo "✓ Disabled Qwen Code auto-update, telemetry, prompt logging, and usage statistics"
+        # Create ~/.config/claude directory for MCP config (Claude Desktop)
+        CLAUDE_CONFIG_DIR="${config.home.homeDirectory}/.config/claude"
+
+        # Always ensure we can write to this directory (fixes permission issues from failed runs)
+        # Remove and recreate if it exists but we can't write to it
+        # Note: Use full path to sudo since it may not be in PATH during activation
+        if [ -d "$CLAUDE_CONFIG_DIR" ] && ! [ -w "$CLAUDE_CONFIG_DIR" ]; then
+          echo "Fixing permissions on $CLAUDE_CONFIG_DIR (not writable)"
+          $DRY_RUN_CMD /usr/bin/sudo rm -rf "$CLAUDE_CONFIG_DIR"
+        fi
+
+        if [ ! -d "$CLAUDE_CONFIG_DIR" ]; then
+          $DRY_RUN_CMD mkdir -p "$CLAUDE_CONFIG_DIR"
+          echo "Created Claude Desktop MCP config directory: $CLAUDE_CONFIG_DIR"
+        fi
+
+        # ============================================================
+        # MCP Configuration for Claude Desktop
+        # ============================================================
+        # Claude Desktop reads MCP servers from ~/.config/claude/config.json
+        CLAUDE_DESKTOP_CONFIG="$CLAUDE_CONFIG_DIR/config.json"
+
+        # Remove existing file if we can't write to it (handles root-owned files)
+        if [ -f "$CLAUDE_DESKTOP_CONFIG" ] && ! [ -w "$CLAUDE_DESKTOP_CONFIG" ]; then
+          echo "Removing unwritable config file: $CLAUDE_DESKTOP_CONFIG"
+          $DRY_RUN_CMD /usr/bin/sudo rm -f "$CLAUDE_DESKTOP_CONFIG"
+        fi
+
+        $DRY_RUN_CMD cp "${mcpConfig}" "$CLAUDE_DESKTOP_CONFIG"
+        echo "✓ Updated Claude Desktop MCP config: $CLAUDE_DESKTOP_CONFIG"
+
+        # ============================================================
+        # MCP Configuration for Claude Code CLI
+        # ============================================================
+        # Claude Code CLI reads MCP servers from ~/.claude.json (mcpServers key)
+        # We need to merge our MCP servers into the existing config without
+        # destroying other settings (numStartups, projects, etc.)
+        CLAUDE_CLI_CONFIG="${config.home.homeDirectory}/.claude.json"
+        NIX_MCP_CONFIG="${mcpConfig}"
+
+        if [ -f "$CLAUDE_CLI_CONFIG" ]; then
+          # Extract mcpServers from the Nix-generated config and merge into existing ~/.claude.json
+          # The Nix config has format: {"mcpServers": {...}}
+          # We need to merge that into the existing ~/.claude.json's mcpServers key
+          $DRY_RUN_CMD ${jq}/bin/jq -s '
+            # $existing is .[0] (current ~/.claude.json)
+            # $new is .[1] (Nix-generated config with mcpServers)
+            .[0] as $existing |
+            .[1].mcpServers as $newServers |
+            # Merge: existing config + new mcpServers (new servers override existing ones with same name)
+            $existing * {mcpServers: (($existing.mcpServers // {}) * $newServers)}
+          ' "$CLAUDE_CLI_CONFIG" "$NIX_MCP_CONFIG" > "$CLAUDE_CLI_CONFIG.tmp" \
+            && $DRY_RUN_CMD mv "$CLAUDE_CLI_CONFIG.tmp" "$CLAUDE_CLI_CONFIG"
+          echo "✓ Merged MCP servers into Claude Code CLI config: $CLAUDE_CLI_CONFIG"
         else
-          $DRY_RUN_CMD rm -f "$QWEN_SETTINGS_TMP"
-          echo "⚠️  Warning: Failed to update Qwen Code privacy/update settings"
+          # No existing config - create new one with just mcpServers
+          # Extract mcpServers and create a minimal config
+          $DRY_RUN_CMD ${jq}/bin/jq '{mcpServers: .mcpServers}' "$NIX_MCP_CONFIG" > "$CLAUDE_CLI_CONFIG"
+          echo "✓ Created Claude Code CLI config: $CLAUDE_CLI_CONFIG"
         fi
-      else
-        cat > "$QWEN_SETTINGS_TMP" <<'EOF'
-{
-  "general": {
-    "enableAutoUpdate": false
-  },
-  "privacy": {
-    "usageStatisticsEnabled": false
-  },
-  "telemetry": {
-    "enabled": false,
-    "logPrompts": false
-  }
-}
-EOF
-        $DRY_RUN_CMD mv "$QWEN_SETTINGS_TMP" "$QWEN_SETTINGS"
-        echo "✓ Created Qwen Code privacy/update settings"
-      fi
 
-      $DRY_RUN_CMD mkdir -p "$OPENCODE_CONFIG_DIR"
-      if [ -f "$OPENCODE_CONFIG" ]; then
-        if ${jq}/bin/jq '
-          ."$schema" = (."$schema" // "https://opencode.ai/config.json")
-          | .autoupdate = false
-          | .share = "disabled"
-        ' "$OPENCODE_CONFIG" > "$OPENCODE_CONFIG_TMP"; then
-          $DRY_RUN_CMD mv "$OPENCODE_CONFIG_TMP" "$OPENCODE_CONFIG"
-          echo "✓ Disabled OpenCode auto-update and sharing"
-        else
-          $DRY_RUN_CMD rm -f "$OPENCODE_CONFIG_TMP"
-          echo "⚠️  Warning: Failed to update OpenCode privacy/update settings"
-        fi
-      else
-        cat > "$OPENCODE_CONFIG_TMP" <<'EOF'
-{
-  "$schema": "https://opencode.ai/config.json",
-  "autoupdate": false,
-  "share": "disabled"
-}
-EOF
-        $DRY_RUN_CMD mv "$OPENCODE_CONFIG_TMP" "$OPENCODE_CONFIG"
-        echo "✓ Created OpenCode privacy/update settings"
-      fi
-
-    else
-      echo "⚠️  Warning: Could not find nix-install repository"
-      echo "  Searched: ~/nix-install, ~/.config/nix-install, ~/Documents/nix-install"
-      echo "  Claude Code configuration will not be linked to repository"
-    fi
-
-    # Create ~/.config/claude directory for MCP config (Claude Desktop)
-    CLAUDE_CONFIG_DIR="${config.home.homeDirectory}/.config/claude"
-
-    # Always ensure we can write to this directory (fixes permission issues from failed runs)
-    # Remove and recreate if it exists but we can't write to it
-    # Note: Use full path to sudo since it may not be in PATH during activation
-    if [ -d "$CLAUDE_CONFIG_DIR" ] && ! [ -w "$CLAUDE_CONFIG_DIR" ]; then
-      echo "Fixing permissions on $CLAUDE_CONFIG_DIR (not writable)"
-      $DRY_RUN_CMD /usr/bin/sudo rm -rf "$CLAUDE_CONFIG_DIR"
-    fi
-
-    if [ ! -d "$CLAUDE_CONFIG_DIR" ]; then
-      $DRY_RUN_CMD mkdir -p "$CLAUDE_CONFIG_DIR"
-      echo "Created Claude Desktop MCP config directory: $CLAUDE_CONFIG_DIR"
-    fi
-
-    # ============================================================
-    # MCP Configuration for Claude Desktop
-    # ============================================================
-    # Claude Desktop reads MCP servers from ~/.config/claude/config.json
-    CLAUDE_DESKTOP_CONFIG="$CLAUDE_CONFIG_DIR/config.json"
-
-    # Remove existing file if we can't write to it (handles root-owned files)
-    if [ -f "$CLAUDE_DESKTOP_CONFIG" ] && ! [ -w "$CLAUDE_DESKTOP_CONFIG" ]; then
-      echo "Removing unwritable config file: $CLAUDE_DESKTOP_CONFIG"
-      $DRY_RUN_CMD /usr/bin/sudo rm -f "$CLAUDE_DESKTOP_CONFIG"
-    fi
-
-    $DRY_RUN_CMD cp "${mcpConfig}" "$CLAUDE_DESKTOP_CONFIG"
-    echo "✓ Updated Claude Desktop MCP config: $CLAUDE_DESKTOP_CONFIG"
-
-    # ============================================================
-    # MCP Configuration for Claude Code CLI
-    # ============================================================
-    # Claude Code CLI reads MCP servers from ~/.claude.json (mcpServers key)
-    # We need to merge our MCP servers into the existing config without
-    # destroying other settings (numStartups, projects, etc.)
-    CLAUDE_CLI_CONFIG="${config.home.homeDirectory}/.claude.json"
-    NIX_MCP_CONFIG="${mcpConfig}"
-
-    if [ -f "$CLAUDE_CLI_CONFIG" ]; then
-      # Extract mcpServers from the Nix-generated config and merge into existing ~/.claude.json
-      # The Nix config has format: {"mcpServers": {...}}
-      # We need to merge that into the existing ~/.claude.json's mcpServers key
-      $DRY_RUN_CMD ${jq}/bin/jq -s '
-        # $existing is .[0] (current ~/.claude.json)
-        # $new is .[1] (Nix-generated config with mcpServers)
-        .[0] as $existing |
-        .[1].mcpServers as $newServers |
-        # Merge: existing config + new mcpServers (new servers override existing ones with same name)
-        $existing * {mcpServers: (($existing.mcpServers // {}) * $newServers)}
-      ' "$CLAUDE_CLI_CONFIG" "$NIX_MCP_CONFIG" > "$CLAUDE_CLI_CONFIG.tmp" \
-        && $DRY_RUN_CMD mv "$CLAUDE_CLI_CONFIG.tmp" "$CLAUDE_CLI_CONFIG"
-      echo "✓ Merged MCP servers into Claude Code CLI config: $CLAUDE_CLI_CONFIG"
-    else
-      # No existing config - create new one with just mcpServers
-      # Extract mcpServers and create a minimal config
-      $DRY_RUN_CMD ${jq}/bin/jq '{mcpServers: .mcpServers}' "$NIX_MCP_CONFIG" > "$CLAUDE_CLI_CONFIG"
-      echo "✓ Created Claude Code CLI config: $CLAUDE_CLI_CONFIG"
-    fi
-
-    echo ""
-    echo "✓ Claude Code CLI and MCP servers configured successfully"
-    echo "  - Claude Code CLI: $(command -v claude || echo 'not found in PATH')"
-    echo "  - Claude Desktop config: $CLAUDE_DESKTOP_CONFIG"
-    echo "  - Claude Code CLI config: $CLAUDE_CLI_CONFIG"
-    echo ""
-    echo "To verify MCP servers: claude mcp list"
+        echo ""
+        echo "✓ Claude Code CLI and MCP servers configured successfully"
+        echo "  - Claude Code CLI: $(command -v claude || echo 'not found in PATH')"
+        echo "  - Claude Desktop config: $CLAUDE_DESKTOP_CONFIG"
+        echo "  - Claude Code CLI config: $CLAUDE_CLI_CONFIG"
+        echo ""
+        echo "To verify MCP servers: claude mcp list"
   '';
 
   # No additional packages needed - Claude Code CLI installed via darwin/configuration.nix
   # MCP servers are handled by mkConfig (automatically references Nix packages)
-  home.packages = [];
+  home.packages = [ ];
 }

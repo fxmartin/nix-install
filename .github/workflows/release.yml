@@ -1,5 +1,5 @@
 # ABOUTME: GitHub Actions workflow for automated releases on version tags
-# ABOUTME: Creates GitHub Release with bootstrap-dist.sh and auto-generated notes
+# ABOUTME: Builds checksummed installer assets and publishes them with release notes
 
 name: Release
 
@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0  # Full history for release notes generation
 
@@ -31,12 +31,20 @@ jobs:
           fi
           echo "TAG=$TAG" >> "$GITHUB_ENV"
 
-      - name: Verify bootstrap-dist.sh exists
+      - name: Verify tag matches VERSION
         run: |
-          if [ ! -f bootstrap-dist.sh ]; then
-            echo "::error::bootstrap-dist.sh not found — run scripts/build-bootstrap.sh first"
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+          if [ "$TAG" != "v$VERSION" ]; then
+            echo "::error::Tag $TAG does not match VERSION $VERSION"
             exit 1
           fi
+
+      - name: Build and verify installer assets
+        run: |
+          ./scripts/build-bootstrap.sh
+          ./scripts/generate-checksums.sh
+          git diff --exit-code -- bootstrap-dist.sh SHA256SUMS
+          shasum -a 256 -c SHA256SUMS
 
       - name: Generate release notes
         id: notes
@@ -103,10 +111,14 @@ jobs:
           } > release_notes.md
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
           body_path: release_notes.md
-          files: bootstrap-dist.sh
+          files: |
+            bootstrap-dist.sh
+            setup.sh
+            user-config.template.nix
+            SHA256SUMS
           generate_release_notes: false
           draft: false
           prerelease: ${{ contains(github.ref, '-') }}

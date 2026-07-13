@@ -6,7 +6,8 @@
   lib,
   profileName ? "standard",
   ...
-}: let
+}:
+let
   # Pinned dependency coordinates. Bump only via `update` per repo philosophy
   # (CLAUDE.md: "All app updates ONLY via `rebuild` or `update` commands").
   openmedVersion = "1.2.0";
@@ -18,15 +19,17 @@
   # these registry-backed models are loadable today and can still run through
   # OpenMed's MLX conversion path after the first request.
   modelRepo =
-    if profileName == "power"
-    then "OpenMed/OpenMed-PII-SuperClinical-Large-434M-v1"
-    else "OpenMed/OpenMed-PII-SuperClinical-Small-44M-v1";
+    if profileName == "power" then
+      "OpenMed/OpenMed-PII-SuperClinical-Large-434M-v1"
+    else
+      "OpenMed/OpenMed-PII-SuperClinical-Small-44M-v1";
 
   venvDir = "${config.home.homeDirectory}/.local/share/privacy-filter/venv";
   stateDir = "${config.home.homeDirectory}/.local/share/privacy-filter";
   uvBin = "${pkgs.uv}/bin/uv";
   pythonBin = "${pkgs.python312}/bin/python3";
-in {
+in
+{
   # =========================================================================
   # PRIVACY FILTER ENVIRONMENT VARIABLES
   # =========================================================================
@@ -45,7 +48,7 @@ in {
   # =========================================================================
   # Runs every `home-manager switch` / `darwin-rebuild switch`. Idempotent —
   # short-circuits when the marker file matches the pinned versions.
-  home.activation.privacyFilterSetup = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.privacyFilterSetup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     set -u
 
     VENV="${venvDir}"

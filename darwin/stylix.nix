@@ -31,7 +31,8 @@
   lib,
   userConfig,
   ...
-}: let
+}:
+let
   # Wallpaper path - copied to a persistent location for macOS to access
   # Using builtins.path to ensure proper Nix store path resolution
   wallpaperSource = builtins.path {
@@ -40,7 +41,8 @@
   };
   wallpaperDest = "/Users/${userConfig.username}/.local/share/wallpaper/current.jpg";
   wallpaperDir = "/Users/${userConfig.username}/.local/share/wallpaper";
-in {
+in
+{
   # Stylix System-wide Theming Configuration
   stylix = {
     enable = true;

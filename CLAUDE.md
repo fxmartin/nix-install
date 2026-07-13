@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repository implements an automated, declarative MacBook configuration system using Nix, nix-darwin, and Home Manager. The goal is to transform a fresh macOS install into a fully configured development environment in <30 minutes with zero manual intervention (except license activations).
 
-**Status**: ✅ **v1.9.10 Released** - All 7 epics complete, ~78 hours development effort
+**Status**: ✅ **v2.0.0 Released** - All 7 epics complete, ~78 hours development effort
 
 **Target User**: FX manages 4 MacBooks (1x MacBook Pro M3 Max, 1x MacBook Pro M1 2021, 2x MacBook Air) with periodic reinstalls. Split usage between Office 365 work and weekend Python development.
 
@@ -82,6 +82,10 @@ versioning.
 
 - `VERSION` is the repo-local release version mirror.
 - `README.md` and this file must contain the same version as `VERSION`.
+- `setup.sh` carries the same version so it can select immutable release assets.
+- `make release-major RELEASE_NOTE="..."` runs the full gate, commits synchronized
+  metadata and checksums, and creates a signed tag. Minor and patch variants use
+  `release-minor` and `release-patch`.
 - Git tag `vX.Y.Z` is the release authority.
 - Bump minor (`X.Y.0`) when a release contains feature enrichment.
 - Bump patch (`X.Y.Z`) when a release contains only fixes.

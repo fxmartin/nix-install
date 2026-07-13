@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-07-13
+
+### Changed
+
+- Harden security, testing, releases, and repository hygiene### Changed
+
+- Bind health and Ollama services to loopback by default and require a token for remote health binding.
+- Replace activation-time Beszel downloads with the nixpkgs-locked package.
+- Add a deterministic `make check` gate and quarantine unsafe legacy bootstrap suites.
+- Publish checksummed installer assets from immutable release tags.
+- Remove machine-local logs, downloads, user configuration, and decompressed vendor sources from Git tracking.
+
+### Security
+
+- Pin GitHub Actions to immutable commit SHAs and verify bootstrap artifacts before execution.
+
 ## [1.9.10] - 2026-07-11
 
 ### Fixed

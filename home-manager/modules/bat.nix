@@ -5,7 +5,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   # bat configuration via Home Manager
   programs.bat = {
     enable = true;
@@ -92,7 +93,7 @@
   };
 
   # Activation script to verify bat configuration
-  home.activation.verifyBat = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.verifyBat = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     echo "bat: Configuration applied"
     echo "  - Theme: Catppuccin Mocha"
     echo "  - Style: numbers, changes, header, grid"

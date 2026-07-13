@@ -11,7 +11,8 @@
   isPowerProfile,
   profileName,
   ...
-}: {
+}:
+{
   # Nix package manager settings
   nix.enable = true;
 
@@ -32,10 +33,16 @@
   # Nix configuration settings
   nix.settings = {
     # Enable modern Nix features (required for flakes)
-    experimental-features = ["nix-command" "flakes"];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
 
     # Trust specific users
-    trusted-users = ["root" userConfig.username];
+    trusted-users = [
+      "root"
+      userConfig.username
+    ];
   };
 
   # Set correct GID for nixbld group
@@ -52,171 +59,179 @@
       (_final: prev: {
         # direnv 2.37.1 can hang in checkPhase while loading test fixtures on
         # aarch64-darwin, blocking darwin-rebuild after a flake update.
-        direnv = prev.direnv.overrideAttrs (_: { doCheck = false; });
+        direnv = prev.direnv.overrideAttrs (_: {
+          doCheck = false;
+        });
 
         # nushell 0.112.1 tests env_shlvl_in_repl and env_shlvl_in_exec_repl fail
         # under the macOS build sandbox (exec blocked: "Operation not permitted").
         # Upstream nixpkgs skip list is missing these two; disable checks until fixed.
-        nushell = prev.nushell.overrideAttrs (_: { doCheck = false; });
+        nushell = prev.nushell.overrideAttrs (_: {
+          doCheck = false;
+        });
       })
     ];
   };
 
   # System-wide packages installed via Nix
   # Keep minimal - most CLI tools managed via Home Manager
-  environment.systemPackages = with pkgs; [
-    # macOS Integration
-    darwin.cctools
+  environment.systemPackages =
+    with pkgs;
+    [
+      # macOS Integration
+      darwin.cctools
 
-    # Core Utilities
-    age
-    sops
-    curl
-    wget
-    jq                  # Lightweight JSON processor for shell pipelines
-    tree
+      # Core Utilities
+      age
+      sops
+      curl
+      wget
+      jq # Lightweight JSON processor for shell pipelines
+      tree
 
-    # Build Dependencies
-    openssl
-    readline
-    sqlite
-    zlib
+      # Build Dependencies
+      openssl
+      readline
+      sqlite
+      zlib
 
-    # Python Development Environment (Story 02.2-004)
-    python312           # Python 3.12 interpreter
-    uv                  # Fast Python package installer and resolver
+      # Python Development Environment (Story 02.2-004)
+      python312 # Python 3.12 interpreter
+      uv # Fast Python package installer and resolver
 
-    # Python Development Tools
-    ruff                # Extremely fast Python linter and formatter
-    black               # Python code formatter
-    python312Packages.isort    # Import statement organizer
-    python312Packages.mypy     # Static type checker
-    python312Packages.pylint   # Comprehensive linter
+      # Python Development Tools
+      ruff # Extremely fast Python linter and formatter
+      black # Python code formatter
+      python312Packages.isort # Import statement organizer
+      python312Packages.mypy # Static type checker
+      python312Packages.pylint # Comprehensive linter
 
-    # Claude Code CLI (Story 02.2-006)
-    claude-code-nix.packages.${system}.default  # Claude Code CLI
+      # Claude Code CLI (Story 02.2-006)
+      claude-code-nix.packages.${system}.default # Claude Code CLI
 
-    # JavaScript runtime
-    # Required by Claude Code plugins such as codex@openai-codex, including
-    # on ai-assistant where the heavier JS/TS language-server stack is omitted.
-    nodejs
-    (writeShellApplication {
-      name = "ccusage";
-      runtimeInputs = [nodejs];
-      text = ''
-        exec npx -y ccusage@18.0.11 "$@"
-      '';
-    })
+      # JavaScript runtime
+      # Required by Claude Code plugins such as codex@openai-codex, including
+      # on ai-assistant where the heavier JS/TS language-server stack is omitted.
+      nodejs
+      (writeShellApplication {
+        name = "ccusage";
+        runtimeInputs = [ nodejs ];
+        text = ''
+          exec npx -y ccusage@18.0.11 "$@"
+        '';
+      })
 
-    # NOTE: MCP servers are configured via Home Manager using mcp-servers-nix.lib.mkConfig
-    # See home-manager/modules/claude-code.nix for MCP server configuration
+      # NOTE: MCP servers are configured via Home Manager using mcp-servers-nix.lib.mkConfig
+      # See home-manager/modules/claude-code.nix for MCP server configuration
 
-    # Version Control (Story 02.4-007)
-    git                 # Git version control system
-    git-lfs             # Git Large File Storage
+      # Version Control (Story 02.4-007)
+      git # Git version control system
+      git-lfs # Git Large File Storage
 
-    # Shell Enhancement Tools (Epic-04)
-    fzf                 # Fuzzy finder for shell (Ctrl+R history, Ctrl+T files)
-    fd                  # Fast find alternative (used by fzf)
+      # Shell Enhancement Tools (Epic-04)
+      fzf # Fuzzy finder for shell (Ctrl+R history, Ctrl+T files)
+      fd # Fast find alternative (used by fzf)
 
-    # Modern CLI Tools (Story 04.5-003)
-    ripgrep             # Fast grep alternative (rg) - respects .gitignore, blazing fast
-    bat                 # Cat clone with syntax highlighting and git integration
-    eza                 # Modern ls replacement with tree view, icons, git support
-    zoxide              # Smarter cd - tracks frecency (frequency + recency) for directory jumping
-    httpie              # Modern curl alternative with JSON support and colored output
-    tldr                # Simplified, community-driven man pages (tealdeer implementation)
+      # Modern CLI Tools (Story 04.5-003)
+      ripgrep # Fast grep alternative (rg) - respects .gitignore, blazing fast
+      bat # Cat clone with syntax highlighting and git integration
+      eza # Modern ls replacement with tree view, icons, git support
+      zoxide # Smarter cd - tracks frecency (frequency + recency) for directory jumping
+      httpie # Modern curl alternative with JSON support and colored output
+      tldr # Simplified, community-driven man pages (tealdeer implementation)
 
-    # System Monitoring (Story 02.4-006, Feature 06.3)
-    btop                # Modern resource monitor (TUI) - prettier than gotop with themes
-    gotop               # Interactive CLI system monitor (TUI for CPU, RAM, disk, network)
-    macmon              # macOS system monitoring CLI tool (hardware specs, sensors)
+      # System Monitoring (Story 02.4-006, Feature 06.3)
+      btop # Modern resource monitor (TUI) - prettier than gotop with themes
+      gotop # Interactive CLI system monitor (TUI for CPU, RAM, disk, network)
+      macmon # macOS system monitoring CLI tool (hardware specs, sensors)
 
-    # Remote Access Tools
-    mosh                # Mobile shell - persistent SSH alternative with roaming support
+      # Remote Access Tools
+      mosh # Mobile shell - persistent SSH alternative with roaming support
 
-    # Network Tools
-    nmap                # Network discovery and security auditing
+      # Network Tools
+      nmap # Network discovery and security auditing
 
-    # Email
-    himalaya            # CLI email client (IMAP/SMTP/Maildir/Notmuch)
+      # Email
+      himalaya # CLI email client (IMAP/SMTP/Maildir/Notmuch)
 
-    # File Transfer
-    rsync               # GNU rsync 3.x (fixes iCloud mmap deadlock in macOS openrsync)
+      # File Transfer
+      rsync # GNU rsync 3.x (fixes iCloud mmap deadlock in macOS openrsync)
 
-    # Nix Development Tools
-    nil                 # Nix language server (simpler, lightweight)
-    nixd                # Nix language server (feature-rich, used by Zed extension)
-  ]
-  # Language Servers and dev tooling (excluded from ai-assistant profile)
-  ++ lib.optionals (profileName != "ai-assistant") [
-    # Python
-    pyright             # Python type checker and language server (fastest, recommended)
+      # Nix Development Tools
+      nil # Nix language server (simpler, lightweight)
+      nixd # Nix language server (feature-rich, used by Zed extension)
+    ]
+    # Language Servers and dev tooling (excluded from ai-assistant profile)
+    ++ lib.optionals (profileName != "ai-assistant") [
+      # Python
+      pyright # Python type checker and language server (fastest, recommended)
 
-    # Shell/Bash
-    bash-language-server  # Bash/Shell script language server
-    shellcheck          # Shell script static analysis (used by bash-language-server)
+      # Shell/Bash
+      bash-language-server # Bash/Shell script language server
+      shellcheck # Shell script static analysis (used by bash-language-server)
 
-    # Web Development (React.js / TypeScript / JavaScript)
-    typescript-language-server              # TypeScript/JavaScript language server
-    vscode-langservers-extracted             # HTML, CSS, JSON, ESLint language servers
-    prettier                                 # Code formatter for JS/TS/HTML/CSS/JSON
-    eslint                                   # JavaScript/TypeScript linter
-    stylelint                                # CSS/SCSS/Less linter
-    htmlhint                                 # HTML linter
+      # Web Development (React.js / TypeScript / JavaScript)
+      typescript-language-server # TypeScript/JavaScript language server
+      vscode-langservers-extracted # HTML, CSS, JSON, ESLint language servers
+      prettier # Code formatter for JS/TS/HTML/CSS/JSON
+      eslint # JavaScript/TypeScript linter
+      stylelint # CSS/SCSS/Less linter
+      htmlhint # HTML linter
 
-    # YAML (for docker-compose, CI configs)
-    yaml-language-server  # YAML language server with schema support
+      # YAML (for docker-compose, CI configs)
+      yaml-language-server # YAML language server with schema support
 
-    # TOML (for pyproject.toml, Cargo.toml)
-    taplo               # TOML language server and formatter
+      # TOML (for pyproject.toml, Cargo.toml)
+      taplo # TOML language server and formatter
 
-    # Markdown
-    # marksman          # DISABLED: Requires .NET which requires Swift build (broken in current nixpkgs)
-                        # Re-enable when nixpkgs Swift build is fixed
-  ]
-  # Container Tools (excluded from ai-assistant profile)
-  ++ lib.optionals (profileName != "ai-assistant") [
-    lazydocker          # Simple terminal UI for Docker and docker-compose
-  ]
-  # Go development (Power profile only)
-  ++ lib.optionals isPowerProfile [
-    go                  # Go programming language toolchain
-    gopls               # Go language server
-  ]
-  ++ [
-    # Cloud CLI Tools
-    hcloud              # Hetzner Cloud CLI for managing servers, networks, volumes, etc.
+      # Markdown
+      # marksman          # DISABLED: Requires .NET which requires Swift build (broken in current nixpkgs)
+      # Re-enable when nixpkgs Swift build is fixed
+    ]
+    # Container Tools (excluded from ai-assistant profile)
+    ++ lib.optionals (profileName != "ai-assistant") [
+      lazydocker # Simple terminal UI for Docker and docker-compose
+    ]
+    # Go development (Power profile only)
+    ++ lib.optionals isPowerProfile [
+      go # Go programming language toolchain
+      gopls # Go language server
+    ]
+    ++ [
+      # Cloud CLI Tools
+      hcloud # Hetzner Cloud CLI for managing servers, networks, volumes, etc.
 
-    # Media Processing
-    ffmpeg              # Audio/video processing
-    poppler-utils       # PDF tools: pdftotext, pdfinfo, pdfimages, pdftoppm (used by Python PDF libs)
+      # Media Processing
+      ffmpeg # Audio/video processing
+      poppler-utils # PDF tools: pdftotext, pdfinfo, pdfimages, pdftoppm (used by Python PDF libs)
 
-    # Code Analysis
-    scc                 # Fast code counter (lines of code, complexity, COCOMO estimates)
+      # Code Analysis
+      scc # Fast code counter (lines of code, complexity, COCOMO estimates)
 
-    # Document Generation
-    typst               # Modern typesetting system — fast PDF generation from markup
+      # Document Generation
+      typst # Modern typesetting system — fast PDF generation from markup
 
-    # DevOps & Config Linters
-    hadolint            # Dockerfile/Containerfile linter (best practices)
-    yamllint            # YAML linter (syntax and style)
-    markdownlint-cli    # Markdown linter (style consistency)
-    actionlint          # GitHub Actions workflow linter
-    gitleaks            # Secret detection in git repos (pre-commit + CI)
-  ];
+      # DevOps & Config Linters
+      bats # Bash Automated Testing System for repo test suites
+      hadolint # Dockerfile/Containerfile linter (best practices)
+      yamllint # YAML linter (syntax and style)
+      markdownlint-cli # Markdown linter (style consistency)
+      actionlint # GitHub Actions workflow linter
+      gitleaks # Secret detection in git repos (pre-commit + CI)
+    ];
 
   # Application Management & System Configuration
   system = {
     activationScripts = {
       # Create aliases for Nix-installed GUI apps in /Applications
-      applications.text = let
-        env = pkgs.buildEnv {
-          name = "system-applications";
-          paths = config.environment.systemPackages;
-          pathsToLink = [ "/Applications" ];
-        };
-      in
+      applications.text =
+        let
+          env = pkgs.buildEnv {
+            name = "system-applications";
+            paths = config.environment.systemPackages;
+            pathsToLink = [ "/Applications" ];
+          };
+        in
         pkgs.lib.mkForce ''
           echo "setting up /Applications..." >&2
           rm -rf /Applications/Nix\ Apps
@@ -248,98 +263,102 @@
       # NOTE: Must use postActivation (a hardcoded name that nix-darwin runs)
       # Custom activation script names are NOT executed automatically
       # See: https://github.com/nix-darwin/nix-darwin/issues/663
-      postActivation.text = lib.mkAfter (''
-        # ========================================================================
-        # COMMON SCRIPTS SYNC (Both Profiles)
-        # ========================================================================
-        # Scripts needed by LaunchAgents that run on all machines
-        echo "Syncing common scripts to ~/.local/bin..."
-        SCRIPTS_SRC="/Users/${userConfig.username}/${userConfig.directories.dotfiles}/scripts"
-        SCRIPTS_DST="/Users/${userConfig.username}/.local/bin"
+      postActivation.text = lib.mkAfter (
+        ''
+          # ========================================================================
+          # COMMON SCRIPTS SYNC (Both Profiles)
+          # ========================================================================
+          # Scripts needed by LaunchAgents that run on all machines
+          echo "Syncing common scripts to ~/.local/bin..."
+          SCRIPTS_SRC="/Users/${userConfig.username}/${userConfig.directories.dotfiles}/scripts"
+          SCRIPTS_DST="/Users/${userConfig.username}/.local/bin"
 
-        # Create destination directory if it doesn't exist
-        mkdir -p "$SCRIPTS_DST"
+          # Create destination directory if it doesn't exist
+          mkdir -p "$SCRIPTS_DST"
 
-        # Scripts used by LaunchAgents on all profiles
-        COMMON_SCRIPTS=(
-          "health-api.py"
-          "health-check.sh"
-          "claude-cleanup.sh"
-          "weekly-maintenance-digest.sh"
-          "release-monitor.sh"
-          "disk-cleanup.sh"
-          "fetch-release-notes.sh"
-          "analyze-releases.sh"
-          "create-release-issues.sh"
-          "send-release-summary.sh"
-          "send-notification.sh"      # email helper, reused by virt-vm-orphan-watch
-          "start-ollama"              # extensionless command wrapper
-          "start-ollama.sh"           # guarded manual Ollama starter for external model drive
-          "stop-ollama"               # extensionless command wrapper
-          "stop-ollama.sh"            # manual Ollama stopper paired with start-ollama.sh
-          # Epic-08: invoked by always-on / opt-in LaunchAgents (darwin/maintenance.nix)
-          "ollama-pressure-guard.sh"  # 60s guard; Story 08.2-002
-          "ollama-lru.sh"             # monthly opt-in prune; Story 08.1-004
-          "virt-vm-orphan-watch.sh"   # 10min notify-only orphan-VM detector
-          "vitals-sampler.sh"         # hourly /metrics sampler for weekly digest
-        )
+          # Scripts used by LaunchAgents on all profiles
+          COMMON_SCRIPTS=(
+            "health-api.py"
+            "health_api_security.py"
+            "health-check.sh"
+            "claude-cleanup.sh"
+            "weekly-maintenance-digest.sh"
+            "release-monitor.sh"
+            "disk-cleanup.sh"
+            "fetch-release-notes.sh"
+            "analyze-releases.sh"
+            "create-release-issues.sh"
+            "send-release-summary.sh"
+            "send-notification.sh"      # email helper, reused by virt-vm-orphan-watch
+            "start-ollama"              # extensionless command wrapper
+            "start-ollama.sh"           # guarded manual Ollama starter for external model drive
+            "stop-ollama"               # extensionless command wrapper
+            "stop-ollama.sh"            # manual Ollama stopper paired with start-ollama.sh
+            # Epic-08: invoked by always-on / opt-in LaunchAgents (darwin/maintenance.nix)
+            "ollama-pressure-guard.sh"  # 60s guard; Story 08.2-002
+            "ollama-lru.sh"             # monthly opt-in prune; Story 08.1-004
+            "virt-vm-orphan-watch.sh"   # 10min notify-only orphan-VM detector
+            "vitals-sampler.sh"         # hourly /metrics sampler for weekly digest
+          )
 
-        for script in "''${COMMON_SCRIPTS[@]}"; do
-          if [[ -f "$SCRIPTS_SRC/$script" ]]; then
-            cp "$SCRIPTS_SRC/$script" "$SCRIPTS_DST/$script"
-            chmod 755 "$SCRIPTS_DST/$script"
-            chown ${userConfig.username}:staff "$SCRIPTS_DST/$script"
-            echo "  ✓ Synced $script"
+          for script in "''${COMMON_SCRIPTS[@]}"; do
+            if [[ -f "$SCRIPTS_SRC/$script" ]]; then
+              cp "$SCRIPTS_SRC/$script" "$SCRIPTS_DST/$script"
+              chmod 755 "$SCRIPTS_DST/$script"
+              chown ${userConfig.username}:staff "$SCRIPTS_DST/$script"
+              echo "  ✓ Synced $script"
+            else
+              echo "  ⚠ Script not found: $script"
+            fi
+          done
+
+          chown -R ${userConfig.username}:staff "$SCRIPTS_DST"
+          echo "✓ Common scripts synced to $SCRIPTS_DST"
+
+        ''
+        + lib.optionalString isPowerProfile ''
+          # ========================================================================
+          # MAINTENANCE SCRIPTS SYNC (Power Profile Only)
+          # ========================================================================
+          # These scripts are for NAS backup and advanced maintenance features
+          echo "Syncing maintenance scripts to ~/.local/bin..."
+          SCRIPTS_SRC="/Users/${userConfig.username}/${userConfig.directories.dotfiles}/scripts"
+          SCRIPTS_DST="/Users/${userConfig.username}/.local/bin"
+
+          # List of scripts used by Power-only LaunchAgents and workflows
+          # NOTE: rsync-backup.sh is handled separately in darwin/rsync-backup.nix
+          SCRIPTS=(
+            "icloud-sync.sh"
+          )
+
+          for script in "''${SCRIPTS[@]}"; do
+            if [[ -f "$SCRIPTS_SRC/$script" ]]; then
+              cp "$SCRIPTS_SRC/$script" "$SCRIPTS_DST/$script"
+              chmod 755 "$SCRIPTS_DST/$script"
+              chown ${userConfig.username}:staff "$SCRIPTS_DST/$script"
+              echo "  ✓ Synced $script"
+            else
+              echo "  ⚠ Script not found: $script"
+            fi
+          done
+
+          # Ensure entire directory is owned by user
+          chown -R ${userConfig.username}:staff "$SCRIPTS_DST"
+          echo "✓ Maintenance scripts synced to $SCRIPTS_DST"
+
+          # ========================================================================
+          # OSXPHOTOS INSTALLATION (Power Profile Only - for Photo Export to NAS)
+          # ========================================================================
+          # osxphotos requires pyobjc frameworks that aren't in nixpkgs
+          # Using uv (which IS Nix-managed) ensures reproducible installation
+          echo "Installing osxphotos via uv..."
+          if sudo -u ${userConfig.username} -i ${pkgs.uv}/bin/uv tool install osxphotos --force 2>&1; then
+            echo "✓ osxphotos installed via uv"
           else
-            echo "  ⚠ Script not found: $script"
+            echo "⚠ osxphotos installation failed (may need manual: uv tool install osxphotos)"
           fi
-        done
-
-        chown -R ${userConfig.username}:staff "$SCRIPTS_DST"
-        echo "✓ Common scripts synced to $SCRIPTS_DST"
-
-      '' + lib.optionalString isPowerProfile ''
-        # ========================================================================
-        # MAINTENANCE SCRIPTS SYNC (Power Profile Only)
-        # ========================================================================
-        # These scripts are for NAS backup and advanced maintenance features
-        echo "Syncing maintenance scripts to ~/.local/bin..."
-        SCRIPTS_SRC="/Users/${userConfig.username}/${userConfig.directories.dotfiles}/scripts"
-        SCRIPTS_DST="/Users/${userConfig.username}/.local/bin"
-
-        # List of scripts used by Power-only LaunchAgents and workflows
-        # NOTE: rsync-backup.sh is handled separately in darwin/rsync-backup.nix
-        SCRIPTS=(
-          "icloud-sync.sh"
-        )
-
-        for script in "''${SCRIPTS[@]}"; do
-          if [[ -f "$SCRIPTS_SRC/$script" ]]; then
-            cp "$SCRIPTS_SRC/$script" "$SCRIPTS_DST/$script"
-            chmod 755 "$SCRIPTS_DST/$script"
-            chown ${userConfig.username}:staff "$SCRIPTS_DST/$script"
-            echo "  ✓ Synced $script"
-          else
-            echo "  ⚠ Script not found: $script"
-          fi
-        done
-
-        # Ensure entire directory is owned by user
-        chown -R ${userConfig.username}:staff "$SCRIPTS_DST"
-        echo "✓ Maintenance scripts synced to $SCRIPTS_DST"
-
-        # ========================================================================
-        # OSXPHOTOS INSTALLATION (Power Profile Only - for Photo Export to NAS)
-        # ========================================================================
-        # osxphotos requires pyobjc frameworks that aren't in nixpkgs
-        # Using uv (which IS Nix-managed) ensures reproducible installation
-        echo "Installing osxphotos via uv..."
-        if sudo -u ${userConfig.username} -i ${pkgs.uv}/bin/uv tool install osxphotos --force 2>&1; then
-          echo "✓ osxphotos installed via uv"
-        else
-          echo "⚠ osxphotos installation failed (may need manual: uv tool install osxphotos)"
-        fi
-      '');
+        ''
+      );
     };
 
     # macOS System Preferences
@@ -360,7 +379,7 @@
   users.users.${userConfig.username} = {
     name = userConfig.username;
     home = "/Users/${userConfig.username}";
-    uid = 501;  # Standard macOS first user UID
+    uid = 501; # Standard macOS first user UID
   };
 
   # Security Configuration

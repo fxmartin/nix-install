@@ -1,20 +1,22 @@
 # ABOUTME: LaunchAgent for health check HTTP API server
-# ABOUTME: Runs Python HTTP server on port 7780, accessible via localhost and Tailscale
+# ABOUTME: Runs a loopback-only Python HTTP server on port 7780
 {
   config,
   pkgs,
   lib,
   userConfig,
   ...
-}: let
+}:
+let
   scriptsDir = "/Users/${userConfig.username}/.local/bin";
-in {
+in
+{
   # ===========================================================================
   # HEALTH API SERVER LAUNCHAGENT
   # ===========================================================================
   # Starts a lightweight Python HTTP server at login on port 7780
   # Endpoints: /health (diagnostics), /metrics (Apple Silicon stats), /ping (liveness)
-  # Accessible via localhost and Tailscale (0.0.0.0 binding)
+  # Local consumers only; remote access must use an authenticated proxy.
   # Zero dependencies - uses Python 3.12 stdlib http.server
 
   launchd.user.agents.health-api = {
@@ -27,7 +29,9 @@ in {
 
       # Start at login and restart on crash
       RunAtLoad = true;
-      KeepAlive = {SuccessfulExit = false;};
+      KeepAlive = {
+        SuccessfulExit = false;
+      };
 
       # Logging configuration
       StandardOutPath = "/tmp/health-api.log";
@@ -38,6 +42,7 @@ in {
 
       # Environment
       EnvironmentVariables = {
+        HEALTH_API_HOST = "127.0.0.1";
         HOME = "/Users/${userConfig.username}";
         PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/opt/homebrew/bin:/run/current-system/sw/bin:/usr/bin:/usr/sbin:/bin";
       };

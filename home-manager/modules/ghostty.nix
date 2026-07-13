@@ -7,7 +7,8 @@
   userConfig,
   findRepoRoot,
   ...
-}: {
+}:
+{
   # Ghostty Terminal Configuration
   # Story 02.2-003: Install and configure Ghostty with existing config/config.ghostty
   #
@@ -43,7 +44,7 @@
   # - Keybindings: Comprehensive productivity bindings for splits, tabs, navigation
 
   # Activation script to symlink Ghostty config to repo (bidirectional sync)
-  home.activation.ghosttyConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.ghosttyConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
     GHOSTTY_CONFIG_FILE="$GHOSTTY_CONFIG_DIR/config"
 

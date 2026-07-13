@@ -1,7 +1,0 @@
-- generic [active] [ref=e1]:
-  - generic [ref=e2]:
-    - heading "Server Error in '/' Application." [level=1] [ref=e3]:
-      - text: Server Error in '/' Application.
-      - separator [ref=e4]
-    - heading "Runtime Error" [level=2] [ref=e5]
-  - generic [ref=e6]: "Description: An exception occurred while processing your request. Additionally, another exception occurred while executing the custom error page for the first exception. The request has been terminated."

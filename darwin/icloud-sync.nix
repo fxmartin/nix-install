@@ -7,10 +7,12 @@
   lib,
   userConfig,
   ...
-}: let
+}:
+let
   # Scripts directory (TCC-safe location)
   scriptsDir = "/Users/${userConfig.username}/.local/bin";
-in {
+in
+{
   # ===========================================================================
   # ICLOUD SYNC SCRIPT INSTALLATION
   # ===========================================================================

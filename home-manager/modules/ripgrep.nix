@@ -5,7 +5,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   # ripgrep is already installed via darwin/configuration.nix
   # This module provides configuration via .ripgreprc
 
@@ -95,7 +96,7 @@
   };
 
   # Activation script to verify ripgrep configuration
-  home.activation.verifyRipgrep = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.verifyRipgrep = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     echo "ripgrep: Configuration applied"
     echo "  - Config: ~/.ripgreprc"
     echo "  - Smart case: enabled"

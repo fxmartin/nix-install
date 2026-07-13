@@ -39,7 +39,7 @@
 
     # Git LFS Configuration
     lfs = {
-      enable = true;                  # Enable Git Large File Storage
+      enable = true; # Enable Git Large File Storage
       # LFS will be initialized globally on first darwin-rebuild
     };
 
@@ -47,36 +47,36 @@
     settings = {
       # User Identity (from user-config.nix)
       user = {
-        name = fullName;              # e.g., "François Martin"
-        email = email;                # e.g., "fx@example.com"
+        name = fullName; # e.g., "François Martin"
+        email = email; # e.g., "fx@example.com"
       };
       # Default branch name
       init = {
-        defaultBranch = "main";       # Use 'main' instead of 'master'
+        defaultBranch = "main"; # Use 'main' instead of 'master'
       };
 
       # Core settings
       core = {
-        editor = "vim";                # Default editor for commit messages
-        autocrlf = "input";            # LF line endings (macOS/Linux style)
+        editor = "vim"; # Default editor for commit messages
+        autocrlf = "input"; # LF line endings (macOS/Linux style)
         whitespace = "trailing-space,space-before-tab";
-        hooksPath = "~/.config/git/hooks";  # Global hooks managed by Home Manager
+        hooksPath = "~/.config/git/hooks"; # Global hooks managed by Home Manager
       };
 
       # Pull behavior
       pull = {
-        rebase = false;                # Merge by default (not rebase)
+        rebase = false; # Merge by default (not rebase)
       };
 
       # Push behavior
       push = {
-        default = "simple";            # Push current branch to upstream
-        autoSetupRemote = true;        # Automatically set up remote tracking
+        default = "simple"; # Push current branch to upstream
+        autoSetupRemote = true; # Automatically set up remote tracking
       };
 
       # GitHub settings
       github = {
-        user = githubUsername;         # GitHub username from user-config.nix
+        user = githubUsername; # GitHub username from user-config.nix
       };
 
       # Diff and merge tools
@@ -86,17 +86,17 @@
 
       merge = {
         tool = "vimdiff";
-        conflictstyle = "diff3";       # Show common ancestor in conflicts
+        conflictstyle = "diff3"; # Show common ancestor in conflicts
       };
 
       # Credential helper (use macOS Keychain)
       credential = {
-        helper = "osxkeychain";        # macOS Keychain integration
+        helper = "osxkeychain"; # macOS Keychain integration
       };
 
       # Color output
       color = {
-        ui = "auto";                   # Enable colors in terminal
+        ui = "auto"; # Enable colors in terminal
       };
 
       # Alias shortcuts (optional, can be customized)
@@ -148,31 +148,31 @@
   home.file.".config/git/hooks/pre-commit" = {
     executable = true;
     text = ''
-#!/usr/bin/env bash
-# Pre-commit hook: secret detection via gitleaks
-# Managed by Home Manager — do not edit manually
+      #!/usr/bin/env bash
+      # Pre-commit hook: secret detection via gitleaks
+      # Managed by Home Manager — do not edit manually
 
-if ! command -v gitleaks &>/dev/null; then
-  echo "Warning: gitleaks not found, skipping secret scan"
-  exit 0
-fi
+      if ! command -v gitleaks &>/dev/null; then
+        echo "Warning: gitleaks not found, skipping secret scan"
+        exit 0
+      fi
 
-gitleaks protect --staged --verbose --redact
-exit_code=$?
+      gitleaks protect --staged --verbose --redact
+      exit_code=$?
 
-if [ $exit_code -ne 0 ]; then
-  echo ""
-  echo "gitleaks: secrets detected in staged changes"
-  echo "To fix: remove the secret and add to .gitleaks.toml if false positive"
-  echo ""
-  exit 1
-fi
+      if [ $exit_code -ne 0 ]; then
+        echo ""
+        echo "gitleaks: secrets detected in staged changes"
+        echo "To fix: remove the secret and add to .gitleaks.toml if false positive"
+        echo ""
+        exit 1
+      fi
     '';
   };
 
   # Post-installation verification message
   # This runs after Home Manager activation
-  home.activation.gitConfigVerify = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.gitConfigVerify = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     if command -v git > /dev/null 2>&1; then
       echo ""
       echo "✓ Git configuration applied:"

@@ -6,7 +6,8 @@
   lib,
   userConfig,
   ...
-}: {
+}:
+{
   # =============================================================================
   # ZSH SHELL CONFIGURATION (Story 04.1-001)
   # =============================================================================
@@ -53,183 +54,185 @@
     # Modern CLI tool aliases added in Story 04.5-001, 04.5-002, 04.5-003
     # Dynamic path to nix-install repository (configured in user-config.nix)
     # Default: ~/.config/nix-install, but respects user's custom path
-    shellAliases = let
-      dotfilesPath = "${config.home.homeDirectory}/${userConfig.directories.dotfiles}";
-    in {
-      # =============================================================================
-      # NIX SYSTEM MANAGEMENT (Story 04.5-001)
-      # =============================================================================
-      # Using scripts/update-system.sh wrapper for profile auto-detection
-      nix-update = "bash ${dotfilesPath}/scripts/update-system.sh update";
-      nix-rebuild = "bash ${dotfilesPath}/scripts/update-system.sh rebuild";
-      nix-full = "bash ${dotfilesPath}/scripts/update-system.sh full";
+    shellAliases =
+      let
+        dotfilesPath = "${config.home.homeDirectory}/${userConfig.directories.dotfiles}";
+      in
+      {
+        # =============================================================================
+        # NIX SYSTEM MANAGEMENT (Story 04.5-001)
+        # =============================================================================
+        # Using scripts/update-system.sh wrapper for profile auto-detection
+        nix-update = "bash ${dotfilesPath}/scripts/update-system.sh update";
+        nix-rebuild = "bash ${dotfilesPath}/scripts/update-system.sh rebuild";
+        nix-full = "bash ${dotfilesPath}/scripts/update-system.sh full";
 
-      # Quick rebuild (auto-detect profile)
-      rebuild = "bash ${dotfilesPath}/scripts/update-system.sh rebuild";
+        # Quick rebuild (auto-detect profile)
+        rebuild = "bash ${dotfilesPath}/scripts/update-system.sh rebuild";
 
-      # Dry-run rebuild — build without switching (preview what would change)
-      rebuild-dry = "bash ${dotfilesPath}/scripts/update-system.sh dry";
+        # Dry-run rebuild — build without switching (preview what would change)
+        rebuild-dry = "bash ${dotfilesPath}/scripts/update-system.sh dry";
 
-      # Update flake.lock and rebuild (convenience alias)
-      update = "bash ${dotfilesPath}/scripts/update-system.sh update";
+        # Update flake.lock and rebuild (convenience alias)
+        update = "bash ${dotfilesPath}/scripts/update-system.sh update";
 
-      # Nix garbage collection aliases
-      gc = "nix-collect-garbage -d";  # Delete old user generations
-      gc-system = "sudo nix-collect-garbage -d";  # Delete old system generations (requires sudo)
-      cleanup = "nix-collect-garbage -d && nix-store --optimize";  # GC + optimize store
+        # Nix garbage collection aliases
+        gc = "nix-collect-garbage -d"; # Delete old user generations
+        gc-system = "sudo nix-collect-garbage -d"; # Delete old system generations (requires sudo)
+        cleanup = "nix-collect-garbage -d && nix-store --optimize"; # GC + optimize store
 
-      # Homebrew upgrade alias (manual trigger for cask updates)
-      # Use --greedy to include apps that auto-update themselves
-      brew-upgrade = "brew update && brew upgrade --greedy";
+        # Homebrew upgrade alias (manual trigger for cask updates)
+        # Use --greedy to include apps that auto-update themselves
+        brew-upgrade = "brew update && brew upgrade --greedy";
 
-      # Health check (Feature 06.4 - Epic-06)
-      health-check = "bash ${dotfilesPath}/scripts/health-check.sh";
+        # Health check (Feature 06.4 - Epic-06)
+        health-check = "bash ${dotfilesPath}/scripts/health-check.sh";
 
-      # Disk cleanup (Feature 06.7 - Epic-06)
-      # Cleans uv, Homebrew, npm, pip, node-gyp, and Docker caches
-      disk-cleanup = "bash ${dotfilesPath}/scripts/disk-cleanup.sh";
+        # Disk cleanup (Feature 06.7 - Epic-06)
+        # Cleans uv, Homebrew, npm, pip, node-gyp, and Docker caches
+        disk-cleanup = "bash ${dotfilesPath}/scripts/disk-cleanup.sh";
 
-      # Weekly maintenance digest (Feature 06.5 - Epic-06)
-      # Manual trigger for weekly digest email (normally runs Sunday 8 AM automatically)
-      weekly-digest = "bash ${dotfilesPath}/scripts/weekly-maintenance-digest.sh";
+        # Weekly maintenance digest (Feature 06.5 - Epic-06)
+        # Manual trigger for weekly digest email (normally runs Sunday 8 AM automatically)
+        weekly-digest = "bash ${dotfilesPath}/scripts/weekly-maintenance-digest.sh";
 
-      # Release monitor (Feature 06.6 - Epic-06)
-      # Manual trigger for release monitoring (normally runs Monday 7 AM automatically)
-      # Checks Homebrew, nixpkgs, nix-darwin, Ollama for updates and creates GitHub issues
-      release-monitor = "bash ${dotfilesPath}/scripts/release-monitor.sh";
+        # Release monitor (Feature 06.6 - Epic-06)
+        # Manual trigger for release monitoring (normally runs Monday 7 AM automatically)
+        # Checks Homebrew, nixpkgs, nix-darwin, Ollama for updates and creates GitHub issues
+        release-monitor = "bash ${dotfilesPath}/scripts/release-monitor.sh";
 
-      # Ollama LRU model pruning (Story 08.1-004)
-      # --analyze (default): report size + days-since-use for each model
-      # --prune: interactive y/N per stale model
-      # --auto: non-interactive, preserves profile-expected models
-      ollama-lru = "bash ${dotfilesPath}/scripts/ollama-lru.sh";
+        # Ollama LRU model pruning (Story 08.1-004)
+        # --analyze (default): report size + days-since-use for each model
+        # --prune: interactive y/N per stale model
+        # --auto: non-interactive, preserves profile-expected models
+        ollama-lru = "bash ${dotfilesPath}/scripts/ollama-lru.sh";
 
-      # LaunchAgent memory audit (Story 08.2-004)
-      # One-shot: samples RSS 10× over 5 minutes, prints markdown table.
-      # Output suitable for pasting into docs/architecture.md.
-      audit-launchagents = "bash ${dotfilesPath}/scripts/audit-launchagents.sh";
+        # LaunchAgent memory audit (Story 08.2-004)
+        # One-shot: samples RSS 10× over 5 minutes, prints markdown table.
+        # Output suitable for pasting into docs/architecture.md.
+        audit-launchagents = "bash ${dotfilesPath}/scripts/audit-launchagents.sh";
 
-      # =============================================================================
-      # GENERAL SHELL ALIASES (Story 04.5-002)
-      # =============================================================================
-      # Classic Unix convenience aliases
-      ll = "ls -lah";    # Long listing with hidden files, human-readable sizes
-      la = "ls -A";      # List all files except . and ..
-      l = "ls -CF";      # Classify files (/, *, @) and columnar output
+        # =============================================================================
+        # GENERAL SHELL ALIASES (Story 04.5-002)
+        # =============================================================================
+        # Classic Unix convenience aliases
+        ll = "ls -lah"; # Long listing with hidden files, human-readable sizes
+        la = "ls -A"; # List all files except . and ..
+        l = "ls -CF"; # Classify files (/, *, @) and columnar output
 
-      # Directory navigation
-      ".." = "cd ..";
-      "..." = "cd ../..";
+        # Directory navigation
+        ".." = "cd ..";
+        "..." = "cd ../..";
 
-      # History search alias for convenience
-      hist = "history 1";
+        # History search alias for convenience
+        hist = "history 1";
 
-      # =============================================================================
-      # MODERN CLI TOOL ALIASES (Story 04.5-003)
-      # =============================================================================
-      # Replace legacy tools with modern alternatives while keeping originals accessible
+        # =============================================================================
+        # MODERN CLI TOOL ALIASES (Story 04.5-003)
+        # =============================================================================
+        # Replace legacy tools with modern alternatives while keeping originals accessible
 
-      # grep → ripgrep (rg) - respects .gitignore, blazing fast, smart defaults
-      grep = "rg";
-      oldgrep = "command grep --color=auto";  # Original grep with color
+        # grep → ripgrep (rg) - respects .gitignore, blazing fast, smart defaults
+        grep = "rg";
+        oldgrep = "command grep --color=auto"; # Original grep with color
 
-      # cat → bat - syntax highlighting, git integration, line numbers
-      cat = "bat";
-      oldcat = "command cat";  # Original cat
+        # cat → bat - syntax highlighting, git integration, line numbers
+        cat = "bat";
+        oldcat = "command cat"; # Original cat
 
-      # find → fd - simpler syntax, respects .gitignore, parallel execution
-      find = "fd";
-      oldfind = "command find";  # Original find
+        # find → fd - simpler syntax, respects .gitignore, parallel execution
+        find = "fd";
+        oldfind = "command find"; # Original find
 
-      # ls → eza - icons, git status, tree view, better colors
-      ls = "eza --icons --group-directories-first";
-      oldls = "command ls --color=auto";  # Original ls (BSD ls on macOS)
+        # ls → eza - icons, git status, tree view, better colors
+        ls = "eza --icons --group-directories-first";
+        oldls = "command ls --color=auto"; # Original ls (BSD ls on macOS)
 
-      # Additional eza convenience aliases
-      tree = "eza --tree --icons";  # Tree view with icons
-      lt = "eza --tree --level=2 --icons";  # Tree view (2 levels)
-      llt = "eza --tree --long --icons";  # Tree view with details
+        # Additional eza convenience aliases
+        tree = "eza --tree --icons"; # Tree view with icons
+        lt = "eza --tree --level=2 --icons"; # Tree view (2 levels)
+        llt = "eza --tree --long --icons"; # Tree view with details
 
-      # cd → zoxide (z) - frecency-based directory jumping
-      # Note: Zoxide adds 'z' command automatically, these are just convenience aliases
-      # Example: z docs → cd to most frequent/recent "docs" directory
-      # No alias needed - zoxide init adds the 'z' command
+        # cd → zoxide (z) - frecency-based directory jumping
+        # Note: Zoxide adds 'z' command automatically, these are just convenience aliases
+        # Example: z docs → cd to most frequent/recent "docs" directory
+        # No alias needed - zoxide init adds the 'z' command
 
-      # =============================================================================
-      # CONTAINER DEVELOPMENT ALIASES (Story 04.8-002)
-      # =============================================================================
-      # Docker Desktop container workflow shortcuts
+        # =============================================================================
+        # CONTAINER DEVELOPMENT ALIASES (Story 04.8-002)
+        # =============================================================================
+        # Docker Desktop container workflow shortcuts
 
-      # Container workflow shortcuts
-      dps = "docker ps";                            # List running containers
-      dpsa = "docker ps -a";                        # List all containers
-      dim = "docker images";                        # List images
-      dex = "docker exec -it";                      # Execute in container (interactive)
-      dlogs = "docker logs -f";                     # Follow container logs
-      dstop = "docker stop";                        # Stop container
-      drm = "docker rm";                            # Remove container
-      drmi = "docker rmi";                          # Remove image
-      dprune = "docker system prune -af";           # Clean up everything (force)
-      dc = "docker compose";                        # Docker Compose shortcut
+        # Container workflow shortcuts
+        dps = "docker ps"; # List running containers
+        dpsa = "docker ps -a"; # List all containers
+        dim = "docker images"; # List images
+        dex = "docker exec -it"; # Execute in container (interactive)
+        dlogs = "docker logs -f"; # Follow container logs
+        dstop = "docker stop"; # Stop container
+        drm = "docker rm"; # Remove container
+        drmi = "docker rmi"; # Remove image
+        dprune = "docker system prune -af"; # Clean up everything (force)
+        dc = "docker compose"; # Docker Compose shortcut
 
-      # Quick container execution
-      drun = "docker run --rm -it";                 # Run container (auto-remove, interactive)
-      dalpine = "docker run --rm -it alpine sh";    # Quick Alpine shell
+        # Quick container execution
+        drun = "docker run --rm -it"; # Run container (auto-remove, interactive)
+        dalpine = "docker run --rm -it alpine sh"; # Quick Alpine shell
 
-      # =============================================================================
-      # PYTHON DEVELOPMENT ALIASES (Story 04.7-001, 04.7-002)
-      # =============================================================================
-      # uv-first workflow for Python project management
+        # =============================================================================
+        # PYTHON DEVELOPMENT ALIASES (Story 04.7-001, 04.7-002)
+        # =============================================================================
+        # uv-first workflow for Python project management
 
-      # Project creation and management
-      uvnew = "uv init";                           # Create new Python project
-      uvrun = "uv run";                            # Run command in project environment
-      uvsync = "uv sync";                          # Sync dependencies from pyproject.toml
-      uvadd = "uv add";                            # Add dependency to project
-      uvremove = "uv remove";                      # Remove dependency from project
-      uvlock = "uv lock";                          # Update lock file
-      uvtree = "uv tree";                          # Show dependency tree
+        # Project creation and management
+        uvnew = "uv init"; # Create new Python project
+        uvrun = "uv run"; # Run command in project environment
+        uvsync = "uv sync"; # Sync dependencies from pyproject.toml
+        uvadd = "uv add"; # Add dependency to project
+        uvremove = "uv remove"; # Remove dependency from project
+        uvlock = "uv lock"; # Update lock file
+        uvtree = "uv tree"; # Show dependency tree
 
-      # Quick Python execution with uv
-      py = "uv run python";                        # Run Python in project context
-      ipy = "uv run python -i";                    # Interactive Python in project context
+        # Quick Python execution with uv
+        py = "uv run python"; # Run Python in project context
+        ipy = "uv run python -i"; # Interactive Python in project context
 
-      # Linting and formatting (all via uv run for project context)
-      lint = "ruff check .";                       # Fast linting with ruff
-      lintfix = "ruff check . --fix";              # Auto-fix linting issues
-      fmt = "ruff format .";                       # Format with ruff (faster than black)
-      fmtcheck = "ruff format . --check";          # Check formatting without changes
-      typecheck = "mypy .";                        # Static type checking
-      sortimports = "isort .";                     # Sort imports
+        # Linting and formatting (all via uv run for project context)
+        lint = "ruff check ."; # Fast linting with ruff
+        lintfix = "ruff check . --fix"; # Auto-fix linting issues
+        fmt = "ruff format ."; # Format with ruff (faster than black)
+        fmtcheck = "ruff format . --check"; # Check formatting without changes
+        typecheck = "mypy ."; # Static type checking
+        sortimports = "isort ."; # Sort imports
 
-      # Combined quality checks
-      qa = "ruff check . && ruff format . --check && mypy .";  # Full QA check
-      fix = "ruff check . --fix && ruff format . && isort .";  # Auto-fix all
+        # Combined quality checks
+        qa = "ruff check . && ruff format . --check && mypy ."; # Full QA check
+        fix = "ruff check . --fix && ruff format . && isort ."; # Auto-fix all
 
-      # Virtual environment shortcuts (when not using uv)
-      venv = "python -m venv .venv";               # Create virtual environment
-      activate = "source .venv/bin/activate";      # Activate virtual environment
+        # Virtual environment shortcuts (when not using uv)
+        venv = "python -m venv .venv"; # Create virtual environment
+        activate = "source .venv/bin/activate"; # Activate virtual environment
 
-      # =============================================================================
-      # OLLAMA ALIASES
-      # =============================================================================
-      # Clear Ollama chat history (stops app, deletes db, restarts)
-      ollama-clear = ''pkill -x Ollama 2>/dev/null; pkill -x ollama 2>/dev/null; sleep 1 && rm -f "$HOME/Library/Application Support/Ollama/db.sqlite"* && open -a Ollama && echo "✓ Ollama chat history cleared"'';
+        # =============================================================================
+        # OLLAMA ALIASES
+        # =============================================================================
+        # Clear Ollama chat history (stops app, deletes db, restarts)
+        ollama-clear = ''pkill -x Ollama 2>/dev/null; pkill -x ollama 2>/dev/null; sleep 1 && rm -f "$HOME/Library/Application Support/Ollama/db.sqlite"* && open -a Ollama && echo "✓ Ollama chat history cleared"'';
 
-      # =============================================================================
-      # CLAUDE CODE ALIASES
-      # =============================================================================
-      # Auto-theme wrapper: detects macOS light/dark mode and sets Claude Code theme
-      # Workaround until https://github.com/anthropics/claude-code/issues/11813 is resolved
-      cld = "bash ${dotfilesPath}/scripts/claude-code-wrapper.sh";
+        # =============================================================================
+        # CLAUDE CODE ALIASES
+        # =============================================================================
+        # Auto-theme wrapper: detects macOS light/dark mode and sets Claude Code theme
+        # Workaround until https://github.com/anthropics/claude-code/issues/11813 is resolved
+        cld = "bash ${dotfilesPath}/scripts/claude-code-wrapper.sh";
 
-      # Sync claude-code-config submodule (pull latest from remote)
-      claude-sync = "git -C ${dotfilesPath}/config/claude-code-config pull origin main";
+        # Sync claude-code-config submodule (pull latest from remote)
+        claude-sync = "git -C ${dotfilesPath}/config/claude-code-config pull origin main";
 
-      # Claude Session Dashboard - local observability for ~/.claude sessions
-      # https://github.com/dlupiak/claude-session-dashboard
-      claude-dashboard = "npx claude-session-dashboard --open";
-    };
+        # Claude Session Dashboard - local observability for ~/.claude sessions
+        # https://github.com/dlupiak/claude-session-dashboard
+        claude-dashboard = "npx claude-session-dashboard --open";
+      };
 
     # =============================================================================
     # OH MY ZSH CONFIGURATION (Story 04.1-002)
@@ -250,7 +253,7 @@
       # NOTE: z plugin NOT included - zoxide (Story 04.5-003) provides superior frecency-based directory jumping
       # NOTE: zsh-autosuggestions installed separately via Nix (not bundled in Oh My Zsh)
       plugins = [
-        "git"   # Git aliases and completions (gst=git status, gco=git checkout, etc.)
+        "git" # Git aliases and completions (gst=git status, gco=git checkout, etc.)
       ];
     };
 
@@ -645,6 +648,17 @@
   programs.starship = {
     enable = true;
 
+    # Use the Homebrew bottle for the Starship binary. nixpkgs.starship 1.26.0
+    # currently fails linking on aarch64-darwin with cctools ld exit 133.
+    package = pkgs.writeShellScriptBin "starship" ''
+      if [ -x /opt/homebrew/bin/starship ]; then
+        exec /opt/homebrew/bin/starship "$@"
+      fi
+
+      echo "starship is not installed at /opt/homebrew/bin/starship" >&2
+      exit 127
+    '';
+
     # Enable Zsh integration (adds eval "$(starship init zsh)" to .zshrc)
     enableZshIntegration = true;
 
@@ -695,7 +709,7 @@
         style = "bold cyan";
         format = "[$path]($style)[$read_only]($read_only_style) ";
         truncation_length = 3;
-        truncate_to_repo = true;  # Show path relative to git root
+        truncate_to_repo = true; # Show path relative to git root
         read_only = " ";
         read_only_style = "red";
         # Common directory substitutions for shorter paths
@@ -720,7 +734,7 @@
       git_status = {
         format = "([$all_status$ahead_behind]($style) )";
         style = "bold yellow";
-        ignore_submodules = true;  # Performance optimization
+        ignore_submodules = true; # Performance optimization
         conflicted = "=";
         ahead = "⇡\${count}";
         behind = "⇣\${count}";
@@ -737,7 +751,7 @@
       character = {
         success_symbol = "[❯](bold green)";
         error_symbol = "[❯](bold red)";
-        vimcmd_symbol = "[❮](bold green)";  # Vi mode indicator
+        vimcmd_symbol = "[❮](bold green)"; # Vi mode indicator
       };
 
       # ==========================================================================
@@ -790,8 +804,15 @@
         style = "bold yellow";
         format = "[\${symbol}\${pyenv_prefix}(\${version})(\\(\${virtualenv}\\))]($style) ";
         pyenv_version_name = true;
-        detect_extensions = ["py"];
-        detect_files = [".python-version" "Pipfile" "pyproject.toml" "requirements.txt" "setup.py" "uv.lock"];
+        detect_extensions = [ "py" ];
+        detect_files = [
+          ".python-version"
+          "Pipfile"
+          "pyproject.toml"
+          "requirements.txt"
+          "setup.py"
+          "uv.lock"
+        ];
       };
 
       # Node.js - for JavaScript/TypeScript projects
@@ -799,8 +820,17 @@
         symbol = " ";
         style = "bold green";
         format = "[$symbol($version)]($style) ";
-        detect_files = ["package.json" ".node-version" ".nvmrc"];
-        detect_extensions = ["js" "ts" "mjs" "cjs"];
+        detect_files = [
+          "package.json"
+          ".node-version"
+          ".nvmrc"
+        ];
+        detect_extensions = [
+          "js"
+          "ts"
+          "mjs"
+          "cjs"
+        ];
       };
 
       # Rust
@@ -808,8 +838,8 @@
         symbol = " ";
         style = "bold red";
         format = "[$symbol($version)]($style) ";
-        detect_extensions = ["rs"];
-        detect_files = ["Cargo.toml"];
+        detect_extensions = [ "rs" ];
+        detect_files = [ "Cargo.toml" ];
       };
 
       # Go
@@ -817,8 +847,11 @@
         symbol = " ";
         style = "bold cyan";
         format = "[$symbol($version)]($style) ";
-        detect_extensions = ["go"];
-        detect_files = ["go.mod" "go.sum"];
+        detect_extensions = [ "go" ];
+        detect_files = [
+          "go.mod"
+          "go.sum"
+        ];
       };
 
       # Ruby
@@ -826,8 +859,11 @@
         symbol = " ";
         style = "bold red";
         format = "[$symbol($version)]($style) ";
-        detect_files = ["Gemfile" ".ruby-version"];
-        detect_extensions = ["rb"];
+        detect_files = [
+          "Gemfile"
+          ".ruby-version"
+        ];
+        detect_extensions = [ "rb" ];
       };
 
       # ==========================================================================
@@ -840,8 +876,12 @@
         style = "bold blue";
         format = "[$symbol$context(/$namespace)]($style) ";
         disabled = false;
-        detect_files = ["k8s" "kubernetes" "helm"];
-        detect_folders = [".kube"];
+        detect_files = [
+          "k8s"
+          "kubernetes"
+          "helm"
+        ];
+        detect_folders = [ ".kube" ];
       };
 
       # Terraform workspace
@@ -850,8 +890,8 @@
         style = "bold purple";
         format = "[$symbol$workspace]($style) ";
         disabled = false;
-        detect_files = [".terraform"];
-        detect_extensions = ["tf"];
+        detect_files = [ ".terraform" ];
+        detect_extensions = [ "tf" ];
       };
 
       # AWS profile/region

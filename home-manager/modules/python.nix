@@ -27,18 +27,18 @@
   # Environment variables for Python development
   home.sessionVariables = {
     # Python behavior settings
-    PYTHONDONTWRITEBYTECODE = "1";    # Don't create .pyc files
-    PYTHONUNBUFFERED = "1";           # Unbuffered stdout/stderr for better logging
+    PYTHONDONTWRITEBYTECODE = "1"; # Don't create .pyc files
+    PYTHONUNBUFFERED = "1"; # Unbuffered stdout/stderr for better logging
 
     # uv configuration
-    UV_SYSTEM_PYTHON = "1";           # Use system Python by default
-    UV_SYSTEM_CERTS = "1";            # Use system certificate store for TLS
+    UV_SYSTEM_PYTHON = "1"; # Use system Python by default
+    UV_SYSTEM_CERTS = "1"; # Use system certificate store for TLS
   };
 
   # direnv integration for automatic environment activation
   programs.direnv = {
     enable = true;
-    nix-direnv.enable = true;         # Faster direnv for Nix environments
+    nix-direnv.enable = true; # Faster direnv for Nix environments
   };
 
   # Python dev workflow aliases (added to shell.nix shellAliases)
@@ -46,7 +46,7 @@
   # Actual integration happens in shell.nix via imports
 
   # Post-installation verification message
-  home.activation.pythonConfigVerify = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.pythonConfigVerify = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     if command -v python > /dev/null 2>&1 && command -v uv > /dev/null 2>&1; then
       echo ""
       echo "✓ Python development environment configured:"

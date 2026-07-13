@@ -1,8 +1,8 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.0% Complete (144/147 stories) | **Version**: 1.9.10 | **2 MacBooks deployed, M4 Air pending**
+> **Status**: 98.0% Complete (144/147 stories) | **Version**: 2.0.0 | **2 MacBooks deployed, M4 Air pending**
 
-**Two deployed MacBooks. One config. Zero drift.**
+**Two deployed MacBooks. One config. Controlled configuration drift.**
 
 I got tired of my machines slowly becoming strangers — different tools here, tweaked settings there, no idea what I changed six months ago. So I built this.
 
@@ -22,6 +22,10 @@ Run this single command on a fresh macOS installation:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/fxmartin/nix-install/main/setup.sh | bash
 ```
+
+The wrapper downloads installer assets from the matching tagged release and
+verifies `bootstrap-dist.sh` against the published SHA-256 checksum before
+execution. Branch installs require the explicit `NIX_INSTALL_BRANCH` override.
 
 **Installation time**: ~30 minutes (mostly automated, a few prompts)
 
@@ -104,7 +108,7 @@ darwin-rebuild --rollback  # Instant rollback to previous generation
 
 | Benefit | Explanation |
 |---------|-------------|
-| **Reproducibility** | Same config = same versions = identical system state across machines |
+| **Controlled convergence** | Nix packages follow `flake.lock`; Homebrew, MAS, vendor assets, and model tags converge to versions available at controlled update time |
 | **Control** | You choose when to update, not apps updating randomly |
 | **Testing** | Update one machine first, verify it works, then update others |
 | **Rollback** | If an update breaks something, instant rollback to previous state |
@@ -128,6 +132,14 @@ darwin-rebuild --rollback  # Instant rollback to previous generation
 - Adds/removes apps, changes settings, updates dotfiles
 - Package versions stay the same (from `flake.lock`)
 - Fast because most packages are already cached
+
+### Reproducibility boundary
+
+Nix packages and Nix-managed tools are pinned by `flake.lock`. Homebrew taps,
+formulae/casks, Mac App Store applications, vendor release assets, and Ollama
+model tags are externally versioned and are not byte-for-byte reproducible.
+Updates remain operator-controlled, but a rebuild on a later date can converge
+those non-Nix components to newer upstream versions.
 
 **`update`** — Update all packages and rebuild
 - Updates `flake.lock` to latest versions from nixpkgs

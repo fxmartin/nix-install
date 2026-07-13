@@ -82,47 +82,47 @@ teardown() {
 # =============================================================================
 
 @test "backup_nix_config function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f backup_nix_config >/dev/null
 }
 
 @test "get_cpu_cores function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f get_cpu_cores >/dev/null
 }
 
 @test "configure_nix_binary_cache function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f configure_nix_binary_cache >/dev/null
 }
 
 @test "configure_nix_performance function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f configure_nix_performance >/dev/null
 }
 
 @test "configure_nix_trusted_users function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f configure_nix_trusted_users >/dev/null
 }
 
 @test "configure_nix_sandbox function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f configure_nix_sandbox >/dev/null
 }
 
 @test "restart_nix_daemon function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f restart_nix_daemon >/dev/null
 }
 
 @test "verify_nix_configuration function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f verify_nix_configuration >/dev/null
 }
 
 @test "configure_nix_phase function exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
     declare -f configure_nix_phase >/dev/null
 }
 
@@ -131,7 +131,7 @@ teardown() {
 # =============================================================================
 
 @test "backup_nix_config creates backup when file exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create existing config file
     echo "existing config" > "${MOCK_NIX_CONF}"
@@ -146,7 +146,7 @@ teardown() {
 }
 
 @test "backup_nix_config handles missing file gracefully" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Ensure file doesn't exist
     rm -f "${MOCK_NIX_CONF}"
@@ -156,7 +156,7 @@ teardown() {
 }
 
 @test "backup_nix_config creates timestamped backup" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create existing config file
     echo "existing config" > "${MOCK_NIX_CONF}"
@@ -170,7 +170,7 @@ teardown() {
 }
 
 @test "backup_nix_config preserves original file content" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create existing config file
     local original_content="experimental-features = nix-command flakes"
@@ -187,7 +187,7 @@ teardown() {
 }
 
 @test "backup_nix_config allows multiple backups" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create existing config file
     echo "config v1" > "${MOCK_NIX_CONF}"
@@ -206,7 +206,7 @@ teardown() {
 }
 
 @test "backup_nix_config logs backup creation" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create existing config file
     echo "existing config" > "${MOCK_NIX_CONF}"
@@ -216,7 +216,7 @@ teardown() {
 }
 
 @test "backup_nix_config returns 0 on success" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create existing config file
     echo "existing config" > "${MOCK_NIX_CONF}"
@@ -226,7 +226,7 @@ teardown() {
 }
 
 @test "backup_nix_config handles empty file" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config file
     touch "${MOCK_NIX_CONF}"
@@ -241,7 +241,7 @@ teardown() {
 
 @test "get_cpu_cores detects CPU count using sysctl" {
     export MOCK_CPU_CORES=8
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run get_cpu_cores
     [ "$status" -eq 0 ]
@@ -249,7 +249,7 @@ teardown() {
 }
 
 @test "get_cpu_cores returns auto on sysctl failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Override sysctl to fail
     sysctl() {
@@ -263,7 +263,7 @@ teardown() {
 }
 
 @test "get_cpu_cores handles various CPU counts" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     for cores in 4 8 10 12 16; do
         export MOCK_CPU_CORES=$cores
@@ -274,7 +274,7 @@ teardown() {
 
 @test "get_cpu_cores outputs numeric value" {
     export MOCK_CPU_CORES=10
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     result=$(get_cpu_cores)
     [[ "$result" =~ ^[0-9]+$ ]] || [ "$result" = "auto" ]
@@ -282,7 +282,7 @@ teardown() {
 
 @test "get_cpu_cores logs detection" {
     export MOCK_CPU_CORES=8
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run get_cpu_cores
     # Output should be just the number for parsing
@@ -291,7 +291,7 @@ teardown() {
 
 @test "get_cpu_cores is consistent across calls" {
     export MOCK_CPU_CORES=8
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     result1=$(get_cpu_cores)
     result2=$(get_cpu_cores)
@@ -303,7 +303,7 @@ teardown() {
 # =============================================================================
 
 @test "configure_nix_binary_cache adds substituters setting" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -314,7 +314,7 @@ teardown() {
 }
 
 @test "configure_nix_binary_cache adds trusted-public-keys" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -325,7 +325,7 @@ teardown() {
 }
 
 @test "configure_nix_binary_cache uses correct cache.nixos.org URL" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -336,7 +336,7 @@ teardown() {
 }
 
 @test "configure_nix_binary_cache includes full public key" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -347,7 +347,7 @@ teardown() {
 }
 
 @test "configure_nix_binary_cache returns 0 on success" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -357,7 +357,7 @@ teardown() {
 }
 
 @test "configure_nix_binary_cache logs configuration" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -367,7 +367,7 @@ teardown() {
 }
 
 @test "configure_nix_binary_cache handles existing config" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create config with existing content
     echo "experimental-features = nix-command flakes" > "${MOCK_NIX_CONF}"
@@ -380,7 +380,7 @@ teardown() {
 }
 
 @test "configure_nix_binary_cache doesn't duplicate settings" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -396,7 +396,7 @@ teardown() {
 }
 
 @test "configure_nix_binary_cache creates file if missing" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Ensure file doesn't exist
     rm -f "${MOCK_NIX_CONF}"
@@ -407,7 +407,7 @@ teardown() {
 }
 
 @test "configure_nix_binary_cache sets proper format" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -425,7 +425,7 @@ teardown() {
 
 @test "configure_nix_performance adds max-jobs setting" {
     export MOCK_CPU_CORES=8
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -436,7 +436,7 @@ teardown() {
 }
 
 @test "configure_nix_performance adds cores setting" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -448,7 +448,7 @@ teardown() {
 
 @test "configure_nix_performance uses detected CPU cores" {
     export MOCK_CPU_CORES=10
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -459,7 +459,7 @@ teardown() {
 }
 
 @test "configure_nix_performance uses auto on CPU detection failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Override sysctl to fail
     sysctl() {
@@ -476,7 +476,7 @@ teardown() {
 }
 
 @test "configure_nix_performance sets cores to 0 (use all)" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -488,7 +488,7 @@ teardown() {
 
 @test "configure_nix_performance returns 0 on success" {
     export MOCK_CPU_CORES=8
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -499,7 +499,7 @@ teardown() {
 
 @test "configure_nix_performance logs configuration" {
     export MOCK_CPU_CORES=8
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -510,7 +510,7 @@ teardown() {
 
 @test "configure_nix_performance doesn't duplicate settings" {
     export MOCK_CPU_CORES=8
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -530,7 +530,7 @@ teardown() {
 # =============================================================================
 
 @test "configure_nix_trusted_users adds trusted-users setting" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -541,7 +541,7 @@ teardown() {
 }
 
 @test "configure_nix_trusted_users includes root" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -552,7 +552,7 @@ teardown() {
 }
 
 @test "configure_nix_trusted_users includes current user" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -563,7 +563,7 @@ teardown() {
 }
 
 @test "configure_nix_trusted_users uses correct format" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -575,7 +575,7 @@ teardown() {
 }
 
 @test "configure_nix_trusted_users returns 0 on success" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -585,7 +585,7 @@ teardown() {
 }
 
 @test "configure_nix_trusted_users logs configuration" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -595,7 +595,7 @@ teardown() {
 }
 
 @test "configure_nix_trusted_users doesn't duplicate settings" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -611,7 +611,7 @@ teardown() {
 }
 
 @test "configure_nix_trusted_users handles existing config" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create config with existing content
     echo "experimental-features = nix-command flakes" > "${MOCK_NIX_CONF}"
@@ -628,7 +628,7 @@ teardown() {
 # =============================================================================
 
 @test "configure_nix_sandbox adds sandbox setting" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -639,7 +639,7 @@ teardown() {
 }
 
 @test "configure_nix_sandbox uses macOS-appropriate value" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -651,7 +651,7 @@ teardown() {
 }
 
 @test "configure_nix_sandbox returns 0 on success" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -661,7 +661,7 @@ teardown() {
 }
 
 @test "configure_nix_sandbox logs configuration" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -671,7 +671,7 @@ teardown() {
 }
 
 @test "configure_nix_sandbox doesn't duplicate settings" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -687,7 +687,7 @@ teardown() {
 }
 
 @test "configure_nix_sandbox uses correct format" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create empty config
     touch "${MOCK_NIX_CONF}"
@@ -703,14 +703,14 @@ teardown() {
 # =============================================================================
 
 @test "restart_nix_daemon calls launchctl kickstart" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run restart_nix_daemon
     [ "$status" -eq 0 ]
 }
 
 @test "restart_nix_daemon uses correct service name" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Mock launchctl to capture arguments to stdout for BATS
     launchctl() {
@@ -730,7 +730,7 @@ teardown() {
 }
 
 @test "restart_nix_daemon waits after restart" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # sleep is mocked in setup, but verify it's called conceptually
     run restart_nix_daemon
@@ -738,7 +738,7 @@ teardown() {
 }
 
 @test "restart_nix_daemon returns 0 on success" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run restart_nix_daemon
     [ "$status" -eq 0 ]
@@ -746,14 +746,14 @@ teardown() {
 
 @test "restart_nix_daemon returns 1 on launchctl failure" {
     export MOCK_LAUNCHCTL_FAIL=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run restart_nix_daemon
     [ "$status" -eq 1 ]
 }
 
 @test "restart_nix_daemon logs restart action" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run restart_nix_daemon
     [[ "${output}" =~ "restart" ]] || [[ "${output}" =~ "daemon" ]]
@@ -761,14 +761,14 @@ teardown() {
 
 @test "restart_nix_daemon logs error on failure" {
     export MOCK_LAUNCHCTL_FAIL=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run restart_nix_daemon
     [[ "${output}" =~ "error" ]] || [[ "${output}" =~ "failed" ]] || [[ "${output}" =~ "Error" ]] || [[ "${output}" =~ "Failed" ]]
 }
 
 @test "restart_nix_daemon uses -k flag (kill and restart)" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Mock launchctl to capture flags to stdout
     launchctl() {
@@ -788,7 +788,7 @@ teardown() {
 }
 
 @test "restart_nix_daemon requires sudo" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Mock sudo to capture calls to stdout
     sudo() {
@@ -809,7 +809,7 @@ teardown() {
 
 @test "restart_nix_daemon provides manual instructions on failure" {
     export MOCK_LAUNCHCTL_FAIL=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run restart_nix_daemon
     [[ "${output}" =~ "launchctl" ]] || [[ "${output}" =~ "manually" ]]
@@ -820,7 +820,7 @@ teardown() {
 # =============================================================================
 
 @test "verify_nix_configuration checks config file exists" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create config file
     touch "${MOCK_NIX_CONF}"
@@ -830,7 +830,7 @@ teardown() {
 }
 
 @test "verify_nix_configuration checks substituters present" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create config with substituters
     echo "substituters = https://cache.nixos.org" > "${MOCK_NIX_CONF}"
@@ -840,7 +840,7 @@ teardown() {
 }
 
 @test "verify_nix_configuration checks trusted-users present" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create config with trusted-users
     echo "trusted-users = root ${USER}" > "${MOCK_NIX_CONF}"
@@ -850,7 +850,7 @@ teardown() {
 }
 
 @test "verify_nix_configuration checks max-jobs present" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create config with max-jobs
     echo "max-jobs = 8" > "${MOCK_NIX_CONF}"
@@ -860,7 +860,7 @@ teardown() {
 }
 
 @test "verify_nix_configuration logs verification results" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create complete config
     cat > "${MOCK_NIX_CONF}" <<EOF
@@ -874,7 +874,7 @@ EOF
 }
 
 @test "verify_nix_configuration returns 0 when config valid" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create complete config
     cat > "${MOCK_NIX_CONF}" <<EOF
@@ -891,7 +891,7 @@ EOF
 }
 
 @test "verify_nix_configuration logs warning on missing settings" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create minimal config (missing some settings)
     echo "substituters = https://cache.nixos.org" > "${MOCK_NIX_CONF}"
@@ -902,7 +902,7 @@ EOF
 }
 
 @test "verify_nix_configuration handles missing file gracefully" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Ensure file doesn't exist
     rm -f "${MOCK_NIX_CONF}"
@@ -917,7 +917,7 @@ EOF
 # =============================================================================
 
 @test "configure_nix_phase displays phase header" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create test config file
     touch "${MOCK_NIX_CONF}"
@@ -931,7 +931,7 @@ EOF
 }
 
 @test "configure_nix_phase calls backup function" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create existing config
     echo "existing" > "${MOCK_NIX_CONF}"
@@ -949,7 +949,7 @@ EOF
 }
 
 @test "configure_nix_phase configures binary cache" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create test config file
     touch "${MOCK_NIX_CONF}"
@@ -965,7 +965,7 @@ EOF
 
 @test "configure_nix_phase configures performance settings" {
     export MOCK_CPU_CORES=8
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create test config file
     touch "${MOCK_NIX_CONF}"
@@ -980,7 +980,7 @@ EOF
 }
 
 @test "configure_nix_phase configures trusted users" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create test config file
     touch "${MOCK_NIX_CONF}"
@@ -995,7 +995,7 @@ EOF
 }
 
 @test "configure_nix_phase configures sandbox" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create test config file
     touch "${MOCK_NIX_CONF}"
@@ -1010,7 +1010,7 @@ EOF
 }
 
 @test "configure_nix_phase returns 0 on success" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create test config file
     touch "${MOCK_NIX_CONF}"
@@ -1024,7 +1024,7 @@ EOF
 }
 
 @test "configure_nix_phase logs completion message" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create test config file
     touch "${MOCK_NIX_CONF}"
@@ -1043,7 +1043,7 @@ EOF
 
 @test "configure_nix_phase handles sudo failure gracefully" {
     export MOCK_SUDO_FAIL=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run configure_nix_phase
     # Should fail with error message (may succeed with mock depending on test environment)
@@ -1053,7 +1053,7 @@ EOF
 
 @test "configure_nix_phase handles daemon restart failure" {
     export MOCK_LAUNCHCTL_FAIL=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create test config file
     touch "${MOCK_NIX_CONF}"
@@ -1068,7 +1068,7 @@ EOF
 }
 
 @test "configure_nix_binary_cache provides clear error on failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create a read-only file to simulate write failure
     local readonly_file="${TEST_TMP_DIR}/readonly_nix.conf"
@@ -1082,7 +1082,7 @@ EOF
 }
 
 @test "configure_nix_trusted_users provides clear error on failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create a read-only file to simulate write failure
     local readonly_file="${TEST_TMP_DIR}/readonly_nix.conf"
@@ -1097,7 +1097,7 @@ EOF
 
 @test "restart_nix_daemon provides actionable error message" {
     export MOCK_LAUNCHCTL_FAIL=1
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     run restart_nix_daemon
     [ "$status" -eq 1 ]
@@ -1106,7 +1106,7 @@ EOF
 }
 
 @test "configure_nix_performance logs warning on CPU detection failure" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Override sysctl to fail
     sysctl() {
@@ -1123,7 +1123,7 @@ EOF
 }
 
 @test "configure_nix_sandbox logs warning on failure but continues" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Point to non-writable location (but sandbox is non-critical)
     run configure_nix_sandbox "/invalid/path/nix.conf"
@@ -1132,7 +1132,7 @@ EOF
 }
 
 @test "backup_nix_config handles permission errors gracefully" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create directory without write permission (difficult to test)
     # This test verifies the function doesn't crash
@@ -1142,7 +1142,7 @@ EOF
 }
 
 @test "verify_nix_configuration doesn't fail bootstrap on warnings" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create minimal config
     echo "substituters = https://cache.nixos.org" > "${MOCK_NIX_CONF}"
@@ -1153,7 +1153,7 @@ EOF
 }
 
 @test "configure_nix_phase displays time estimate" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create test config file
     touch "${MOCK_NIX_CONF}"
@@ -1172,7 +1172,7 @@ EOF
 
 @test "configure_nix_phase creates complete valid config" {
     export MOCK_CPU_CORES=8
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create test config file
     touch "${MOCK_NIX_CONF}"
@@ -1194,7 +1194,7 @@ EOF
 
 @test "configure_nix_phase preserves existing settings" {
     export MOCK_CPU_CORES=8
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create config with existing content from Story 01.4-001
     echo "experimental-features = nix-command flakes" > "${MOCK_NIX_CONF}"
@@ -1215,7 +1215,7 @@ EOF
 
 @test "configure_nix_phase is idempotent" {
     export MOCK_CPU_CORES=8
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create test config file
     touch "${MOCK_NIX_CONF}"
@@ -1235,7 +1235,7 @@ EOF
 }
 
 @test "configure_nix_phase execution order is correct" {
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create test config file
     touch "${MOCK_NIX_CONF}"
@@ -1254,7 +1254,7 @@ EOF
 
 @test "configure_nix_phase handles fresh install scenario" {
     export MOCK_CPU_CORES=8
-    source /Users/user/dev/nix-install/bootstrap.sh
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Simulate fresh install - no existing nix.conf
     rm -f "${MOCK_NIX_CONF}"

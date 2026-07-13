@@ -6,14 +6,15 @@
   lib,
   userConfig,
   ...
-}: let
-  scriptsDir = "/Users/${userConfig.username}/.local/bin";
+}:
+let
   configDir = "/Users/${userConfig.username}/.config/beszel";
 
   # Standard PATH for LaunchAgents (includes per-user Nix profile)
   agentPath = "/etc/profiles/per-user/${userConfig.username}/bin:/opt/homebrew/bin:/run/current-system/sw/bin:/usr/bin:/usr/sbin:/bin";
   agentHome = "/Users/${userConfig.username}";
-in {
+in
+{
   # ===========================================================================
   # BESZEL AGENT LAUNCHAGENT
   # ===========================================================================
@@ -49,13 +50,15 @@ in {
           fi
 
           # Run agent with reduced priority to avoid IOKit throttling
-          exec /usr/bin/nice -n 10 ${scriptsDir}/beszel-agent
+          exec /usr/bin/nice -n 10 ${pkgs.beszel}/bin/beszel-agent
         ''
       ];
 
       # Start at login and restart on crash
       RunAtLoad = true;
-      KeepAlive = {SuccessfulExit = false;};
+      KeepAlive = {
+        SuccessfulExit = false;
+      };
 
       # Logging configuration
       StandardOutPath = "/tmp/beszel-agent.log";
@@ -72,47 +75,30 @@ in {
     };
   };
 
-  # Activation script to install Beszel agent binary and create config
+  # Activation script creates the machine-local Beszel key configuration.
   system.activationScripts.postActivation.text = lib.mkAfter ''
-    # ========================================================================
-    # BESZEL AGENT SETUP
-    # ========================================================================
-    echo "Setting up Beszel monitoring agent..."
+        # ========================================================================
+        # BESZEL AGENT SETUP
+        # ========================================================================
+        echo "Setting up Beszel monitoring agent..."
 
-    BESZEL_BIN="/Users/${userConfig.username}/.local/bin/beszel-agent"
-    BESZEL_ENV="/Users/${userConfig.username}/.config/beszel/beszel-agent.env"
+        BESZEL_ENV="/Users/${userConfig.username}/.config/beszel/beszel-agent.env"
+        echo "✓ Beszel agent provided by locked nixpkgs (${pkgs.beszel.version})"
 
-    # Download agent binary if not present
-    if [ ! -f "$BESZEL_BIN" ]; then
-      echo "Downloading Beszel agent..."
-      ARCH=$(uname -m | sed 's/x86_64/amd64/')
-      TARBALL_URL="https://github.com/henrygd/beszel/releases/latest/download/beszel-agent_Darwin_$ARCH.tar.gz"
-      sudo -u ${userConfig.username} mkdir -p "$(dirname "$BESZEL_BIN")"
-      if curl -sL "$TARBALL_URL" | tar -xz -C "$(dirname "$BESZEL_BIN")" beszel-agent 2>/dev/null; then
-        chmod 755 "$BESZEL_BIN"
-        chown ${userConfig.username}:staff "$BESZEL_BIN"
-        echo "✓ Beszel agent binary installed"
-      else
-        echo "⚠ Failed to download Beszel agent (will retry on next rebuild)"
-      fi
-    else
-      echo "✓ Beszel agent binary already installed"
-    fi
-
-    # Create env file placeholder if not configured
-    if [ ! -f "$BESZEL_ENV" ]; then
-      sudo -u ${userConfig.username} mkdir -p "$(dirname "$BESZEL_ENV")"
-      cat > "$BESZEL_ENV" << 'ENVEOF'
-# Beszel agent configuration
-# Get the KEY value from Beszel Hub after adding this system
-KEY=
-PORT=45876
-ENVEOF
-      chown ${userConfig.username}:staff "$BESZEL_ENV"
-      echo "⚠ Beszel agent env created (KEY needs configuration)"
-      echo "  Edit: $BESZEL_ENV"
-    else
-      echo "✓ Beszel agent config exists"
-    fi
+        # Create env file placeholder if not configured
+        if [ ! -f "$BESZEL_ENV" ]; then
+          sudo -u ${userConfig.username} mkdir -p "$(dirname "$BESZEL_ENV")"
+          cat > "$BESZEL_ENV" << 'ENVEOF'
+    # Beszel agent configuration
+    # Get the KEY value from Beszel Hub after adding this system
+    KEY=
+    PORT=45876
+    ENVEOF
+          chown ${userConfig.username}:staff "$BESZEL_ENV"
+          echo "⚠ Beszel agent env created (KEY needs configuration)"
+          echo "  Edit: $BESZEL_ENV"
+        else
+          echo "✓ Beszel agent config exists"
+        fi
   '';
 }

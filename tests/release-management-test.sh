@@ -29,20 +29,22 @@ cp "${ROOT_DIR}/VERSION" "${TMP_DIR}/VERSION"
 cp "${ROOT_DIR}/README.md" "${TMP_DIR}/README.md"
 cp "${ROOT_DIR}/CLAUDE.md" "${TMP_DIR}/CLAUDE.md"
 cp "${ROOT_DIR}/CHANGELOG.md" "${TMP_DIR}/CHANGELOG.md"
+cp "${ROOT_DIR}/setup.sh" "${TMP_DIR}/setup.sh"
 
 cd "${TMP_DIR}"
 git init -b main >/dev/null
 git config user.email "test@example.invalid"
 git config user.name "Release Test"
-git add VERSION README.md CLAUDE.md CHANGELOG.md scripts/bump-version.sh scripts/verify-version.sh scripts/verify-release-change.sh
+git add VERSION README.md CLAUDE.md CHANGELOG.md setup.sh scripts/bump-version.sh scripts/release.sh scripts/verify-version.sh scripts/verify-release-change.sh
 git commit -m "test: initial fixture" >/dev/null
 
 current_version="$(tr -d '[:space:]' < VERSION)"
 IFS=. read -r current_major current_minor current_patch <<< "${current_version}"
 next_patch="${current_major}.${current_minor}.$((current_patch + 1))"
 
-scripts/bump-version.sh patch "Exercise release management" >/tmp/release-management-bump.out
+RELEASE_SKIP_CHECKS=1 scripts/bump-version.sh patch "Exercise release management" >/tmp/release-management-bump.out
 [[ "$(tr -d '[:space:]' < VERSION)" == "${next_patch}" ]] || fail "expected VERSION to be ${next_patch}"
+assert_contains setup.sh "readonly SETUP_VERSION=\"${next_patch}\""
 assert_contains CHANGELOG.md "## [${next_patch}] - $(date +%F)"
 assert_contains CHANGELOG.md "### Fixed"
 assert_contains CHANGELOG.md "- Exercise release management"
@@ -54,5 +56,13 @@ if scripts/verify-release-change.sh >/tmp/release-management-guard.out 2>&1; the
     fail "expected release guard to reject staged change without release metadata"
 fi
 assert_contains /tmp/release-management-guard.out "staged commits must include VERSION"
+
+assert_contains "${ROOT_DIR}/scripts/release.sh" 'git tag -s "${tag}"'
+
+printf 'unstaged release input\n' > unstaged.txt
+if RELEASE_SKIP_CHECKS=1 scripts/release.sh patch "Reject unstaged input" >/tmp/release-management-release.out 2>&1; then
+    fail "expected release command to reject unstaged or untracked input"
+fi
+assert_contains /tmp/release-management-release.out "stage all intended changes"
 
 echo "release-management-test OK"

@@ -217,12 +217,22 @@ require_gitleaks() {
     [ "$status" -eq 0 ]
 }
 
-@test "gitleaks dir: full repo scan with config produces no unexpected findings" {
+@test "gitleaks dir: tracked working tree scan produces no unexpected findings" {
     require_gitleaks
-    # Scan the whole repo (non-git mode) — allowlists must suppress all known FPs
-    run "$GITLEAKS_BIN" dir "${REPO_ROOT}" \
+    tmpdir="$(mktemp -d)"
+    trap 'rm -rf "$tmpdir"' EXIT
+
+    # Copy tracked regular files only. Scanning the repository directory directly
+    # also traverses local caches, downloaded artifacts, and nested repositories.
+    while IFS= read -r -d '' tracked_file; do
+        if [[ -f "${REPO_ROOT}/${tracked_file}" ]]; then
+            mkdir -p "${tmpdir}/$(dirname "$tracked_file")"
+            cp "${REPO_ROOT}/${tracked_file}" "${tmpdir}/${tracked_file}"
+        fi
+    done < <(git -C "$REPO_ROOT" ls-files -z)
+
+    run "$GITLEAKS_BIN" dir "$tmpdir" \
         --config "$GITLEAKS_CONFIG" 2>&1
-    # Accept exit 0 (clean) only
     [ "$status" -eq 0 ]
 }
 
@@ -284,17 +294,16 @@ require_gitleaks() {
     [ -f "${REPO_ROOT}/.gitleaks.toml" ]
 }
 
-@test "integration: gitleaks-action version is pinned to a major release tag" {
+@test "integration: gitleaks-action is pinned to an immutable commit SHA" {
     run grep "gitleaks-action@" "$WORKFLOW"
     [ "$status" -eq 0 ]
-    # Should reference @v2 or @vN (not @latest which would be unpinned)
-    [[ "$output" == *"@v"* ]]
+    [[ "$output" =~ @[0-9a-f]{40}([[:space:]]|$) ]]
 }
 
-@test "integration: checkout action uses a pinned major version" {
+@test "integration: checkout action is pinned to an immutable commit SHA" {
     run grep "actions/checkout@" "$WORKFLOW"
     [ "$status" -eq 0 ]
-    [[ "$output" == *"@v"* ]]
+    [[ "$output" =~ @[0-9a-f]{40}([[:space:]]|$) ]]
 }
 
 @test "integration: gitleaks config and fixture are both committed to the branch" {

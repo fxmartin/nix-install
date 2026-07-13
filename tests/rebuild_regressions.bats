@@ -4,6 +4,7 @@
 
 setup() {
     DARWIN_CONFIG="${BATS_TEST_DIRNAME}/../darwin/configuration.nix"
+    HOMEBREW_MODULE="${BATS_TEST_DIRNAME}/../darwin/homebrew.nix"
     SHELL_MODULE="${BATS_TEST_DIRNAME}/../home-manager/modules/shell.nix"
 }
 
@@ -32,4 +33,15 @@ setup() {
 @test "fzf widgets do not use renamed Home Manager option names" {
     run rg -n 'fileWidgetCommand|fileWidgetOptions|changeDirWidgetCommand|changeDirWidgetOptions|historyWidgetOptions' "$SHELL_MODULE"
     [ "$status" -eq 1 ]
+}
+
+@test "starship binary comes from Homebrew to avoid Darwin Rust linker failure" {
+    run rg -n '"starship"[[:space:]]+# Starship prompt binary' "$HOMEBREW_MODULE"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'package = pkgs\.writeShellScriptBin "starship"' "$SHELL_MODULE"
+    [ "$status" -eq 0 ]
+
+    run rg -n '/opt/homebrew/bin/starship' "$SHELL_MODULE"
+    [ "$status" -eq 0 ]
 }

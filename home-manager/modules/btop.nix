@@ -5,7 +5,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   # btop configuration via Home Manager
   # Theme is automatically applied by Stylix from the system Catppuccin Mocha palette
   programs.btop = {
@@ -120,7 +121,7 @@
   };
 
   # Activation script to verify btop configuration
-  home.activation.verifyBtop = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.verifyBtop = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     echo "btop: Configuration applied"
     echo "  - Theme: Managed by Stylix (Catppuccin Mocha)"
     echo "  - Update interval: 2 seconds"

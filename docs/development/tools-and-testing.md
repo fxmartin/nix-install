@@ -4,28 +4,16 @@
 ## Development Tools Setup
 
 ### Required Tools
+
 ```bash
-# Install bats for testing
-brew install bats-core
-
-# Install shellcheck for script validation
-brew install shellcheck
-
-# Verify installations
-bats --version
-shellcheck --version
+nix develop
 ```
 
 ### Running Tests
-```bash
-# Run all test suites (233 tests total)
-bats tests/bootstrap_preflight.bats          # 38 tests - Pre-flight checks
-bats tests/bootstrap_user_prompts.bats       # 54 tests - User information
-bats tests/bootstrap_profile_selection.bats  # 96 tests - Profile selection
-bats tests/bootstrap_user_config.bats        # 83 tests - User config generation
 
-# Run all tests at once
-bats tests/*.bats
+```bash
+# Required formatting, static analysis, tests, generated assets, security, and Nix evaluation
+make check
 
 # Verbose output
 bats -t tests/bootstrap_preflight.bats
@@ -33,14 +21,16 @@ bats -t tests/bootstrap_preflight.bats
 # Specific test
 bats -f "bootstrap.sh exists" tests/bootstrap_preflight.bats
 
-# Test count verification
-bats tests/*.bats | grep "^ok" | wc -l  # Should output: 233
 ```
+
+The required BATS set is explicitly listed in `tests/run-safe-suite.sh`.
+Historical host-coupled suites are quarantined in `tests/LEGACY.md`; do not run
+`bats tests/*.bats` on a workstation.
 
 ### Code Validation
 ```bash
-# Validate shell scripts
-shellcheck bootstrap.sh
+# Run the same static analysis used by CI
+make shellcheck
 
 # Auto-fix safe issues (if needed)
 shellcheck -f diff bootstrap.sh | patch
@@ -129,4 +119,3 @@ Phase 6-10: Future Phases (remaining features)
 Each story should add to the script incrementally, maintaining the existing structure.
 
 ---
-

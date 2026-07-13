@@ -17,10 +17,13 @@ user-config.nix.backup
 scripts/__pycache__/
 plugins/**/__pycache__/
 result
+.playwright-mcp/
+downloads/
 
 # Calibre secrets (contain Kindle serial, Adobe credentials, API keys)
 # Store locally in ~/.config/calibre-secrets/ instead
 config/calibre/SECRETS.md
+config/calibre/plugins/DeACSM/
 config/calibre/plugins/dedrm.json
 config/calibre/plugins/bookfusion.json
 config/calibre/plugins/DeACSM/account/

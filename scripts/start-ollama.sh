@@ -41,8 +41,8 @@ if /usr/bin/pgrep -f "[o]llama serve" >/dev/null 2>&1; then
   exit 0
 fi
 
-export OLLAMA_HOST="${OLLAMA_HOST:-0.0.0.0}"
-export OLLAMA_ORIGINS="${OLLAMA_ORIGINS:-http://localhost:*,http://127.0.0.1:*,http://100.*}"
+export OLLAMA_HOST="${OLLAMA_HOST:-127.0.0.1}"
+export OLLAMA_ORIGINS="${OLLAMA_ORIGINS:-http://localhost:*,http://127.0.0.1:*}"
 export OLLAMA_MAX_LOADED_MODELS="${OLLAMA_MAX_LOADED_MODELS:-1}"
 export OLLAMA_NUM_PARALLEL="${OLLAMA_NUM_PARALLEL:-1}"
 export OLLAMA_KEEP_ALIVE="${OLLAMA_KEEP_ALIVE:-5m}"

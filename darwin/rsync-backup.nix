@@ -8,20 +8,26 @@
   lib,
   userConfig,
   ...
-}: let
+}:
+let
   # Import the rsync backup configuration if it exists
   rsyncConfigPath = ../rsync-backup-config.nix;
   rsyncConfigExists = builtins.pathExists rsyncConfigPath;
-  rsyncConfig =
-    if rsyncConfigExists
-    then import rsyncConfigPath
-    else null;
+  rsyncConfig = if rsyncConfigExists then import rsyncConfigPath else null;
 
   # Scripts directory (TCC-safe location)
   scriptsDir = "/Users/${userConfig.username}/.local/bin";
 
   # Weekday names for file/agent naming
-  weekdayNames = ["sunday" "monday" "tuesday" "wednesday" "thursday" "friday" "saturday"];
+  weekdayNames = [
+    "sunday"
+    "monday"
+    "tuesday"
+    "wednesday"
+    "thursday"
+    "friday"
+    "saturday"
+  ];
 
   # Filter jobs by schedule type
   dailyJobs = lib.filter (job: (job.schedule or "daily") == "daily") rsyncConfig.jobs;
@@ -49,69 +55,72 @@
     RSYNC_PASSWORD_FILE="${rsyncConfig.rsyncPasswordFile or "~/.config/rsync-backup/rsync.secret"}"
 
     # Notification settings
-    NOTIFY_ON_FAILURE="${
-      if rsyncConfig.notifyOnFailure
-      then "true"
-      else "false"
-    }"
+    NOTIFY_ON_FAILURE="${if rsyncConfig.notifyOnFailure then "true" else "false"}"
     NOTIFICATION_EMAIL="${userConfig.notificationEmail}"
 
     # Backup jobs (pipe-delimited: name|source|share|destination|excludes)
     JOBS=(
-    ${lib.concatMapStringsSep "\n" (job: let
+    ${lib.concatMapStringsSep "\n" (
+      job:
+      let
         share = job.share or rsyncConfig.defaultShare or "backup";
-      in "  \"${job.name}|${job.source}|${share}|${job.destination}|${lib.concatStringsSep "," job.excludes}\"") jobs}
+      in
+      "  \"${job.name}|${job.source}|${share}|${job.destination}|${lib.concatStringsSep "," job.excludes}\""
+    ) jobs}
     )
   '';
 
   # Create a LaunchAgent for a schedule
-  mkBackupAgent = {
-    schedule,
-    configFile,
-    logSuffix,
-  }: {
-    serviceConfig = {
-      ProgramArguments = [
-        "/bin/bash"
-        "-c"
-        ''
-          # Set up environment
-          export NOTIFICATION_EMAIL="${userConfig.notificationEmail}"
-          export PATH="/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin"
-          export HOME="/Users/${userConfig.username}"
-          export SCRIPTS_DIR="${scriptsDir}"
-          export CONFIG_FILE="${configFile}"
+  mkBackupAgent =
+    {
+      schedule,
+      configFile,
+      logSuffix,
+    }:
+    {
+      serviceConfig = {
+        ProgramArguments = [
+          "/bin/bash"
+          "-c"
+          ''
+            # Set up environment
+            export NOTIFICATION_EMAIL="${userConfig.notificationEmail}"
+            export PATH="/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin"
+            export HOME="/Users/${userConfig.username}"
+            export SCRIPTS_DIR="${scriptsDir}"
+            export CONFIG_FILE="${configFile}"
 
-          # Run the rsync backup script
-          if [[ -x "${scriptsDir}/rsync-backup.sh" ]]; then
-            "${scriptsDir}/rsync-backup.sh"
-          else
-            echo "ERROR: rsync-backup.sh not found at ${scriptsDir}/rsync-backup.sh"
-            echo "Run 'rebuild' to install the script"
-            exit 1
-          fi
-        ''
-      ];
+            # Run the rsync backup script
+            if [[ -x "${scriptsDir}/rsync-backup.sh" ]]; then
+              "${scriptsDir}/rsync-backup.sh"
+            else
+              echo "ERROR: rsync-backup.sh not found at ${scriptsDir}/rsync-backup.sh"
+              echo "Run 'rebuild' to install the script"
+              exit 1
+            fi
+          ''
+        ];
 
-      StartCalendarInterval = [schedule];
+        StartCalendarInterval = [ schedule ];
 
-      StandardOutPath = "/tmp/rsync-backup${logSuffix}.log";
-      StandardErrorPath = "/tmp/rsync-backup${logSuffix}.err";
+        StandardOutPath = "/tmp/rsync-backup${logSuffix}.log";
+        StandardErrorPath = "/tmp/rsync-backup${logSuffix}.err";
 
-      EnvironmentVariables = {
-        PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
-        HOME = "/Users/${userConfig.username}";
-        NOTIFICATION_EMAIL = userConfig.notificationEmail;
-        CONFIG_FILE = configFile;
+        EnvironmentVariables = {
+          PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
+          HOME = "/Users/${userConfig.username}";
+          NOTIFICATION_EMAIL = userConfig.notificationEmail;
+          CONFIG_FILE = configFile;
+        };
+
+        RunAtLoad = false;
+        KeepAlive = false;
       };
-
-      RunAtLoad = false;
-      KeepAlive = false;
     };
-  };
 
   # Generate weekly agents for each weekday that has jobs
-  weeklyAgents = lib.mapAttrs' (weekdayStr: jobs:
+  weeklyAgents = lib.mapAttrs' (
+    weekdayStr: jobs:
     let
       weekday = lib.toInt weekdayStr;
       dayName = builtins.elemAt weekdayNames weekday;
@@ -128,76 +137,80 @@
   ) weeklyJobsByDay;
 
   # Generate config file content for activation script
-  weeklyConfigGeneration = lib.concatStringsSep "\n" (lib.mapAttrsToList (weekdayStr: jobs:
-    let
-      weekday = lib.toInt weekdayStr;
-      dayName = builtins.elemAt weekdayNames weekday;
-    in ''
-      # Generate ${dayName} jobs config
-      cat > "$CONFIG_DIR/jobs-weekly-${dayName}.conf" << 'RSYNC_WEEKLY_${lib.toUpper dayName}_EOF'
-${generateJobsConf jobs}
-RSYNC_WEEKLY_${lib.toUpper dayName}_EOF
-      chmod 600 "$CONFIG_DIR/jobs-weekly-${dayName}.conf"
-      echo "✓ rsync weekly ${dayName} config: ${toString (builtins.length jobs)} job(s)"
-    ''
-  ) weeklyJobsByDay);
+  weeklyConfigGeneration = lib.concatStringsSep "\n" (
+    lib.mapAttrsToList (
+      weekdayStr: jobs:
+      let
+        weekday = lib.toInt weekdayStr;
+        dayName = builtins.elemAt weekdayNames weekday;
+      in
+      ''
+              # Generate ${dayName} jobs config
+              cat > "$CONFIG_DIR/jobs-weekly-${dayName}.conf" << 'RSYNC_WEEKLY_${lib.toUpper dayName}_EOF'
+        ${generateJobsConf jobs}
+        RSYNC_WEEKLY_${lib.toUpper dayName}_EOF
+              chmod 600 "$CONFIG_DIR/jobs-weekly-${dayName}.conf"
+              echo "✓ rsync weekly ${dayName} config: ${toString (builtins.length jobs)} job(s)"
+      ''
+    ) weeklyJobsByDay
+  );
 
 in
-  lib.mkIf rsyncConfigExists {
-    # ===========================================================================
-    # RSYNC BACKUP CONFIG GENERATION
-    # ===========================================================================
+lib.mkIf rsyncConfigExists {
+  # ===========================================================================
+  # RSYNC BACKUP CONFIG GENERATION
+  # ===========================================================================
 
-    system.activationScripts.postActivation.text = lib.mkAfter ''
-      # ========================================================================
-      # RSYNC BACKUP CONFIGURATION
-      # ========================================================================
-      echo "Generating rsync backup configuration..."
-      CONFIG_DIR="/Users/${userConfig.username}/.config/rsync-backup"
-      mkdir -p "$CONFIG_DIR"
+  system.activationScripts.postActivation.text = lib.mkAfter ''
+          # ========================================================================
+          # RSYNC BACKUP CONFIGURATION
+          # ========================================================================
+          echo "Generating rsync backup configuration..."
+          CONFIG_DIR="/Users/${userConfig.username}/.config/rsync-backup"
+          mkdir -p "$CONFIG_DIR"
 
-      ${lib.optionalString (builtins.length dailyJobs > 0) ''
-      # Generate daily jobs config
-      cat > "$CONFIG_DIR/jobs-daily.conf" << 'RSYNC_DAILY_EOF'
-${generateJobsConf dailyJobs}
-RSYNC_DAILY_EOF
-      chmod 600 "$CONFIG_DIR/jobs-daily.conf"
-      echo "✓ rsync daily config: ${toString (builtins.length dailyJobs)} job(s)"
-      ''}
+          ${lib.optionalString (builtins.length dailyJobs > 0) ''
+                  # Generate daily jobs config
+                  cat > "$CONFIG_DIR/jobs-daily.conf" << 'RSYNC_DAILY_EOF'
+            ${generateJobsConf dailyJobs}
+            RSYNC_DAILY_EOF
+                  chmod 600 "$CONFIG_DIR/jobs-daily.conf"
+                  echo "✓ rsync daily config: ${toString (builtins.length dailyJobs)} job(s)"
+          ''}
 
-${weeklyConfigGeneration}
+    ${weeklyConfigGeneration}
 
-      chown -R ${userConfig.username}:staff "$CONFIG_DIR"
+          chown -R ${userConfig.username}:staff "$CONFIG_DIR"
 
-      # Copy rsync-backup.sh to TCC-safe location
-      SCRIPT_SRC="/Users/${userConfig.username}/${userConfig.directories.dotfiles}/scripts/rsync-backup.sh"
-      SCRIPT_DST="${scriptsDir}/rsync-backup.sh"
-      if [[ -f "$SCRIPT_SRC" ]]; then
-        cp "$SCRIPT_SRC" "$SCRIPT_DST"
-        chmod 755 "$SCRIPT_DST"
-        chown ${userConfig.username}:staff "$SCRIPT_DST"
-        echo "✓ rsync-backup.sh installed to $SCRIPT_DST"
-      else
-        echo "⚠ rsync-backup.sh not found at $SCRIPT_SRC"
-      fi
-    '';
+          # Copy rsync-backup.sh to TCC-safe location
+          SCRIPT_SRC="/Users/${userConfig.username}/${userConfig.directories.dotfiles}/scripts/rsync-backup.sh"
+          SCRIPT_DST="${scriptsDir}/rsync-backup.sh"
+          if [[ -f "$SCRIPT_SRC" ]]; then
+            cp "$SCRIPT_SRC" "$SCRIPT_DST"
+            chmod 755 "$SCRIPT_DST"
+            chown ${userConfig.username}:staff "$SCRIPT_DST"
+            echo "✓ rsync-backup.sh installed to $SCRIPT_DST"
+          else
+            echo "⚠ rsync-backup.sh not found at $SCRIPT_SRC"
+          fi
+  '';
 
-    # ===========================================================================
-    # RSYNC BACKUP LAUNCHAGENTS
-    # ===========================================================================
+  # ===========================================================================
+  # RSYNC BACKUP LAUNCHAGENTS
+  # ===========================================================================
 
-    launchd.user.agents =
-      # Daily backup agent (if there are daily jobs)
-      (lib.optionalAttrs (builtins.length dailyJobs > 0) {
-        rsync-backup-daily = mkBackupAgent {
-          schedule = {
-            Hour = rsyncConfig.defaultSchedule.Hour;
-            Minute = rsyncConfig.defaultSchedule.Minute;
-          };
-          configFile = "/Users/${userConfig.username}/.config/rsync-backup/jobs-daily.conf";
-          logSuffix = "-daily";
+  launchd.user.agents =
+    # Daily backup agent (if there are daily jobs)
+    (lib.optionalAttrs (builtins.length dailyJobs > 0) {
+      rsync-backup-daily = mkBackupAgent {
+        schedule = {
+          Hour = rsyncConfig.defaultSchedule.Hour;
+          Minute = rsyncConfig.defaultSchedule.Minute;
         };
-      })
-      # Weekly backup agents (one per weekday with jobs)
-      // weeklyAgents;
-  }
+        configFile = "/Users/${userConfig.username}/.config/rsync-backup/jobs-daily.conf";
+        logSuffix = "-daily";
+      };
+    })
+    # Weekly backup agents (one per weekday with jobs)
+    // weeklyAgents;
+}

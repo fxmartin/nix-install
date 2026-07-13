@@ -54,9 +54,9 @@ in
       NEEDS_CLI_INSTALL=1
     fi
     ${lib.optionalString isPowerProfile ''
-    if [ ! -x "$VENV/bin/vllm-mlx" ] || [ ! -x "$VENV/bin/mtplx" ]; then
-      NEEDS_CLI_INSTALL=1
-    fi
+      if [ ! -x "$VENV/bin/vllm-mlx" ] || [ ! -x "$VENV/bin/mtplx" ]; then
+        NEEDS_CLI_INSTALL=1
+      fi
     ''}
 
     if [ "$NEEDS_CLI_INSTALL" = "1" ]; then
@@ -71,8 +71,8 @@ in
         "dflash-mlx==${dflashVersion}" \
         "turboquant-mlx-full==${turboquantVersion}" \
         ${lib.optionalString isPowerProfile ''
-        "vllm-mlx" \
-        "mtplx" \
+          "vllm-mlx" \
+          "mtplx" \
         ''} >/dev/null
 
       $DRY_RUN_CMD touch "$MARKER"
@@ -87,41 +87,41 @@ in
     done
 
     ${lib.optionalString isPowerProfile ''
-    if [ -f "$LOCAL_CODE_BENCH_REPO/pyproject.toml" ]; then
-      PROJECT_VENV="$LOCAL_CODE_BENCH_REPO/.venv"
-      PROJECT_PYTHON="$PROJECT_VENV/bin/python"
+      if [ -f "$LOCAL_CODE_BENCH_REPO/pyproject.toml" ]; then
+        PROJECT_VENV="$LOCAL_CODE_BENCH_REPO/.venv"
+        PROJECT_PYTHON="$PROJECT_VENV/bin/python"
 
-      if [ ! -x "$PROJECT_PYTHON" ]; then
-        echo "Creating local-code-bench project venv at $PROJECT_VENV"
-        $DRY_RUN_CMD env -u UV_NATIVE_TLS UV_SYSTEM_CERTS=1 UV_SYSTEM_PYTHON=0 \
-          "${uvBin}" venv --python "${pythonBin}" "$PROJECT_VENV" >/dev/null
-      fi
-
-      if [ ! -f "$PROJECT_MARKER" ] \
-        || ! "$PROJECT_PYTHON" -c 'import mlx_lm, mlc_llm' >/dev/null 2>&1; then
-        echo "Installing module-detected local-code-bench inferencers into $PROJECT_VENV"
-        if (
-          cd "$LOCAL_CODE_BENCH_REPO"
-
-          $DRY_RUN_CMD env -u UV_NATIVE_TLS UV_SYSTEM_CERTS=1 UV_SYSTEM_PYTHON=0 VIRTUAL_ENV="$PROJECT_VENV" \
-            "${uvBin}" pip install \
-            "mlx-lm==${mlxLmVersion}" >/dev/null
-
-          $DRY_RUN_CMD env -u UV_NATIVE_TLS UV_SYSTEM_CERTS=1 UV_SYSTEM_PYTHON=0 VIRTUAL_ENV="$PROJECT_VENV" \
-            "${uvBin}" pip install --pre -U -f https://mlc.ai/wheels \
-            "mlc-llm" \
-            "mlc-ai" >/dev/null
-        ); then
-          $DRY_RUN_CMD touch "$PROJECT_MARKER"
-        else
-          echo "Warning: module-detected local-code-bench inferencer setup failed; continuing rebuild."
-          echo "   Retry later with: cd $LOCAL_CODE_BENCH_REPO && uv pip install mlx-lm==${mlxLmVersion} && uv pip install --pre -U -f https://mlc.ai/wheels mlc-llm mlc-ai"
+        if [ ! -x "$PROJECT_PYTHON" ]; then
+          echo "Creating local-code-bench project venv at $PROJECT_VENV"
+          $DRY_RUN_CMD env -u UV_NATIVE_TLS UV_SYSTEM_CERTS=1 UV_SYSTEM_PYTHON=0 \
+            "${uvBin}" venv --python "${pythonBin}" "$PROJECT_VENV" >/dev/null
         fi
+
+        if [ ! -f "$PROJECT_MARKER" ] \
+          || ! "$PROJECT_PYTHON" -c 'import mlx_lm, mlc_llm' >/dev/null 2>&1; then
+          echo "Installing module-detected local-code-bench inferencers into $PROJECT_VENV"
+          if (
+            cd "$LOCAL_CODE_BENCH_REPO"
+
+            $DRY_RUN_CMD env -u UV_NATIVE_TLS UV_SYSTEM_CERTS=1 UV_SYSTEM_PYTHON=0 VIRTUAL_ENV="$PROJECT_VENV" \
+              "${uvBin}" pip install \
+              "mlx-lm==${mlxLmVersion}" >/dev/null
+
+            $DRY_RUN_CMD env -u UV_NATIVE_TLS UV_SYSTEM_CERTS=1 UV_SYSTEM_PYTHON=0 VIRTUAL_ENV="$PROJECT_VENV" \
+              "${uvBin}" pip install --pre -U -f https://mlc.ai/wheels \
+              "mlc-llm" \
+              "mlc-ai" >/dev/null
+          ); then
+            $DRY_RUN_CMD touch "$PROJECT_MARKER"
+          else
+            echo "Warning: module-detected local-code-bench inferencer setup failed; continuing rebuild."
+            echo "   Retry later with: cd $LOCAL_CODE_BENCH_REPO && uv pip install mlx-lm==${mlxLmVersion} && uv pip install --pre -U -f https://mlc.ai/wheels mlc-llm mlc-ai"
+          fi
+        fi
+      else
+        echo "Warning: $LOCAL_CODE_BENCH_REPO not found; skipping module-detected inferencer setup."
+        echo "   After cloning it, install mlx-lm and mlc-llm into that repo's uv environment."
       fi
-    else
-      echo "Warning: $LOCAL_CODE_BENCH_REPO not found; skipping module-detected inferencer setup."
-      echo "   After cloning it, install mlx-lm and mlc-llm into that repo's uv environment."
-    fi
     ''}
 
     echo "local-code-bench server CLIs ready: dflash ${dflashVersion}, turboquant-mlx-full ${turboquantVersion}${lib.optionalString isPowerProfile ", vllm-mlx, mtplx"}"

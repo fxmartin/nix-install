@@ -5,7 +5,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   # fd is already installed via darwin/configuration.nix
   # This module provides configuration via .fdignore
 
@@ -155,7 +156,7 @@
   '';
 
   # Activation script to verify fd configuration
-  home.activation.verifyFd = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.verifyFd = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     echo "fd: Configuration applied"
     echo "  - Config: ~/.fdignore"
     echo "  - Ignores: node_modules, __pycache__, .venv, build artifacts, etc."

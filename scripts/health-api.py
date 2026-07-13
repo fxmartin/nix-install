@@ -7,7 +7,6 @@ import subprocess
 import os
 import shutil
 import socket
-import hmac
 import threading
 import time
 import re
@@ -17,9 +16,20 @@ from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, SCRIPT_DIR)
+
+from health_api_security import (
+    is_authorized,
+    normalize_bind_host,
+    validate_network_config,
+)
+
 # NOTE: These thresholds are shared with scripts/health-check.sh (CLI).
 # If you change a value here, update health-check.sh to match.
 PORT = 7780
+HOST = os.environ.get("HEALTH_API_HOST", "127.0.0.1")
 GENERATION_WARNING_THRESHOLD = 50   # Warn if more than N system generations
 DISK_WARNING_GB = 20                # Warn if less than N GB free
 CACHE_WARNING_KB = 1_048_576        # 1 GB — warn if any single cache exceeds this
@@ -949,13 +959,9 @@ HEALTH_API_TOKEN = os.environ.get("HEALTH_API_TOKEN", "")
 class HealthHandler(BaseHTTPRequestHandler):
     def _check_auth(self) -> bool:
         """Return True if request is authorized. Sends 401 and returns False otherwise."""
-        if not HEALTH_API_TOKEN:
-            return True  # No token configured — open access
         auth_header = self.headers.get("Authorization", "")
-        if auth_header.startswith("Bearer "):
-            token = auth_header[7:]
-            if hmac.compare_digest(token, HEALTH_API_TOKEN):
-                return True
+        if is_authorized(HEALTH_API_TOKEN, auth_header):
+            return True
         self._respond(401, {"error": "Unauthorized. Set Authorization: Bearer <token>"})
         return False
 
@@ -997,7 +1003,16 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     daemon_threads = True
 
 
+class ThreadedIPv6HTTPServer(ThreadedHTTPServer):
+    """IPv6 variant used when the configured loopback address contains a colon."""
+
+    address_family = socket.AF_INET6
+
+
 def main():
+    bind_host = normalize_bind_host(HOST)
+    validate_network_config(bind_host, HEALTH_API_TOKEN)
+
     # Static hardware metadata is cheap enough at startup, but too slow/noisy
     # to run on the request path or every macmon sample.
     get_hardware_info()
@@ -1022,8 +1037,9 @@ def main():
     )
     fast_metrics_refresher.start()
 
-    server = ThreadedHTTPServer(("0.0.0.0", PORT), HealthHandler)
-    print(f"Health API listening on 0.0.0.0:{PORT}")
+    server_class = ThreadedIPv6HTTPServer if ":" in bind_host else ThreadedHTTPServer
+    server = server_class((bind_host, PORT), HealthHandler)
+    print(f"Health API listening on {bind_host}:{PORT}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

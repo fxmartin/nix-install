@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Validate lib/*.sh syntax
         run: |
@@ -55,13 +55,13 @@ jobs:
           echo "bootstrap.sh passed syntax validation"
 
       - name: Run shellcheck on lib/*.sh
-        uses: ludeeus/action-shellcheck@master
+        uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca # master
         with:
           scandir: './lib'
           severity: error
 
       - name: Run shellcheck on bootstrap.sh
-        uses: ludeeus/action-shellcheck@master
+        uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca # master
         with:
           scandir: '.'
           additional_files: 'bootstrap.sh'
@@ -110,17 +110,14 @@ jobs:
           echo "bootstrap-dist.sh lines: $dist_lines"
 
       - name: Upload bootstrap-dist.sh artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: bootstrap-dist
           path: bootstrap-dist.sh
           retention-days: 30
 
-  # NOTE: BATS tests are macOS-specific and should be run locally or in VM
-  # The tests in tests/*.bats are designed to validate the bootstrap script
-  # on actual macOS hardware. Running them on Ubuntu would produce false
-  # negatives for macOS-specific functionality.
+  # NOTE: The canonical safe suite is run by the Nix Flake Check workflow on
+  # macOS. Historical bootstrap suites remain quarantined; see tests/LEGACY.md.
   #
   # To run tests locally:
-  #   brew install bats-core
-  #   bats tests/*.bats
+  #   nix develop --command make check

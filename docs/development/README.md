@@ -227,7 +227,8 @@ Welcome to the nix-install development documentation. This directory contains al
 ## 📊 Development Metrics
 
 ### Test Coverage
-- **Automated BATS tests**: 729+ tests across all stories
+- **Required automated gate**: explicitly allowlisted BATS, Python, and shell integration suites
+- **Historical BATS suites**: quarantined until their mocks cannot mutate host paths
 - **Manual VM scenarios**: 76 documented test cases
 - **Shellcheck validation**: 0 errors, 0 warnings on Phase 9 code
 
@@ -311,7 +312,7 @@ docs/development/
 
 ### Run All Tests
 ```bash
-bats tests/*.bats
+make check
 ```
 
 ### Validate Bootstrap Script

@@ -5,7 +5,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   # httpie is already installed via darwin/configuration.nix
   # This module provides configuration via ~/.config/httpie/config.json
 
@@ -33,7 +34,7 @@
   };
 
   # Activation script to verify HTTPie configuration
-  home.activation.verifyHttpie = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.verifyHttpie = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     echo "HTTPie: Configuration applied"
     echo "  - Config: ~/.config/httpie/config.json"
     echo "  - Style: monokai (dark theme)"

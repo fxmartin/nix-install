@@ -6,7 +6,8 @@
   lib,
   userConfig,
   ...
-}: {
+}:
+{
   # VSCode Configuration
   # Story 02.2-002: Install and configure VSCode with Catppuccin theme
   #
@@ -42,7 +43,7 @@
   # - Language-specific settings for Nix, Python, Markdown, JSON
 
   # Activation script to symlink VSCode settings to repo (bidirectional sync)
-  home.activation.vscodeConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.vscodeConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     VSCODE_CONFIG_DIR="$HOME/Library/Application Support/Code/User"
     VSCODE_SETTINGS="$VSCODE_CONFIG_DIR/settings.json"
 

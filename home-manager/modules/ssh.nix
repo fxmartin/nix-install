@@ -61,7 +61,7 @@
 
       # NAS Luxembourg via Tailscale (accessible from anywhere)
       "nas.ts" = {
-        HostName = "100.98.9.111";  # Tailscale IP
+        HostName = "100.98.9.111"; # Tailscale IP
         User = "fxmartin";
         Port = 2222;
         IdentityFile = "~/.ssh/id_nas_luxembourg";
@@ -77,14 +77,14 @@
 
       # Dev Server via Public IP (Hetzner Helsinki)
       "dev dev-server" = {
-        HostName = "46.62.232.199";  # Hetzner public IP (hel1)
+        HostName = "46.62.232.199"; # Hetzner public IP (hel1)
         User = "fx";
         IdentityFile = "~/.ssh/id_devserver";
       };
 
       # Nyx server via Tailscale
       "nyx" = {
-        HostName = "100.115.38.12";  # Tailscale IP
+        HostName = "100.115.38.12"; # Tailscale IP
         User = "fx";
         IdentityFile = "~/.ssh/id_nyx";
       };
@@ -129,7 +129,7 @@
 
   # Post-installation verification message
   # This runs after Home Manager activation
-  home.activation.sshConfigVerify = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.sshConfigVerify = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     if command -v ssh > /dev/null 2>&1; then
       echo ""
       echo "✓ SSH configuration applied:"

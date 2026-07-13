@@ -7,17 +7,20 @@
   userConfig,
   profileName ? "standard",
   ...
-}: let
+}:
+let
   homeDir = "/Users/${userConfig.username}";
   venvDir = "${homeDir}/.local/share/privacy-filter/venv";
 
   # Mirror the model choice from home-manager/modules/privacy-filter.nix.
   # Both modules derive from profileName independently — keep these in sync.
   modelRepo =
-    if profileName == "power"
-    then "OpenMed/OpenMed-PII-SuperClinical-Large-434M-v1"
-    else "OpenMed/OpenMed-PII-SuperClinical-Small-44M-v1";
-in {
+    if profileName == "power" then
+      "OpenMed/OpenMed-PII-SuperClinical-Large-434M-v1"
+    else
+      "OpenMed/OpenMed-PII-SuperClinical-Small-44M-v1";
+in
+{
   # =========================================================================
   # PRIVACY FILTER LAUNCHAGENT
   # =========================================================================
@@ -47,7 +50,9 @@ in {
       # Start at login, restart on crash — but throttle to avoid loops if the
       # venv is broken (e.g. mid-rebuild on a fresh machine).
       RunAtLoad = true;
-      KeepAlive = {SuccessfulExit = false;};
+      KeepAlive = {
+        SuccessfulExit = false;
+      };
       ThrottleInterval = 30;
 
       StandardOutPath = "/tmp/privacy-filter.log";

@@ -202,7 +202,7 @@ git push
 ```
 
 **Initial Secrets Setup** (new machine):
-See `config/calibre/SECRETS.md` for setting up secrets on a fresh install.
+See `config/calibre/SECRETS.example.md` for setting up secrets on a fresh install.
 
 **Troubleshooting**:
 - **"DRM removal failed"**: Verify Kindle serial in `~/.config/calibre-secrets/dedrm.json`

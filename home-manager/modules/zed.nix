@@ -7,7 +7,8 @@
   userConfig,
   findRepoRoot,
   ...
-}: {
+}:
+{
   # Zed Editor Configuration
   # Story 02.2-001: Install and configure Zed with Catppuccin theme
   #
@@ -38,7 +39,7 @@
   # - Git integration, telemetry disabled, terminal integration
 
   # Activation script to symlink Zed settings to repo (bidirectional sync)
-  home.activation.zedConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.zedConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     ZED_CONFIG_DIR="$HOME/.config/zed"
     ZED_SETTINGS="$ZED_CONFIG_DIR/settings.json"
 

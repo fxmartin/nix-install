@@ -129,13 +129,17 @@ bootstrap-dist.sh (standalone, built from lib/*.sh)
                     ┌──────────────────┐
                     │  health-api.py   │ ← HTTP JSON API (port 7780)
                     │  (Python, JSON)  │   /health, /metrics, /ping
-                    └──────────────────┘   Accessible via Tailscale
+                    └──────────────────┘   Loopback only (127.0.0.1)
                               │
                     Endpoints:
                     ├── /health  — Full system diagnostics
                     ├── /metrics — Apple Silicon stats (via macmon)
                     │   └── CPU, GPU, memory, thermal, power
                     └── /ping    — Liveness check
+
+Remote health access is intentionally not exposed by launchd. Use an
+authenticated reverse proxy or Tailscale Serve policy with an explicit ACL;
+non-loopback API binding is rejected unless `HEALTH_API_TOKEN` is configured.
                               │
                     Health checks performed:
                     ├── Nix daemon

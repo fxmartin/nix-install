@@ -125,8 +125,8 @@ The Ollama GUI app (`ollama-app` cask) has been removed to eliminate the port co
 - Homebrew LaunchAgent `homebrew.mxcl.ollama` is unloaded and disabled by activation
 - Manual control: use `start-ollama` and `stop-ollama`
 - Optional always-on mode: set `enableOllamaServeAgent = true` in `user-config.nix`
-- The optional nix-darwin LaunchAgent binds to `0.0.0.0:11434` for Tailscale access
-- OLLAMA_ORIGINS restricts API access to localhost and Tailscale IPs (100.x.x.x)
+- The optional nix-darwin LaunchAgent binds to `127.0.0.1:11434` only
+- OLLAMA_ORIGINS permits only local browser clients; remote access requires an authenticated proxy and explicit ACL
 - The optional LaunchAgent kills any existing Ollama process before starting to avoid conflicts
 
 **CLI Verification**:

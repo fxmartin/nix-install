@@ -46,32 +46,16 @@ clones before running the full suite:
 
 ## Running Tests
 
-### Run all tests
+### Run the required test gate
+
 ```bash
-# Phase 1: Pre-flight checks
-bats tests/bootstrap_preflight.bats
-
-# Phase 2: User information prompts
-bats tests/bootstrap_user_prompts.bats
-
-# Phase 2: Profile selection
-bats tests/bootstrap_profile_selection.bats
-
-# Phase 3: User config file generation
-bats tests/bootstrap_user_config.bats
-
-# Phase 3: Xcode CLI Tools installation
-bats tests/bootstrap_xcode.bats
-
-# Phase 4: Nix installation
-bats tests/bootstrap_nix_install.bats
-
-# Phase 4 (continued): Nix configuration
-bats tests/bootstrap_nix_config.bats
-
-# Run all test suites
-bats tests/*.bats
+make check
 ```
+
+The gate uses an explicit allowlist in `tests/run-safe-suite.sh`. Do not run
+`bats tests/*.bats` on a workstation: historical bootstrap suites are
+quarantined because some stale mocks can reach host paths and commands. See
+`tests/LEGACY.md` for the list and promotion criteria.
 
 ### Run tests with verbose output
 ```bash

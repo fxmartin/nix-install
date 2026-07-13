@@ -41,15 +41,29 @@ readonly NC='\033[0m' # No Color
 # Configuration
 readonly REPO_OWNER="fxmartin"
 readonly REPO_NAME="nix-install"
-readonly BRANCH="${NIX_INSTALL_BRANCH:-main}"  # Allow override via env var
-readonly REPO_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}"
 # Use bootstrap-dist.sh - the standalone built version that doesn't require lib/*.sh
 readonly BOOTSTRAP_SCRIPT="bootstrap-dist.sh"
 readonly USER_CONFIG_TEMPLATE="user-config.template.nix"
+readonly CHECKSUMS_FILE="SHA256SUMS"
 readonly TEMP_DIR="/tmp/nix-install-setup-$$"
 
-# Setup script version (should match bootstrap.sh)
-readonly SETUP_VERSION="1.0.0"
+# Release version. scripts/bump-version.sh keeps this synchronized with VERSION.
+readonly SETUP_VERSION="2.0.0"
+
+# Tagged releases are the secure default. Branch installs are available only as
+# an explicit development override and use files from the same requested ref.
+readonly BRANCH="${NIX_INSTALL_BRANCH:-}"
+if [[ -n "${BRANCH}" ]]; then
+    readonly SOURCE_REF="${BRANCH}"
+    readonly REPO_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${SOURCE_REF}"
+    readonly ARTIFACT_BASE_URL="${REPO_URL}"
+else
+    readonly SOURCE_REF="v${SETUP_VERSION}"
+    readonly REPO_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${SOURCE_REF}"
+    readonly ARTIFACT_BASE_URL="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${SOURCE_REF}"
+fi
+readonly BOOTSTRAP_URL="${ARTIFACT_BASE_URL}/${BOOTSTRAP_SCRIPT}"
+readonly CHECKSUMS_URL="${ARTIFACT_BASE_URL}/${CHECKSUMS_FILE}"
 
 # Minimum required macOS version
 readonly MIN_MACOS_VERSION=14
@@ -81,6 +95,27 @@ handle_error() {
 # Check if command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
+}
+
+verify_checksum() {
+    local artifact_path="$1"
+    local checksums_path="$2"
+    local artifact_name expected_checksum actual_checksum
+
+    artifact_name="$(basename "${artifact_path}")"
+    expected_checksum="$(awk -v name="${artifact_name}" '$2 == name || $2 == "*" name { print $1; exit }' "${checksums_path}")"
+    if [[ ! "${expected_checksum}" =~ ^[0-9a-fA-F]{64}$ ]]; then
+        log_error "No valid SHA-256 checksum found for ${artifact_name}"
+        return 1
+    fi
+
+    actual_checksum="$(shasum -a 256 "${artifact_path}" | awk '{ print $1 }')"
+    if [[ "${actual_checksum}" != "${expected_checksum}" ]]; then
+        log_error "SHA-256 checksum mismatch for ${artifact_name}"
+        return 1
+    fi
+
+    log_success "Verified SHA-256 checksum for ${artifact_name}"
 }
 
 # =============================================================================
@@ -248,10 +283,10 @@ main() {
 
     # Download bootstrap.sh
     log_info "Downloading bootstrap script..."
-    log_info "Source: ${REPO_URL}/${BOOTSTRAP_SCRIPT}"
+    log_info "Source: ${BOOTSTRAP_URL}"
 
-    if ! curl -fsSL "${REPO_URL}/${BOOTSTRAP_SCRIPT}" -o "${TEMP_DIR}/${BOOTSTRAP_SCRIPT}"; then
-        handle_error "Failed to download bootstrap script from ${REPO_URL}/${BOOTSTRAP_SCRIPT}"
+    if ! curl -fsSL "${BOOTSTRAP_URL}" -o "${TEMP_DIR}/${BOOTSTRAP_SCRIPT}"; then
+        handle_error "Failed to download bootstrap script from ${BOOTSTRAP_URL}"
     fi
 
     # Verify the script was downloaded and is not empty
@@ -259,7 +294,16 @@ main() {
         handle_error "Downloaded script is empty or corrupted"
     fi
 
-    log_success "Bootstrap script downloaded successfully"
+    log_info "Downloading published checksums..."
+    if ! curl -fsSL "${CHECKSUMS_URL}" -o "${TEMP_DIR}/${CHECKSUMS_FILE}"; then
+        handle_error "Failed to download checksums from ${CHECKSUMS_URL}"
+    fi
+
+    if ! verify_checksum "${TEMP_DIR}/${BOOTSTRAP_SCRIPT}" "${TEMP_DIR}/${CHECKSUMS_FILE}"; then
+        handle_error "Bootstrap integrity verification failed; refusing to execute it"
+    fi
+
+    log_success "Bootstrap script downloaded and verified successfully"
 
     # Display script information
     log_info "Script information:"
@@ -356,7 +400,7 @@ case "${1:-}" in
         echo "  --version, -v Show version information"
         echo ""
         echo "Environment Variables:"
-        echo "  NIX_INSTALL_BRANCH    Git branch to install from (default: main)"
+        echo "  NIX_INSTALL_BRANCH    Explicit development branch override (default: tagged release ${SOURCE_REF})"
         echo ""
         echo "This script downloads and runs the Nix-Darwin bootstrap installer."
         echo "It uses a two-stage pattern to ensure interactive prompts work correctly."
@@ -373,12 +417,14 @@ case "${1:-}" in
         exit 0
         ;;
     --version|-v)
-        echo "Nix-Darwin Setup Wrapper v1.0.0"
+        echo "Nix-Darwin Setup Wrapper v${SETUP_VERSION}"
         echo "Repository: https://github.com/${REPO_OWNER}/${REPO_NAME}"
         echo "Branch: ${BRANCH}"
         exit 0
         ;;
 esac
 
-# Run main function
-main "$@"
+# Run only when executed, so unit tests can source checksum helpers safely.
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main "$@"
+fi

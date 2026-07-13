@@ -21,7 +21,7 @@ minor  Bump X.Y.Z to X.(Y+1).0 for feature releases
 patch  Bump X.Y.Z to X.Y.(Z+1) for fix releases
 
 Stage the content change first, then run this script. It updates VERSION,
-README.md, CLAUDE.md, and CHANGELOG.md, stages those metadata files, and
+README.md, CLAUDE.md, setup.sh, and CHANGELOG.md, stages those metadata files, and
 creates one commit containing the staged content plus release metadata.
 EOF
 }
@@ -84,6 +84,7 @@ printf '%s\n' "${next}" > "${VERSION_FILE}"
 
 perl -0pi -e "s/(\\*\\*Version\\*\\*:\\s*)[0-9]+\\.[0-9]+\\.[0-9]+(?:\\s*\\+\\s*Epic-08)?/\${1}${next}/" README.md
 perl -0pi -e "s/(\\*\\*Status\\*\\*:\\s*.*\\*\\*v)[0-9]+\\.[0-9]+\\.[0-9]+( Released\\*\\*)/\${1}${next}\${2}/" CLAUDE.md
+perl -0pi -e "s/(readonly SETUP_VERSION=\")[0-9]+\\.[0-9]+\\.[0-9]+(\")/\${1}${next}\${2}/" setup.sh
 
 today="$(date +%F)"
 section="$(printf '## [%s] - %s\n\n### %s\n\n- %s\n\n' "${next}" "${today}" "${changelog_heading}" "${release_note}")"
@@ -91,7 +92,15 @@ SECTION="${section}" perl -0pi -e 's/(## \[Unreleased\]\n\n)/$1$ENV{SECTION}/' C
 
 "${ROOT_DIR}/scripts/verify-version.sh"
 
-git add VERSION README.md CLAUDE.md CHANGELOG.md
+release_files=(VERSION README.md CLAUDE.md setup.sh CHANGELOG.md)
+if [[ "${RELEASE_SKIP_CHECKS:-}" != "1" ]]; then
+    "${ROOT_DIR}/scripts/build-bootstrap.sh"
+    "${ROOT_DIR}/scripts/generate-checksums.sh"
+    make check
+    release_files+=(bootstrap-dist.sh SHA256SUMS)
+fi
+
+git add "${release_files[@]}"
 git commit -m "release(${kind}): v${next}" -m "${release_note}"
 
 echo "Bumped release version: ${current} -> ${next}"

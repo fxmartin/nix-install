@@ -26,7 +26,7 @@ if [[ "${#staged_files[@]}" -eq 0 ]]; then
     exit 0
 fi
 
-required_files=(VERSION README.md CLAUDE.md CHANGELOG.md)
+required_files=(VERSION README.md CLAUDE.md setup.sh CHANGELOG.md)
 for required in "${required_files[@]}"; do
     if ! printf '%s\n' "${staged_files[@]}" | grep -Fxq "${required}"; then
         fail "staged commits must include ${required}. Run: scripts/bump-version.sh <major|minor|patch> \"release note\""

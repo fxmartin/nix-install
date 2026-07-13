@@ -4,8 +4,8 @@
 {
   # NAS connection settings
   # Using mDNS hostname - if overnight backups fail, may need static IP
-  nasHost = "tnas.local";     # NAS hostname (mDNS)
-  defaultShare = "Photos";    # Default share if job doesn't specify one
+  nasHost = "tnas.local"; # NAS hostname (mDNS)
+  defaultShare = "Photos"; # Default share if job doesn't specify one
 
   # ==========================================================================
   # RSYNC DAEMON MODE (Recommended - much faster than SMB)
@@ -43,28 +43,28 @@
       # Photos exported as plain browsable files (via osxphotos)
       # osxphotos automatically runs before rsync when this job is detected
       name = "photos";
-      source = "Pictures/Photos-Export";  # osxphotos exports here
-      share = "Photos";                   # NAS share to use
-      destination = "";                   # Root of share
-      schedule = "weekly";                # Run weekly (Sunday 2 AM)
+      source = "Pictures/Photos-Export"; # osxphotos exports here
+      share = "Photos"; # NAS share to use
+      destination = ""; # Root of share
+      schedule = "weekly"; # Run weekly (Sunday 2 AM)
       excludes = [
         ".DS_Store"
-        ".osxphotos_export.db"  # osxphotos tracking database
+        ".osxphotos_export.db" # osxphotos tracking database
       ];
     }
     {
       # iCloud Drive backup - entire iCloud folder to NAS
       name = "icloud";
       source = "Library/Mobile Documents/com~apple~CloudDocs";
-      share = "icloud";                   # Separate NAS share
-      destination = "";                   # Root of share
-      schedule = "weekly";                # Run weekly
-      weekday = 3;                        # Wednesday (0=Sun, 1=Mon, ..., 6=Sat)
+      share = "icloud"; # Separate NAS share
+      destination = ""; # Root of share
+      schedule = "weekly"; # Run weekly
+      weekday = 3; # Wednesday (0=Sun, 1=Mon, ..., 6=Sat)
       excludes = [
         ".DS_Store"
-        "*.icloud"           # Placeholder files for not-downloaded content
+        "*.icloud" # Placeholder files for not-downloaded content
         ".Trash"
-        "~$*.docx"           # Office temp files
+        "~$*.docx" # Office temp files
         "~$*.xlsx"
         "~$*.pptx"
         "*.tmp"
@@ -75,15 +75,15 @@
       # Calibre ebook library backup - stored in iCloud Drive
       name = "calibre";
       source = "Library/Mobile Documents/com~apple~CloudDocs/Documents/02. Library/Calibre Library";
-      share = "calibre";                  # Dedicated NAS share for ebook library
-      destination = "";                   # Root of share
-      schedule = "daily";                 # Run daily at 2 AM
+      share = "calibre"; # Dedicated NAS share for ebook library
+      destination = ""; # Root of share
+      schedule = "daily"; # Run daily at 2 AM
       excludes = [
         ".DS_Store"
-        "*.lock"             # Calibre lock files during operation
-        ".calnotes"          # Calibre internal cache
-        "*.tmp"              # Temporary files
-        ".#*"                # Editor swap files
+        "*.lock" # Calibre lock files during operation
+        ".calnotes" # Calibre internal cache
+        "*.tmp" # Temporary files
+        ".#*" # Editor swap files
       ];
     }
   ];

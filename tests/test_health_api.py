@@ -206,5 +206,39 @@ class HealthApiHardwareTests(unittest.TestCase):
         self.assertEqual(memory["pressure_label"], "normal")
 
 
+class HealthApiNetworkSecurityTests(unittest.TestCase):
+    def setUp(self):
+        self.health_api = load_health_api()
+
+    def test_default_host_is_loopback(self):
+        self.assertEqual(self.health_api.HOST, "127.0.0.1")
+
+    def test_loopback_binding_does_not_require_token(self):
+        self.health_api.validate_network_config("127.0.0.1", "")
+
+    def test_non_loopback_binding_requires_token(self):
+        with self.assertRaisesRegex(ValueError, "HEALTH_API_TOKEN"):
+            self.health_api.validate_network_config("0.0.0.0", "")
+
+    def test_non_loopback_binding_accepts_token(self):
+        self.health_api.validate_network_config("100.64.0.10", "secret-token")
+
+    def test_ipv6_loopback_binding_does_not_require_token(self):
+        self.health_api.validate_network_config("[::1]", "")
+        self.assertEqual(self.health_api.normalize_bind_host("[::1]"), "::1")
+
+    def test_bearer_auth_uses_exact_token_match(self):
+        self.assertTrue(
+            self.health_api.is_authorized("secret-token", "Bearer secret-token")
+        )
+        self.assertFalse(
+            self.health_api.is_authorized("secret-token", "Bearer secret-token-extra")
+        )
+        self.assertFalse(self.health_api.is_authorized("secret-token", "Basic abc"))
+
+    def test_empty_configured_token_allows_loopback_requests(self):
+        self.assertTrue(self.health_api.is_authorized("", ""))
+
+
 if __name__ == "__main__":
     unittest.main()

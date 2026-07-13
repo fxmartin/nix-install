@@ -14,7 +14,7 @@
   # with integrated Docker Engine, Docker Compose, and a GUI dashboard.
 
   # Post-installation verification
-  home.activation.dockerConfigVerify = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.dockerConfigVerify = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     if command -v docker > /dev/null 2>&1; then
       echo ""
       echo "✓ Docker container environment configured:"

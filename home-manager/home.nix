@@ -8,7 +8,8 @@
   userConfig,
   profileName ? "standard",
   ...
-}: {
+}:
+{
   imports = [
     # Shell configuration (Epic-04)
     ./modules/shell.nix
@@ -33,19 +34,19 @@
     # Email notifications for maintenance (Feature 06.5)
     ./modules/msmtp.nix
     # CLI tool configurations with Catppuccin theming and sensible defaults
-    ./modules/btop.nix     # System monitor with Catppuccin Mocha theme
-    ./modules/bat.nix      # Cat replacement with syntax highlighting
-    ./modules/ripgrep.nix  # Grep replacement with smart defaults
-    ./modules/fd.nix       # Find replacement with ignore patterns
-    ./modules/httpie.nix   # HTTP client with developer defaults
+    ./modules/btop.nix # System monitor with Catppuccin Mocha theme
+    ./modules/bat.nix # Cat replacement with syntax highlighting
+    ./modules/ripgrep.nix # Grep replacement with smart defaults
+    ./modules/fd.nix # Find replacement with ignore patterns
+    ./modules/httpie.nix # HTTP client with developer defaults
   ]
   # Modules excluded from ai-assistant profile
   ++ lib.optionals (profileName != "ai-assistant") [
-    ./modules/docker.nix      # Docker container development environment (Feature 04.8)
+    ./modules/docker.nix # Docker container development environment (Feature 04.8)
   ]
   # Modules included only in the power profile
   ++ lib.optionals (profileName == "power") [
-    ./modules/vscode.nix      # VSCode configuration (Story 02.2-002)
+    ./modules/vscode.nix # VSCode configuration (Story 02.2-002)
   ];
 
   home = {
@@ -96,7 +97,7 @@
       btop.enable = true;
 
       # bat - Stylix can theme bat but we use custom Catppuccin theme
-      bat.enable = false;  # Using catppuccin/bat theme instead
+      bat.enable = false; # Using catppuccin/bat theme instead
 
       # Disable targets we don't use
       vim.enable = false;

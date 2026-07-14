@@ -1,11 +1,8 @@
 # ABOUTME: Main Home Manager configuration for user environment
 # ABOUTME: Manages user packages, dotfiles, and application settings
 {
-  config,
-  pkgs,
   lib,
   username,
-  userConfig,
   profileName ? "standard",
   ...
 }:
@@ -13,8 +10,6 @@
   imports = [
     # Shell configuration (Epic-04)
     ./modules/shell.nix
-    # GitHub CLI configuration (Story 01.6-002 dependency)
-    ./modules/github.nix
     # Git configuration (Story 02.4-007)
     ./modules/git.nix
     # SSH configuration (Story 04.6-003)
@@ -43,10 +38,6 @@
   # Modules excluded from ai-assistant profile
   ++ lib.optionals (profileName != "ai-assistant") [
     ./modules/docker.nix # Docker container development environment (Feature 04.8)
-  ]
-  # Modules included only in the power profile
-  ++ lib.optionals (profileName == "power") [
-    ./modules/vscode.nix # VSCode configuration (Story 02.2-002)
   ];
 
   home = {
@@ -55,16 +46,8 @@
     stateVersion = "23.11";
     enableNixpkgsReleaseCheck = false;
 
-    # User packages installed via Home Manager
-    # Epic-04 will expand with development tools:
-    # - direnv (directory-specific environments)
-    # - pipx (Python CLI tool installer)
-    # - markdownlint-cli (Markdown linting)
-    # - Additional dev tools
-    packages = with pkgs; [
-      # Minimal packages for initial setup
-      # Epic-04 will populate this with full development environment
-    ];
+    # Packages are owned by imported Home Manager modules or nix-darwin.
+    packages = [ ];
   };
 
   programs = {
@@ -73,10 +56,10 @@
     # Implemented via modules:
     # - programs.zsh (shell.nix - Oh My Zsh integration)
     # - programs.starship (shell.nix - prompt configuration)
-    # - programs.git (git.nix - Git configuration)
+    # - programs.git (git.nix - configuration for system-managed Git)
     # - programs.fzf (shell.nix - fuzzy finder)
-    # - programs.bat (bat.nix - cat replacement with Catppuccin)
-    # - programs.btop (btop.nix - system monitor with Catppuccin)
+    # - programs.bat (bat.nix - package and Catppuccin configuration)
+    # - programs.btop (btop.nix - package and Catppuccin configuration)
     # - programs.direnv (python.nix - directory environments)
     #
     # Implemented via config files:

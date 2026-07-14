@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.10] - 2026-07-14
+
+### Fixed
+
+- Rationalize managed applications, monitoring, inferencers, synchronization, fonts, and development tooling
+- Replace Zoom, Webex, and apfel with the global Hugging Face Hub CLI
+- Replace stale documentation URLs and ignore the authenticated Microsoft account portal in link checks
+
 ## [2.0.8] - 2026-07-14
 
 ### Fixed

@@ -143,7 +143,7 @@ Consistency: 100% (declarative config)
 **Declarative MacBook configuration system** using Nix package manager + nix-darwin + Home Manager with:
 - **Two installation profiles**: Standard (Air) and Power (Pro M3 Max)
 - **One-command bootstrap**: Download and run script, answer 3 questions, walk away
-- **Machine-specific configurations**: extra Ollama models, NAS/SMB/iCloud sync on Power (1TB storage)
+- **Machine-specific configurations**: extra Ollama models and NAS/SMB support on Power (1TB storage)
 - **Full reproducibility**: Same config → identical system state
 - **Public GitHub repo**: Configuration versioned, forkable, shareable
 
@@ -165,14 +165,14 @@ Consistency: 100% (declarative config)
 
 3. **Profile-Based Installation**
    - **Standard Profile**: Core apps, 2 Ollama models (`ministral-3:14b`, `nomic-embed-text`)
-   - **Power Profile**: Same cask set as Standard + 3 larger Ollama models (`gemma4:e4b`, `gemma4:26b`, `nomic-embed-text`) + NAS rsync, SMB automount, iCloud proposal sync
+   - **Power Profile**: Same cask set as Standard + 3 larger Ollama models (`gemma4:e4b`, `gemma4:26b`, `nomic-embed-text`) + NAS rsync and SMB automount
    - **AI-Assistant Profile**: Minimal cask set (17 core), embeddings-only Ollama model
 
 4. **Maintenance Automation**
    - Daily garbage collection (cleanup old Nix generations)
    - Daily Nix store optimization (deduplication)
    - Health check commands
-   - System monitoring (btop, iStat Menus, macmon)
+   - System monitoring (btop, iStat Menus, Beszel with macmon telemetry)
 
 5. **Version Control & Rollback**
    - Entire system configuration in Git
@@ -252,7 +252,7 @@ Consistency: 100% (declarative config)
 
 1. **Nix First** (via nixpkgs-unstable)
    - CLI tools: curl, wget, git, python, etc.
-   - Dev tools: uv, ruff, mypy, etc.
+   - Dev tools: uv, Ruff, and Pyright
    - System utilities: btop, fzf, ripgrep, fd, jq, yq
    - Using nixpkgs-unstable for latest packages
    - Maximum reproducibility via flake.lock, despite "unstable" name
@@ -290,7 +290,7 @@ Consistency: 100% (declarative config)
 **REQ-BOOT-003**: Profile selection system
 - Three profiles: "Standard" (Air), "Power" (Pro M3 Max), "AI-Assistant" (legacy Mac)
 - Clear description of differences shown to user
-- Profile determines: Ollama models pulled, Power-only modules (NAS rsync, SMB automount, iCloud sync)
+- Profile determines: Ollama models pulled, Power-only modules (NAS rsync and SMB automount)
 - Acceptance: Correct apps installed based on profile choice
 
 **REQ-BOOT-004**: SSH key management
@@ -322,7 +322,6 @@ Consistency: 100% (declarative config)
 
 **REQ-APP-002**: Development Environment
 - Zed (text editor)
-- VSCode (for Claude Code extension)
 - Ghostty (terminal emulator) with config from `/config/config.ghostty`
 - Python 3.12 (via Nix)
 - uv (Python package manager via Nix)
@@ -331,12 +330,10 @@ Consistency: 100% (declarative config)
 - Acceptance: `python --version` shows 3.12.x, `podman --version` works, `git lfs` available
 
 **REQ-APP-003**: Python Development Tools (Global)
-- ruff (linter/formatter)
-- black (formatter)
-- isort (import sorter)
-- mypy (type checker)
-- pylint (linter)
-- Acceptance: All tools available in PATH, callable from any directory
+- Ruff (linting, import sorting, and formatting)
+- Pyright (editor-integrated static type checking)
+- Projects declare any alternative tools in their own uv environments
+- Acceptance: Ruff and Pyright are available in PATH; overlapping global tools are absent
 
 **REQ-APP-004**: Browsers
 - Safari (built-in, no action needed)
@@ -349,17 +346,13 @@ Consistency: 100% (declarative config)
 - 1Password (password manager) 🔒
 - Calibre (ebook manager)
 - Kindle (via mas)
-- Onyx (system maintenance)
 - Keka (archiver)
-- flux-app (f.lux - display color temperature)
 - iStat Menus 🔒
-- macmon (system monitoring)
+- Beszel monitoring with macmon as its headless telemetry backend
 - Acceptance: Apps installed, 🔒 apps documented as needing manual license activation
 
 **REQ-APP-006**: Communication
 - WhatsApp (via mas)
-- Zoom 🔒
-- Webex 🔒
 - Acceptance: Apps installed and launchable
 
 **REQ-APP-007**: Media & Creative
@@ -372,7 +365,7 @@ Consistency: 100% (declarative config)
 - Acceptance: App installed, requires manual login
 
 **REQ-APP-009**: Profile-Specific Modules
-- **Power Only**: NAS rsync backup, SMB automount (via autofs), iCloud proposal sync
+- **Power Only**: NAS rsync backup and SMB automount (via autofs)
 - Acceptance: Power-only modules wired into `darwinConfigurations.power` in `flake.nix`; Standard/AI-Assistant do not import them
 
 **REQ-APP-010**: Microsoft 365 Core Apps (Homebrew Cask Installation)
@@ -509,13 +502,10 @@ Consistency: 100% (declarative config)
 - Zed themed via Stylix (Catppuccin Latte/Mocha, JetBrains Mono font)
 - Zed configuration managed by Home Manager
 - Auto-update disabled for Zed
-- VSCode for Claude Code extension (manual extension install documented)
-- VSCode themed via Stylix if possible, otherwise manual theme install
 - Acceptance:
   - Zed launches with Catppuccin theme matching Ghostty
   - Zed uses JetBrains Mono font with ligatures
   - Zed theme switches with macOS system appearance
-  - VSCode launches and can open files
 
 #### 7. Maintenance & Monitoring
 
@@ -533,8 +523,9 @@ Consistency: 100% (declarative config)
 **REQ-MAINT-003**: System Monitoring Tools
 - btop (CLI system monitor)
 - iStat Menus (GUI menubar monitor) 🔒
-- macmon (GUI monitoring)
-- Acceptance: All tools installed, btop shows CPU/memory, iStat in menubar
+- Beszel agent (remote/time-series monitoring)
+- macmon (headless telemetry backend for the health API; not a user-facing monitor)
+- Acceptance: btop shows CPU/memory, iStat appears in the menubar, and health API metrics feed Beszel
 
 **REQ-MAINT-004**: Health Check Commands
 - `health-check` alias: validates system state
@@ -553,7 +544,7 @@ Consistency: 100% (declarative config)
 - Acceptance: Non-technical user can follow and complete install
 
 **REQ-DOC-002**: Licensed App Activation Guide
-- List of apps requiring manual activation: 1Password, iStat Menus, Little Snitch, NordVPN, Zoom, Webex
+- List of apps requiring manual activation: 1Password, iStat Menus, Little Snitch, NordVPN
 - Step-by-step for each app
 - Acceptance: User can activate all licenses within 15 minutes
 
@@ -720,11 +711,8 @@ Consistency: 100% (declarative config)
 **Apps requiring auto-update disable configuration:**
 - Homebrew: `HOMEBREW_NO_AUTO_UPDATE=1` in environment
 - Zed: Disable auto-update in settings (`"auto_update": false` in config)
-- VSCode: `"update.mode": "none"`
 - Firefox: `app.update.auto = false`
 - 1Password: Preferences → Advanced → Disable auto-update
-- Zoom: Preferences → Disable auto-update
-- Webex: Preferences → Disable auto-update
 - Raycast: Preferences → Advanced → Disable auto-update
 - Ghostty: `auto-update = off` (already in config)
 - Claude Desktop, ChatGPT Desktop, Perplexity: Disable in app preferences if available
@@ -888,7 +876,7 @@ Consistency: 100% (declarative config)
 
 - [ ] Python 3.12 installation
 - [ ] uv package manager
-- [ ] Python dev tools (ruff, black, mypy, isort, pylint)
+- [ ] Python dev tools (Ruff and Pyright)
 - [ ] Podman + podman-compose + podman-desktop
 - [ ] Git configuration with LFS
 - [ ] Test: Create Python project with uv, run in Podman container
@@ -915,7 +903,7 @@ Consistency: 100% (declarative config)
 
 - [ ] Daily garbage collection (launchd job)
 - [ ] Daily store optimization (launchd job)
-- [ ] Install btop, iStat Menus, macmon
+- [ ] Install btop and iStat Menus; configure Beszel with the macmon telemetry backend
 - [ ] Health check alias/script
 - [ ] Test: GC runs overnight, health-check reports status
 
@@ -1002,7 +990,7 @@ Consistency: 100% (declarative config)
 **Deliverable**: All 3 MacBooks migrated and consistent within their profiles
 
 **Final Verification:**
-- MacBook Pro M3 Max (Power): 3 Ollama models, NAS rsync + SMB automount + iCloud proposal sync enabled
+- MacBook Pro M3 Max (Power): 3 Ollama models, NAS rsync + SMB automount enabled
 - MacBook Air #1 (Standard): 2 Ollama models, no Power-only modules
 - MacBook Air #2 (Standard): Identical to MacBook Air #1
 - All machines have identical config within their profile
@@ -1195,15 +1183,15 @@ Consistency: 100% (declarative config)
 | **Development Tools** | | |
 | Python 3.12 | Nix (nixpkgs.python312) | Version pinning, reproducibility |
 | uv | Nix (nixpkgs.uv) | CLI tool, Nix-friendly |
-| ruff, black, mypy, etc. | Nix (python312Packages.*) | Integrate with system Python |
+| Ruff and Pyright | Nix | Minimal global linting, formatting, import sorting, and type-checking baseline |
 | Podman | Nix (nixpkgs.podman) | Better Nix support than Docker |
 | podman-compose | Nix (nixpkgs.podman-compose) | CLI tool |
 | podman-desktop | Homebrew Cask | GUI app, frequent updates |
 | Git | Nix (nixpkgs.git) | Core tool, Nix-managed |
 | Git LFS | Nix (nixpkgs.git-lfs) | Extension of git |
+| GitHub CLI | Homebrew Formula (gh) | Required in PATH during bootstrap |
 | **Editors & IDEs** | | |
 | Zed | Homebrew Cask | GUI app, themed via Stylix (Catppuccin + JetBrains Mono) |
-| VSCode | Homebrew Cask (visual-studio-code) | GUI app, extensions ecosystem, themed via Stylix if possible |
 | **Terminals** | | |
 | Ghostty | Homebrew Cask | GUI app, bleeding-edge |
 | **Browsers** | | |
@@ -1220,17 +1208,14 @@ Consistency: 100% (declarative config)
 | 1Password | Homebrew Cask | GUI app, auto-updates |
 | Calibre | Homebrew Cask | GUI app |
 | Kindle | mas (Mac App Store) | Only available on App Store |
-| Onyx | Homebrew Cask (onyx) | GUI app |
 | Keka | Homebrew Cask | GUI app |
-| flux | Homebrew Cask (flux) | GUI app |
 | **Monitoring** | | |
-| btop | Nix (nixpkgs.btop) | CLI tool, Nix-friendly |
+| btop | Home Manager (programs.btop) | Owns both package and user configuration |
 | iStat Menus | Homebrew Cask | GUI app |
-| macmon | Homebrew Cask | GUI app |
+| Beszel agent | Nix (nixpkgs.beszel) | Remote/time-series monitoring |
+| macmon | Nix (nixpkgs.macmon) | Headless health API telemetry backend |
 | **Communication** | | |
 | WhatsApp | mas (Mac App Store) OR Homebrew Cask | Prefer mas if available |
-| Zoom | Homebrew Cask | GUI app |
-| Webex | Homebrew Cask (webex) | GUI app |
 | **Media** | | |
 | VLC | Homebrew Cask | GUI app |
 | GIMP | Homebrew Cask | GUI app |
@@ -1239,14 +1224,14 @@ Consistency: 100% (declarative config)
 | **Shell & CLI Tools** | | |
 | Zsh | Built-in (macOS) | Already included |
 | Oh My Zsh | Home Manager | Managed declaratively |
-| fzf | Nix (nixpkgs.fzf) | CLI tool |
+| fzf | Home Manager (programs.fzf) | Owns both package and shell integration |
 | zsh-autosuggestions | Home Manager (Oh My Zsh plugin) | Shell plugin |
-| Starship | Nix (nixpkgs.starship) | CLI tool, cross-platform |
+| Starship | Homebrew Formula + Home Manager launcher | Homebrew avoids the Darwin linker failure; Home Manager owns prompt configuration |
 | ripgrep | Nix (nixpkgs.ripgrep) | CLI tool |
 | fd | Nix (nixpkgs.fd) | CLI tool |
 | jq | Nix (nixpkgs.jq) | CLI tool |
 | yq | Nix (nixpkgs.yq) | CLI tool |
-| bat | Nix (nixpkgs.bat) | CLI tool |
+| bat | Home Manager (programs.bat) | Owns the package, extras, theme, and configuration |
 | eza | Nix (nixpkgs.eza) | CLI tool (ls replacement) |
 | **Fonts** | | |
 | JetBrains Mono Nerd Font | Nix (nixpkgs.nerdfonts) | Managed with system |
@@ -1447,15 +1432,15 @@ Consistency: 100% (declarative config)
 |---|---|---|
 | **Target Hardware** | MacBook Air (512GB storage typical) | MacBook Pro M3 Max (1TB storage) |
 | **Use Case** | Portable, travel, light dev work | Main development machine, NAS-backed workflow |
-| **Power-only modules** | None | NAS rsync backup, SMB automount, iCloud proposal sync |
+| **Power-only modules** | None | NAS rsync backup, SMB automount |
 | **Ollama Models** | `ministral-3:14b`, `nomic-embed-text` (~9GB) | `gemma4:e4b`, `gemma4:26b`, `nomic-embed-text` (~19GB) |
 | **Development Tools** | ✅ Same (Python, Podman, Git LFS) | ✅ Same |
 | **AI Apps** | ✅ Same (Claude, ChatGPT, Perplexity) | ✅ Same |
 | **Browsers** | ✅ Same (Safari, Firefox, Brave) | ✅ Same |
 | **Productivity** | ✅ Same (Raycast, 1Password, etc.) | ✅ Same |
-| **Communication** | ✅ Same (Zoom, Webex, WhatsApp) | ✅ Same |
+| **Communication** | ✅ Same (Telegram, WhatsApp) | ✅ Same |
 | **Media** | ✅ Same (VLC, GIMP) | ✅ Same |
-| **Monitoring** | ✅ Same (btop, iStat, macmon) | ✅ Same |
+| **Monitoring** | ✅ Same (btop, iStat, Beszel/macmon backend) | ✅ Same |
 | **System Config** | ✅ Same (Finder, trackpad, security) | ✅ Same |
 | **Shell Environment** | ✅ Same (Zsh, Oh My Zsh, Ghostty) | ✅ Same |
 | **Theming** | ✅ Same (Catppuccin) | ✅ Same |
@@ -1473,7 +1458,7 @@ echo ""
 echo "  [2] Power - MacBook Pro M3 Max (full suite, heavy storage)"
 echo "      • All development tools"
 echo "      • 3 Ollama models (~19GB)"
-echo "      • NAS rsync + SMB automount + iCloud proposal sync"
+echo "      • NAS rsync + SMB automount"
 echo ""
 read -p "Enter choice [1-2]: " profile_choice
 
@@ -1573,7 +1558,7 @@ esac
             # Common packages + power-specific
           ];
 
-          # Power profile imports additional modules (NAS rsync, SMB automount, iCloud sync)
+          # Power profile imports additional modules (NAS rsync and SMB automount)
           # Cask list is identical to Standard — differentiation is at the module level
           homebrew.casks = [
             # Same casks as Standard profile

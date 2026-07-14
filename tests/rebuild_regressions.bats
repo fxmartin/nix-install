@@ -10,6 +10,7 @@ setup() {
     NIX_WORKFLOW="${BATS_TEST_DIRNAME}/../.github/workflows/nix-flake-check.yml"
     MAKEFILE="${BATS_TEST_DIRNAME}/../Makefile"
     BUMP_VERSION_SCRIPT="${BATS_TEST_DIRNAME}/../scripts/bump-version.sh"
+    PYTHON_MODULE="${BATS_TEST_DIRNAME}/../home-manager/modules/python.nix"
 }
 
 @test "nix-darwin generated documentation is disabled" {
@@ -77,4 +78,17 @@ setup() {
 
     run rg -n '^\s*make check$' "$BUMP_VERSION_SCRIPT"
     [ "$status" -eq 1 ]
+}
+
+@test "format check skips deleted tracked Nix files" {
+    run rg -n 'test -f "\$\$file".*nixfmt --check "\$\$file"' "$MAKEFILE"
+    [ "$status" -eq 0 ]
+}
+
+@test "direnv Zsh hook uses the stable Home Manager profile path" {
+    run rg -n 'enableZshIntegration = false;' "$PYTHON_MODULE"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'config\.home\.profileDirectory}/bin/direnv.*hook zsh' "$PYTHON_MODULE"
+    [ "$status" -eq 0 ]
 }

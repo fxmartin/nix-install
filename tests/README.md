@@ -596,7 +596,7 @@ FX should perform these manual tests in a VM to validate profile selection funct
 5. **Profile Display Validation Test**
    - Verify profile descriptions are clear and accurate:
      - Standard: MacBook Air, 2 Ollama models, ~35GB
-     - Power: MacBook Pro M3 Max, 3 Ollama models, NAS backup + SMB + iCloud sync, ~80GB
+     - Power: MacBook Pro M3 Max, 3 Ollama models, NAS backup + SMB, ~80GB
    - Expected: All information matches REQUIREMENTS.md specifications
 
 6. **Profile Variable Persistence Test**

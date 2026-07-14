@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repository implements an automated, declarative MacBook configuration system using Nix, nix-darwin, and Home Manager. The goal is to transform a fresh macOS install into a fully configured development environment in <30 minutes with zero manual intervention (except license activations).
 
-**Status**: ✅ **v2.0.8 Released** - All 7 epics complete, ~78 hours development effort
+**Status**: ✅ **v2.0.10 Released** - All 7 epics complete, ~78 hours development effort
 
 **Target User**: FX manages 4 MacBooks (1x MacBook Pro M3 Max, 1x MacBook Pro M1 2021, 2x MacBook Air) with periodic reinstalls. Split usage between Office 365 work and weekend Python development.
 
@@ -26,7 +26,7 @@ This repository implements an automated, declarative MacBook configuration syste
    - ~35GB disk usage
 
 2. **Power Profile** (MacBook Pro M3 Max target):
-   - Same cask set as Standard, plus NAS backup (rsync), SMB automount, iCloud proposal sync
+   - Same cask set as Standard, plus NAS backup (rsync) and SMB automount
    - 3 Ollama models (`gemma4:e4b`, `gemma4:26b`, `nomic-embed-text`)
    - ~80GB disk usage (dominated by Ollama footprint)
 
@@ -38,10 +38,11 @@ This repository implements an automated, declarative MacBook configuration syste
 
 ### Package Management Strategy (Priority Order)
 
-1. **Nix First** (via nixpkgs-unstable): CLI tools, dev tools, Python 3.12, uv, ruff, Podman, etc.
-2. **Homebrew Casks**: GUI apps (Zed, Ghostty, Firefox, Claude Desktop, etc.)
-3. **Mac App Store (mas)**: Only when no alternative (Kindle, WhatsApp)
-4. **Manual**: Licensed software (Office 365)
+1. **Nix First** (via nixpkgs-unstable): nix-darwin owns system tools; Home Manager owns configured user tools. Never declare the same binary in both.
+2. **Homebrew Formulae**: Bootstrap or macOS-specific CLI exceptions such as `gh`, Starship, Ollama, and `pkgconf`.
+3. **Homebrew Casks**: GUI apps (Zed, Ghostty, Brave, Claude Desktop, etc.).
+4. **Mac App Store (mas)**: Only when no better alternative exists (Kindle, WhatsApp).
+5. **Manual**: License activation and post-install configuration only.
 
 ### Modular Bootstrap Architecture
 
@@ -137,7 +138,7 @@ nix-install/
 │   ├── shell.nix             # Zsh + Oh My Zsh + Starship + FZF + ollama-warm/evict + redact + rebuild guard
 │   ├── git.nix               # Git config + LFS
 │   ├── ghostty.nix           # Terminal with Catppuccin
-│   ├── zed.nix / vscode.nix  # Editor configs
+│   ├── zed.nix               # Editor config
 │   ├── python.nix            # Python + uv + ruff
 │   ├── podman.nix            # Container development
 │   ├── privacy-filter.nix    # uv venv + openmed[mlx,service] + profile-aware HF weight pre-pull (Epic-09)
@@ -280,7 +281,6 @@ darwinConfigurations.power = mkDarwinConfiguration {
   modules = [
     ./darwin/smb-automount.nix    # NAS mounts — Power-only
     ./darwin/rsync-backup.nix     # NAS backup — Power-only
-    ./darwin/icloud-sync.nix      # Proposal sync — Power-only
     # ...postActivation pulls ollamaModels.power (3 models)
   ];
 };
@@ -289,7 +289,6 @@ darwinConfigurations.power = mkDarwinConfiguration {
 **Auto-update disable**:
 ```nix
 environment.variables.HOMEBREW_NO_AUTO_UPDATE = "1";
-programs.vscode.userSettings."update.mode" = "none";
 ```
 
 ## Configuration Preferences

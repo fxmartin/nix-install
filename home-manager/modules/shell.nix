@@ -197,17 +197,16 @@
         py = "uv run python"; # Run Python in project context
         ipy = "uv run python -i"; # Interactive Python in project context
 
-        # Linting and formatting (all via uv run for project context)
+        # Global Python quality baseline; projects can add exceptions via uv
         lint = "ruff check ."; # Fast linting with ruff
         lintfix = "ruff check . --fix"; # Auto-fix linting issues
-        fmt = "ruff format ."; # Format with ruff (faster than black)
+        fmt = "ruff format ."; # Format with Ruff
         fmtcheck = "ruff format . --check"; # Check formatting without changes
-        typecheck = "mypy ."; # Static type checking
-        sortimports = "isort ."; # Sort imports
+        typecheck = "pyright"; # Editor-aligned static type checking
 
         # Combined quality checks
-        qa = "ruff check . && ruff format . --check && mypy ."; # Full QA check
-        fix = "ruff check . --fix && ruff format . && isort ."; # Auto-fix all
+        qa = "ruff check . && ruff format . --check && pyright"; # Full QA check
+        fix = "ruff check . --fix && ruff format ."; # Lint, sort imports, and format
 
         # Virtual environment shortcuts (when not using uv)
         venv = "python -m venv .venv"; # Create virtual environment

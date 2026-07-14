@@ -283,5 +283,4 @@ podman run --rm -it alpine:latest echo "Podman works!"
 
 - [Main Apps Index](../README.md)
 - [Python Tools Configuration](./python-tools.md)
-- [VS Code Configuration](./vscode.md)
 - [Claude Code CLI](./claude-code-cli.md)

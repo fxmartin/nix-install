@@ -1,6 +1,6 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.0% Complete (144/147 stories) | **Version**: 2.0.8 | **2 MacBooks deployed, M4 Air pending**
+> **Status**: 98.0% Complete (144/147 stories) | **Version**: 2.0.10 | **2 MacBooks deployed, M4 Air pending**
 
 **Two deployed MacBooks. One config. Controlled configuration drift.**
 
@@ -63,7 +63,6 @@ execution. Branch installs require the explicit `NIX_INSTALL_BRANCH` override.
 4. **Activate licenses** — See [Licensed Apps Guide](./docs/licensed-apps.md):
    - 1Password, NordVPN (sign in)
    - iStat Menus, Little Snitch (enter license key)
-   - Zoom, Webex (sign in)
    - Office 365 (Microsoft account sign-in)
 
 ---
@@ -196,7 +195,7 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 - Zed Editor (Catppuccin themed)
 
 **Development**:
-- Python 3.12 + uv + ruff + black + mypy + pylint (via Nix)
+- Python 3.12 + uv + Ruff + Pyright (via Nix)
 - Podman (rootless containers, via Nix) + Docker Desktop **[S/P]**
 - TablePlus (database GUI) **[S/P]**
 - Git + Git LFS + GitHub CLI (`gh`)
@@ -215,22 +214,21 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 - 1Password + 1Password for Safari
 - Obsidian (knowledge base / notes)
 - Plaud (AI voice recorder and transcription)
-- Amphetamine (MAS, keep-awake utility)
 - Calibre, Kindle (MAS), Marked 2 (MAS), Keka **[S/P]**
 - Office 365 (Word, Excel, PowerPoint) **[S/P]**
 - reMarkable desktop (MAS) **[S/P]**
 
-**Communication**: Telegram, WhatsApp (MAS), Slack **[S/P]**, Zoom **[S/P]**, Webex **[S/P]**
+**Communication**: Telegram, WhatsApp (MAS), Slack **[S/P]**
 
 **Media**: VLC **[S/P]**, `yt-dlp` (CLI)
 
 **Security**: NordVPN, Tailscale, Little Snitch
 
-**System & Monitoring**: iStat Menus, OnyX **[S/P]**, f.lux **[S/P]**, Stream Deck **[S/P]**, btop, gotop, macmon, mactop
+**System & Monitoring**: iStat Menus, btop, Beszel (macmon telemetry backend), Stream Deck **[S/P]**
 
 **Remote Access**: RustDesk **[S/P]**
 
-**Fonts**: SF Pro, Hack Nerd Font, JetBrains Mono Nerd Font (via Stylix)
+**Fonts**: JetBrains Mono Nerd Font with distinct Inter, Source Serif 4, and Noto Color Emoji fallbacks (via Nix/Stylix)
 
 ### System Configuration
 
@@ -267,7 +265,7 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 | **Docker Desktop** | No | Yes | Yes |
 | **LSPs** | No | Yes | Yes |
 | **Office/Video Conf** | No | Yes | Yes |
-| **NAS backup / SMB / iCloud sync** | No | No | Yes |
+| **NAS backup / SMB** | No | No | Yes |
 | **Disk Usage** | ~20GB | ~35GB | ~80GB |
 
 ### Package Sources (Priority Order)
@@ -428,7 +426,7 @@ nix-install/
 │   ├── shell.nix             # Zsh + Oh My Zsh + Starship + FZF + ollama-warm/evict + redact helpers
 │   ├── git.nix               # Git config + LFS
 │   ├── ghostty.nix           # Terminal with Catppuccin
-│   ├── zed.nix / vscode.nix  # Editor configs
+│   ├── zed.nix               # Editor config
 │   ├── python.nix            # Python + uv + ruff
 │   ├── podman.nix            # Container development
 │   ├── privacy-filter.nix    # uv venv + openmed[mlx,service] + HF weight pre-pull (Epic-09)

@@ -142,6 +142,5 @@ The following settings are automatically configured from `config/zed/settings.js
 ## Related Documentation
 
 - [Main Apps Index](../README.md)
-- [VS Code Configuration](./vscode.md)
 - [Ghostty Terminal Configuration](./ghostty-terminal.md)
 - [Claude Code CLI](./claude-code-cli.md)

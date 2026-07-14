@@ -101,10 +101,9 @@
 
       # Python Development Tools
       ruff # Extremely fast Python linter and formatter
-      black # Python code formatter
-      python312Packages.isort # Import statement organizer
-      python312Packages.mypy # Static type checker
-      python312Packages.pylint # Comprehensive linter
+
+      # AI & Model Registry Tools
+      python312Packages.huggingface-hub # Hugging Face Hub CLI (`hf`)
 
       # Claude Code CLI (Story 02.2-006)
       claude-code-nix.packages.${system}.default # Claude Code CLI
@@ -129,21 +128,17 @@
       git-lfs # Git Large File Storage
 
       # Shell Enhancement Tools (Epic-04)
-      fzf # Fuzzy finder for shell (Ctrl+R history, Ctrl+T files)
       fd # Fast find alternative (used by fzf)
 
       # Modern CLI Tools (Story 04.5-003)
       ripgrep # Fast grep alternative (rg) - respects .gitignore, blazing fast
-      bat # Cat clone with syntax highlighting and git integration
       eza # Modern ls replacement with tree view, icons, git support
       zoxide # Smarter cd - tracks frecency (frequency + recency) for directory jumping
       httpie # Modern curl alternative with JSON support and colored output
       tldr # Simplified, community-driven man pages (tealdeer implementation)
 
       # System Monitoring (Story 02.4-006, Feature 06.3)
-      btop # Modern resource monitor (TUI) - prettier than gotop with themes
-      gotop # Interactive CLI system monitor (TUI for CPU, RAM, disk, network)
-      macmon # macOS system monitoring CLI tool (hardware specs, sensors)
+      macmon # Headless Apple Silicon telemetry backend for health-api
 
       # Remote Access Tools
       mosh # Mobile shell - persistent SSH alternative with roaming support
@@ -158,7 +153,6 @@
       rsync # GNU rsync 3.x (fixes iCloud mmap deadlock in macOS openrsync)
 
       # Nix Development Tools
-      nil # Nix language server (simpler, lightweight)
       nixd # Nix language server (feature-rich, used by Zed extension)
     ]
     # Language Servers and dev tooling (excluded from ai-assistant profile)
@@ -317,35 +311,6 @@
 
         ''
         + lib.optionalString isPowerProfile ''
-          # ========================================================================
-          # MAINTENANCE SCRIPTS SYNC (Power Profile Only)
-          # ========================================================================
-          # These scripts are for NAS backup and advanced maintenance features
-          echo "Syncing maintenance scripts to ~/.local/bin..."
-          SCRIPTS_SRC="/Users/${userConfig.username}/${userConfig.directories.dotfiles}/scripts"
-          SCRIPTS_DST="/Users/${userConfig.username}/.local/bin"
-
-          # List of scripts used by Power-only LaunchAgents and workflows
-          # NOTE: rsync-backup.sh is handled separately in darwin/rsync-backup.nix
-          SCRIPTS=(
-            "icloud-sync.sh"
-          )
-
-          for script in "''${SCRIPTS[@]}"; do
-            if [[ -f "$SCRIPTS_SRC/$script" ]]; then
-              cp "$SCRIPTS_SRC/$script" "$SCRIPTS_DST/$script"
-              chmod 755 "$SCRIPTS_DST/$script"
-              chown ${userConfig.username}:staff "$SCRIPTS_DST/$script"
-              echo "  ✓ Synced $script"
-            else
-              echo "  ⚠ Script not found: $script"
-            fi
-          done
-
-          # Ensure entire directory is owned by user
-          chown -R ${userConfig.username}:staff "$SCRIPTS_DST"
-          echo "✓ Maintenance scripts synced to $SCRIPTS_DST"
-
           # ========================================================================
           # OSXPHOTOS INSTALLATION (Power Profile Only - for Photo Export to NAS)
           # ========================================================================

@@ -20,7 +20,7 @@ WARN_MB="${WARN_MB:-100}"
 
 # Agents known to this repo (Epic-06 through Epic-08).
 # Keep in sync with darwin/maintenance.nix, darwin/health-api.nix,
-# darwin/monitoring.nix, darwin/rsync-backup.nix, darwin/icloud-sync.nix.
+# darwin/monitoring.nix, and darwin/rsync-backup.nix.
 COMMON_AGENTS=(
     # Epic-06
     nix-gc nix-optimize weekly-digest disk-cleanup release-monitor
@@ -32,7 +32,7 @@ COMMON_AGENTS=(
 # Power-profile only (guarded at print time — don't fail if missing)
 POWER_AGENTS=(
     rsync-backup-daily rsync-backup-weekly-sunday
-    rsync-backup-weekly-wednesday icloud-sync
+    rsync-backup-weekly-wednesday
 )
 
 # Root-level daemons (launchctl scope differs)

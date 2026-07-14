@@ -146,7 +146,7 @@ Raycast is a powerful productivity tool with many built-in features:
 **Documentation**:
 - Official Docs: https://manual.raycast.com/
 - Extension Store: https://www.raycast.com/store
-- Keyboard Shortcuts Guide: https://manual.raycast.com/hotkeys
+- Raycast Manual: https://manual.raycast.com/
 
 ---
 
@@ -155,4 +155,4 @@ Raycast is a powerful productivity tool with many built-in features:
 - [Main Apps Index](../README.md) - Overview of all application documentation
 - [1Password Configuration](./1password.md) - Password manager setup
 - [File Utilities Configuration](./file-utilities.md) - Calibre, Kindle, Keka, Marked 2
-- [System Utilities Configuration](./system-utilities.md) - Onyx, f.lux
+- [System Utilities Configuration](./system-utilities.md) - Stream Deck

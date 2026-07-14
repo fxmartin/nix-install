@@ -17,8 +17,6 @@ This document provides guidance for applications that require licenses, subscrip
 |-----|------|------|----------|
 | **1Password** | Sign-in | 2 min | High (password access) |
 | **NordVPN** | Sign-in | 2 min | Medium (VPN access) |
-| **Zoom** | Sign-in | 1 min | As needed |
-| **Webex** | Sign-in | 1 min | As needed |
 | **iStat Menus** | License key | 1 min | Low (trial available) |
 | **Little Snitch** | License key | 2 min | Low (trial available) |
 | **Office 365** | Sign-in | 3 min | If needed |
@@ -35,10 +33,6 @@ The following apps require manual setup after installation:
 - **1Password**: Requires account sign-in (subscription or license)
 - **Microsoft Office 365**: Requires active subscription (Personal, Family, or Company)
 
-**Video Conferencing**:
-- **Zoom**: Can use free account, but paid license may be needed for full features
-- **Webex**: Requires company account or free Webex account
-
 **VPN & Security**:
 - **NordVPN**: Requires active subscription (NO free tier, $3.99-$12.99/month)
 
@@ -47,162 +41,6 @@ The following apps require manual setup after installation:
 
 **Development Tools**:
 - None currently (all dev tools are free/open source)
-
----
-
-## Video Conferencing Apps
-
-### Zoom
-
-**Installation**: Installed via Homebrew cask `zoom` (Story 02.5-002)
-
-**Account Options**:
-
-1. **Free Account** (No License Required):
-   - **Sign up**: https://zoom.us/signup
-   - **Meeting limits**: 40-minute limit for group meetings (3+ participants)
-   - **Participant limits**: Up to 100 participants
-   - **Features**: Join meetings, host short meetings, screen sharing, chat
-   - **Cost**: Free forever (no credit card required)
-
-2. **Licensed Account** (Paid Plans):
-   - **Pro Plan**: $149.90/year - Unlimited meeting duration, cloud recording
-   - **Business Plan**: $199.90/year/user - Admin controls, branding, managed domains
-   - **Enterprise Plan**: Custom pricing - Unlimited cloud storage, dedicated support
-   - **License source**: Provided by employer OR purchased at https://zoom.us/pricing
-
-**Activation Steps**:
-
-**Option A: Free Account**
-1. Launch Zoom from Spotlight (`Cmd+Space`, type "Zoom")
-2. Click **Sign Up Free** on sign-in screen
-3. Enter email address → Click **Sign Up**
-4. Check email for verification link → Click link
-5. Create password and complete profile
-6. Sign in to Zoom desktop app with new account
-7. You can now join and host meetings (with 40-minute limit for groups)
-
-**Option B: Licensed Account (Work/Purchased)**
-1. Launch Zoom from Spotlight (`Cmd+Space`, type "Zoom")
-2. Click **Sign In** on sign-in screen
-3. Enter your work email or licensed account email
-4. Enter password (or use SSO if company provides)
-5. Sign in completes automatically
-6. Verify license status: Zoom → Profile → Account Type (should show "Pro", "Business", or "Enterprise")
-
-**Option C: Guest Mode (No Account)**
-1. Launch Zoom from Spotlight (`Cmd+Space`, type "Zoom")
-2. Click **Join a Meeting** (skip sign-in)
-3. Enter Meeting ID from invite
-4. Enter your name and click **Join**
-5. You can join meetings but cannot host meetings
-
-**License Verification**:
-```bash
-# Check if signed in
-# Open Zoom → Click profile picture → Account should show:
-# - Free: "Basic" (free account)
-# - Licensed: "Pro", "Business", "Enterprise"
-```
-
-**Common Issues**:
-- **Forgot password**: Click "Forgot password?" on sign-in screen → Reset via email
-- **Cannot sign in with work email**: Contact IT admin (account may not be provisioned)
-- **Meeting time limit**: Upgrade to paid plan or create multiple 40-minute sessions
-
-**Documentation**: For full Zoom usage, see `docs/app-post-install-configuration.md` → Zoom section.
-
----
-
-### Cisco Webex
-
-**Installation**: Installed via Homebrew cask `webex` (Story 02.5-002)
-
-**Account Requirement**: Webex **requires** an account. You cannot use Webex as a guest (unlike Zoom).
-
-**Account Options**:
-
-1. **Company Account** (Most Common):
-   - **Provided by**: Your employer for work meetings
-   - **Sign-in**: Company email and password (or SSO)
-   - **Features**: May include licensed features (cloud recording, large meetings)
-   - **IT-managed**: Policies, features, and restrictions may be controlled by IT
-   - **Activation**: No activation needed - sign in with company credentials
-
-2. **Free Webex Account**:
-   - **Sign up**: https://www.webex.com/pricing/free-trial.html
-   - **Meeting limits**: 50-minute limit for meetings
-   - **Participant limits**: Up to 100 participants
-   - **Features**: Host meetings, screen sharing, whiteboard, chat
-   - **Cost**: Free forever
-
-3. **Paid Plans** (Licensed):
-   - **Webex Meet**: $14.50/month - Unlimited meeting duration, 100 participants
-   - **Webex Suite**: $25/month - Calling, messaging, polling, cloud storage
-   - **Enterprise**: Custom pricing - Advanced features and support
-   - **Purchase**: https://www.webex.com/pricing/
-
-**Activation Steps**:
-
-**Option A: Company Account**
-1. Launch Webex from Spotlight (`Cmd+Space`, type "Webex")
-2. **Sign In** screen appears
-3. Enter your **company email address**
-4. Click **Next** or **Sign In**
-5. Enter password OR use **SSO** if prompted:
-   - **SSO**: Browser opens → Sign in via company portal (Google, Microsoft, Okta, etc.)
-   - **Password**: Enter company password directly
-6. Sign-in completes → Webex shows main interface with upcoming meetings
-7. Verify: Your company email should appear in top-right profile section
-
-**Option B: Free Account**
-1. Visit https://www.webex.com/pricing/free-trial.html in browser
-2. Click **Sign Up Free** (no credit card required)
-3. Enter email address → Click **Next**
-4. Check email for verification code → Enter code
-5. Create password and complete profile
-6. Launch Webex from Spotlight (`Cmd+Space`, type "Webex")
-7. Sign in with email and password
-8. You can now host and join meetings (with 50-minute limit)
-
-**Option C: Paid Plan**
-1. Visit https://www.webex.com/pricing/ in browser
-2. Choose plan: Webex Meet ($14.50/month) or Webex Suite ($25/month)
-3. Click **Buy Now** → Complete payment
-4. Create account or sign in with existing account
-5. License activates automatically
-6. Launch Webex desktop app → Sign in with account
-7. Verify license: Webex → Profile → Account should show "Meet" or "Suite"
-
-**Sign-In Troubleshooting**:
-- **Company Account**:
-  - Verify email is correct (use full company email)
-  - Try **SSO**: Select "Sign in with company portal" if available
-  - Contact IT admin if account not found (may need provisioning)
-  - Check if VPN required (some companies require VPN for Webex sign-in)
-
-- **Free/Paid Account**:
-  - Verify email and password are correct
-  - Check email for verification link (may be in spam folder)
-  - Reset password: Click "Forgot password?" on sign-in screen
-  - Contact Webex support if issues persist: https://help.webex.com/
-
-**License Verification**:
-```bash
-# Check account type and license
-# Open Webex → Click profile picture/icon → Settings → Account
-# Should show:
-# - Free: "Webex Free" or "Free Plan"
-# - Licensed: "Webex Meet", "Webex Suite", or "Enterprise"
-```
-
-**Common Issues**:
-- **Cannot sign in with company email**: Contact IT admin (account may not exist or may be locked)
-- **SSO not working**: Ensure company SSO portal is accessible (may require VPN)
-- **"Account not found"**: Sign up for free account first OR contact IT to provision company account
-- **Meeting time limit (50 minutes)**: Upgrade to paid plan for unlimited duration
-
-**Documentation**: For full Webex usage, see `docs/app-post-install-configuration.md` → Cisco Webex section.
 
 ---
 
@@ -421,8 +259,7 @@ iStat Menus has automatic updates **enabled by default**. You **MUST** disable a
 **Trial Expired, Can't Afford License**:
 - **No free alternative in iStat Menus** (commercial software)
 - **Free alternatives** (if license not feasible):
-  - **gotop**: Free CLI system monitor (installed, see Story 02.4-006)
-  - **macmon**: Free CLI system info tool (installed, see Story 02.4-006)
+  - **btop**: Free terminal system monitor (installed via Home Manager)
   - **Activity Monitor**: Built-in macOS app (Utilities → Activity Monitor)
   - **Note**: Free alternatives lack menubar integration and some advanced features
 
@@ -690,8 +527,6 @@ with full knowledge that updates are no longer managed by `rebuild`.
 
 | App | Installation | Account Type | Cost | Activation Required |
 |-----|-------------|--------------|------|---------------------|
-| **Zoom** | Homebrew cask | Free or Licensed | Free or $149.90+/year | Yes (or guest mode) |
-| **Webex** | Homebrew cask | Company or Free | Free or $14.50+/month | Yes (required) |
 | **1Password** | Homebrew cask | Subscription or License | $2.99+/month or legacy | Yes (required) |
 | **iStat Menus** | Homebrew cask | One-time purchase | $11.99 USD (14-day trial) | Yes (trial or license) |
 | **NordVPN** | Homebrew cask | Subscription | $3.99-$12.99/month | Yes (required) |
@@ -705,7 +540,7 @@ After activating licensed apps:
 
 1. **Verify functionality**: Launch each app and confirm sign-in successful
 2. **Configure settings**: See `docs/app-post-install-configuration.md` for detailed setup
-3. **Test core features**: Ensure licenses unlock expected features (e.g., Zoom recording, 1Password sync)
+3. **Test core features**: Ensure licenses unlock the expected features
 4. **Store credentials safely**: Save license keys, Emergency Kits, and recovery codes in secure location
 5. **Set calendar reminders**: Add renewal reminders 30 days before subscription expiration
 
@@ -720,13 +555,9 @@ After activating licensed apps:
 - Contact support or IT admin (may be account issue or provisioning delay)
 
 **Subscription Management**:
-- **Zoom**: https://zoom.us/account (sign in → Billing)
-- **Webex**: https://www.webex.com/ (sign in → Account → Subscription)
 - **1Password**: https://1password.com/ (sign in → Billing)
 - **Office 365**: https://account.microsoft.com/services/ (Manage subscription)
 
 **Support Contacts**:
-- **Zoom Support**: https://support.zoom.us/hc/en-us
-- **Webex Support**: https://help.webex.com/
 - **1Password Support**: https://support.1password.com/
 - **Office 365 Support**: https://support.microsoft.com/en-us/office

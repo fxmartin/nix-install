@@ -209,7 +209,6 @@ homebrew.masApps = {
 
   # Utilities
   "The Unarchiver" = 425424353;
-  "Amphetamine" = 937984704;
 
   # Development
   "Xcode" = 497799835;

@@ -410,7 +410,7 @@ MCP servers of *live* sessions and break them.
 - MCP Specification: https://modelcontextprotocol.io/
 - MCP Servers Nix: https://github.com/natsukium/mcp-servers-nix (community maintained)
 - Context7: https://context7.com/
-- Playwright MCP: https://github.com/anthropics/anthropic-quickstarts/tree/main/mcp-servers/playwright
+- Playwright MCP: https://github.com/microsoft/playwright-mcp
 
 ---
 
@@ -423,6 +423,5 @@ MCP servers of *live* sessions and break them.
 
 - [Main Apps Index](../README.md)
 - [Zed Editor Configuration](./zed-editor.md)
-- [VS Code Configuration](./vscode.md)
 - [Podman Configuration](./podman.md)
 - [Python Tools Configuration](./python-tools.md)

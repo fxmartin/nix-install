@@ -292,5 +292,3 @@ WhatsApp supports **up to 4 linked devices** simultaneously (in addition to your
 ## Related Documentation
 
 - [Main Apps Index](../README.md) - Overview of all applications
-- [Zoom](./zoom.md) - Video conferencing and meetings
-- [Cisco Webex](./cisco-webex.md) - Enterprise video conferencing

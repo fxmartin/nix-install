@@ -50,7 +50,7 @@ in
   # - User customizations (agents, commands) should be version controlled
   # - Home Manager's default approach creates read-only /nix/store symlinks
   # - Solution: Symlink ~/.claude/ files to repository working directory
-  # - Same pattern as Zed (Story 02.2-001), VSCode (Story 02.2-002), Ghostty (Story 02.2-003)
+  # - Same pattern as Zed (Story 02.2-001) and Ghostty (Story 02.2-003)
   #
   # How it works:
   # 1. Config lives in claude-code-config submodule at config/claude-code-config/

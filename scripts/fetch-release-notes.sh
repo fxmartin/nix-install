@@ -96,7 +96,7 @@ fetch_homebrew_updates() {
     fi
 
     # Get outdated packages as JSON
-    # --greedy: Also check casks with auto-update mechanisms (Chrome, VSCode, etc.)
+    # --greedy: Also check casks with built-in auto-update mechanisms
     local result
     result=$(brew outdated --json=v2 --greedy 2>/dev/null || echo '{"formulae":[],"casks":[]}')
 

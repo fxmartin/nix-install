@@ -94,7 +94,7 @@ darwin-rebuild switch # Applies the updates
    - Grant permissions when requested
 
 2. **Brave Browser** (if installed):
-   - Visit Chrome Web Store: https://chrome.google.com/webstore/detail/1password/aeblfdkhhhdcdjpifhhbdiojplfjncoa
+   - Download the browser extension: https://1password.com/downloads/browser-extension/
    - Click "Add to Brave"
    - OR: 1Password → Settings → Browser → Click "Install Extension" next to Brave
    - Grant permissions when requested
@@ -308,4 +308,4 @@ darwin-rebuild switch # Applies the updates
 - [Main Apps Index](../README.md) - Overview of all application documentation
 - [Raycast Configuration](./raycast.md) - Productivity launcher setup
 - [File Utilities Configuration](./file-utilities.md) - Calibre, Kindle, Keka, Marked 2
-- [System Utilities Configuration](./system-utilities.md) - Onyx, f.lux
+- [System Utilities Configuration](./system-utilities.md) - Stream Deck

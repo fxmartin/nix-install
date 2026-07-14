@@ -29,7 +29,7 @@ The following settings are automatically configured from `config/ghostty/config`
    - Automatically switches based on macOS system appearance
    - Light Mode → Catppuccin Latte (light theme)
    - Dark Mode → Catppuccin Mocha (dark theme)
-   - Matches Zed and VSCode theme switching behavior
+   - Matches Zed theme switching behavior
 
 2. **JetBrains Mono Font with Ligatures**:
    - `font-family = JetBrains Mono`
@@ -37,7 +37,7 @@ The following settings are automatically configured from `config/ghostty/config`
    - `font-feature = +liga` (ligatures enabled)
    - `font-feature = +calt` (contextual alternates)
    - `font-feature = +dlig` (discretionary ligatures)
-   - Consistent with Zed and VSCode font configuration
+   - Consistent with Zed font configuration
 
 3. **Modern Appearance**:
    - `background-opacity = 0.95` (95% opacity)
@@ -188,5 +188,4 @@ theme = "light:Catppuccin Latte,dark:Catppuccin Mocha"
 
 - [Main Apps Index](../README.md)
 - [Zed Editor Configuration](./zed-editor.md)
-- [VS Code Configuration](./vscode.md)
 - [Python Tools Configuration](./python-tools.md)

@@ -38,8 +38,17 @@
   # direnv integration for automatic environment activation
   programs.direnv = {
     enable = true;
+    enableZshIntegration = false; # Default embeds a generation-specific store path
     nix-direnv.enable = true; # Faster direnv for Nix environments
   };
+
+  # Keep the hook valid when a rebuild replaces or garbage-collects the direnv
+  # store path while an interactive shell is still running.
+  programs.zsh.initContent = lib.mkAfter ''
+    if [[ -x "${config.home.profileDirectory}/bin/direnv" ]]; then
+      eval "$("${config.home.profileDirectory}/bin/direnv" hook zsh)"
+    fi
+  '';
 
   # Python dev workflow aliases (added to shell.nix shellAliases)
   # These are defined here for documentation but integrated via shell.nix
@@ -64,11 +73,10 @@
       echo "  → uv run python main.py    # Run with deps"
       echo ""
       echo "Dev tools available:"
-      echo "  → ruff check .             # Fast linting"
-      echo "  → black .                  # Code formatting"
-      echo "  → mypy .                   # Type checking"
-      echo "  → isort .                  # Import sorting"
-      echo "  → pylint *.py              # Comprehensive linting"
+      echo "  → ruff check .             # Lint and check import order"
+      echo "  → ruff check . --fix       # Fix lint and import issues"
+      echo "  → ruff format .            # Format code"
+      echo "  → pyright                  # Type checking"
       echo ""
     fi
   '';

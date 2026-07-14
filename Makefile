@@ -25,7 +25,7 @@ verify-version:
 	./scripts/verify-version.sh
 
 fmt-check:
-	git ls-files -z '*.nix' ':!:user-config.nix' ':!:user-config.template.nix' | xargs -0 nixfmt --check
+	git ls-files '*.nix' ':!:user-config.nix' ':!:user-config.template.nix' | while IFS= read -r file; do if test -f "$$file"; then nixfmt --check "$$file"; fi; done
 
 shellcheck:
 	shellcheck --severity=warning bootstrap.sh lib/*.sh scripts/*.sh tests/*.sh

@@ -312,9 +312,9 @@ for agent in "${COMMON_AGENTS[@]}"; do
     fi
 done
 
-# Power-profile LaunchAgents (detected by presence of icloud-sync agent)
-if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.icloud-sync"; then
-    POWER_AGENTS=("rsync-backup-daily" "rsync-backup-weekly-sunday" "rsync-backup-weekly-wednesday" "icloud-sync")
+# Power-profile LaunchAgents (detected by presence of the NAS backup agent)
+if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.rsync-backup-daily"; then
+    POWER_AGENTS=("rsync-backup-daily" "rsync-backup-weekly-sunday" "rsync-backup-weekly-wednesday")
     for agent in "${POWER_AGENTS[@]}"; do
         if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.${agent}"; then
             print_status "ok" "${agent} LaunchAgent loaded"
@@ -403,7 +403,7 @@ if command -v ollama &> /dev/null; then
         # Determine expected models based on profile (detected at top of script).
         # Fallback: detect via LaunchAgent presence
         if [[ -z "${PROFILE}" ]]; then
-            if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.icloud-sync"; then
+            if echo "${LAUNCHCTL_OUTPUT}" | /usr/bin/grep -q "org.nixos.rsync-backup-daily"; then
                 PROFILE="power"
             else
                 PROFILE="standard"
@@ -508,7 +508,7 @@ except:
     esac
 else
     # Empty response from /metrics could mean two different things:
-    #   1. The server is up but the request timed out (e.g. mactop slow)
+    #   1. The server is up but the telemetry backend timed out
     #   2. The port isn't listening at all (LaunchAgent down)
     # A quick /ping probe with a tight timeout distinguishes the two so the
     # operator gets actionable advice instead of a misleading generic error.

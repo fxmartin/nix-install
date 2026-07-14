@@ -385,7 +385,7 @@ Kindle for Mac provides comprehensive ebook reading features:
 **Documentation**:
 - Kindle for Mac Help: https://www.amazon.com/gp/help/customer/display.html?nodeId=G8XYGXFCRXT5W6WW
 - Send to Kindle Guide: https://www.amazon.com/sendtokindle
-- Kindle Unlimited (optional): https://www.amazon.com/kindle-unlimited
+- Kindle Unlimited subscription (optional)
 
 ---
 
@@ -631,7 +631,7 @@ Marked 2 is a powerful Markdown preview and export tool:
    - Critic Markup (track changes)
 
 6. **Integration**:
-   - Works with any text editor (VSCode, Zed, Vim, etc.)
+   - Works with any text editor (Zed, Vim, etc.)
    - File watcher monitors external edits
    - Drag and drop Markdown files
    - Open .md files directly from Finder
@@ -643,7 +643,7 @@ Marked 2 is a powerful Markdown preview and export tool:
 2. Drag `.md` file into Marked 2 window
 3. OR: Click **File** → **Open** → Select .md file
 4. Preview appears with rendered Markdown
-5. Edit file in your text editor (Zed, VSCode, etc.) → Marked 2 auto-refreshes
+5. Edit file in your text editor (Zed, Vim, etc.) → Marked 2 auto-refreshes
 
 **Exporting to PDF**:
 1. Open Markdown file in Marked 2
@@ -709,9 +709,7 @@ Marked 2 is a **paid application** purchased via Mac App Store.
 
 **Documentation**:
 - Official User Guide: https://marked2app.com/help/
-- Markdown Syntax Reference: https://marked2app.com/help/Markdown_Syntax.html
-- Export Guide: https://marked2app.com/help/Export.html
-- Custom CSS Guide: https://marked2app.com/help/Custom_CSS.html
+- Marked Help: https://marked2app.com/help/
 
 ---
 
@@ -721,4 +719,4 @@ Marked 2 is a **paid application** purchased via Mac App Store.
 - [Main Apps Index](../README.md) - Overview of all application documentation
 - [Raycast Configuration](./raycast.md) - Productivity launcher setup
 - [1Password Configuration](./1password.md) - Password manager setup
-- [System Utilities Configuration](./system-utilities.md) - Onyx, f.lux
+- [System Utilities Configuration](./system-utilities.md) - Stream Deck

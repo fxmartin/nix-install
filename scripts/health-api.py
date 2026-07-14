@@ -202,8 +202,8 @@ def detect_profile(launchctl_output: str) -> str:
             if match:
                 return match.group(1)
             break
-    # Fallback: detect via LaunchAgent presence
-    if "org.nixos.icloud-sync" in launchctl_output:
+    # Fallback: detect via Power-only NAS backup LaunchAgent presence
+    if "org.nixos.rsync-backup-daily" in launchctl_output:
         return "power"
     return "standard"
 
@@ -247,7 +247,7 @@ def check_launch_agents(launchctl_output: str, profile: str) -> dict:
     # Power-only agents
     if profile == "power":
         expected += ["rsync-backup-daily", "rsync-backup-weekly-sunday",
-                     "rsync-backup-weekly-wednesday", "icloud-sync"]
+                     "rsync-backup-weekly-wednesday"]
 
     loaded = []
     missing = []

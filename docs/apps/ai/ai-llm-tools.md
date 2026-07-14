@@ -150,70 +150,26 @@ curl http://localhost:11434/api/version
 
 ---
 
-## Local Code Bench Inferencers
+## MLX-LM (Apple-Native Runtime)
 
-**Status**: Installed via the Power profile. Python/MLX CLIs are provisioned by Home
-Manager activation into `~/.local/share/local-code-bench-servers/venv`, with CLI shims
-in `~/.local/bin`. Homebrew installs the formula/cask-managed engines.
+**Status**: MLX-LM 0.21.0 is provisioned on Apple Silicon by Home Manager in an isolated uv environment at `~/.local/share/mlx-lm/venv`.
 
-These tools support the separate `~/dev/local-code-bench` harness:
+The supported local inference stack is deliberately limited to Ollama and MLX-LM. Home Manager exposes these MLX-LM commands through `~/.local/bin`:
 
-- `dflash-mlx==0.1.8` provides `dflash`
-- `turboquant-mlx-full==0.11.0` provides `turboquant-serve`
-- `vllm-mlx` provides `vllm-mlx`
-- `mtplx` provides `mtplx`
-- `mlx-lm==0.21.0`, `mlc-llm`, and `mlc-ai` are installed into `~/dev/local-code-bench/.venv` so module detection succeeds
-- Homebrew installs `llama.cpp`, `omlx`, and `lm-studio`
-
-`exo` and GPT4All are intentionally excluded from this deployment.
+- `mlx_lm.generate`
+- `mlx_lm.chat`
+- `mlx_lm.server`
+- `mlx_lm.convert`
+- `mlx_lm.manage`
 
 **Verification**:
 
 ```bash
-command -v dflash
-command -v turboquant-serve
-command -v vllm-mlx
-command -v mtplx
-command -v llama-server
-command -v omlx
-test -d "/Applications/LM Studio.app"
-
-cd ~/dev/local-code-bench
-uv run bench inferencer status
+echo "$MLX_LM_VENV"
+command -v mlx_lm.generate
+command -v mlx_lm.chat
+mlx_lm.generate --help
 ```
-
-**Default server commands** are exported by Home Manager:
-
-```bash
-echo "$DFLASH_COMMAND"
-echo "$TURBOQUANT_COMMAND"
-```
-
-**Bring-up with local-code-bench**:
-
-```bash
-cd ~/dev/local-code-bench
-
-scripts/bring-up-local.sh dflash
-uv run bench --suite humaneval --model local-dflash-qwen --limit 3 --run-file results/manual-local-dflash.jsonl
-
-scripts/bring-up-local.sh turboquant
-uv run bench --suite humaneval --model local-turboquant-qwen-moe --limit 3 --run-file results/manual-local-turboquant.jsonl
-```
-
-**Expected endpoints**:
-
-- DFlash: `http://localhost:8000/v1/chat/completions`
-- TurboQuant: `http://localhost:8002/v1/chat/completions`
-
-**Quick checks**:
-
-```bash
-curl http://localhost:8000/v1/models
-curl http://localhost:8002/v1/models
-```
-
-If TurboQuant is listening on port 8002 but benchmark requests fail, confirm it started in OpenAI-compatible API mode. A native/custom API mode can answer on the port without exposing `/v1/chat/completions`.
 
 ---
 

@@ -381,10 +381,6 @@
           # Automated backup of configured folders to TerraMaster NAS
           ./darwin/rsync-backup.nix
 
-          # iCloud Sync for Work Proposals (Power profile only)
-          # Mirrors proposals folder to iCloud Drive daily at 12:30 PM
-          ./darwin/icloud-sync.nix
-
           ({ lib, ... }: {
             # Power profile specific settings
             # - Ollama models: defined in ollamaModels.power

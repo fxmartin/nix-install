@@ -21,14 +21,14 @@ This directory contains step-by-step configuration guides for applications insta
 
 Desktop applications for AI-powered assistance and local language models.
 
-- [AI & LLM Tools Overview](ai/ai-llm-tools.md) - Claude Desktop, ChatGPT Desktop, Perplexity, Ollama, DFlash/TurboQuant, Privacy Filter
+- [AI & LLM Tools Overview](ai/ai-llm-tools.md) - Claude Desktop, ChatGPT Desktop, Perplexity, Ollama, MLX-LM, Privacy Filter
 
 **Individual Apps Covered**:
 - Claude Desktop (Homebrew cask)
 - ChatGPT Desktop (Homebrew cask)
 - Perplexity (Mac App Store)
 - Ollama CLI (Homebrew formula)
-- DFlash and TurboQuant local-code-bench servers (uv-managed Python/MLX tools)
+- MLX-LM (Apple-native, uv-managed Python environment)
 - Privacy Filter (uv-managed Python/MLX service)
 
 ---
@@ -39,7 +39,6 @@ Development tools including editors, terminals, containers, and CLI tools.
 
 ### Code Editors
 - [Zed Editor](dev/zed-editor.md) - Modern, collaborative code editor (Homebrew cask)
-- [VSCode](dev/vscode.md) - Visual Studio Code editor (Homebrew cask)
 
 ### Terminal & Shell
 - [Ghostty Terminal](dev/ghostty-terminal.md) - GPU-accelerated terminal with Catppuccin theming (Homebrew cask)
@@ -76,7 +75,7 @@ Apps for productivity, file management, and system utilities.
 - [Microsoft Office 365](productivity/office-365.md) - Complete productivity suite with Word, Excel, PowerPoint, Outlook, OneNote, Teams (Homebrew cask, subscription required)
 
 ### System Utilities
-- [System Utilities](productivity/system-utilities.md) - Onyx (system maintenance), f.lux (screen temperature), Stream Deck (macro controller)
+- [System Utilities](productivity/system-utilities.md) - Stream Deck hardware macro controller
 
 ---
 
@@ -85,8 +84,6 @@ Apps for productivity, file management, and system utilities.
 Apps for messaging, video conferencing, and collaboration.
 
 - [WhatsApp](communication/whatsapp.md) - Messaging app with QR code pairing (Homebrew cask)
-- [Zoom](communication/zoom.md) - Video conferencing platform (Homebrew cask)
-- [Cisco Webex](communication/cisco-webex.md) - Enterprise collaboration platform (Homebrew cask)
 
 ---
 
@@ -124,7 +121,6 @@ docs/apps/
 │   └── ai-llm-tools.md                 # 4 AI tools (Claude, ChatGPT, Perplexity, Ollama)
 ├── dev/
 │   ├── zed-editor.md                   # Zed configuration
-│   ├── vscode.md                       # VSCode configuration
 │   ├── ghostty-terminal.md             # Terminal configuration
 │   ├── python-tools.md                 # Python dev stack
 │   ├── podman.md                       # Container tools
@@ -136,17 +132,15 @@ docs/apps/
 │   ├── 1password.md                    # Password manager
 │   ├── office-365.md                   # Microsoft Office 365 suite
 │   ├── file-utilities.md               # Calibre, Kindle, Keka, Marked 2
-│   └── system-utilities.md             # Onyx, f.lux, Stream Deck
+│   └── system-utilities.md             # Stream Deck
 ├── communication/
-│   ├── whatsapp.md                     # WhatsApp messaging
-│   ├── zoom.md                         # Zoom video conferencing
-│   └── cisco-webex.md                  # Cisco Webex collaboration
+│   └── whatsapp.md                     # WhatsApp messaging
 ├── media/
 │   └── vlc.md                          # VLC media player
 ├── security/
 │   └── nordvpn.md                      # NordVPN VPN service
 └── system/
-    └── system-monitoring.md            # iStat Menus, gotop, macmon
+    └── system-monitoring.md            # btop, iStat Menus, Beszel/macmon telemetry
 ```
 
 ---
@@ -174,13 +168,13 @@ docs/apps/
 
 **File Split from**: `docs/app-post-install-configuration.md` (5,471 lines) was split into focused files for maintainability:
 
-- **23 total files**: 1 index, 1 prerequisites, 21 app documentation files
+- **22 total files**: 1 index, 1 prerequisites, 20 app documentation files
 - **Latest additions**: nordvpn.md (Story 02.7-001, ~900 lines), office-365.md (Story 02.9-001, ~700 lines)
 - **Max file size**: ~900 lines (nordvpn.md comprehensive VPN guide)
 - **Benefits**: Easier navigation, parallel development, git-friendly diffs, story-aligned
 - **Original file**: Archived as `app-post-install-configuration.md.backup`
 
 **Story Alignment**:
-- Each complex app (Claude Code CLI, VSCode, 1Password, etc.) has individual file
+- Each complex app (Claude Code CLI, Zed, 1Password, etc.) has an individual file
 - Small related apps (Calibre, Kindle, Keka, Marked 2) grouped logically
 - Matches Epic-02 feature structure from development stories

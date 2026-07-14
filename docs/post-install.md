@@ -48,8 +48,6 @@ Activate apps requiring sign-in or license keys. See [Licensed Apps Guide](./lic
 **Sign-in Apps** (~5 minutes):
 - [ ] **1Password** - Sign in with email + Secret Key + master password
 - [ ] **NordVPN** - Sign in, grant network extension permission
-- [ ] **Zoom** - Sign in (or use free account)
-- [ ] **Webex** - Sign in with company credentials
 
 **License Key Apps** (~2 minutes):
 - [ ] **iStat Menus** - Enter license key (or start 14-day trial)

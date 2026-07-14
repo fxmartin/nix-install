@@ -1912,7 +1912,6 @@ fetch_flake_from_github() {
         # Power profile only (downloaded for both but only used by power)
         "smb-automount.nix"
         "rsync-backup.nix"
-        "icloud-sync.nix"
     )
 
     for file in "${darwin_files[@]}"; do
@@ -1949,16 +1948,6 @@ fetch_flake_from_github() {
         return 1
     }
 
-    log_info "  - home-manager/modules/github.nix"
-    if ! curl -fsSL -o "home-manager/modules/github.nix" "${base_url}/home-manager/modules/github.nix"; then
-        log_error "Failed to fetch home-manager/modules/github.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/github.nix" ]] || {
-        log_error "Downloaded home-manager/modules/github.nix is empty"
-        return 1
-    }
-
     log_info "  - home-manager/modules/git.nix"
     if ! curl -fsSL -o "home-manager/modules/git.nix" "${base_url}/home-manager/modules/git.nix"; then
         log_error "Failed to fetch home-manager/modules/git.nix"
@@ -1986,16 +1975,6 @@ fetch_flake_from_github() {
     fi
     [[ -s "home-manager/modules/zed.nix" ]] || {
         log_error "Downloaded home-manager/modules/zed.nix is empty"
-        return 1
-    }
-
-    log_info "  - home-manager/modules/vscode.nix"
-    if ! curl -fsSL -o "home-manager/modules/vscode.nix" "${base_url}/home-manager/modules/vscode.nix"; then
-        log_error "Failed to fetch home-manager/modules/vscode.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/vscode.nix" ]] || {
-        log_error "Downloaded home-manager/modules/vscode.nix is empty"
         return 1
     }
 
@@ -2265,14 +2244,11 @@ fetch_flake_from_github() {
     log_info "  • darwin/calibre.nix"
     log_info "  • darwin/smb-automount.nix"
     log_info "  • darwin/rsync-backup.nix"
-    log_info "  • darwin/icloud-sync.nix"
     log_info "  • home-manager/home.nix"
     log_info "  • home-manager/modules/shell.nix"
-    log_info "  • home-manager/modules/github.nix"
     log_info "  • home-manager/modules/git.nix"
     log_info "  • home-manager/modules/ssh.nix"
     log_info "  • home-manager/modules/zed.nix"
-    log_info "  • home-manager/modules/vscode.nix"
     log_info "  • home-manager/modules/ghostty.nix"
     log_info "  • home-manager/modules/claude-code.nix"
     log_info "  • home-manager/modules/python.nix"

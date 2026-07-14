@@ -19,7 +19,7 @@
   # - Ghostty expects to manage its own config file (may need write access for some settings)
   # - Home Manager's xdg.configFile creates read-only symlinks to /nix/store (breaks some apps)
   # - Solution: Symlink to repo working directory (not /nix/store)
-  # - Same pattern as Zed (Story 02.2-001) and VSCode (Story 02.2-002)
+  # - Same pattern as Zed (Story 02.2-001)
   #
   # How it works:
   # 1. Config file in repo: config/ghostty/config (version controlled)

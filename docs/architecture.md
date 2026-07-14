@@ -66,7 +66,7 @@ flake.nix
          ├── modules/git.nix       (git, lfs, delta)
          ├── modules/ghostty.nix   (terminal config, Catppuccin theme)
          ├── modules/zed.nix       (editor settings, extensions)
-         ├── modules/python.nix    (uv, ruff, mypy)
+         ├── modules/python.nix    (uv, Ruff, Pyright)
          ├── modules/claude-code.nix (CLI + MCP servers)
          ├── modules/ssh.nix       (SSH config, known hosts)
          └── modules/docker.nix    (container runtime — not ai-assistant)
@@ -98,20 +98,24 @@ bootstrap-dist.sh (standalone, built from lib/*.sh)
 ```
 ┌─────────────────────────────────────────────────┐
 │  1. Nix (nixpkgs-unstable)                      │
-│     CLI tools, dev tools, Python, uv, ruff,     │
-│     Podman, bat, ripgrep, fd, eza, etc.         │
+│     nix-darwin: system tools                    │
+│     Home Manager: configured user tools         │
 ├─────────────────────────────────────────────────┤
-│  2. Homebrew Casks (via nix-homebrew)            │
-│     GUI apps: Zed, Ghostty, Brave,              │
-│     Claude Desktop, Ollama, etc.                │
+│  2. Homebrew (via nix-homebrew)                  │
+│     macOS CLI exceptions and GUI applications   │
 ├─────────────────────────────────────────────────┤
 │  3. Mac App Store (via mas)                      │
 │     Kindle, WhatsApp, 1Password Safari          │
 ├─────────────────────────────────────────────────┤
 │  4. Manual                                       │
-│     Office 365 (license activation)             │
+│     License activation and app configuration    │
 └─────────────────────────────────────────────────┘
 ```
+
+Each binary has one declarative owner. Home Manager may configure a
+nix-darwin-owned package only when its package option is disabled. The
+Home Manager Starship launcher is the documented exception: it provides shell
+integration and delegates execution to the Homebrew binary.
 
 ## Health Monitoring
 
@@ -163,7 +167,7 @@ _Snapshot captured 2026-04-21 on Power profile (MacBook Pro M3 Max). Median RSS 
 | `ollama-serve` | user | 10/10 | 31 | Always-on LLM server; stays light because models load into GPU/Metal, not resident RSS |
 | `health-api` | user | 10/10 | 14 | Python stdlib `http.server`, threaded handler — no framework overhead |
 | `beszel-agent` | user | 10/10 | 6 | Go binary, shipped upstream; negligible |
-| `nix-gc`, `nix-optimize`, `weekly-digest`, `disk-cleanup`, `release-monitor`, `claude-code-cleanup`, `claude-project-prune`, `docker-deep-prune`, `ollama-lru`, `ollama-pressure-guard`, `rsync-backup-*`, `icloud-sync`, `nix-gc-system` | user/system | 0/10 | — | Scheduled one-shots — correctly absent between fires |
+| `nix-gc`, `nix-optimize`, `weekly-digest`, `disk-cleanup`, `release-monitor`, `claude-code-cleanup`, `claude-project-prune`, `docker-deep-prune`, `ollama-lru`, `ollama-pressure-guard`, `rsync-backup-*`, `nix-gc-system` | user/system | 0/10 | — | Scheduled one-shots — correctly absent between fires |
 
 **Total always-on footprint: ~51 MB.** No agent exceeds the 100 MB warn threshold.
 
@@ -180,4 +184,4 @@ To re-audit at any time: `audit-launchagents` (5 min). Tune via `SAMPLES=N INTER
 | LSPs | No | Yes | Yes |
 | Office/Comms | No | Yes | Yes |
 | NAS mounts | No | No | SMB automount |
-| Backups | No | No | rsync to NAS, iCloud sync |
+| Backups | No | No | rsync to NAS |

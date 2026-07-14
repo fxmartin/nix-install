@@ -1,8 +1,7 @@
-# ABOUTME: Homebrew package management configuration (STUB for Epic-02)
-# ABOUTME: Manages GUI applications (casks), CLI tools (brews), and Mac App Store apps
+# ABOUTME: Declarative Homebrew configuration for GUI apps and bootstrap-critical tools
+# ABOUTME: Defines profile-aware casks, formulas, and Mac App Store applications
 {
   userConfig,
-  isPowerProfile,
   profileName,
   lib,
   ...
@@ -22,7 +21,6 @@ in
     enable = true;
 
     # Homebrew taps (repositories)
-    # Epic-02 will add: homebrew/cask-fonts, etc.
     taps = [
       "manaflow-ai/cmux" # cmux terminal - Ghostty-based terminal with vertical tabs for AI coding agents
       "koekeishiya/formulae" # skhd - simple hotkey daemon for macOS
@@ -34,13 +32,6 @@ in
       cleanup = "zap"; # Aggressive cleanup of old versions
     };
 
-    # CLI Tools
-    # Epic-02 will populate with:
-    # - Python environment (uv, python@3.12)
-    # - Development tools (git, node, etc.)
-    # - Text processing (bat, fzf, jq, ripgrep, yq)
-    # - System monitoring (btop, bottom, neofetch)
-    # - Cloud tools (awscli, terraform, etc.)
     # CRITICAL: gh (GitHub CLI) installed here for immediate PATH availability
     #           Required by Phase 6 (Story 01.6-002) for SSH key upload
     #           Homebrew formula makes it available immediately after darwin-rebuild
@@ -59,10 +50,6 @@ in
       "qwen-code" # Qwen Code - Open source AI coding agent for the terminal
       "starship" # Starship prompt binary (Homebrew bottle avoids nixpkgs Darwin Rust linker failure)
 
-      # System Monitoring (Apple Silicon)
-      # Note: Not available in nixpkgs, Homebrew formula only
-      "mactop" # Real-time Apple Silicon CPU/GPU/ANE monitor (TUI)
-
       # Hotkey Daemon
       "koekeishiya/formulae/skhd" # skhd - Simple hotkey daemon for macOS (https://github.com/koekeishiya/skhd)
 
@@ -70,23 +57,9 @@ in
       # Note: yt-dlp broken in nixpkgs (curl-impersonate AppleIDN check fails on macOS 15.3)
       "yt-dlp" # YouTube/video downloader (active fork of youtube-dl)
 
-      # Apple Intelligence CLI
-      "apfel" # Apple Intelligence CLI with OpenAI-compatible API server
-
     ];
 
-    # GUI Applications (Casks)
-    # Epic-02 will populate with:
-    # - Development: Zed, VSCode, Cursor, Docker Desktop
-    # - Browsers: Brave
-    # - Communication: Zoom, Webex, Slack, WhatsApp
-    # - Productivity: 1Password, Obsidian
-    # - Terminal: Ghostty
-    # - Fonts: JetBrains Mono Nerd Font, etc.
-    # - Power profile only: additional apps as needed
-
-    # MINIMAL INSTALL: Ghostty terminal for Phase 5 validation testing
-    # Epic-02 will expand this list with full app inventory
+    # GUI applications; fonts remain owned by Nix/Stylix.
     casks = [
       # === Core Apps (all profiles) ===
       "ghostty" # Modern GPU-accelerated terminal (Phase 5 validation test app)
@@ -132,9 +105,6 @@ in
       "tailscale-app" # Tailscale - Zero-config mesh VPN built on WireGuard
       "little-snitch" # Little Snitch - Application-level network firewall and monitor
 
-      # Fonts
-      "font-sf-pro" # SF Pro - Apple's system font for native macOS look
-      "font-hack-nerd-font" # Hack Nerd Font - Patched font for dev tools
     ]
     # === Standard/Power profile additional apps ===
     ++ lib.optionals (!isAiAssistant) [
@@ -152,16 +122,10 @@ in
       "keka" # Keka - Archive utility for zip, rar, 7z, etc.
 
       # System Utilities (Story 02.4-005)
-      "onyx" # Onyx - System maintenance and optimization utility
-      "flux-app" # f.lux - Display color temperature adjustment
       "elgato-stream-deck" # Stream Deck - Hardware macro controller companion app
 
       # Media Tools (Story 02.6-001)
       "vlc" # VLC - Universal media player supporting 100+ formats
-
-      # Video Conferencing (Story 02.5-002)
-      "zoom" # Zoom - Video conferencing and meetings
-      "webex" # Cisco Webex - Enterprise video conferencing
 
       # Additional Messaging
       "slack" # Slack - Team communication and collaboration platform
@@ -173,12 +137,6 @@ in
       "microsoft-word" # Word processor
       "microsoft-excel" # Spreadsheet application
       "microsoft-powerpoint" # Presentation application
-    ]
-    # === Power profile additional apps ===
-    ++ lib.optionals isPowerProfile [
-      # Development Environment
-      "visual-studio-code" # VSCode - Power profile only; enables Claude Code extension workflow
-
     ];
 
     # Global Homebrew options
@@ -192,7 +150,6 @@ in
     # Requires user to be signed into App Store before installation
     #
     # If disabled, install manually after bootstrap:
-    #   mas install 937984704   # Amphetamine
     #   mas install 6714467650  # Perplexity
     #   mas install 302584613   # Kindle
     #   mas install 890031187   # Marked 2
@@ -203,7 +160,6 @@ in
       "Kindle" = 302584613; # Ebook reader
       "Marked 2" = 890031187; # Markdown preview
       "WhatsApp" = 310633997; # Messaging app
-      "Amphetamine" = 937984704; # Keep-awake utility to prevent sleep
       "reMarkable desktop" = 1276493162; # reMarkable tablet sync and screen share
     };
   };

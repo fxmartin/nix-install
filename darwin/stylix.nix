@@ -57,7 +57,7 @@ in
     # Catppuccin Mocha (dark mode) as the primary base16 scheme
     # This provides consistent colors for apps that integrate with Stylix
     #
-    # Apps with native theme support (Ghostty, Zed, VSCode) use their own
+    # Apps with native theme support (Ghostty and Zed) use their own
     # Catppuccin implementations with auto light/dark switching
     base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
 
@@ -83,7 +83,7 @@ in
     #
     # JetBrains Mono Nerd Font for all monospace contexts:
     # - Terminal (Ghostty)
-    # - Code editors (Zed, VSCode)
+    # - Code editor (Zed)
     # - Shell prompt (Starship icons)
     #
     # Nerd Font variant includes icons and symbols for:

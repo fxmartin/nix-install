@@ -33,15 +33,14 @@
 
   programs.git = {
     enable = true;
+    package = null; # Installed system-wide by nix-darwin
 
     # Adopt new default: signing.format changed from "openpgp" to null in stateVersion 25.05
     signing.format = null;
 
     # Git LFS Configuration
-    lfs = {
-      enable = true; # Enable Git Large File Storage
-      # LFS will be initialized globally on first darwin-rebuild
-    };
+    lfs.enable = true; # Enable Git Large File Storage configuration
+    lfs.package = null; # Installed system-wide by nix-darwin
 
     # All Git configuration via settings attribute (modern Home Manager)
     settings = {

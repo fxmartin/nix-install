@@ -375,10 +375,10 @@ Consistency: 100% (declarative config)
 - **Power Only**: NAS rsync backup, SMB automount (via autofs), iCloud proposal sync
 - Acceptance: Power-only modules wired into `darwinConfigurations.power` in `flake.nix`; Standard/AI-Assistant do not import them
 
-**REQ-APP-010**: Office 365 (Homebrew Cask Installation)
-- Install via Homebrew cask: `microsoft-office-businesspro`
+**REQ-APP-010**: Microsoft 365 Core Apps (Homebrew Cask Installation)
+- Install via individual Homebrew casks: `microsoft-word`, `microsoft-excel`, `microsoft-powerpoint`
 - Automated installation, manual activation required (Microsoft account)
-- Includes: Word, Excel, PowerPoint, Outlook, OneNote, Teams
+- Includes only: Word, Excel, PowerPoint
 - Acceptance: Apps installed and launchable, require manual sign-in for activation
 
 #### 3. System Configuration (macOS Preferences)
@@ -1251,7 +1251,7 @@ Consistency: 100% (declarative config)
 | **Fonts** | | |
 | JetBrains Mono Nerd Font | Nix (nixpkgs.nerdfonts) | Managed with system |
 | **Office & Work** | | |
-| Office 365 | Homebrew Cask (microsoft-office-businesspro) | GUI suite, requires manual sign-in for activation |
+| Microsoft 365 core apps | Homebrew Casks (Word, Excel, PowerPoint) | GUI apps, require manual sign-in for activation |
 
 **Installation Method Priority:**
 1. ✅ **Nix** - For CLI tools, development tools, reproducible packages

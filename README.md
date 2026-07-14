@@ -1,6 +1,6 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.0% Complete (144/147 stories) | **Version**: 2.0.6 | **2 MacBooks deployed, M4 Air pending**
+> **Status**: 98.0% Complete (144/147 stories) | **Version**: 2.0.7 | **2 MacBooks deployed, M4 Air pending**
 
 **Two deployed MacBooks. One config. Controlled configuration drift.**
 
@@ -217,7 +217,7 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 - Plaud (AI voice recorder and transcription)
 - Amphetamine (MAS, keep-awake utility)
 - Calibre, Kindle (MAS), Marked 2 (MAS), Keka **[S/P]**
-- Office 365 (Word, Excel, PowerPoint, Outlook, OneNote, Teams) **[S/P]**
+- Office 365 (Word, Excel, PowerPoint) **[S/P]**
 - reMarkable desktop (MAS) **[S/P]**
 
 **Communication**: Telegram, WhatsApp (MAS), Slack **[S/P]**, Zoom **[S/P]**, Webex **[S/P]**

@@ -1,17 +1,17 @@
 # ABOUTME: Microsoft Office 365 post-installation configuration guide
-# ABOUTME: Covers subscription requirement, one-time sign-in, auto-update disable, all 6 Office apps, and troubleshooting
+# ABOUTME: Covers subscription, sign-in, and configuration for Word, Excel, and PowerPoint
 
 # Microsoft Office 365 - Productivity Suite
 
-**Status**: Installed via Homebrew cask `microsoft-office-businesspro` (Story 02.9-001)
+**Status**: Word, Excel, and PowerPoint installed via individual Homebrew casks (Story 02.9-001)
 
-**Purpose**: Complete productivity suite including Word (documents), Excel (spreadsheets), PowerPoint (presentations), Outlook (email/calendar), OneNote (notes), and Teams (collaboration/meetings).
+**Purpose**: Focused productivity set for documents, spreadsheets, and presentations.
 
 ---
 
 ## Installation Method
 
-- **Homebrew Cask**: `microsoft-office-businesspro`
+- **Homebrew Casks**: `microsoft-word`, `microsoft-excel`, `microsoft-powerpoint`
 - **Story**: 02.9-001
 - **Apps Location**: `/Applications/Microsoft [App].app`
 - **Version**: Latest (managed by Homebrew)
@@ -20,15 +20,14 @@
 
 ## What's Included
 
-**All Apps Installed** (6 apps):
+**Managed Apps** (3 apps):
 - **Microsoft Word** - Word processing and document creation
 - **Microsoft Excel** - Spreadsheets and data analysis
 - **Microsoft PowerPoint** - Presentation creation
-- **Microsoft Outlook** - Email, calendar, and contacts
-- **Microsoft OneNote** - Digital note-taking and organization
-- **Microsoft Teams** - Chat, meetings, and collaboration
 
-**Installation Location**: `/Applications/Microsoft [Word/Excel/PowerPoint/Outlook/OneNote/Teams].app`
+Outlook, OneNote, Teams, OneDrive, and Microsoft 365 Copilot are intentionally not installed.
+
+**Installation Location**: `/Applications/Microsoft [Word/Excel/PowerPoint].app`
 
 ---
 
@@ -64,7 +63,7 @@ Office 365 is subscription-based and requires an active Microsoft 365 account (p
 
 ## First Launch and Sign-In Process
 
-**⚠️ IMPORTANT**: Sign in to ONE app (e.g., Word) → ALL Office apps activate automatically
+**⚠️ IMPORTANT**: Sign in to one app (for example Word) to activate the three managed apps.
 
 ### Sign-In Steps (One-Time for All Apps)
 
@@ -84,13 +83,13 @@ Office 365 is subscription-based and requires an active Microsoft 365 account (p
    - Classic (light mode interface)
 9. **App activates** and is ready to use
 
-**Result**: ALL 6 Office apps are now activated (Word, Excel, PowerPoint, Outlook, OneNote, Teams)
+**Result**: Word, Excel, and PowerPoint are activated.
 
 ### Verify Activation
 
 After signing in to one app, verify all apps are activated:
 
-1. Launch each app (Word, Excel, PowerPoint, Outlook, OneNote, Teams)
+1. Launch each app (Word, Excel, PowerPoint)
 2. Should NOT prompt for sign-in (already activated)
 3. Check subscription status: Any app → Menu bar → [App Name] → About [App Name]
 4. Should show: "Subscription Product" with expiration date
@@ -105,7 +104,7 @@ After signing in to one app, verify all apps are activated:
 
 ### Disable Auto-Update in Each App
 
-**For Word, Excel, PowerPoint, Outlook, OneNote** (same process for each):
+**For Word, Excel, and PowerPoint** (same process for each):
 
 1. **Open the app** (e.g., Microsoft Word)
 2. **Menu bar** → **[App Name]** → **Preferences** (or press `Cmd+,`)
@@ -113,17 +112,7 @@ After signing in to one app, verify all apps are activated:
 4. **Uncheck** "Automatically download and install updates"
 5. **Uncheck** "Check for updates automatically" (if separate option)
 6. **Close Preferences**
-7. **Repeat for ALL apps**: Word, Excel, PowerPoint, Outlook, OneNote
-
-**For Microsoft Teams** (different location):
-
-1. **Open Teams**
-2. **Menu bar** → **Teams** → **Preferences**
-3. Click **General** tab
-4. **Uncheck** "Auto-start application" (optional, prevents Teams from launching at login)
-5. **Uncheck** "On close, keep the application running" (optional, quits Teams when closed)
-6. Look for **"Check for updates"** or **"Auto-update"** setting → **Disable** if available
-   - Note: Teams may not have user-facing auto-update toggle (controlled by IT or Homebrew)
+7. **Repeat for all managed apps**: Word, Excel, PowerPoint
 
 ### Verify Auto-Update Disabled
 
@@ -217,6 +206,11 @@ After signing in to one app, verify all apps are activated:
 - `Cmd+D`: Duplicate slide
 - `Option+Cmd+P`: Presenter view
 - `Cmd+Shift+C`: Copy formatting
+
+## Optional applications not managed by this repository
+
+The following sections are retained as reference only. Outlook, OneNote, Teams,
+and OneDrive are not installed by this configuration.
 
 ### Microsoft Outlook
 **Purpose**: Email, calendar, contacts, tasks
@@ -345,7 +339,7 @@ After signing in to one app, verify all apps are activated:
 - **Wrong subscription showing**: Contact IT admin (company account) or Microsoft support (personal account)
 
 ### Auto-Update Issues
-- **Update prompts keep appearing**: Verify auto-update disabled in ALL 6 apps (Word, Excel, PowerPoint, Outlook, OneNote, Teams)
+- **Update prompts keep appearing**: Verify auto-update is disabled in Word, Excel, and PowerPoint
 - **Update installed automatically**: Re-disable auto-update in each app, check that setting persists
 - **Teams updates**: Teams may auto-update via IT policy or Homebrew (check with IT admin)
 
@@ -399,13 +393,10 @@ After signing in to one app, verify all apps are activated:
 
 **Installation Verification**:
 - [ ] Run `darwin-rebuild switch --flake ~/nix-install#power`
-- [ ] Verify all 6 Office apps installed:
+- [ ] Verify the three managed Office apps are installed:
   - [ ] `/Applications/Microsoft Word.app`
   - [ ] `/Applications/Microsoft Excel.app`
   - [ ] `/Applications/Microsoft PowerPoint.app`
-  - [ ] `/Applications/Microsoft Outlook.app`
-  - [ ] `/Applications/Microsoft OneNote.app`
-  - [ ] `/Applications/Microsoft Teams.app`
 
 **Sign-In and Activation**:
 - [ ] Launch Microsoft Word
@@ -420,9 +411,6 @@ After signing in to one app, verify all apps are activated:
 **Verify All Apps Activated**:
 - [ ] Launch Excel - should NOT prompt for sign-in (already activated)
 - [ ] Launch PowerPoint - should NOT prompt for sign-in
-- [ ] Launch Outlook - should NOT prompt for sign-in (can add email account)
-- [ ] Launch OneNote - should NOT prompt for sign-in
-- [ ] Launch Teams - should NOT prompt for sign-in
 
 **Check Subscription**:
 - [ ] Word → About Microsoft Word → Shows "Subscription Product"
@@ -433,21 +421,15 @@ After signing in to one app, verify all apps are activated:
 - [ ] Word → Preferences → Update → Uncheck "Automatically download and install"
 - [ ] Excel → Preferences → Update → Uncheck "Automatically download and install"
 - [ ] PowerPoint → Preferences → Update → Uncheck "Automatically download and install"
-- [ ] Outlook → Preferences → Update → Uncheck "Automatically download and install"
-- [ ] OneNote → Preferences → Update → Uncheck "Automatically download and install"
-- [ ] Teams → Preferences → General → Uncheck "Auto-start application" (optional)
 - [ ] Verify all settings persist after app restart
 
 **Functionality Testing**:
 - [ ] Word: Create and save test document
 - [ ] Excel: Create and save test spreadsheet with formula
 - [ ] PowerPoint: Create and save test presentation
-- [ ] Outlook: Add email account (if applicable)
-- [ ] OneNote: Create test notebook and page
-- [ ] Teams: Join test meeting or start chat (if applicable)
 
-**Cloud Integration** (if applicable):
-- [ ] OneDrive sync working (check OneDrive app or Finder sidebar)
+**Cloud Integration** (optional; no OneDrive desktop app required):
+- [ ] Open and save a cloud document through an Office app
 - [ ] Co-authoring test: Share document, edit simultaneously with another user
 - [ ] Version history: File → Version History (for OneDrive files)
 

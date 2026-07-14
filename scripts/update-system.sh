@@ -190,7 +190,7 @@ commit_and_push_flake_lock() {
                 return 1
             fi
             if ! scripts/bump-version.sh patch "Update Nix flake inputs"; then
-                log_error "Failed to commit flake.lock (pre-commit hook?)"
+                log_error "Failed to validate or commit the flake.lock release"
                 return 1
             fi
             log_success "Committed flake.lock"

@@ -24,6 +24,16 @@ assert_contains() {
     fi
 }
 
+assert_not_contains() {
+    local file="$1"
+    local unexpected="$2"
+    if grep -Fq -- "${unexpected}" "${file}"; then
+        echo "Expected not to find: ${unexpected}" >&2
+        echo "In file: ${file}" >&2
+        exit 1
+    fi
+}
+
 cp -R "${ROOT_DIR}/scripts" "${TMP_DIR}/scripts"
 cp "${ROOT_DIR}/VERSION" "${TMP_DIR}/VERSION"
 cp "${ROOT_DIR}/README.md" "${TMP_DIR}/README.md"
@@ -48,6 +58,7 @@ assert_contains setup.sh "readonly SETUP_VERSION=\"${next_patch}\""
 assert_contains CHANGELOG.md "## [${next_patch}] - $(date +%F)"
 assert_contains CHANGELOG.md "### Fixed"
 assert_contains CHANGELOG.md "- Exercise release management"
+assert_not_contains CHANGELOG.md "- Exercise release management## ["
 git log -1 --pretty=%s | grep -Fxq "release(patch): v${next_patch}" || fail "unexpected release commit subject"
 
 printf '\nRelease guard smoke test\n' >> README.md

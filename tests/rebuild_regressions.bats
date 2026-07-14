@@ -9,6 +9,7 @@ setup() {
     BUILD_WORKFLOW="${BATS_TEST_DIRNAME}/../.github/workflows/build-bootstrap.yml"
     NIX_WORKFLOW="${BATS_TEST_DIRNAME}/../.github/workflows/nix-flake-check.yml"
     MAKEFILE="${BATS_TEST_DIRNAME}/../Makefile"
+    BUMP_VERSION_SCRIPT="${BATS_TEST_DIRNAME}/../scripts/bump-version.sh"
 }
 
 @test "nix-darwin generated documentation is disabled" {
@@ -68,4 +69,12 @@ setup() {
 @test "Nix evaluation uses the sanitized CI config in clean checkouts" {
     run rg -n '^\s*NIX_INSTALL_CI=1 nix flake show --impure' "$MAKEFILE"
     [ "$status" -eq 0 ]
+}
+
+@test "release checks enter the flake dev shell" {
+    run rg -n '^\s*nix develop --command make check$' "$BUMP_VERSION_SCRIPT"
+    [ "$status" -eq 0 ]
+
+    run rg -n '^\s*make check$' "$BUMP_VERSION_SCRIPT"
+    [ "$status" -eq 1 ]
 }

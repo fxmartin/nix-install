@@ -169,8 +169,10 @@ in
       # Remote Access
       "rustdesk" # RustDesk - Open source remote desktop application
 
-      # Office 365 (Story 02.9-001)
-      "microsoft-office-businesspro" # Office 365 - Word, Excel, PowerPoint, Outlook, OneNote, Teams
+      # Microsoft 365 core applications (Story 02.9-001)
+      "microsoft-word" # Word processor
+      "microsoft-excel" # Spreadsheet application
+      "microsoft-powerpoint" # Presentation application
     ]
     # === Power profile additional apps ===
     ++ lib.optionals isPowerProfile [

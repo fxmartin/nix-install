@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.7] - 2026-07-14
+
+### Fixed
+
+- Update Nix flake inputs
+- Limit Microsoft 365 installation to Word, Excel, and PowerPoint
+- Run release checks inside the flake dev shell and preserve changelog spacing
+
 ## [2.0.6] - 2026-07-13
 
 ### Fixed

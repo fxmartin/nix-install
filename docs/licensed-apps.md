@@ -449,18 +449,15 @@ iStat Menus has automatic updates **enabled by default**. You **MUST** disable a
 
 ### Microsoft Office 365
 
-**Installation Method**: Homebrew Cask (`microsoft-office-businesspro`)
+**Installation Method**: Individual Homebrew casks (`microsoft-word`, `microsoft-excel`, `microsoft-powerpoint`)
 **Story**: 02.9-001
 **License Requirement**: Active Microsoft 365 subscription (NO perpetual license)
 **License Type**: Subscription-based ($69.99-$99.99/year or $6.99-$9.99/month)
 
-**Apps Included** (6 apps):
+**Apps Included** (3 apps):
 - Microsoft Word (documents)
 - Microsoft Excel (spreadsheets)
 - Microsoft PowerPoint (presentations)
-- Microsoft Outlook (email/calendar)
-- Microsoft OneNote (notes)
-- Microsoft Teams (meetings/chat)
 
 **Subscription Plans**:
 - **Personal**: $69.99/year or $6.99/month (1 user, 1 TB OneDrive)
@@ -475,18 +472,17 @@ iStat Menus has automatic updates **enabled by default**. You **MUST** disable a
 5. Complete multi-factor authentication (2FA) if enabled
 6. Accept license terms
 7. Choose theme preference (Colorful, Dark, Classic)
-8. **Result**: All 6 Office apps activate automatically (no need to sign in to each app)
+8. **Result**: Word, Excel, and PowerPoint activate automatically
 
 **Auto-Update Disable** (REQUIRED for EACH App):
-**⚠️ Each app has separate auto-update setting - must disable 6 times**
+**⚠️ Each app has a separate auto-update setting - disable it in all three apps**
 1. Open app → Menu bar → [App Name] → Preferences
 2. Click **Update** or **AutoUpdate** tab
 3. **Uncheck** "Automatically download and install updates"
-4. **Repeat for ALL apps**: Word, Excel, PowerPoint, Outlook, OneNote
-5. **Teams**: Preferences → General → Uncheck "Auto-start application" (optional)
+4. **Repeat for all managed apps**: Word, Excel, PowerPoint
 
 **Verification**:
-- All 6 apps in `/Applications/Microsoft [App].app`
+- Word, Excel, and PowerPoint are present in `/Applications`
 - About [App] shows "Subscription Product" with expiration date
 - Launch any app - should NOT prompt for sign-in after initial activation
 - Auto-update disabled in all apps (check Preferences → Update)

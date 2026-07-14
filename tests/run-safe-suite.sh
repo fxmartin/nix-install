@@ -24,6 +24,7 @@ safe_bats_suites=(
     tests/icloud_sync.bats
     tests/mlx_lm_inferencer.bats
     tests/network_security.bats
+    tests/office_apps.bats
     tests/rebuild_regressions.bats
     tests/release_monitor.bats
 )

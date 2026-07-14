@@ -88,7 +88,7 @@ perl -0pi -e "s/(readonly SETUP_VERSION=\")[0-9]+\\.[0-9]+\\.[0-9]+(\")/\${1}${n
 
 today="$(date +%F)"
 section="$(printf '## [%s] - %s\n\n### %s\n\n- %s\n\n' "${next}" "${today}" "${changelog_heading}" "${release_note}")"
-SECTION="${section}" perl -0pi -e 's/(## \[Unreleased\]\n\n)/$1$ENV{SECTION}/' CHANGELOG.md
+SECTION="${section}" perl -0pi -e 's/(## \[Unreleased\]\n\n)/$1 . $ENV{SECTION} . "\n\n"/e' CHANGELOG.md
 
 "${ROOT_DIR}/scripts/verify-version.sh"
 
@@ -96,7 +96,7 @@ release_files=(VERSION README.md CLAUDE.md setup.sh CHANGELOG.md)
 if [[ "${RELEASE_SKIP_CHECKS:-}" != "1" ]]; then
     "${ROOT_DIR}/scripts/build-bootstrap.sh"
     "${ROOT_DIR}/scripts/generate-checksums.sh"
-    make check
+    nix develop --command make check
     release_files+=(bootstrap-dist.sh SHA256SUMS)
 fi
 

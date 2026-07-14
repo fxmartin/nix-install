@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.8] - 2026-07-14
+
+### Fixed
+
+- sync claude-code-config: readme and gate-docs accuracy pass (claude-code-config PR #444)
+
 ## [2.0.7] - 2026-07-14
 
 ### Fixed

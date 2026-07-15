@@ -30,6 +30,7 @@ safe_bats_suites=(
     tests/package_manager_boundaries.bats
     tests/rebuild_regressions.bats
     tests/release_monitor.bats
+    tests/rsync_backup_resilience.bats
     tests/retired_desktop_utilities.bats
     tests/retired_icloud_sync.bats
     tests/retired_vscode.bats

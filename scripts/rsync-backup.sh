@@ -23,7 +23,7 @@ NC='\033[0m' # No Color
 
 # Paths - CONFIG_FILE can be overridden by environment variable
 CONFIG_FILE="${CONFIG_FILE:-${HOME}/.config/rsync-backup/jobs.conf}"
-LOG_FILE="/tmp/rsync-backup.log"
+LOG_FILE="${LOG_FILE:-/tmp/rsync-backup.log}"
 SCRIPTS_DIR="${SCRIPTS_DIR:-$(dirname "$0")}"
 SEND_NOTIFICATION="${SCRIPTS_DIR}/send-notification.sh"
 
@@ -131,9 +131,9 @@ check_nas_reachable() {
     fi
 
     # If using rsync daemon mode, also verify port 873 is accessible
-    # This prevents 10 retries with 120s timeouts when the daemon is down
+    # This avoids starting a transfer when the daemon is already unavailable.
     if [[ "${USE_RSYNC_DAEMON:-false}" == "true" ]]; then
-        if nc -z -w 10 "${NAS_HOST}" 873 &>/dev/null; then
+        if check_rsync_daemon_reachable; then
             print_status "ok" "rsync daemon port 873 is accessible"
         else
             print_status "error" "rsync daemon port 873 is not responding on ${NAS_HOST}"
@@ -144,6 +144,10 @@ check_nas_reachable() {
     fi
 
     return 0
+}
+
+check_rsync_daemon_reachable() {
+    nc -z -w 10 "${NAS_HOST}" 873 &>/dev/null
 }
 
 # Mount a specific NAS share
@@ -244,47 +248,48 @@ ensure_icloud_downloaded() {
 
     print_status "info" "Preparing iCloud files for backup..."
 
-    # Count and download any .icloud placeholder files
-    local placeholder_count
-    placeholder_count=$(find "${source_path}" -name "*.icloud" 2>/dev/null | wc -l | tr -d ' ')
+    local placeholders=()
+    while IFS= read -r -d '' placeholder; do
+        placeholders+=("${placeholder}")
+    done < <(find "${source_path}" -name "*.icloud" -print0 2>/dev/null)
 
-    if [[ "${placeholder_count}" -gt 0 ]]; then
-        print_status "info" "Found ${placeholder_count} placeholder files, downloading..."
-        find "${source_path}" -name "*.icloud" -print0 2>/dev/null | while IFS= read -r -d '' placeholder; do
-            # Extract the real filename (remove .icloud extension and leading dot)
-            local real_file
-            real_file=$(dirname "${placeholder}")/$(basename "${placeholder}" .icloud | sed 's/^\.//')
-            brctl download "${real_file}" 2>/dev/null || true
+    local placeholder_count="${#placeholders[@]}"
+    if [[ ${placeholder_count} -eq 0 ]]; then
+        print_status "ok" "iCloud preparation complete: no placeholder files found"
+        return 0
+    fi
+
+    print_status "info" "Found ${placeholder_count} placeholder file(s), requesting download..."
+    local placeholder
+    local real_file
+    for placeholder in "${placeholders[@]}"; do
+        real_file="$(dirname "${placeholder}")/$(basename "${placeholder}" .icloud | sed 's/^\.//')"
+        brctl download "${real_file}" 2>/dev/null || true
+    done
+
+    local timeout="${ICLOUD_DOWNLOAD_TIMEOUT:-300}"
+    local poll_interval="${ICLOUD_DOWNLOAD_POLL_INTERVAL:-5}"
+    local deadline
+    deadline=$(($(date +%s) + timeout))
+    local remaining
+    while true; do
+        remaining=0
+        for placeholder in "${placeholders[@]}"; do
+            [[ -e "${placeholder}" ]] && remaining=$((remaining + 1))
         done
-        print_status "ok" "iCloud placeholder downloads initiated"
-    fi
 
-    # Also force-download any files that might be in evicted state
-    # brctl download works on regular files too - it ensures they're fully local
-    print_status "info" "Ensuring all files are fully downloaded (this may take a while)..."
-    local file_count=0
-    local error_count=0
-
-    # Process files in batches to avoid overwhelming the system
-    while IFS= read -r -d '' file; do
-        if brctl download "${file}" 2>/dev/null; then
-            ((file_count++)) || true
-        else
-            ((error_count++)) || true
+        if [[ ${remaining} -eq 0 ]]; then
+            print_status "ok" "iCloud preparation complete: ${placeholder_count} placeholder file(s) materialized"
+            return 0
         fi
-        # Progress indicator every 1000 files
-        if (( file_count % 1000 == 0 )) && (( file_count > 0 )); then
-            print_status "info" "Processed ${file_count} files..."
+
+        if [[ $(date +%s) -ge ${deadline} ]]; then
+            print_status "error" "${remaining} iCloud placeholder file(s) remain unavailable after ${timeout}s"
+            return 1
         fi
-    done < <(find "${source_path}" -type f -print0 2>/dev/null)
 
-    if [[ ${error_count} -gt 0 ]]; then
-        print_status "warn" "Could not download ${error_count} files (may already be local)"
-    fi
-    print_status "ok" "iCloud preparation complete: ${file_count} files processed"
-
-    # Give iCloud a moment to settle after downloads
-    sleep 5
+        sleep "${poll_interval}"
+    done
 }
 
 # =============================================================================
@@ -311,7 +316,10 @@ run_backup_job() {
     fi
 
     # Ensure iCloud files are fully downloaded before backup
-    ensure_icloud_downloaded "${source_full}"
+    if ! ensure_icloud_downloaded "${source_full}"; then
+        print_status "error" "iCloud preparation failed for job '${job_name}'"
+        return 1
+    fi
 
     # Build exclude arguments
     local exclude_args=()
@@ -396,12 +404,13 @@ run_backup_job() {
     fi
 
     # Run rsync with retry logic
-    local max_retries="${RSYNC_MAX_RETRIES:-10}"
-    local retry_delay="${RSYNC_RETRY_DELAY:-30}"
+    local max_retries="${RSYNC_MAX_RETRIES:-3}"
+    local retry_delay="${RSYNC_RETRY_DELAY:-60}"
     local attempt=1
     local rsync_start
     local rsync_end
     local duration
+    local last_failure_detail=""
 
     rsync_start=$(date +%s)
 
@@ -413,25 +422,44 @@ run_backup_job() {
             print_status "info" "Starting rsync..."
         fi
 
+        if [[ "${USE_RSYNC_DAEMON:-false}" == "true" ]] && ! check_rsync_daemon_reachable; then
+            last_failure_detail="rsync daemon ${NAS_HOST}:873 is unreachable"
+            print_status "error" "Transfer preflight failed (attempt ${attempt}/${max_retries}): ${last_failure_detail}"
+            attempt=$((attempt + 1))
+            continue
+        fi
+
         # Run rsync and capture its exit code separately (pipe to tee masks it)
-        rsync "${rsync_args[@]}" "${password_args[@]}" "${exclude_args[@]}" "${source_full}/" "${dest_full}" 2>&1 | tee -a "${LOG_FILE}"
-        local rsync_exit="${PIPESTATUS[0]}"
+        local attempt_log
+        attempt_log=$(mktemp "${TMPDIR:-/tmp}/rsync-backup-attempt.XXXXXX")
+        local pipeline_status=()
+        if rsync "${rsync_args[@]}" "${password_args[@]}" "${exclude_args[@]}" "${source_full}/" "${dest_full}" 2>&1 \
+            | tee -a "${LOG_FILE}" \
+            | tee "${attempt_log}"; then
+            pipeline_status=("${PIPESTATUS[@]}")
+        else
+            pipeline_status=("${PIPESTATUS[@]}")
+        fi
+        local rsync_exit="${pipeline_status[0]}"
 
         if [[ ${rsync_exit} -eq 0 ]]; then
+            rm -f "${attempt_log}"
             rsync_end=$(date +%s)
             duration=$((rsync_end - rsync_start))
             print_status "ok" "Backup completed in ${duration}s"
             [[ ${attempt} -gt 1 ]] && print_status "info" "Succeeded on attempt ${attempt}"
             return 0
         else
-            print_status "error" "rsync failed (attempt ${attempt}/${max_retries}, exit code ${rsync_exit})"
-            ((attempt++))
+            last_failure_detail=$(tail -n 3 "${attempt_log}" | tr '\n' ' ' | sed 's/[[:space:]][[:space:]]*/ /g; s/ $//')
+            rm -f "${attempt_log}"
+            print_status "error" "rsync failed (attempt ${attempt}/${max_retries}, exit code ${rsync_exit}): ${last_failure_detail}"
+            attempt=$((attempt + 1))
         fi
     done
 
     rsync_end=$(date +%s)
     duration=$((rsync_end - rsync_start))
-    print_status "error" "Backup failed for ${job_name} after ${max_retries} attempts (${duration}s)"
+    print_status "error" "Backup failed for ${job_name} after ${max_retries} attempts (${duration}s): ${last_failure_detail}"
     return 1
 }
 
@@ -566,4 +594,6 @@ main() {
     print_status "ok" "All backups completed successfully!"
 }
 
-main "$@"
+if [[ "${RSYNC_BACKUP_TEST_MODE:-0}" != "1" && "${RSYNC_BACKUP_TEST_MODE:-false}" != "true" ]]; then
+    main "$@"
+fi

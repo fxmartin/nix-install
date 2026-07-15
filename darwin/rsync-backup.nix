@@ -53,6 +53,10 @@ let
     USE_RSYNC_DAEMON="${if rsyncConfig.useRsyncDaemon or false then "true" else "false"}"
     RSYNC_USERNAME="${rsyncConfig.rsyncUsername or "rsync-user"}"
     RSYNC_PASSWORD_FILE="${rsyncConfig.rsyncPasswordFile or "~/.config/rsync-backup/rsync.secret"}"
+    RSYNC_MAX_RETRIES="${toString (rsyncConfig.maxRetries or 3)}"
+    RSYNC_RETRY_DELAY="${toString (rsyncConfig.retryDelaySeconds or 60)}"
+    ICLOUD_DOWNLOAD_TIMEOUT="${toString (rsyncConfig.icloudDownloadTimeoutSeconds or 300)}"
+    ICLOUD_DOWNLOAD_POLL_INTERVAL="${toString (rsyncConfig.icloudDownloadPollSeconds or 5)}"
 
     # Notification settings
     NOTIFY_ON_FAILURE="${if rsyncConfig.notifyOnFailure then "true" else "false"}"
@@ -89,6 +93,7 @@ let
             export HOME="/Users/${userConfig.username}"
             export SCRIPTS_DIR="${scriptsDir}"
             export CONFIG_FILE="${configFile}"
+            export LOG_FILE="/tmp/rsync-backup${logSuffix}.log"
 
             # Run the rsync backup script
             if [[ -x "${scriptsDir}/rsync-backup.sh" ]]; then
@@ -103,14 +108,15 @@ let
 
         StartCalendarInterval = [ schedule ];
 
-        StandardOutPath = "/tmp/rsync-backup${logSuffix}.log";
-        StandardErrorPath = "/tmp/rsync-backup${logSuffix}.err";
+        StandardOutPath = "/tmp/rsync-backup${logSuffix}.stdout.log";
+        StandardErrorPath = "/tmp/rsync-backup${logSuffix}.stderr.log";
 
         EnvironmentVariables = {
           PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
           HOME = "/Users/${userConfig.username}";
           NOTIFICATION_EMAIL = userConfig.notificationEmail;
           CONFIG_FILE = configFile;
+          LOG_FILE = "/tmp/rsync-backup${logSuffix}.log";
         };
 
         RunAtLoad = false;
@@ -127,8 +133,8 @@ let
     in
     lib.nameValuePair "rsync-backup-weekly-${dayName}" (mkBackupAgent {
       schedule = {
-        Hour = rsyncConfig.defaultSchedule.Hour;
-        Minute = rsyncConfig.defaultSchedule.Minute;
+        Hour = rsyncConfig.weeklySchedule.Hour;
+        Minute = rsyncConfig.weeklySchedule.Minute;
         Weekday = weekday;
       };
       configFile = "/Users/${userConfig.username}/.config/rsync-backup/jobs-weekly-${dayName}.conf";

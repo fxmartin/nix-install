@@ -20,11 +20,22 @@
 
   # Default schedule: Daily at 2 AM
   # Uses launchd StartCalendarInterval format
-  # Jobs can override with their own schedule
   defaultSchedule = {
     Hour = 2;
     Minute = 0;
   };
+
+  # Weekly jobs start later so the daily Calibre job cannot overlap them.
+  weeklySchedule = {
+    Hour = 3;
+    Minute = 0;
+  };
+
+  # Bound transient network retries and iCloud placeholder materialization.
+  maxRetries = 3;
+  retryDelaySeconds = 60;
+  icloudDownloadTimeoutSeconds = 300;
+  icloudDownloadPollSeconds = 5;
 
   # Email notifications via msmtp
   notifyOnFailure = true;
@@ -36,8 +47,8 @@
   # Each job syncs a source folder to a destination on the NAS
   # Archive mode: deleted files on Mac are kept on NAS
   # Each job can specify its own 'share' or use defaultShare
-  # Each job can specify 'schedule' to override defaultSchedule
-  # Schedule options: "daily" (default), "weekly" (Sunday 2 AM)
+  # Jobs choose the daily schedule or the weekly schedule and weekday.
+  # Schedule options: "daily" (default), "weekly" (Sunday 3 AM by default)
   jobs = [
     {
       # Photos exported as plain browsable files (via osxphotos)
@@ -46,7 +57,7 @@
       source = "Pictures/Photos-Export"; # osxphotos exports here
       share = "Photos"; # NAS share to use
       destination = ""; # Root of share
-      schedule = "weekly"; # Run weekly (Sunday 2 AM)
+      schedule = "weekly"; # Run weekly (Sunday 3 AM)
       excludes = [
         ".DS_Store"
         ".osxphotos_export.db" # osxphotos tracking database

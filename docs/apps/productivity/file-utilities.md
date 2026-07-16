@@ -13,7 +13,7 @@
 1. Launch Calibre from Spotlight (`Cmd+Space`, type "Calibre") or from `/Applications/calibre.app`
 2. Welcome wizard appears on first launch
 3. Follow setup steps:
-   - **Choose Library Location**: Select or create folder for ebook library (default: `~/Calibre Library`)
+   - **Choose Library Location**: Use the local `~/Calibre Library` folder
    - **Choose E-reader Device** (Optional): Select if you have a Kindle, Kobo, or other e-reader
    - **Complete Setup**: Calibre creates library database
 
@@ -120,7 +120,8 @@ Calibre is a powerful ebook management suite with comprehensive features:
 4. Click "OK" to save changes
 
 **Configuration Tips**:
-- **Library Location**: Store in iCloud for cross-device sync
+- **Library Location**: Keep the active library at local `~/Calibre Library`; File Provider storage can block Calibre's SQLite database access
+- **Cross-device Access**: Use BookFusion or Calibre Content Server instead of opening the active library from a synchronized folder
 - **Metadata Sources**: Preferences → Sharing → Metadata download (configure sources)
 - **Reading Preferences**: E-book viewer → Preferences (font, colors, margins)
 - **Device Setup**: Preferences → Sharing → Sharing books by email (for Kindle email delivery)
@@ -168,12 +169,12 @@ Calibre is a powerful ebook management suite with comprehensive features:
 - **BookFusion** - Library sync plugin
 
 **Configuration Locations**:
-- Repository: `config/calibre/` (plugins, non-sensitive settings)
+- Repository: `config/calibre/` (plugin archives and non-sensitive plugin settings)
 - Secrets: `~/.config/calibre-secrets/` (Kindle serial, Adobe keys - NOT in git)
 - System: `~/Library/Preferences/calibre/`
 
 **How It Works**:
-On each `rebuild`, the activation script copies plugins and settings from the repo to the system Calibre config directory. This ensures consistent configuration across reinstalls.
+On each `rebuild`, the activation script copies plugin archives from the repo and merges secrets from the local secrets directory. Calibre owns machine-specific global settings, including the active library path, so rebuilds do not overwrite them.
 
 **Importing DRM Books from Kindle**:
 1. Connect Kindle Oasis via USB
@@ -186,8 +187,7 @@ On each `rebuild`, the activation script copies plugins and settings from the re
 **Backing Up Config Changes**:
 If you modify Calibre settings or plugins:
 ```bash
-# Copy non-sensitive files to repo
-cp ~/Library/Preferences/calibre/global.py.json ~/Documents/nix-install/config/calibre/
+# Copy non-sensitive plugin archives to repo
 cp ~/Library/Preferences/calibre/plugins/*.zip ~/Documents/nix-install/config/calibre/plugins/
 
 # Copy secrets to local secrets directory (NOT in git)
@@ -209,6 +209,7 @@ See `config/calibre/SECRETS.example.md` for setting up secrets on a fresh instal
 - **Kindle not showing as drive**: Try different USB cable, restart Kindle
 - **KFX format issues**: Ensure KFX Input plugin is loaded (Preferences → Plugins)
 - **Plugins not appearing**: Run `rebuild` to deploy config, then restart Calibre
+- **Calibre hangs at launch**: Confirm the active library is local `~/Calibre Library`, not inside iCloud Drive or another File Provider folder
 
 ---
 

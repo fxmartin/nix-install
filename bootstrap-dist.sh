@@ -4539,7 +4539,7 @@ ensure_nix_paths_in_path() {
 # Returns: 0 on success, 1 on failure
 # Arguments: None (uses $INSTALL_PROFILE and $REPO_CLONE_DIR)
 run_final_darwin_rebuild() {
-    local flake_ref="${REPO_CLONE_DIR}#${INSTALL_PROFILE}"
+    local flake_ref="path:${REPO_CLONE_DIR}#${INSTALL_PROFILE}"
     local rebuild_start_time rebuild_end_time rebuild_duration
 
     echo ""
@@ -4752,7 +4752,7 @@ final_darwin_rebuild_phase() {
     if ! run_final_darwin_rebuild; then
         log_error "Darwin-rebuild failed"
         log_error "Your system may be in a partially configured state"
-        log_error "Try running: sudo darwin-rebuild switch --flake ${REPO_CLONE_DIR}#${INSTALL_PROFILE}"
+        log_error "Try running: sudo darwin-rebuild switch --flake path:${REPO_CLONE_DIR}#${INSTALL_PROFILE}"
         return 1
     fi
     echo ""

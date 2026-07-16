@@ -243,7 +243,7 @@ rebuild_system() {
 
     cd "$PROJECT_ROOT" || exit 1
 
-    if ! sudo darwin-rebuild switch --flake ".#${profile}"; then
+    if ! sudo darwin-rebuild switch --flake "path:.#${profile}"; then
         log_error "Failed to rebuild system"
         return 1
     fi
@@ -270,7 +270,7 @@ dry_run_system() {
 
     cd "$PROJECT_ROOT" || exit 1
 
-    if ! sudo darwin-rebuild build --flake ".#${profile}"; then
+    if ! sudo darwin-rebuild build --flake "path:.#${profile}"; then
         log_error "Dry-run build failed"
         return 1
     fi

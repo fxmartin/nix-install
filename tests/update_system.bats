@@ -4,6 +4,7 @@
 
 setup() {
     UPDATE_SCRIPT="${BATS_TEST_DIRNAME}/../scripts/update-system.sh"
+    BOOTSTRAP_REBUILD_SCRIPT="${BATS_TEST_DIRNAME}/../lib/darwin-rebuild.sh"
     STUB_BIN="${BATS_TEST_TMPDIR}/bin"
     GIT_ADD_MARKER="${BATS_TEST_TMPDIR}/git-add-called"
     mkdir -p "${STUB_BIN}"
@@ -36,6 +37,18 @@ esac
 EOF
 
     chmod +x "${STUB_BIN}/nix" "${STUB_BIN}/git"
+}
+
+@test "rebuild entry points include ignored user config through path flakes" {
+    run rg -n 'darwin-rebuild switch --flake "path:\.#[^" ]+"' "$UPDATE_SCRIPT"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'darwin-rebuild build --flake "path:\.#[^" ]+"' "$UPDATE_SCRIPT"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'local flake_ref="path:\$\{REPO_CLONE_DIR\}#\$\{INSTALL_PROFILE\}"' \
+        "$BOOTSTRAP_REBUILD_SCRIPT"
+    [ "$status" -eq 0 ]
 }
 
 @test "update skips the release commit before staging on feature branches" {

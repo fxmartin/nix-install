@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.13] - 2026-07-16
+
+### Fixed
+
+- Install OSV Scanner for the SDLC controller
+
 ## [2.0.12] - 2026-07-16
 
 ### Fixed

@@ -14,8 +14,25 @@ setup() {
     [ "${#lines[@]}" -eq 1 ]
 }
 
+@test "FluidVoice is installed only for the Power profile" {
+    run rg -U -n '\+\+ lib\.optionals \(profileName == "power"\) \[\n[[:space:]]+"fluidvoice"' \
+        "$HOMEBREW_CONFIG"
+    [ "$status" -eq 0 ]
+
+    run rg -n '^[[:space:]]+"fluidvoice"' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 0 ]
+    [ "${#lines[@]}" -eq 1 ]
+}
+
 @test "retired meeting and Apple Intelligence tools are absent from Homebrew" {
     run rg -n '^\s+"(apfel|zoom|webex)"' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 1 ]
+}
+
+@test "Spokenly is absent from managed apps and Codex instructions" {
+    run rg -n -i '\bspokenly\b' \
+        "$HOMEBREW_CONFIG" \
+        "${REPO_ROOT}/config/codex/AGENTS.md"
     [ "$status" -eq 1 ]
 }
 

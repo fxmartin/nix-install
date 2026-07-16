@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.15] - 2026-07-16
+
+### Fixed
+
+- Replace Spokenly with Power-only FluidVoice
+
 ## [2.0.14] - 2026-07-16
 
 ### Fixed

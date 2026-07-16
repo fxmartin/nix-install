@@ -42,6 +42,7 @@ in
     brews = [
       "gh" # GitHub CLI - Required for automated SSH key upload in bootstrap
       "mas" # Mac App Store CLI - Required for masApps installations (Issue #25)
+      "osv-scanner" # OSV Scanner - Vulnerability scanning for the SDLC controller
       "pkgconf" # pkg-config implementation required by native Python extension builds
 
       # AI & LLM Tools

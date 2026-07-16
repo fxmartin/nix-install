@@ -37,6 +37,11 @@ setup() {
     [ "$status" -eq 1 ]
 }
 
+@test "SDLC controller dependency is installed through Homebrew" {
+    run rg -n '"osv-scanner"[[:space:]]+# OSV Scanner' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 0 ]
+}
+
 @test "Homebrew Starship bridge remains explicit" {
     run rg -n '"starship"[[:space:]]+# Starship prompt binary' "$HOMEBREW_CONFIG"
     [ "$status" -eq 0 ]

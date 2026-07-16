@@ -12,7 +12,7 @@
   # ===========================================================================
   # CALIBRE CONFIGURATION DEPLOYMENT
   # ===========================================================================
-  # Copies Calibre plugins and settings from nix-install repo to system location
+  # Copies Calibre plugins from nix-install repo to system location
   # Includes: DeDRM (Kindle DRM removal), KFX Input/Output, DeACSM (Adobe DRM)
   #
   # SECRETS HANDLING:
@@ -34,12 +34,6 @@
       echo "Deploying Calibre configuration..."
       mkdir -p "$CALIBRE_DST"
       mkdir -p "$CALIBRE_DST/plugins"
-
-      # Copy global settings if exists
-      if [[ -f "$CALIBRE_SRC/global.py.json" ]]; then
-        cp "$CALIBRE_SRC/global.py.json" "$CALIBRE_DST/"
-        echo "✓ Calibre global settings deployed"
-      fi
 
       # Copy plugins directory if exists (non-sensitive files)
       if [[ -d "$CALIBRE_SRC/plugins" ]]; then

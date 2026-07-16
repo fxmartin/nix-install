@@ -169,7 +169,13 @@ update_flake() {
 # Prompt FX to commit + push flake.lock. Non-interactive shells fall back to
 # printing the manual command (preserves prior behavior for pipes/CI).
 commit_and_push_flake_lock() {
-    local reply
+    local branch reply
+
+    branch="$(git branch --show-current)"
+    if [[ "${branch}" != "main" ]]; then
+        log_warning "Release commit skipped: must run on main, currently on ${branch:-detached HEAD}"
+        return 0
+    fi
 
     if [[ ! -t 0 ]]; then
         log_warning "flake.lock has uncommitted changes"

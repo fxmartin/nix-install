@@ -17,6 +17,7 @@ done
 
 safe_bats_suites=(
     tests/bootstrap_preflight.bats
+    tests/calibre_local_library.bats
     tests/claude_code_module.bats
     tests/communication_tooling.bats
     tests/darwin_system_packages.bats
@@ -34,6 +35,7 @@ safe_bats_suites=(
     tests/retired_icloud_sync.bats
     tests/retired_vscode.bats
     tests/tooling_baseline.bats
+    tests/update_system.bats
 )
 
 bats "${safe_bats_suites[@]}"

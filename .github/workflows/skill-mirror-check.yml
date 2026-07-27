@@ -1,0 +1,85 @@
+# ABOUTME: GitHub Actions workflow enforcing Codex skill-mirror parity (issue #529)
+# ABOUTME: Fails when plugins/autonomous-sdlc/skills drifts from the neutral sources
+
+# Why this job lives here and not in claude-code-config:
+#
+# The harness-neutral skill sources are in the `config/claude-code-config`
+# submodule, but the *Codex* mirror they generate lives in THIS repo, under
+# `plugins/autonomous-sdlc/skills/`. A standalone clone of claude-code-config
+# cannot see that directory, so its own `verify-generated` correctly warns and
+# skips the Codex gate. This repo is the only place both halves exist at once.
+#
+# Without this job the Codex mirror can rot silently — it did, for three
+# months: `build-stories` shipped the pre-controller port that never invoked
+# the `sdlc` controller at all, and was found by hand rather than by CI.
+
+name: Skill Mirror Check
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'plugins/autonomous-sdlc/skills/**'
+      - 'config/claude-code-config'
+      - '.github/workflows/skill-mirror-check.yml'
+  pull_request:
+    paths:
+      - 'plugins/autonomous-sdlc/skills/**'
+      - 'config/claude-code-config'
+      - '.github/workflows/skill-mirror-check.yml'
+  workflow_dispatch:
+
+jobs:
+  skill-mirror-check:
+    name: Verify Codex Skill Mirror Parity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository with submodules
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          # The neutral sources and the sync script both live in the submodule.
+          submodules: true
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+
+      - name: Install sdlc controller
+        # Path-independent: the script resolves its own repo root, so calling it
+        # through the submodule path works from this repo's root.
+        run: bash config/claude-code-config/scripts/install-controller.sh
+
+      - name: Put the installed CLI on PATH
+        run: echo "${HOME}/.local/bin" >> "${GITHUB_PATH}"
+
+      - name: Confirm the controller supports the Codex gate
+        # `--pipeline-only` arrived with the gate itself. A submodule pinned
+        # before that lands would otherwise fail with a bare "No such option",
+        # which reads like a broken workflow rather than a stale pointer.
+        run: |
+          if ! sdlc sync-check --help | grep -q -- '--pipeline-only'; then
+            echo "error: installed sdlc lacks --pipeline-only." >&2
+            echo "       Bump the config/claude-code-config submodule pointer." >&2
+            exit 1
+          fi
+          sdlc --version
+
+      - name: Verify Claude and Codex skill parity
+        # Exits 0 in sync, 1 on drift (printing a diff and the regenerate
+        # command), 2 on a malformed source. The Codex leg resolves
+        # CODEX_SKILLS_BASE to this repo's plugins/ tree by default.
+        run: ./config/claude-code-config/scripts/sync-shared-skills.sh verify-generated
+
+      - name: Fail if the Codex leg was skipped
+        # Belt and braces: a silent skip is exactly how the original drift went
+        # unnoticed, so in CI an unverified Codex mirror is a hard failure
+        # rather than a warning on stderr.
+        run: |
+          out="$(./config/claude-code-config/scripts/sync-shared-skills.sh verify-generated 2>&1)"
+          echo "${out}"
+          if ! grep -q 'codex pipeline skills in sync' <<<"${out}"; then
+            echo "error: codex mirror parity was not verified this run." >&2
+            exit 1
+          fi

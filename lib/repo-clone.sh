@@ -146,8 +146,36 @@ clone_repository() {
         return 1
     fi
 
+    # Initialise submodules (issue #531). `git clone` without
+    # --recurse-submodules leaves config/claude-code-config empty, and several
+    # things downstream read out of it: claude-code.nix symlinks CLAUDE.md,
+    # agents/ and commands/ from there, and sdlc-controller.nix installs the
+    # `sdlc` CLI from its controller/ directory. Without this a fresh install
+    # reports success and silently lacks all of them.
+    #
+    # Non-fatal: the clone itself succeeded and the rebuild can still proceed,
+    # so warn loudly rather than abort an otherwise-good install. The recovery
+    # command is one line, so print it.
+    local submodules_ok=1
+    if ! git -C "${REPO_CLONE_DIR}" submodule update --init --recursive; then
+        submodules_ok=0
+        log_warn "Submodule initialisation failed"
+        log_warn "Claude Code config and the sdlc controller will be missing."
+        log_warn "Recover with:"
+        log_warn "  git -C ${REPO_CLONE_DIR} submodule update --init --recursive"
+    else
+        log_success "✓ Submodules initialised"
+    fi
+
     echo ""
-    log_success "✓ Repository cloned successfully"
+    if [[ ${submodules_ok} -eq 1 ]]; then
+        log_success "✓ Repository cloned successfully"
+    else
+        # Do not report an unqualified success when part of the checkout is
+        # missing: the whole failure mode this guards against is an install
+        # that says it worked and quietly lacks the submodule contents.
+        log_warn "Repository cloned, but submodules are missing (see above)"
+    fi
     return 0
 }
 

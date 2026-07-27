@@ -162,6 +162,16 @@ fetch_flake_from_github() {
         return 1
     }
 
+    log_info "  - home-manager/modules/sdlc-controller.nix"
+    if ! curl -fsSL -o "home-manager/modules/sdlc-controller.nix" "${base_url}/home-manager/modules/sdlc-controller.nix"; then
+        log_error "Failed to fetch home-manager/modules/sdlc-controller.nix"
+        return 1
+    fi
+    [[ -s "home-manager/modules/sdlc-controller.nix" ]] || {
+        log_error "Downloaded home-manager/modules/sdlc-controller.nix is empty"
+        return 1
+    }
+
     log_info "  - home-manager/modules/python.nix"
     if ! curl -fsSL -o "home-manager/modules/python.nix" "${base_url}/home-manager/modules/python.nix"; then
         log_error "Failed to fetch home-manager/modules/python.nix"

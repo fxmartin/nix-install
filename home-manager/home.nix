@@ -20,6 +20,8 @@
     ./modules/ghostty.nix
     # Claude Code CLI and MCP servers configuration (Story 02.2-006)
     ./modules/claude-code.nix
+    # sdlc controller CLI the autonomous-sdlc skills shell out to (issue #531)
+    ./modules/sdlc-controller.nix
     # Python development environment configuration (Feature 04.7)
     ./modules/python.nix
     # OpenAI Privacy Filter (MLX): venv + weight pre-pull (companion to darwin/privacy-filter.nix)

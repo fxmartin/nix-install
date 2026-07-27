@@ -28,9 +28,18 @@ cd "${repo_root}"
 version="$(tr -d '[:space:]' < VERSION)"
 tag="v${version}"
 
+# bump-version.sh creates the release tag itself (issue #358), so by the time we
+# reach here the tag normally exists already, pointing at the commit it just
+# made. That is the expected path, not a collision — only a tag on some *other*
+# commit is a genuine conflict.
+tag_already_ours=0
 if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
-    echo "release failed: tag ${tag} already exists" >&2
-    exit 1
+    if [[ "$(git rev-parse "${tag}^{commit}")" == "$(git rev-parse HEAD)" ]]; then
+        tag_already_ours=1
+    else
+        echo "release failed: tag ${tag} already exists on a different commit" >&2
+        exit 1
+    fi
 fi
 
 remaining_untracked_files="$(git ls-files --others --exclude-standard)"
@@ -39,6 +48,11 @@ if ! git diff --quiet || ! git diff --cached --quiet || [[ -n "${remaining_untra
     exit 1
 fi
 
-git tag -s "${tag}" -m "Release ${tag}"
-echo "Created signed tag ${tag}. Push the release with:"
+if [[ "${tag_already_ours}" -eq 1 ]]; then
+    echo "Tag ${tag} already created by bump-version.sh."
+else
+    git tag -s "${tag}" -m "Release ${tag}"
+    echo "Created signed tag ${tag}."
+fi
+echo "Push the release with:"
 echo "  git push origin main ${tag}"

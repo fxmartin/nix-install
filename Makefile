@@ -67,7 +67,13 @@ release-tag:
 	version="$$(tr -d '[:space:]' < VERSION)"; \
 	tag="v$$version"; \
 	if git rev-parse -q --verify "refs/tags/$$tag" >/dev/null; then \
-		echo "release-tag failed: tag $$tag already exists" >&2; \
+		if [ "$$(git rev-parse "$$tag^{commit}")" = "$$(git rev-parse HEAD)" ]; then \
+			echo "Tag $$tag already exists on HEAD (bump-version.sh creates it)."; \
+			echo "Push with:"; \
+			echo "  git push origin main --tags"; \
+			exit 0; \
+		fi; \
+		echo "release-tag failed: tag $$tag already exists on a different commit" >&2; \
 		exit 1; \
 	fi; \
 	git tag -s "$$tag" -m "$${RELEASE_TAG_MESSAGE:-Release $$tag}"; \

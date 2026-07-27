@@ -58,10 +58,27 @@ jobs:
         # `--pipeline-only` arrived with the gate itself. A submodule pinned
         # before that lands would otherwise fail with a bare "No such option",
         # which reads like a broken workflow rather than a stale pointer.
+        #
+        # The help text is Rich-rendered into a box and wrapped to the terminal
+        # width, which differs between a laptop and a runner — a naive grep for
+        # the option name false-failed here on the first run. Normalise before
+        # matching: force a wide width, strip ANSI, then delete spaces, newlines
+        # and box-drawing, so a wrapped "--pipeline-" + "only" collapses back
+        # into one token. On failure dump the raw help, so the next run
+        # diagnoses itself instead of needing another round-trip.
         run: |
-          if ! sdlc sync-check --help | grep -q -- '--pipeline-only'; then
+          help_raw="$(COLUMNS=200 sdlc sync-check --help 2>&1 || true)"
+          help_flat="$(
+            printf '%s' "${help_raw}" \
+              | sed $'s/\x1b\\[[0-9;]*[A-Za-z]//g' \
+              | tr -d ' \n\r\t│┃|'
+          )"
+          if ! printf '%s' "${help_flat}" | grep -q -- '--pipeline-only'; then
             echo "error: installed sdlc lacks --pipeline-only." >&2
+            echo "       version: $(sdlc --version 2>&1 || echo unknown)" >&2
             echo "       Bump the config/claude-code-config submodule pointer." >&2
+            echo "--- raw sync-check --help ---" >&2
+            printf '%s\n' "${help_raw}" >&2
             exit 1
           fi
           sdlc --version

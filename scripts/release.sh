@@ -38,12 +38,13 @@ if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
         # Accepting the existing tag must not silently downgrade the guarantee:
         # bump-version.sh falls back to an *unsigned* annotated tag when signing
         # is unavailable, and this path is what makes `make release-*` claim a
-        # signed release. Verify the signature block rather than assuming it.
-        # `git tag -v` needs gpg.ssh.allowedSignersFile, which is a local
-        # verification convenience and often unset, so inspect the object.
-        if ! git cat-file -p "${tag}" | grep -q '^-----BEGIN .*SIGNATURE-----'; then
-            echo "release failed: tag ${tag} exists on HEAD but is not signed" >&2
-            echo "  re-create it signed: git tag -d ${tag} && git tag -s ${tag} -m 'Release ${tag}'" >&2
+        # signed release. Delegate to the tested classifier rather than pattern-
+        # matching here — a signature *block* being present does not mean it is
+        # valid, and `git tag -v` exits non-zero both for a bad signature and
+        # for an unset gpg.ssh.allowedSignersFile.
+        if ! "${repo_root}/scripts/verify-release-tag.sh" "${tag}"; then
+            echo "release failed: tag ${tag} exists on HEAD but is not properly signed" >&2
+            echo "  re-create it: git tag -d ${tag} && git tag -s ${tag} -m 'Release ${tag}'" >&2
             exit 1
         fi
         tag_already_ours=1

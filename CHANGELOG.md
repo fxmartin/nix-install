@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.25] - 2026-07-27
+
+### Fixed
+
+- create the release tag in bump-version so it cannot be skipped
+
 ## [2.0.24] - 2026-07-27
 
 ### Fixed

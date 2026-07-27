@@ -103,4 +103,29 @@ fi
 git add "${release_files[@]}"
 git commit -m "release(${kind}): v${next}" -m "${release_note}"
 
+# Tag here rather than leaving `make release-tag` as a separate step (issue #358).
+# CLAUDE.md calls the git tag the release authority, but tagging was a second
+# command that had to be remembered — and it was not: tags stopped at v2.0.6
+# while VERSION reached 2.0.24, eighteen untagged releases. Creating the tag in
+# the same breath as the release commit removes the step that kept being skipped.
+#
+# Deliberately does NOT require a clean tree, unlike `make release-tag`: the tag
+# names the commit just created, which is well defined regardless of unrelated
+# work in progress. Demanding a pristine tree is part of why tagging kept being
+# deferred in the first place.
+tag="v${next}"
+if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
+    echo "warning: tag ${tag} already exists — leaving it untouched" >&2
+else
+    if git tag -s "${tag}" -m "Release ${tag}" 2>/dev/null; then
+        echo "Created signed tag ${tag}"
+    elif git tag -a "${tag}" -m "Release ${tag}"; then
+        # Signing can fail on a machine without the signing key configured.
+        # An unsigned annotated tag still records the release; losing the tag
+        # entirely is the worse outcome, so warn rather than abort.
+        echo "warning: could not sign ${tag}; created an unsigned annotated tag" >&2
+    fi
+fi
+
 echo "Bumped release version: ${current} -> ${next}"
+echo "Push with:  git push --follow-tags"

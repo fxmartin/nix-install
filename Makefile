@@ -68,7 +68,12 @@ release-tag:
 	tag="v$$version"; \
 	if git rev-parse -q --verify "refs/tags/$$tag" >/dev/null; then \
 		if [ "$$(git rev-parse "$$tag^{commit}")" = "$$(git rev-parse HEAD)" ]; then \
-			echo "Tag $$tag already exists on HEAD (bump-version.sh creates it)."; \
+			if ! git cat-file -p "$$tag" | grep -q '^-----BEGIN .*SIGNATURE-----'; then \
+				echo "release-tag failed: $$tag exists on HEAD but is not signed" >&2; \
+				echo "  re-create it: git tag -d $$tag && git tag -s $$tag -m 'Release $$tag'" >&2; \
+				exit 1; \
+			fi; \
+			echo "Tag $$tag already exists on HEAD and is signed."; \
 			echo "Push with:"; \
 			echo "  git push origin main --tags"; \
 			exit 0; \

@@ -35,6 +35,17 @@ tag="v${version}"
 tag_already_ours=0
 if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
     if [[ "$(git rev-parse "${tag}^{commit}")" == "$(git rev-parse HEAD)" ]]; then
+        # Accepting the existing tag must not silently downgrade the guarantee:
+        # bump-version.sh falls back to an *unsigned* annotated tag when signing
+        # is unavailable, and this path is what makes `make release-*` claim a
+        # signed release. Verify the signature block rather than assuming it.
+        # `git tag -v` needs gpg.ssh.allowedSignersFile, which is a local
+        # verification convenience and often unset, so inspect the object.
+        if ! git cat-file -p "${tag}" | grep -q '^-----BEGIN .*SIGNATURE-----'; then
+            echo "release failed: tag ${tag} exists on HEAD but is not signed" >&2
+            echo "  re-create it signed: git tag -d ${tag} && git tag -s ${tag} -m 'Release ${tag}'" >&2
+            exit 1
+        fi
         tag_already_ours=1
     else
         echo "release failed: tag ${tag} already exists on a different commit" >&2

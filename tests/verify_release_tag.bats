@@ -40,26 +40,29 @@ setup() {
     [ "$status" -eq 2 ]
 }
 
-@test "signed but unverifiable warns and accepts by default" {
+@test "signed but unverifiable is REJECTED by default (fails closed)" {
     # SSH signing with no allowedSignersFile: git tag -v exits non-zero even
-    # though the tag is genuinely signed. Must be told apart from a bad one.
+    # though the tag is genuinely signed. A signature nobody can check proves
+    # nothing, so this must fail rather than be waved through.
     ssh-keygen -q -t ed25519 -N "" -f "${BATS_TEST_TMPDIR}/k" </dev/null
     git config gpg.format ssh
     git config user.signingkey "${BATS_TEST_TMPDIR}/k.pub"
     git tag -s v1.0.0 -m "Release v1.0.0"
     run bash "$VERIFY" v1.0.0
-    [ "$status" -eq 0 ]
-    [[ "$output" == *"NOT verified"* ]]
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"signer trust is not configured"* ]]
+    # The remedy must be printed, or the failure is just an obstacle.
+    [[ "$output" == *"allowedSignersFile"* ]]
 }
 
-@test "strict mode rejects a signed but unverifiable tag" {
+@test "explicit opt-out accepts a signed but unverifiable tag" {
     ssh-keygen -q -t ed25519 -N "" -f "${BATS_TEST_TMPDIR}/k" </dev/null
     git config gpg.format ssh
     git config user.signingkey "${BATS_TEST_TMPDIR}/k.pub"
     git tag -s v1.0.0 -m "Release v1.0.0"
-    run env RELEASE_REQUIRE_VERIFIED_TAG=1 bash "$VERIFY" v1.0.0
-    [ "$status" -eq 1 ]
-    [[ "$output" == *"could not be verified"* ]]
+    run env RELEASE_ALLOW_UNVERIFIED_TAG=1 bash "$VERIFY" v1.0.0
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"NOT verified"* ]]
 }
 
 @test "fully verifiable signed tag passes cleanly" {

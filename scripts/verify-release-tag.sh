@@ -14,13 +14,13 @@
 # replaces.
 #
 # Exit codes:
-#   0  signature verified, OR present but unverifiable locally (warns)
-#   1  no signature, or signature invalid
+#   0  signature verified against configured signer trust
+#   1  no signature, signature invalid, OR signer trust unconfigured
 #   2  usage error / unknown tag
 #
-# Set RELEASE_REQUIRE_VERIFIED_TAG=1 to make "present but unverifiable" fail
-# too, for environments where allowedSignersFile is configured and verification
-# is expected to be conclusive.
+# Fails closed: an unverifiable signature is rejected, because a signature that
+# cannot be checked proves nothing. Set RELEASE_ALLOW_UNVERIFIED_TAG=1 to accept
+# one deliberately.
 
 set -uo pipefail
 
@@ -58,15 +58,25 @@ if grep -q "allowedSignersFile" <<<"${verify_output}"; then
         echo "error: ${tag} has no signature" >&2
         exit 1
     fi
-    if [[ "${RELEASE_REQUIRE_VERIFIED_TAG:-0}" == "1" ]]; then
-        echo "error: ${tag} signature present but could not be verified" >&2
-        echo "  configure: git config gpg.ssh.allowedSignersFile <path>" >&2
-        exit 1
+    # Fail closed. A signature nobody can check is not evidence of anything —
+    # accepting it would let a release claim a verified tag on the strength of
+    # an unreadable blob, which is the failure this script exists to prevent.
+    # The remedy is one command and is printed here, so this is a one-time
+    # setup cost rather than a permanent obstacle.
+    if [[ "${RELEASE_ALLOW_UNVERIFIED_TAG:-0}" == "1" ]]; then
+        echo "warning: ${tag} signature present but NOT verified — proceeding" >&2
+        echo "  RELEASE_ALLOW_UNVERIFIED_TAG=1 was set explicitly" >&2
+        exit 0
     fi
-    echo "warning: ${tag} signature present but NOT verified" >&2
-    echo "  gpg.ssh.allowedSignersFile is unset, so git cannot check it" >&2
-    echo "  configure it to make this conclusive: git config gpg.ssh.allowedSignersFile <path>" >&2
-    exit 0
+    echo "error: ${tag} has a signature, but signer trust is not configured" >&2
+    echo "  git cannot tell a valid signature from a forged one without it." >&2
+    echo "" >&2
+    echo "  Configure once:" >&2
+    echo "    printf '%s %s' \"\$(git config user.email)\" \"\$(cat ~/.ssh/id_ed25519.pub)\" > ~/.ssh/allowed_signers" >&2
+    echo "    git config --global gpg.ssh.allowedSignersFile ~/.ssh/allowed_signers" >&2
+    echo "" >&2
+    echo "  Or bypass deliberately: RELEASE_ALLOW_UNVERIFIED_TAG=1" >&2
+    exit 1
 fi
 
 echo "error: ${tag} signature is invalid" >&2

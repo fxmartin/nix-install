@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.29] - 2026-07-27
+
+### Fixed
+
+- fail closed when release tag signer trust is unavailable
+
 ## [2.0.28] - 2026-07-27
 
 ### Fixed

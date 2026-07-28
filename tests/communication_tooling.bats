@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-# ABOUTME: Guards the reduced communication stack and global Hugging Face CLI
+# ABOUTME: Guards profile-aware voice, audio, communication, and Hugging Face tooling
 # ABOUTME: Prevents retired meeting apps and apfel from returning to managed state
 
 setup() {
@@ -20,6 +20,16 @@ setup() {
     [ "$status" -eq 0 ]
 
     run rg -n '^[[:space:]]+"fluidvoice"' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 0 ]
+    [ "${#lines[@]}" -eq 1 ]
+}
+
+@test "Qobuz is installed only for the Power profile" {
+    run rg -U -n '\+\+ lib\.optionals \(profileName == "power"\) \[[^;]+"qobuz"' \
+        "$HOMEBREW_CONFIG"
+    [ "$status" -eq 0 ]
+
+    run rg -n '^[[:space:]]+"qobuz"' "$HOMEBREW_CONFIG"
     [ "$status" -eq 0 ]
     [ "${#lines[@]}" -eq 1 ]
 }

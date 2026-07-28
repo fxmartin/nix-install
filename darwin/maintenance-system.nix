@@ -88,7 +88,7 @@
       };
 
       RunAtLoad = false;
-      Umask = 77; # 0077 — logs owner-readable only
+      Umask = 63; # Decimal representation of 0077 — owner-only logs
     };
   };
 }

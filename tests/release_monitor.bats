@@ -81,3 +81,14 @@ setup() {
         _ "${BATS_TEST_DIRNAME}/../darwin/maintenance.nix"
     [ "$status" -eq 0 ]
 }
+
+@test "launch agents encode owner-only umask as decimal 63" {
+    local darwin_dir="${BATS_TEST_DIRNAME}/../darwin"
+
+    run rg -n 'Umask = 77;' "$darwin_dir"
+    [ "$status" -eq 1 ]
+
+    run rg -n 'Umask = 63;' "$darwin_dir"
+    [ "$status" -eq 0 ]
+    [ "${#lines[@]}" -eq 7 ]
+}

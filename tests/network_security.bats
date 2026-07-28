@@ -38,3 +38,40 @@ setup() {
     run rg -n 'releases/latest|TARBALL_URL|curl .*tar' "$MONITORING_MODULE"
     [ "$status" -eq 1 ]
 }
+
+@test "Beszel agent env file is written under umask 077 before content lands" {
+    run rg -n 'umask 077' "$MONITORING_MODULE"
+    [ "$status" -eq 0 ]
+}
+
+@test "Beszel agent env file permissions are explicitly locked to 600" {
+    run rg -n 'chmod 600 "\$BESZEL_ENV"' "$MONITORING_MODULE"
+    [ "$status" -eq 0 ]
+}
+
+@test "beszel-agent, health-api, and privacy-filter launch agents carry Umask = 63" {
+    run rg -n 'Umask = 63;' "$MONITORING_MODULE"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'Umask = 63;' "$HEALTH_MODULE"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'Umask = 63;' "${REPO_ROOT}/darwin/privacy-filter.nix"
+    [ "$status" -eq 0 ]
+}
+
+@test "Beszel agent env umask is set before the heredoc writes KEY content" {
+    umask_line="$(rg -n 'umask 077' "$MONITORING_MODULE" | head -n1 | cut -d: -f1)"
+    heredoc_line="$(rg -n 'cat > "\$BESZEL_ENV"' "$MONITORING_MODULE" | head -n1 | cut -d: -f1)"
+    [ -n "$umask_line" ]
+    [ -n "$heredoc_line" ]
+    [ "$umask_line" -lt "$heredoc_line" ]
+}
+
+@test "Beszel agent env chmod 600 runs unconditionally, covering files that predate this hardening" {
+    last_fi_line="$(rg -n '^\s*fi$' "$MONITORING_MODULE" | tail -n1 | cut -d: -f1)"
+    chmod_line="$(rg -n 'chmod 600 "\$BESZEL_ENV"' "$MONITORING_MODULE" | head -n1 | cut -d: -f1)"
+    [ -n "$last_fi_line" ]
+    [ -n "$chmod_line" ]
+    [ "$chmod_line" -gt "$last_fi_line" ]
+}

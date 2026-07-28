@@ -72,6 +72,10 @@ in
         HOME = agentHome;
         PATH = agentPath;
       };
+
+      # Owner-only: the KEY in beszel-agent.env is the compensating control
+      # for the agent listening on 45876 across all interfaces (tailnet-reachable).
+      Umask = 63; # Decimal representation of 0077 — owner-only files and directories
     };
   };
 
@@ -88,17 +92,24 @@ in
         # Create env file placeholder if not configured
         if [ ! -f "$BESZEL_ENV" ]; then
           sudo -u ${userConfig.username} mkdir -p "$(dirname "$BESZEL_ENV")"
-          cat > "$BESZEL_ENV" << 'ENVEOF'
+          (
+            umask 077
+            cat > "$BESZEL_ENV" << 'ENVEOF'
     # Beszel agent configuration
     # Get the KEY value from Beszel Hub after adding this system
     KEY=
     PORT=45876
     ENVEOF
+          )
           chown ${userConfig.username}:staff "$BESZEL_ENV"
           echo "⚠ Beszel agent env created (KEY needs configuration)"
           echo "  Edit: $BESZEL_ENV"
         else
           echo "✓ Beszel agent config exists"
         fi
+
+        # Explicit chmod 600 regardless of branch above — belt-and-braces for
+        # machines that already had the file before this hardening landed.
+        chmod 600 "$BESZEL_ENV"
   '';
 }

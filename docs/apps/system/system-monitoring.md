@@ -73,7 +73,9 @@ Machine-local configuration lives at:
 ```
 
 Set the `KEY` supplied by the Beszel hub before expecting the agent to connect.
-The agent listens on port `45876`.
+The agent listens on port `45876` on all interfaces (tailnet-reachable), so the
+env file is created `chmod 600` (owner-only) — key confidentiality is the
+compensating control until binding is scoped in a later epic.
 
 Useful checks:
 

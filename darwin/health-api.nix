@@ -46,6 +46,8 @@ in
         HOME = "/Users/${userConfig.username}";
         PATH = "/etc/profiles/per-user/${userConfig.username}/bin:/opt/homebrew/bin:/run/current-system/sw/bin:/usr/bin:/usr/sbin:/bin";
       };
+
+      Umask = 63; # Decimal representation of 0077 — owner-only files and directories
     };
   };
 }

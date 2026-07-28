@@ -28,6 +28,16 @@
 # than /dev/tty redirection approaches.
 #
 # ==============================================================================
+#
+# REF PINNING: setup.sh resolves a single SOURCE_REF (the release tag by
+# default, or NIX_INSTALL_BRANCH during development) and exports it to
+# bootstrap-dist.sh as NIX_INSTALL_REF before executing it, so the whole
+# install chain (setup.sh -> bootstrap-dist.sh -> cloned config) runs from one
+# immutable version. NOTE: the tag-pinned path only takes effect starting with
+# the release *after* this change ships — bootstrap-dist.sh at earlier tags
+# does not yet read NIX_INSTALL_REF.
+#
+# ==============================================================================
 
 set -euo pipefail  # Strict error handling
 
@@ -111,6 +121,13 @@ command_exists() {
 create_temp_dir() {
     TEMP_DIR="$(mktemp -d /tmp/nix-install-setup.XXXXXX)" || return 1
     trap 'rm -rf "${TEMP_DIR}"' EXIT
+}
+
+# Export SOURCE_REF as NIX_INSTALL_REF so bootstrap-dist.sh (and everything it
+# clones) runs from the same ref setup.sh itself resolved: the release tag by
+# default, or the NIX_INSTALL_BRANCH override during development.
+export_bootstrap_ref() {
+    export NIX_INSTALL_REF="${SOURCE_REF}"
 }
 
 verify_checksum() {
@@ -376,7 +393,12 @@ main() {
     #   without needing /dev/tty redirects or other workarounds
     log_info "Starting bootstrap installation..."
     log_info "Executing: bash ${TEMP_DIR}/${BOOTSTRAP_SCRIPT}"
+    log_info "Pinned ref: ${SOURCE_REF} (NIX_INSTALL_REF)"
     echo ""
+
+    # Export the resolved ref so bootstrap-dist.sh and the config clone it
+    # performs stay pinned to the same version as this wrapper.
+    export_bootstrap_ref
 
     cd "${TEMP_DIR}" || handle_error "Failed to change to temporary directory"
 

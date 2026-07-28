@@ -96,6 +96,9 @@ versioning.
 - Run `make bump-minor` for feature releases.
 - Run `make bump-patch` for fix-only releases.
 - Run `make verify-version` before tagging.
+- Run `make smoke-test-clone REF=vX.Y.Z` after tagging (or with no `REF` to test
+  current `HEAD`) to eval-test all 3 profiles from a scratch clone of that ref —
+  this is the check that catches file-list drift `nix-eval` alone cannot see.
 - Run `make release-tag` to create the annotated tag.
 - `make release-tag` refuses dirty trees, non-`main` branches, duplicate tags,
   and version drift.

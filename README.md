@@ -442,7 +442,7 @@ nix-install/
 │   ├── audit-launchagents.sh # Steady-state RSS audit
 │   ├── claude-cleanup.sh     # Orphan kill + --prune-old
 │   ├── send-notification.sh  # Email helper (msmtp) — shared by maintenance scripts
-│   ├── beszel-sensors/       # Custom Beszel sensors (power, temp_cpu, temp_gpu)
+│   ├── beszel-sensors/       # Custom Beszel sensors (power.sh, temp.sh, temp_gpu.sh)
 │   └── weekly-maintenance-digest.sh
 └── docs/                     # Documentation (Epic-07)
 ```
@@ -482,7 +482,7 @@ nix-install/
 | **Commits** | 735 (+218 since v1.0.0) |
 | **Development** | ~20 active days (v1.0.0) + 2 days (Epic-08 sprint), ~96 hours total |
 | **Code** | 19K lines (Nix + Shell + Python) |
-| **Tests** | 1,140 test cases (16 BATS files) |
+| **Tests** | 1,389 test cases (43 BATS files, 241 in the active gate) |
 | **Documentation** | 46K lines across 137 markdown files |
 | **GitHub Issues** | Epic-08 #236–#258 (23 stories) + follow-up fixes #269–#285 |
 | **Packages** | 35 casks (19 on AI-Assistant), 7 brews, 8 MAS, 50+ Nix |

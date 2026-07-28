@@ -36,6 +36,7 @@ safe_bats_suites=(
     tests/release_monitor.bats
     tests/retired_desktop_utilities.bats
     tests/retired_icloud_sync.bats
+    tests/retired_requirements_integrity_gate.bats
     tests/retired_vscode.bats
     tests/smb_automount_security.bats
     tests/smoke_test_clone.bats

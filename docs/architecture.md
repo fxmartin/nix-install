@@ -48,15 +48,23 @@ flake.nix
                       nix    mount    .nix     .nix
     │         │
     │         ├── darwin/maintenance.nix ──── mkScheduledAgent
-    │         │   ├── nix-gc           (7 LaunchAgents)
+    │         │   ├── nix-gc           (13 LaunchAgents)
     │         │   ├── nix-optimize
     │         │   ├── weekly-digest
+    │         │   ├── vitals-sampler       (StartInterval: 1h)
     │         │   ├── release-monitor
     │         │   ├── disk-cleanup
+    │         │   ├── docker-deep-prune
+    │         │   ├── ollama-lru           (enableOllamaLRU only)
     │         │   ├── claude-code-cleanup  (StartInterval: 90min)
-    │         │   └── ollama-serve
+    │         │   ├── claude-project-prune
+    │         │   ├── ollama-pressure-guard
+    │         │   ├── virt-vm-orphan-watch (StartInterval: 10min)
+    │         │   └── ollama-serve         (enableOllamaServeAgent only)
     │         │
     │         ├── darwin/health-api.nix
+    │         ├── darwin/monitoring.nix    (beszel-agent)
+    │         ├── darwin/privacy-filter.nix (Epic-09, 127.0.0.1:7790)
     │         ├── darwin/stylix.nix
     │         └── darwin/calibre.nix
     │
@@ -167,9 +175,10 @@ _Snapshot captured 2026-04-21 on Power profile (MacBook Pro M3 Max). Median RSS 
 | `ollama-serve` | user | 10/10 | 31 | Always-on LLM server; stays light because models load into GPU/Metal, not resident RSS |
 | `health-api` | user | 10/10 | 14 | Python stdlib `http.server`, threaded handler — no framework overhead |
 | `beszel-agent` | user | 10/10 | 6 | Go binary, shipped upstream; negligible |
-| `nix-gc`, `nix-optimize`, `weekly-digest`, `disk-cleanup`, `release-monitor`, `claude-code-cleanup`, `claude-project-prune`, `docker-deep-prune`, `ollama-lru`, `ollama-pressure-guard`, `rsync-backup-*`, `nix-gc-system` | user/system | 0/10 | — | Scheduled one-shots — correctly absent between fires |
+| `privacy-filter` | user | not yet audited | — | Always-on MLX PII redaction service (Epic-09, 127.0.0.1:7790); added after this snapshot — re-run `audit-launchagents` to capture RSS |
+| `nix-gc`, `nix-optimize`, `weekly-digest`, `disk-cleanup`, `release-monitor`, `claude-code-cleanup`, `claude-project-prune`, `docker-deep-prune`, `ollama-lru`, `ollama-pressure-guard`, `rsync-backup-*`, `nix-gc-system`, `vitals-sampler`, `virt-vm-orphan-watch` | user/system | 0/10 | — | Scheduled one-shots — correctly absent between fires |
 
-**Total always-on footprint: ~51 MB.** No agent exceeds the 100 MB warn threshold.
+**Total always-on footprint: ~51 MB** (excludes `privacy-filter`, pending re-audit). No audited agent exceeds the 100 MB warn threshold.
 
 To re-audit at any time: `audit-launchagents` (5 min). Tune via `SAMPLES=N INTERVAL_SEC=N WARN_MB=N audit-launchagents`. System daemons (`nix-gc-system`) need `sudo` pre-authorization to show their RSS; without it they report "not running".
 

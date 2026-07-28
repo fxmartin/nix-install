@@ -146,4 +146,3 @@ When adding new config files to this directory:
 ## See Also
 - **Epic-04**: Development Environment & Shell Configuration
 - **Epic-05**: Theming & Visual Consistency
-- **mlgruby-repo-for-reference/**: Production reference implementation

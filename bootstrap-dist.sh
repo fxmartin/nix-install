@@ -423,7 +423,7 @@ validate_name() {
 #   3. /tmp/nix-bootstrap/user-config.nix (previous bootstrap attempt)
 # Sets global variables: USER_FULLNAME, USER_EMAIL, GITHUB_USERNAME
 # Returns: 0 if config found and user chose to reuse, 1 if not found or user declined
-# Pattern: Based on mlgruby-repo-for-reference/scripts/install/pre-nix-installation.sh (lines 239-289)
+# Pattern: Historically based on a local mlgruby dotfiles reference clone (not part of this repository)
 check_existing_user_config() {
     local existing_config=""
     local config_source=""

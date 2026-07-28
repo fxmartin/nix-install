@@ -1297,6 +1297,56 @@ EOF
     [ "$status" -eq 1 ]
 }
 
+@test "validate_nix_conf_path rejects an empty/unset path" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path
+    [ "$status" -eq 1 ]
+    [[ "${output}" =~ "Invalid" ]] || [[ "${output}" =~ "invalid" ]]
+}
+
+@test "validate_nix_conf_path rejects a path containing a space" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path "/etc/nix/nix .conf"
+    [ "$status" -eq 1 ]
+}
+
+@test "validate_nix_conf_path rejects a path containing a backtick" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path '/etc/nix/`touch /tmp/pwned`.conf'
+    [ "$status" -eq 1 ]
+}
+
+@test "validate_nix_conf_path rejects a path containing a newline" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path "$(printf '/etc/nix/nix\n.conf')"
+    [ "$status" -eq 1 ]
+}
+
+@test "validate_nix_conf_path rejects a path containing a pipe" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path "/etc/nix/nix.conf|touch /tmp/pwned"
+    [ "$status" -eq 1 ]
+}
+
+@test "validate_nix_conf_path accepts a path using the full allowed character set" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path "/etc/nix-2/sub_dir/nix.conf-01"
+    [ "$status" -eq 0 ]
+}
+
+@test "validate_nix_conf_path error message includes the offending value" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path "not/absolute"
+    [[ "${output}" =~ "not/absolute" ]]
+}
+
 @test "configure_nix_phase aborts before any sudo call when NIX_CONF_PATH has a single quote" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 

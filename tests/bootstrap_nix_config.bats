@@ -1252,6 +1252,170 @@ EOF
     [[ "${output}" =~ "restart" ]] || [[ "${output}" =~ "daemon" ]]
 }
 
+# =============================================================================
+# Root-Shell Interpolation Hardening Tests (Story 10.2-001)
+# =============================================================================
+
+@test "validate_nix_conf_path function exists" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    declare -f validate_nix_conf_path >/dev/null
+}
+
+@test "validate_nix_conf_path accepts a plain absolute path" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path "/etc/nix/nix.conf"
+    [ "$status" -eq 0 ]
+}
+
+@test "validate_nix_conf_path rejects a path containing a single quote" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path "/etc/nix/nix'.conf"
+    [ "$status" -eq 1 ]
+    [[ "${output}" =~ "Invalid" ]] || [[ "${output}" =~ "invalid" ]]
+}
+
+@test "validate_nix_conf_path rejects a path containing a semicolon" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path "/etc/nix/nix.conf; touch /tmp/pwned"
+    [ "$status" -eq 1 ]
+}
+
+@test "validate_nix_conf_path rejects a path containing a command substitution" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path '/etc/nix/$(touch /tmp/pwned).conf'
+    [ "$status" -eq 1 ]
+}
+
+@test "validate_nix_conf_path rejects a relative path" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path "relative/nix.conf"
+    [ "$status" -eq 1 ]
+}
+
+@test "validate_nix_conf_path rejects an empty/unset path" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path
+    [ "$status" -eq 1 ]
+    [[ "${output}" =~ "Invalid" ]] || [[ "${output}" =~ "invalid" ]]
+}
+
+@test "validate_nix_conf_path rejects a path containing a space" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path "/etc/nix/nix .conf"
+    [ "$status" -eq 1 ]
+}
+
+@test "validate_nix_conf_path rejects a path containing a backtick" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path '/etc/nix/`touch /tmp/pwned`.conf'
+    [ "$status" -eq 1 ]
+}
+
+@test "validate_nix_conf_path rejects a path containing a newline" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path "$(printf '/etc/nix/nix\n.conf')"
+    [ "$status" -eq 1 ]
+}
+
+@test "validate_nix_conf_path rejects a path containing a pipe" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path "/etc/nix/nix.conf|touch /tmp/pwned"
+    [ "$status" -eq 1 ]
+}
+
+@test "validate_nix_conf_path accepts a path using the full allowed character set" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path "/etc/nix-2/sub_dir/nix.conf-01"
+    [ "$status" -eq 0 ]
+}
+
+@test "validate_nix_conf_path error message includes the offending value" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run validate_nix_conf_path "not/absolute"
+    [[ "${output}" =~ "not/absolute" ]]
+}
+
+@test "configure_nix_phase aborts before any sudo call when NIX_CONF_PATH has a single quote" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    local pwned_marker="${TEST_TMP_DIR}/pwned_quote"
+    NIX_CONF_PATH="${TEST_TMP_DIR}/nix'; touch ${pwned_marker}; '.conf"
+    export NIX_CONF_PATH
+
+    # Fail the test if sudo is ever invoked while validation should have short-circuited first
+    sudo() {
+        echo "sudo should not have been called" >&2
+        return 1
+    }
+    export -f sudo
+
+    run configure_nix_phase
+    [ "$status" -eq 1 ]
+    [[ "${output}" =~ "Invalid" ]] || [[ "${output}" =~ "invalid" ]]
+    [ ! -f "${pwned_marker}" ]
+}
+
+@test "configure_nix_phase aborts before any sudo call when NIX_CONF_PATH has a disallowed character" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    local pwned_marker="${TEST_TMP_DIR}/pwned_subst"
+    NIX_CONF_PATH="${TEST_TMP_DIR}/nix\$(touch ${pwned_marker}).conf"
+    export NIX_CONF_PATH
+
+    sudo() {
+        echo "sudo should not have been called" >&2
+        return 1
+    }
+    export -f sudo
+
+    run configure_nix_phase
+    [ "$status" -eq 1 ]
+    [ ! -f "${pwned_marker}" ]
+}
+
+@test "configure_nix_phase does not execute shell metacharacters from a hostile USER value" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    touch "${MOCK_NIX_CONF}"
+    NIX_CONF_PATH="${MOCK_NIX_CONF}"
+    export NIX_CONF_PATH
+
+    local pwned_marker="${TEST_TMP_DIR}/pwned_user"
+    USER="\$(touch ${pwned_marker})"
+    export USER
+
+    run configure_nix_phase
+    [ "$status" -eq 0 ]
+    [ ! -f "${pwned_marker}" ]
+
+    # The hostile value should still be written to nix.conf verbatim (as data, not executed)
+    grep -qF "${USER}" "${MOCK_NIX_CONF}"
+}
+
+@test "configure_nix_phase passes path and USER as positional args, not interpolated" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    touch "${MOCK_NIX_CONF}"
+    NIX_CONF_PATH="${MOCK_NIX_CONF}"
+    export NIX_CONF_PATH
+
+    run configure_nix_phase
+    [ "$status" -eq 0 ]
+    grep -q "trusted-users = root ${USER}" "${MOCK_NIX_CONF}"
+}
+
 @test "configure_nix_phase handles fresh install scenario" {
     export MOCK_CPU_CORES=8
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"

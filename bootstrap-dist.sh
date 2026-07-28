@@ -1777,12 +1777,36 @@ verify_nix_configuration() {
     return 0
 }
 
+# Function: validate_nix_conf_path
+# Purpose: Reject any NIX_CONF_PATH value that could break out of the
+#          positional-argument passing used by the root-shell helpers below
+#          (Story 10.2-001 - eliminate root-shell interpolation)
+# Arguments: $1 - Path to validate
+# Returns: 0 if the path is a safe absolute path, 1 otherwise
+validate_nix_conf_path() {
+    local candidate_path="${1:-}"
+
+    if [[ ! "${candidate_path}" =~ ^/[A-Za-z0-9._/-]+$ ]]; then
+        log_error "Invalid NIX_CONF_PATH: '${candidate_path}'"
+        log_error "Path must be absolute and match ^/[A-Za-z0-9._/-]+\$"
+        return 1
+    fi
+
+    return 0
+}
+
 # Function: configure_nix_phase
 # Purpose: Phase 4 (continued) orchestration - Configure Nix for macOS
 # Arguments: None
 # Returns: 0 on success, 1 on critical failure
 configure_nix_phase() {
     local nix_conf_path="${NIX_CONF_PATH:-/etc/nix/nix.conf}"
+
+    # Validate before any sudo call - a hostile NIX_CONF_PATH must never
+    # reach the root shells below (Story 10.2-001)
+    if ! validate_nix_conf_path "${nix_conf_path}"; then
+        return 1
+    fi
 
     echo ""
     log_info "========================================"
@@ -1797,22 +1821,26 @@ configure_nix_phase() {
     backup_nix_config "${nix_conf_path}"
 
     # Configure binary cache (CRITICAL)
-    if ! sudo bash -c "$(declare -f log_info log_error); $(declare -f configure_nix_binary_cache); configure_nix_binary_cache '${nix_conf_path}'"; then
+    # Path is passed as a positional argument ($1), never interpolated into the root shell
+    if ! sudo bash -c "$(declare -f log_info log_error); $(declare -f configure_nix_binary_cache); configure_nix_binary_cache \"\$1\"" _ "${nix_conf_path}"; then
         log_error "Failed to configure binary cache (critical)"
         return 1
     fi
 
     # Configure performance settings (non-critical)
-    sudo bash -c "$(declare -f log_info log_warn get_cpu_cores); $(declare -f configure_nix_performance); configure_nix_performance '${nix_conf_path}'" || true
+    # Path is passed as a positional argument ($1), never interpolated into the root shell
+    sudo bash -c "$(declare -f log_info log_warn get_cpu_cores); $(declare -f configure_nix_performance); configure_nix_performance \"\$1\"" _ "${nix_conf_path}" || true
 
     # Configure trusted users (CRITICAL)
-    if ! sudo bash -c "USER=${USER}; $(declare -f log_info log_error); $(declare -f configure_nix_trusted_users); configure_nix_trusted_users '${nix_conf_path}'"; then
+    # Path and USER are passed as positional arguments ($1, $2), never interpolated into the root shell
+    if ! sudo bash -c "$(declare -f log_info log_error); $(declare -f configure_nix_trusted_users); USER=\"\$2\"; configure_nix_trusted_users \"\$1\"" _ "${nix_conf_path}" "${USER}"; then
         log_error "Failed to configure trusted users (critical)"
         return 1
     fi
 
     # Configure sandbox (non-critical)
-    sudo bash -c "$(declare -f log_info log_warn); $(declare -f configure_nix_sandbox); configure_nix_sandbox '${nix_conf_path}'" || true
+    # Path is passed as a positional argument ($1), never interpolated into the root shell
+    sudo bash -c "$(declare -f log_info log_warn); $(declare -f configure_nix_sandbox); configure_nix_sandbox \"\$1\"" _ "${nix_conf_path}" || true
 
     # Restart daemon to apply changes (CRITICAL)
     if ! restart_nix_daemon; then

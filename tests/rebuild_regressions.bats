@@ -8,6 +8,7 @@ setup() {
     SHELL_MODULE="${BATS_TEST_DIRNAME}/../home-manager/modules/shell.nix"
     BUILD_WORKFLOW="${BATS_TEST_DIRNAME}/../.github/workflows/build-bootstrap.yml"
     NIX_WORKFLOW="${BATS_TEST_DIRNAME}/../.github/workflows/nix-flake-check.yml"
+    SCRIPTS_WORKFLOW="${BATS_TEST_DIRNAME}/../.github/workflows/scripts-ci.yml"
     MAKEFILE="${BATS_TEST_DIRNAME}/../Makefile"
     BUMP_VERSION_SCRIPT="${BATS_TEST_DIRNAME}/../scripts/bump-version.sh"
     PYTHON_MODULE="${BATS_TEST_DIRNAME}/../home-manager/modules/python.nix"
@@ -59,11 +60,39 @@ setup() {
     [ "$status" -eq 1 ]
 }
 
-@test "Nix CI checks out and watches the Claude submodule" {
+@test "Nix CI checks out and watches CLAUDE.md, not the dead 'Claude' path" {
     run rg -n 'submodules: recursive' "$NIX_WORKFLOW"
     [ "$status" -eq 0 ]
 
+    run rg -n -- "- 'CLAUDE.md'" "$NIX_WORKFLOW"
+    [ "$status" -eq 0 ]
+
     run rg -n -- "- 'Claude'" "$NIX_WORKFLOW"
+    [ "$status" -eq 1 ]
+}
+
+@test "scripts CI lints setup.sh and scripts/** on every touching PR" {
+    run rg -n "^      - 'scripts/\*\*'" "$SCRIPTS_WORKFLOW"
+    [ "$status" -eq 0 ]
+
+    run rg -n "^      - 'setup\.sh'" "$SCRIPTS_WORKFLOW"
+    [ "$status" -eq 0 ]
+
+    run rg -n '^\s*pull_request:' "$SCRIPTS_WORKFLOW"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'shellcheck' "$SCRIPTS_WORKFLOW"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'bash -n' "$SCRIPTS_WORKFLOW"
+    [ "$status" -eq 0 ]
+}
+
+@test "make shellcheck covers setup.sh and beszel-sensors scripts" {
+    run rg -n 'shellcheck --severity=warning .*\bsetup\.sh\b' "$MAKEFILE"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'shellcheck --severity=warning .*scripts/beszel-sensors/\*\.sh' "$MAKEFILE"
     [ "$status" -eq 0 ]
 }
 

@@ -1,0 +1,50 @@
+# ABOUTME: GitHub Actions workflow to lint and syntax-check scripts/** and setup.sh
+# ABOUTME: Catches shell regressions in maintenance scripts before they reach main branch
+
+name: Scripts CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - 'setup.sh'
+      - '.github/workflows/scripts-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - 'setup.sh'
+      - '.github/workflows/scripts-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  scripts-ci:
+    name: Lint and validate scripts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Validate shell script syntax
+        run: |
+          echo "Validating syntax of setup.sh and scripts/**/*.sh..."
+          errors=0
+          for f in setup.sh scripts/*.sh scripts/beszel-sensors/*.sh; do
+            echo -n "  Checking $f: "
+            if bash -n "$f" 2>&1; then
+              echo "OK"
+            else
+              echo "FAILED"
+              errors=$((errors + 1))
+            fi
+          done
+          if [ $errors -gt 0 ]; then
+            echo "ERROR: $errors files failed syntax validation"
+            exit 1
+          fi
+          echo "All scripts passed syntax validation"
+
+      - name: Run shellcheck on scripts
+        run: shellcheck --severity=warning setup.sh scripts/*.sh scripts/beszel-sensors/*.sh

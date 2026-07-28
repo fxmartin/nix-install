@@ -28,7 +28,7 @@ fmt-check:
 	git ls-files '*.nix' ':!:user-config.nix' ':!:user-config.template.nix' | while IFS= read -r file; do if test -f "$$file"; then nixfmt --check "$$file"; fi; done
 
 shellcheck:
-	shellcheck --severity=warning bootstrap.sh lib/*.sh scripts/*.sh tests/*.sh
+	shellcheck --severity=warning bootstrap.sh setup.sh lib/*.sh scripts/*.sh scripts/beszel-sensors/*.sh tests/*.sh
 
 # Ordered as a prerequisite of `test` so the guard runs before any suite does.
 # A suite that mutates the host must be caught before it gets the chance.

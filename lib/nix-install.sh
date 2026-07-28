@@ -35,33 +35,78 @@ check_nix_installed() {
     fi
 }
 
+# Path of the Nix installer downloaded for this run (Story 10.2-002)
+#
+# Published by download_nix_installer, consumed and cleared by
+# install_nix_multi_user. Empty means "nothing downloaded" - the installer is
+# never referenced by a fixed, guessable name.
+NIX_INSTALLER_PATH=""
+
 # Download the official Nix installer script from nixos.org
 #
-# Downloads the multi-user installation script to /tmp for execution.
-# Uses curl with -L flag to follow redirects.
+# The downloaded script is executed with root privileges, so the fetch is
+# hardened three ways (Story 10.2-002):
+#   - --proto '=https' --tlsv1.2 pin the transport, rejecting a plaintext or
+#     downgraded redirect target
+#   - -f makes curl fail on an HTTP error instead of writing the error body to
+#     disk where it would later be handed to sh
+#   - the destination is a mktemp path, so an attacker cannot pre-create or
+#     swap a predictable /tmp/nix-installer.sh between download and execution
+#
+# curl's stderr is deliberately not suppressed: a TLS or DNS failure has to be
+# diagnosable from the bootstrap transcript.
+#
+# Sets:
+#   NIX_INSTALLER_PATH - path of the downloaded, executable installer
 #
 # Returns:
 #   0 - Download successful
-#   1 - Download failed (network error, DNS failure, etc.)
+#   1 - Download failed (network error, DNS failure, HTTP error, empty body)
 download_nix_installer() {
     local installer_url="https://nixos.org/nix/install"
-    local installer_path="/tmp/nix-installer.sh"
+    local installer_path
 
-    log_info "Downloading Nix installer from ${installer_url}..."
-
-    if ! curl -L "${installer_url}" -o "${installer_path}" 2>/dev/null; then
-        log_error "Failed to download Nix installer"
-        log_error "Please check your internet connection and try again"
+    if ! installer_path=$(mktemp "${TMPDIR:-/tmp}/nix-installer.XXXXXXXXXX"); then
+        log_error "Failed to create a temporary file for the Nix installer"
         return 1
     fi
 
-    if [[ ! -f "${installer_path}" ]]; then
-        log_error "Installer download succeeded but file not found at ${installer_path}"
+    log_info "Downloading Nix installer from ${installer_url}..."
+
+    if ! curl --proto '=https' --tlsv1.2 -fsSL "${installer_url}" -o "${installer_path}"; then
+        log_error "Failed to download Nix installer"
+        log_error "Please check your internet connection and try again"
+        rm -f "${installer_path}"
+        return 1
+    fi
+
+    if [[ ! -s "${installer_path}" ]]; then
+        log_error "Nix installer download produced an empty file"
+        log_error "Refusing to execute it - please retry the installation"
+        rm -f "${installer_path}"
         return 1
     fi
 
     chmod +x "${installer_path}"
+    NIX_INSTALLER_PATH="${installer_path}"
     log_info "✓ Nix installer downloaded to ${installer_path}"
+    return 0
+}
+
+# Delete the downloaded Nix installer and forget its path
+#
+# Called once the installer has run, whether it succeeded or not, so no
+# executable copy of an upstream script is left sitting in the temp directory
+# (Story 10.2-002).
+#
+# Returns:
+#   0 - Always (cleanup is best-effort)
+remove_nix_installer() {
+    if [[ -n "${NIX_INSTALLER_PATH:-}" ]]; then
+        rm -f "${NIX_INSTALLER_PATH}"
+        NIX_INSTALLER_PATH=""
+    fi
+
     return 0
 }
 
@@ -134,11 +179,21 @@ cleanup_nix_backup_files() {
 #
 # Requires sudo for system-level changes.
 #
+# Runs only the installer published by download_nix_installer in
+# NIX_INSTALLER_PATH, and removes it afterwards (Story 10.2-002).
+#
 # Returns:
 #   0 - Installation successful
-#   1 - Installation failed
+#   1 - No installer available, or installation failed
 install_nix_multi_user() {
-    local installer_path="/tmp/nix-installer.sh"
+    local installer_path="${NIX_INSTALLER_PATH:-}"
+
+    # Only ever execute what this run downloaded and verified (Story 10.2-002)
+    if [[ -z "${installer_path}" || ! -f "${installer_path}" ]]; then
+        log_error "No downloaded Nix installer to run"
+        log_error "download_nix_installer must succeed before installation"
+        return 1
+    fi
 
     # Clean up any leftover backup files from previous failed installs
     cleanup_nix_backup_files
@@ -155,11 +210,13 @@ install_nix_multi_user() {
     # Run installer with --daemon flag for multi-user installation
     # The installer handles all the heavy lifting
     if ! sh "${installer_path}" --daemon; then
+        remove_nix_installer
         log_error "Nix installation failed"
         log_error "Please check the error messages above for details"
         return 1
     fi
 
+    remove_nix_installer
     log_info "✓ Nix installation completed successfully"
     return 0
 }

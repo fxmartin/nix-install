@@ -35,6 +35,39 @@ development_url="$({
 })"
 [[ "${development_url}" == "https://raw.githubusercontent.com/fxmartin/nix-install/feature/test/bootstrap-dist.sh" ]]
 
+# NIX_INSTALL_REF must be exported into bootstrap-dist.sh's environment so the
+# whole install chain (setup.sh -> bootstrap-dist.sh -> cloned config) runs
+# from one immutable ref. Default install: pin to the release tag.
+default_ref="$(
+    env -u NIX_INSTALL_BRANCH bash -c '
+        source "$1/setup.sh"
+        export_bootstrap_ref
+        printf "%s" "${NIX_INSTALL_REF}"
+    ' _ "${repo_root}"
+)"
+[[ "${default_ref}" == "v${version}" ]]
+
+# NIX_INSTALL_BRANCH developer override must flow through as NIX_INSTALL_REF,
+# preserving the current dev workflow.
+override_ref="$(
+    NIX_INSTALL_BRANCH=feature/test bash -c '
+        source "$1/setup.sh"
+        export_bootstrap_ref
+        printf "%s" "${NIX_INSTALL_REF}"
+    ' _ "${repo_root}"
+)"
+[[ "${override_ref}" == "feature/test" ]]
+
+# The export must actually be visible to a child process (not just a local var).
+child_visible_ref="$(
+    env -u NIX_INSTALL_BRANCH bash -c '
+        source "$1/setup.sh"
+        export_bootstrap_ref
+        bash -c "printf %s \"\${NIX_INSTALL_REF:-}\""
+    ' _ "${repo_root}"
+)"
+[[ "${child_visible_ref}" == "v${version}" ]]
+
 # Temp dir must be created with an unpredictable mktemp template (not the
 # PID-predictable "-$$" suffix) and removed automatically once the shell that
 # created it exits, via a trap on EXIT.

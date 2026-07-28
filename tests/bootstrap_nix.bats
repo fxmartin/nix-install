@@ -537,6 +537,21 @@ SHIM
     [ "${first_path}" != "${second_path}" ]
 }
 
+@test "download_nix_installer fails cleanly when mktemp cannot create the temp file" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    install_recording_curl
+
+    # Point TMPDIR at a directory that does not exist so mktemp itself fails,
+    # before curl is ever invoked (Story 10.2-002 - mktemp guard).
+    export TMPDIR="${TEST_TMP_DIR}/does-not-exist"
+
+    run download_nix_installer
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"temporary file"* ]]
+    [ -z "${NIX_INSTALLER_PATH}" ]
+    [ ! -f "${CURL_ARGS_FILE}" ]
+}
+
 @test "install_nix_multi_user refuses to run when no installer was downloaded" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
@@ -587,6 +602,33 @@ SHIM
 
     [ ! -e "${seeded_path}" ]
     [ -z "${NIX_INSTALLER_PATH}" ]
+}
+
+@test "remove_nix_installer is safe to call a second time" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    seed_mock_installer
+
+    remove_nix_installer
+    run remove_nix_installer
+
+    [ "$status" -eq 0 ]
+    [ -z "${NIX_INSTALLER_PATH}" ]
+}
+
+@test "install_nix_multi_user runs and removes the exact path download_nix_installer produced" {
+    export MOCK_SUDO_FAIL=0
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    install_recording_curl
+
+    download_nix_installer
+    local downloaded_path="${NIX_INSTALLER_PATH}"
+    [ -f "${downloaded_path}" ]
+
+    # run executes in a subshell, so NIX_INSTALLER_PATH resets are not visible
+    # here - the filesystem side effect (removal) is the observable contract.
+    run install_nix_multi_user
+    [ "$status" -eq 0 ]
+    [ ! -e "${downloaded_path}" ]
 }
 
 # =============================================================================

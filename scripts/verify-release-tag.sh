@@ -14,7 +14,7 @@
 # replaces.
 #
 # Exit codes:
-#   0  signature verified against configured signer trust
+#   0  signature verified against configured or repository signer trust
 #   1  no signature, signature invalid, OR signer trust unconfigured
 #   2  usage error / unknown tag
 #
@@ -42,7 +42,14 @@ if [[ "$(git cat-file -t "${tag}" 2>/dev/null)" != "tag" ]]; then
     exit 1
 fi
 
-verify_output="$(git tag -v "${tag}" 2>&1)"
+verify_git=(git)
+repo_root="$(git rev-parse --show-toplevel 2>/dev/null)"
+if ! git config --get gpg.ssh.allowedSignersFile >/dev/null 2>&1 \
+    && [[ -f "${repo_root}/.allowed_signers" ]]; then
+    verify_git+=(-c "gpg.ssh.allowedSignersFile=${repo_root}/.allowed_signers")
+fi
+
+verify_output="$("${verify_git[@]}" tag -v "${tag}" 2>&1)"
 verify_rc=$?
 
 if [[ ${verify_rc} -eq 0 ]]; then

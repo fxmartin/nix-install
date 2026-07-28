@@ -14,6 +14,11 @@ setup() {
     done
 }
 
+@test "Standard and Power profiles install Google Drive desktop sync" {
+    run rg -n '"google-drive"' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 0 ]
+}
+
 @test "full Office bundle and companion apps remain absent" {
     run rg -n '"microsoft-(office|office-businesspro|outlook|onenote|teams|onedrive|365-copilot)"' \
         "$HOMEBREW_CONFIG"

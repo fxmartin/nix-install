@@ -73,7 +73,39 @@ setup() {
         >"${BATS_TEST_TMPDIR}/allowed_signers"
     git config gpg.ssh.allowedSignersFile "${BATS_TEST_TMPDIR}/allowed_signers"
     git tag -s v1.0.0 -m "Release v1.0.0"
+    run env GIT_CONFIG_GLOBAL=/dev/null bash "$VERIFY" v1.0.0
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"signature verified"* ]]
+}
+
+@test "configured signer trust takes precedence over the repo fallback" {
+    ssh-keygen -q -t ed25519 -N "" -f "${BATS_TEST_TMPDIR}/signing-key" </dev/null
+    ssh-keygen -q -t ed25519 -N "" -f "${BATS_TEST_TMPDIR}/other-key" </dev/null
+    git config gpg.format ssh
+    git config user.signingkey "${BATS_TEST_TMPDIR}/signing-key.pub"
+    git tag -s v1.0.0 -m "Release v1.0.0"
+    printf 't@example.com %s' "$(cat "${BATS_TEST_TMPDIR}/signing-key.pub")" \
+        >"${REPO}/.allowed_signers"
+    printf 't@example.com %s' "$(cat "${BATS_TEST_TMPDIR}/other-key.pub")" \
+        >"${BATS_TEST_TMPDIR}/configured_allowed_signers"
+    git config gpg.ssh.allowedSignersFile "${BATS_TEST_TMPDIR}/configured_allowed_signers"
+
     run bash "$VERIFY" v1.0.0
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"signature is invalid"* ]]
+}
+
+@test "repo-owned signer trust verifies a tag without local configuration" {
+    ssh-keygen -q -t ed25519 -N "" -f "${BATS_TEST_TMPDIR}/k" </dev/null
+    git config gpg.format ssh
+    git config user.signingkey "${BATS_TEST_TMPDIR}/k.pub"
+    git tag -s v1.0.0 -m "Release v1.0.0"
+    printf 't@example.com %s' "$(cat "${BATS_TEST_TMPDIR}/k.pub")" \
+        >"${REPO}/.allowed_signers"
+    git config --unset gpg.format
+    git config --unset user.signingkey
+
+    run env GIT_CONFIG_GLOBAL=/dev/null bash "$VERIFY" v1.0.0
     [ "$status" -eq 0 ]
     [[ "$output" == *"signature verified"* ]]
 }

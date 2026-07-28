@@ -23,7 +23,7 @@ in
     # Homebrew taps (repositories)
     taps = [
       "manaflow-ai/cmux" # cmux terminal - Ghostty-based terminal with vertical tabs for AI coding agents
-      "koekeishiya/formulae" # skhd - simple hotkey daemon for macOS
+      "asmvik/formulae" # skhd - simple hotkey daemon for macOS
     ];
 
     onActivation = {
@@ -52,7 +52,7 @@ in
       "starship" # Starship prompt binary (Homebrew bottle avoids nixpkgs Darwin Rust linker failure)
 
       # Hotkey Daemon
-      "koekeishiya/formulae/skhd" # skhd - Simple hotkey daemon for macOS (https://github.com/koekeishiya/skhd)
+      "asmvik/formulae/skhd" # skhd - Simple hotkey daemon for macOS (https://github.com/asmvik/skhd)
 
       # Media Tools
       # Note: yt-dlp broken in nixpkgs (curl-impersonate AppleIDN check fails on macOS 15.3)
@@ -119,6 +119,7 @@ in
 
       # File Utilities (Story 02.4-003)
       "calibre" # Calibre - Ebook library manager and converter
+      "google-drive" # Google Drive - Desktop file sync and streaming
       "keka" # Keka - Archive utility for zip, rar, 7z, etc.
 
       # System Utilities (Story 02.4-005)
@@ -140,6 +141,7 @@ in
     ]
     ++ lib.optionals (profileName == "power") [
       "fluidvoice" # FluidVoice - Local-first voice dictation with on-device speech models
+      "qobuz" # Qobuz - Hi-Res music streaming and offline playback
     ];
 
     # Global Homebrew options

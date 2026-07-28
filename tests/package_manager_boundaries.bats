@@ -42,6 +42,17 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
+@test "skhd uses the current asmvik Homebrew tap" {
+    run rg -n '"asmvik/formulae"' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 0 ]
+
+    run rg -n '"asmvik/formulae/skhd"' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'koekeishiya/formulae' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 1 ]
+}
+
 @test "Homebrew Starship bridge remains explicit" {
     run rg -n '"starship"[[:space:]]+# Starship prompt binary' "$HOMEBREW_CONFIG"
     [ "$status" -eq 0 ]

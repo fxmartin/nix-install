@@ -72,7 +72,7 @@ let
         // env;
         RunAtLoad = runAtLoad;
         KeepAlive = keepAlive;
-        Umask = 77; # 0077 — restrict log/output files to owner only
+        Umask = 63; # Decimal representation of 0077 — owner-only files and directories
       };
     };
 in
@@ -198,7 +198,7 @@ in
           HOME = agentHome;
         };
         RunAtLoad = false;
-        Umask = 77;
+        Umask = 63;
       };
     };
 
@@ -345,7 +345,7 @@ in
           HOME = agentHome;
         };
         RunAtLoad = false;
-        Umask = 77;
+        Umask = 63;
       };
     };
 
@@ -416,7 +416,7 @@ in
           HOME = agentHome;
         };
         RunAtLoad = false;
-        Umask = 77;
+        Umask = 63;
       };
     };
 
@@ -496,7 +496,7 @@ in
           OLLAMA_UNLOAD_ON_PRESSURE = userConfig.ollamaUnloadOnPressure or "warn";
         };
         RunAtLoad = false;
-        Umask = 77;
+        Umask = 63;
       };
     };
 
@@ -541,7 +541,7 @@ in
           NOTIFICATION_EMAIL = userConfig.notificationEmail;
         };
         RunAtLoad = false;
-        Umask = 77;
+        Umask = 63;
       };
     };
 

@@ -22,8 +22,98 @@ setup() {
 @test "credentialed auto_smb write no longer relies on chmod-after alone" {
     # The umask must be the mechanism establishing the mode; chmod 600 may
     # still run afterward for clarity/logging but must not be the only guard.
+    # A umask alone is NOT sufficient: '> file' on an existing path truncates
+    # in place and keeps the old mode, so the path must be unlinked first.
     run rg -n 'umask 077' "$SMB_MODULE"
     [ "$status" -eq 0 ]
+
+    local umask_line unlink_line write_line
+    umask_line=$(rg -n 'umask 077' "$SMB_MODULE" | head -1 | cut -d: -f1)
+    write_line=$(rg -n 'cat > /etc/auto_smb << AUTO_SMB_EOF' "$SMB_MODULE" | head -1 | cut -d: -f1)
+    unlink_line=$(rg -n 'rm -f /etc/auto_smb' "$SMB_MODULE" \
+        | awk -F: -v lo="$umask_line" -v hi="$write_line" '$1 > lo && $1 < hi { print $1; exit }')
+    [ -n "$unlink_line" ]
+}
+
+@test "no-password auto_smb write also unlinks before creating" {
+    local umask_line unlink_line write_line
+    umask_line=$(rg -n 'umask 022' "$SMB_MODULE" | head -1 | cut -d: -f1)
+    write_line=$(rg -n "cat > /etc/auto_smb << 'AUTO_SMB_EOF'" "$SMB_MODULE" | head -1 | cut -d: -f1)
+    unlink_line=$(rg -n 'rm -f /etc/auto_smb' "$SMB_MODULE" \
+        | awk -F: -v lo="$umask_line" -v hi="$write_line" '$1 > lo && $1 < hi { print $1; exit }')
+    [ -n "$unlink_line" ]
+}
+
+# Extracts the credentialed branch's real command sequence (umask through the
+# opening 'cat >' line) from the module, retargets it at $1, and executes it so
+# the assertions below exercise the shipped ordering rather than a hand-copied
+# imitation of it.
+run_credentialed_write_sequence() {
+    local target="$1" script
+    script=$(mktemp)
+    # Anchor on the bare 'umask 077' command, not the comment that mentions it,
+    # so the extracted fragment starts inside the subshell and stays balanced.
+    awk '
+        /^[[:space:]]*umask 077[[:space:]]*$/ { capture = 1 }
+        capture                               { sub(/^[[:space:]]+/, ""); print }
+        /cat > \/etc\/auto_smb << AUTO_SMB_EOF/ { if (capture) exit }
+    ' "$SMB_MODULE" | sed "s#/etc/auto_smb#${target}#g" > "$script"
+    printf 'placeholder-map-line\nAUTO_SMB_EOF\n' >> "$script"
+    bash "$script"
+    rm -f "$script"
+}
+
+@test "credentialed write yields owner-only mode even when auto_smb already exists world-readable" {
+    # Regression guard for the actual race: /etc/auto_smb survives across
+    # rebuilds, so on every rebuild after the first -- and in particular after
+    # a rebuild that took the no-password branch and left the file at 644 --
+    # the credential is written onto a pre-existing path. A umask cannot fix
+    # the mode of an existing file, so this must be 600 from the first byte,
+    # before the trailing chmod ever runs.
+    local tmpdir target perm
+    tmpdir=$(mktemp -d)
+    target="${tmpdir}/auto_smb"
+
+    printf 'stale world-readable map\n' > "$target"
+    chmod 644 "$target"
+
+    run_credentialed_write_sequence "$target"
+
+    perm=$(stat -f '%Lp' "$target")
+    run grep -q 'placeholder-map-line' "$target"
+    local content_status="$status"
+    rm -rf "$tmpdir"
+
+    [ "$content_status" -eq 0 ]
+    [ "$perm" = "600" ]
+}
+
+@test "credentialed write yields owner-only mode when auto_smb does not yet exist" {
+    local tmpdir target perm
+    tmpdir=$(mktemp -d)
+    target="${tmpdir}/auto_smb"
+
+    run_credentialed_write_sequence "$target"
+
+    perm=$(stat -f '%Lp' "$target")
+    rm -rf "$tmpdir"
+    [ "$perm" = "600" ]
+}
+
+@test "the existing-file regression test has teeth: omitting the unlink leaves 644" {
+    # Negative control. If this ever reports 600, the assertion above has
+    # stopped proving anything and the guard must be re-derived.
+    local tmpdir target perm
+    tmpdir=$(mktemp -d)
+    target="${tmpdir}/auto_smb"
+
+    printf 'stale world-readable map\n' > "$target"
+    chmod 644 "$target"
+    ( umask 077; printf 'secret\n' > "$target" )
+
+    perm=$(stat -f '%Lp' "$target")
+    rm -rf "$tmpdir"
+    [ "$perm" = "644" ]
 }
 
 @test "no-password auto_smb write keeps a consistent umask-then-content ordering" {

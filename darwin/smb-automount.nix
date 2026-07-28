@@ -90,8 +90,16 @@ in
           echo "  Writing /etc/auto_smb (with credentials)..."
           # umask 077 is set before the file is created so it is never
           # briefly world- or group-readable while it holds the credential.
+          # The unlink is what makes the umask effective: '> file' on an
+          # existing path truncates in place and keeps the OLD mode, so on
+          # every rebuild after the first (and especially after a rebuild
+          # that took the no-password branch and left the file at 644) the
+          # credential would land in a world-readable file and stay that way
+          # until the trailing chmod. Removing the path first forces a fresh
+          # create whose mode comes from the umask.
           (
             umask 077
+            rm -f /etc/auto_smb
             cat > /etc/auto_smb << AUTO_SMB_EOF
     #
     # SMB automount configuration for NAS shares
@@ -119,10 +127,12 @@ in
 
           # Write auto_smb without password (won't work but shows config).
           # No secret is present, so umask 022 (world-readable) is fine; the
-          # umask-then-content ordering is kept consistent with the
-          # credentialed branch above.
+          # unlink-then-umask-then-content ordering is kept consistent with
+          # the credentialed branch above so the resulting mode never depends
+          # on what a previous rebuild happened to leave behind.
           (
             umask 022
+            rm -f /etc/auto_smb
             cat > /etc/auto_smb << 'AUTO_SMB_EOF'
     #
     # SMB automount configuration for NAS shares

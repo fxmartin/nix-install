@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 # ABOUTME: Comprehensive test suite for nix-darwin installation phase (Story 01.5-001)
-# ABOUTME: Tests flake fetch from GitHub, user config copy, git init, nix-darwin build, and verification
+# ABOUTME: Tests pinned-ref clone, submodule init, user config copy, nix-darwin build, and verification
 
 # Setup and teardown
 setup() {
@@ -11,8 +11,11 @@ setup() {
     TEST_TMP_DIR="$(mktemp -d)"
     export TEST_TMP_DIR
 
-    # Mock work directory
-    export WORK_DIR="${TEST_TMP_DIR}/nix-bootstrap"
+    # Mock work directory. lib/common.sh honours _NIX_BOOTSTRAP_WORK_DIR, so
+    # the readonly WORK_DIR it defines resolves here instead of a real /tmp run.
+    export _NIX_BOOTSTRAP_WORK_DIR="${TEST_TMP_DIR}/nix-bootstrap"
+    export WORK_DIR="${_NIX_BOOTSTRAP_WORK_DIR}"
+    export FLAKE_REPO_DIR="${WORK_DIR}/repo"
     mkdir -p "${WORK_DIR}"
 
     # Mock user configuration variables
@@ -33,78 +36,26 @@ setup() {
 }
 EOF
 
-    # Mock curl for GitHub fetches
-    curl() {
-        local output_file=""
-        local url=""
-
-        # Parse curl arguments
-        while [[ $# -gt 0 ]]; do
-            case "$1" in
-                -o|-O|--output)
-                    output_file="$2"
-                    shift 2
-                    ;;
-                -L|--location|-f|--fail|-s|--silent|-S|--show-error)
-                    shift
-                    ;;
-                *)
-                    url="$1"
-                    shift
-                    ;;
-            esac
-        done
-
-        # Mock failure if requested
-        if [[ "${MOCK_CURL_FAIL:-0}" == "1" ]]; then
-            echo "curl: (22) The requested URL returned error: 404" >&2
-            return 22
-        fi
-
-        # Determine output file from URL if -O used
-        if [[ -z "$output_file" && "$url" =~ ([^/]+)$ ]]; then
-            output_file="${BASH_REMATCH[1]}"
-        fi
-
-        # Create mock file with appropriate content
-        if [[ -n "$output_file" ]]; then
-            case "$output_file" in
-                flake.nix)
-                    echo "# Mock flake.nix" > "$output_file"
-                    ;;
-                flake.lock)
-                    echo '{ "version": 7 }' > "$output_file"
-                    ;;
-                *.nix)
-                    echo "# Mock $(basename "$output_file")" > "$output_file"
-                    ;;
-                *)
-                    echo "mock content" > "$output_file"
-                    ;;
-            esac
-        fi
-
-        return 0
-    }
-    export -f curl
-
-    # Mock git operations
+    # Mock git: clone populates the destination, submodule update is a no-op
     git() {
-        if [[ "${MOCK_GIT_FAIL:-0}" == "1" ]]; then
-            echo "git: command not found" >&2
-            return 127
-        fi
-
         case "${1:-}" in
-            init)
-                mkdir -p "${WORK_DIR}/.git"
+            clone)
+                if [[ "${MOCK_CLONE_FAIL:-0}" == "1" ]]; then
+                    echo "fatal: repository not found" >&2
+                    return 128
+                fi
+                local destination="${*: -1}"
+                mkdir -p "${destination}"
+                echo "# Mock flake.nix" > "${destination}/flake.nix"
                 return 0
                 ;;
-            add)
-                return 0
-                ;;
-            commit)
-                return 0
+            -C)
+                echo "$*" >> "${TEST_TMP_DIR}/git_submodule.log"
+                if [[ "$*" == *"claude-code-config"* ]]; then
+                    # SSH-only submodule: expected to fail before Phase 6
+                    return "${MOCK_SSH_SUBMODULE_STATUS:-1}"
+                fi
+                return "${MOCK_SUBMODULE_STATUS:-0}"
                 ;;
             *)
                 return 0
@@ -223,8 +174,11 @@ teardown() {
     unset USER_EMAIL
     unset GITHUB_USERNAME
     unset USER_CONFIG_FILE
-    unset MOCK_CURL_FAIL
-    unset MOCK_GIT_FAIL
+    unset _NIX_BOOTSTRAP_WORK_DIR
+    unset FLAKE_REPO_DIR
+    unset MOCK_CLONE_FAIL
+    unset MOCK_SUBMODULE_STATUS
+    unset MOCK_SSH_SUBMODULE_STATUS
     unset MOCK_NIX_BUILD_FAIL
     unset TESTING
 }
@@ -233,9 +187,9 @@ teardown() {
 # Function Existence Tests (6 tests)
 # =============================================================================
 
-@test "fetch_flake_from_github function exists" {
+@test "clone_flake_repository function exists" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
-    declare -f fetch_flake_from_github >/dev/null
+    declare -f clone_flake_repository >/dev/null
 }
 
 @test "copy_user_config function exists" {
@@ -243,9 +197,9 @@ teardown() {
     declare -f copy_user_config >/dev/null
 }
 
-@test "initialize_git_for_flake function exists" {
+@test "initialize_flake_submodules function exists" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
-    declare -f initialize_git_for_flake >/dev/null
+    declare -f initialize_flake_submodules >/dev/null
 }
 
 @test "run_nix_darwin_build function exists" {
@@ -264,174 +218,75 @@ teardown() {
 }
 
 # =============================================================================
-# GitHub Fetch Logic Tests (15 tests)
+# Repository Clone Tests (7 tests)
 # =============================================================================
 
-@test "fetch_flake_from_github creates darwin directory" {
+@test "clone_flake_repository creates the clone directory" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
-    fetch_flake_from_github
+    clone_flake_repository
 
-    [[ -d "${WORK_DIR}/darwin" ]]
+    [[ -d "${FLAKE_REPO_DIR}" ]]
 }
 
-@test "fetch_flake_from_github creates home-manager/modules directory" {
+@test "clone_flake_repository produces a flake.nix" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
-    fetch_flake_from_github
+    clone_flake_repository
 
-    [[ -d "${WORK_DIR}/home-manager/modules" ]]
+    [[ -s "${FLAKE_REPO_DIR}/flake.nix" ]]
 }
 
-@test "fetch_flake_from_github fetches flake.nix" {
+@test "clone_flake_repository clones the pinned ref over HTTPS" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
-    fetch_flake_from_github
+    git() {
+        echo "$*" >> "${TEST_TMP_DIR}/git_clone.log"
+        local destination="${*: -1}"
+        mkdir -p "${destination}"
+        echo "# Mock flake.nix" > "${destination}/flake.nix"
+        return 0
+    }
 
-    [[ -f "${WORK_DIR}/flake.nix" ]]
+    clone_flake_repository
+
+    grep -q -- "--depth 1 --branch ${NIX_INSTALL_REF}" "${TEST_TMP_DIR}/git_clone.log"
+    grep -q "https://github.com/fxmartin/nix-install.git" "${TEST_TMP_DIR}/git_clone.log"
 }
 
-@test "fetch_flake_from_github fetches flake.lock" {
+@test "clone_flake_repository handles clone failures gracefully" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
-    fetch_flake_from_github
+    export MOCK_CLONE_FAIL=1
 
-    [[ -f "${WORK_DIR}/flake.lock" ]]
-}
-
-@test "fetch_flake_from_github fetches darwin configuration files" {
-    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
-
-    cd "${WORK_DIR}"
-    fetch_flake_from_github
-
-    [[ -f "${WORK_DIR}/darwin/configuration.nix" ]]
-    [[ -f "${WORK_DIR}/darwin/homebrew.nix" ]]
-    [[ -f "${WORK_DIR}/darwin/macos-defaults.nix" ]]
-}
-
-@test "fetch_flake_from_github fetches home-manager files" {
-    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
-
-    cd "${WORK_DIR}"
-    fetch_flake_from_github
-
-    [[ -f "${WORK_DIR}/home-manager/home.nix" ]]
-    [[ -f "${WORK_DIR}/home-manager/modules/shell.nix" ]]
-}
-
-@test "fetch_flake_from_github validates files are non-empty" {
-    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
-
-    cd "${WORK_DIR}"
-    fetch_flake_from_github
-
-    # Check flake.nix has content
-    [[ -s "${WORK_DIR}/flake.nix" ]]
-}
-
-@test "fetch_flake_from_github handles curl failures gracefully" {
-    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
-
-    cd "${WORK_DIR}"
-    export MOCK_CURL_FAIL=1
-
-    run fetch_flake_from_github
+    run clone_flake_repository
     [[ "$status" -eq 1 ]]
 }
 
-@test "fetch_flake_from_github uses correct GitHub URLs" {
+@test "clone_flake_repository logs error on failure" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    # Override curl to capture URLs
-    curl() {
-        echo "$*" >> "${TEST_TMP_DIR}/curl_calls.log"
-        builtin curl "$@" 2>/dev/null || true
-    }
-    export -f curl
+    export MOCK_CLONE_FAIL=1
 
-    cd "${WORK_DIR}"
-    fetch_flake_from_github || true
-
-    [[ -f "${TEST_TMP_DIR}/curl_calls.log" ]]
-    grep -q "github.com/fxmartin/nix-install" "${TEST_TMP_DIR}/curl_calls.log" || true
-}
-
-@test "fetch_flake_from_github exits on fetch failure" {
-    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
-
-    cd "${WORK_DIR}"
-    export MOCK_CURL_FAIL=1
-
-    run fetch_flake_from_github
-    [[ "$status" -ne 0 ]]
-}
-
-@test "fetch_flake_from_github logs progress messages" {
-    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
-
-    cd "${WORK_DIR}"
-    run fetch_flake_from_github
-
-    # Should log fetching activities
-    [[ "$output" =~ "Fetching" || "$output" =~ "Downloading" ]]
-}
-
-@test "fetch_flake_from_github creates all required directories" {
-    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
-
-    cd "${WORK_DIR}"
-    fetch_flake_from_github
-
-    [[ -d "${WORK_DIR}/darwin" ]]
-    [[ -d "${WORK_DIR}/home-manager" ]]
-    [[ -d "${WORK_DIR}/home-manager/modules" ]]
-}
-
-@test "fetch_flake_from_github fetches from main branch" {
-    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
-
-    # Override curl to capture branch
-    curl() {
-        echo "$*" >> "${TEST_TMP_DIR}/curl_branch.log"
-        builtin curl "$@" 2>/dev/null || true
-    }
-    export -f curl
-
-    cd "${WORK_DIR}"
-    fetch_flake_from_github || true
-
-    if [[ -f "${TEST_TMP_DIR}/curl_branch.log" ]]; then
-        grep -q "/main/" "${TEST_TMP_DIR}/curl_branch.log" || true
-    fi
-}
-
-@test "fetch_flake_from_github validates all required files present" {
-    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
-
-    cd "${WORK_DIR}"
-    fetch_flake_from_github
-
-    # All critical files must exist
-    [[ -f "${WORK_DIR}/flake.nix" ]]
-    [[ -f "${WORK_DIR}/flake.lock" ]]
-    [[ -f "${WORK_DIR}/darwin/configuration.nix" ]]
-    [[ -f "${WORK_DIR}/darwin/homebrew.nix" ]]
-    [[ -f "${WORK_DIR}/home-manager/home.nix" ]]
-}
-
-@test "fetch_flake_from_github logs error on failure" {
-    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
-
-    cd "${WORK_DIR}"
-    export MOCK_CURL_FAIL=1
-
-    run fetch_flake_from_github
+    run clone_flake_repository
     [[ "$output" =~ "ERROR" || "$output" =~ "failed" || "$output" =~ "Failed" ]]
+}
+
+@test "clone_flake_repository logs progress messages" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    run clone_flake_repository
+
+    [[ "$output" =~ "Cloning" || "$output" =~ "Repository" ]]
+}
+
+@test "clone_flake_repository is idempotent across re-runs" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    clone_flake_repository
+    run clone_flake_repository
+
+    [[ "$status" -eq 0 ]]
 }
 
 # =============================================================================
@@ -441,43 +296,39 @@ teardown() {
 @test "copy_user_config validates source file exists" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
+    clone_flake_repository
     run copy_user_config
 
     [[ "$status" -eq 0 ]]
 }
 
-@test "copy_user_config copies to correct destination" {
+@test "copy_user_config copies into the cloned repository" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
-    # Remove existing file to test copy
-    rm -f "${WORK_DIR}/user-config.nix"
-
+    clone_flake_repository
     copy_user_config
 
-    [[ -f "${WORK_DIR}/user-config.nix" ]]
+    [[ -f "${FLAKE_REPO_DIR}/user-config.nix" ]]
 }
 
-@test "copy_user_config preserves file permissions" {
+@test "copy_user_config leaves the destination readable" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     chmod 644 "${USER_CONFIG_FILE}"
-    cd "${WORK_DIR}"
+    clone_flake_repository
 
     copy_user_config
 
-    # File should be readable
-    [[ -r "${WORK_DIR}/user-config.nix" ]]
+    [[ -r "${FLAKE_REPO_DIR}/user-config.nix" ]]
 }
 
 @test "copy_user_config validates destination readable" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
+    clone_flake_repository
     copy_user_config
 
-    [[ -r "${WORK_DIR}/user-config.nix" ]]
+    [[ -r "${FLAKE_REPO_DIR}/user-config.nix" ]]
 }
 
 @test "copy_user_config handles missing source file" {
@@ -487,7 +338,7 @@ teardown() {
     rm -f "${USER_CONFIG_FILE}"
     export USER_CONFIG_FILE="${WORK_DIR}/nonexistent.nix"
 
-    cd "${WORK_DIR}"
+    clone_flake_repository
     run copy_user_config
 
     [[ "$status" -ne 0 ]]
@@ -496,13 +347,8 @@ teardown() {
 @test "copy_user_config exits on copy failure" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    # Make destination read-only
-    chmod 000 "${WORK_DIR}"
-
+    # Destination directory does not exist
     run copy_user_config
-
-    # Restore permissions
-    chmod 755 "${WORK_DIR}"
 
     [[ "$status" -ne 0 ]]
 }
@@ -510,7 +356,7 @@ teardown() {
 @test "copy_user_config logs success message" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
+    clone_flake_repository
     run copy_user_config
 
     [[ "$output" =~ "SUCCESS" || "$output" =~ "Copied" || "$output" =~ "copied" ]]
@@ -519,25 +365,23 @@ teardown() {
 @test "copy_user_config validates file content preserved" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
-    rm -f "${WORK_DIR}/user-config.nix"
-
+    clone_flake_repository
     copy_user_config
 
-    grep -q "testuser" "${WORK_DIR}/user-config.nix"
+    grep -q "testuser" "${FLAKE_REPO_DIR}/user-config.nix"
 }
 
 @test "copy_user_config handles existing destination file" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
+    clone_flake_repository
     # Create existing file
-    echo "old content" > "${WORK_DIR}/user-config.nix"
+    echo "old content" > "${FLAKE_REPO_DIR}/user-config.nix"
 
     copy_user_config
 
     # Should overwrite
-    grep -q "testuser" "${WORK_DIR}/user-config.nix"
+    grep -q "testuser" "${FLAKE_REPO_DIR}/user-config.nix"
 }
 
 @test "copy_user_config logs error on failure" {
@@ -546,106 +390,68 @@ teardown() {
     rm -f "${USER_CONFIG_FILE}"
     export USER_CONFIG_FILE="${WORK_DIR}/missing.nix"
 
-    cd "${WORK_DIR}"
+    clone_flake_repository
     run copy_user_config
 
     [[ "$output" =~ "ERROR" || "$output" =~ "error" || "$output" =~ "Failed" ]]
 }
 
 # =============================================================================
-# Git Initialization Tests (8 tests)
+# Submodule Initialization Tests (5 tests)
 # =============================================================================
 
-@test "initialize_git_for_flake runs git init in correct directory" {
+@test "initialize_flake_submodules initializes each HTTPS submodule per path" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
-    initialize_git_for_flake
+    clone_flake_repository
+    initialize_flake_submodules
 
-    [[ -d "${WORK_DIR}/.git" ]]
+    grep -q "zsh-autosuggestions" "${TEST_TMP_DIR}/git_submodule.log"
+    grep -q "zsh-syntax-highlighting" "${TEST_TMP_DIR}/git_submodule.log"
+    grep -q "powerlevel10k" "${TEST_TMP_DIR}/git_submodule.log"
 }
 
-@test "initialize_git_for_flake adds all files" {
+@test "initialize_flake_submodules tolerates the SSH-only submodule failing" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
-    # Create some test files
-    touch "${WORK_DIR}/flake.nix"
-    touch "${WORK_DIR}/user-config.nix"
+    clone_flake_repository
+    run initialize_flake_submodules
 
-    initialize_git_for_flake
-
-    [[ -d "${WORK_DIR}/.git" ]]
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "claude-code-config" ]]
+    [[ "$output" =~ "WARN" ]]
 }
 
-@test "initialize_git_for_flake creates initial commit" {
+@test "initialize_flake_submodules keeps going when an HTTPS submodule fails" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
-    touch "${WORK_DIR}/flake.nix"
+    export MOCK_SUBMODULE_STATUS=1
+    clone_flake_repository
+    run initialize_flake_submodules
 
-    run initialize_git_for_flake
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "WARN" ]]
+}
+
+@test "initialize_flake_submodules is NON-CRITICAL" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    export MOCK_SUBMODULE_STATUS=1
+    export MOCK_SSH_SUBMODULE_STATUS=1
+    clone_flake_repository
+    run initialize_flake_submodules
 
     [[ "$status" -eq 0 ]]
 }
 
-@test "initialize_git_for_flake handles git not installed" {
+@test "initialize_flake_submodules logs success when everything initializes" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    export MOCK_GIT_FAIL=1
-    cd "${WORK_DIR}"
+    export MOCK_SSH_SUBMODULE_STATUS=0
+    clone_flake_repository
+    run initialize_flake_submodules
 
-    run initialize_git_for_flake
-
-    # Should log warning but not fail
-    [[ "$output" =~ "WARN" || "$output" =~ "warn" || "$status" -eq 0 ]]
-}
-
-@test "initialize_git_for_flake is idempotent" {
-    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
-
-    cd "${WORK_DIR}"
-    touch "${WORK_DIR}/flake.nix"
-
-    # Run twice
-    initialize_git_for_flake
-    run initialize_git_for_flake
-
-    [[ "$status" -eq 0 ]]
-}
-
-@test "initialize_git_for_flake logs warning on failure" {
-    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
-
-    export MOCK_GIT_FAIL=1
-    cd "${WORK_DIR}"
-
-    run initialize_git_for_flake
-
-    [[ "$output" =~ "WARN" || "$output" =~ "warn" ]]
-}
-
-@test "initialize_git_for_flake continues on failure (non-critical)" {
-    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
-
-    export MOCK_GIT_FAIL=1
-    cd "${WORK_DIR}"
-
-    run initialize_git_for_flake
-
-    # Should return success even if git fails (non-critical)
-    [[ "$status" -eq 0 ]]
-}
-
-@test "initialize_git_for_flake logs success message" {
-    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
-
-    cd "${WORK_DIR}"
-    touch "${WORK_DIR}/flake.nix"
-
-    run initialize_git_for_flake
-
-    [[ "$output" =~ "SUCCESS" || "$output" =~ "Git" || "$output" =~ "initialized" ]]
+    [[ "$output" =~ "Submodules initialized" ]]
 }
 
 # =============================================================================
@@ -656,8 +462,7 @@ teardown() {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export INSTALL_PROFILE="standard"
-    cd "${WORK_DIR}"
-    touch "${WORK_DIR}/flake.nix"
+    clone_flake_repository
 
     run run_nix_darwin_build
 
@@ -668,8 +473,7 @@ teardown() {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export INSTALL_PROFILE="power"
-    cd "${WORK_DIR}"
-    touch "${WORK_DIR}/flake.nix"
+    clone_flake_repository
 
     run run_nix_darwin_build
 
@@ -679,10 +483,8 @@ teardown() {
 @test "run_nix_darwin_build changes to work directory" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
+    clone_flake_repository
     cd /tmp
-    export WORK_DIR="${TEST_TMP_DIR}/nix-bootstrap"
-    mkdir -p "${WORK_DIR}"
-    touch "${WORK_DIR}/flake.nix"
 
     run run_nix_darwin_build
 
@@ -692,8 +494,7 @@ teardown() {
 @test "run_nix_darwin_build runs nix run nix-darwin command" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
-    touch "${WORK_DIR}/flake.nix"
+    clone_flake_repository
 
     run run_nix_darwin_build
 
@@ -703,8 +504,7 @@ teardown() {
 @test "run_nix_darwin_build uses flake path format" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
-    touch "${WORK_DIR}/flake.nix"
+    clone_flake_repository
 
     # Override nix to capture arguments
     nix() {
@@ -724,8 +524,7 @@ teardown() {
 @test "run_nix_darwin_build displays progress messages" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
-    touch "${WORK_DIR}/flake.nix"
+    clone_flake_repository
 
     run run_nix_darwin_build
 
@@ -735,8 +534,7 @@ teardown() {
 @test "run_nix_darwin_build shows Nix output" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
-    touch "${WORK_DIR}/flake.nix"
+    clone_flake_repository
 
     run run_nix_darwin_build
 
@@ -747,8 +545,7 @@ teardown() {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export MOCK_NIX_BUILD_FAIL=1
-    cd "${WORK_DIR}"
-    touch "${WORK_DIR}/flake.nix"
+    clone_flake_repository
 
     run run_nix_darwin_build
 
@@ -758,8 +555,7 @@ teardown() {
 @test "run_nix_darwin_build returns 0 on success" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
-    touch "${WORK_DIR}/flake.nix"
+    clone_flake_repository
 
     run run_nix_darwin_build
 
@@ -769,8 +565,7 @@ teardown() {
 @test "run_nix_darwin_build displays build duration estimate" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
-    touch "${WORK_DIR}/flake.nix"
+    clone_flake_repository
 
     run run_nix_darwin_build
 
@@ -780,8 +575,7 @@ teardown() {
 @test "run_nix_darwin_build mentions Homebrew installation" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    cd "${WORK_DIR}"
-    touch "${WORK_DIR}/flake.nix"
+    clone_flake_repository
 
     run run_nix_darwin_build
 
@@ -792,8 +586,7 @@ teardown() {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     export MOCK_NIX_BUILD_FAIL=1
-    cd "${WORK_DIR}"
-    touch "${WORK_DIR}/flake.nix"
+    clone_flake_repository
 
     run run_nix_darwin_build
 
@@ -994,14 +787,14 @@ SCRIPT
 # Orchestration Tests (10 tests)
 # =============================================================================
 
-@test "install_nix_darwin_phase calls fetch_flake_from_github" {
+@test "install_nix_darwin_phase calls clone_flake_repository" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     run install_nix_darwin_phase
 
-    # Check if flake files exist (evidence of fetch)
-    [[ -f "${WORK_DIR}/flake.nix" || "$status" -eq 0 ]]
+    # Check if the clone exists (evidence of the clone step)
+    [[ -f "${FLAKE_REPO_DIR}/flake.nix" || "$status" -eq 0 ]]
 }
 
 @test "install_nix_darwin_phase calls copy_user_config" {
@@ -1010,18 +803,18 @@ SCRIPT
     cd "${WORK_DIR}"
     run install_nix_darwin_phase
 
-    # Check if user-config.nix exists in work dir
-    [[ -f "${WORK_DIR}/user-config.nix" || "$status" -eq 0 ]]
+    # Check if user-config.nix landed inside the clone
+    [[ -f "${FLAKE_REPO_DIR}/user-config.nix" || "$status" -eq 0 ]]
 }
 
-@test "install_nix_darwin_phase calls initialize_git_for_flake" {
+@test "install_nix_darwin_phase calls initialize_flake_submodules" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     cd "${WORK_DIR}"
     run install_nix_darwin_phase
 
-    # Check if .git directory exists
-    [[ -d "${WORK_DIR}/.git" || "$status" -eq 0 ]]
+    # Check for evidence of a per-path submodule init
+    [[ -f "${TEST_TMP_DIR}/git_submodule.log" || "$status" -eq 0 ]]
 }
 
 @test "install_nix_darwin_phase calls run_nix_darwin_build" {
@@ -1089,7 +882,7 @@ SCRIPT
 @test "install_nix_darwin_phase exits on function failure" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    export MOCK_CURL_FAIL=1
+    export MOCK_CLONE_FAIL=1
     cd "${WORK_DIR}"
 
     run install_nix_darwin_phase
@@ -1144,13 +937,13 @@ SCRIPT
 # Error Handling Tests (10 tests)
 # =============================================================================
 
-@test "fetch_flake_from_github is CRITICAL and exits on failure" {
+@test "clone_flake_repository is CRITICAL and exits on failure" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    export MOCK_CURL_FAIL=1
+    export MOCK_CLONE_FAIL=1
     cd "${WORK_DIR}"
 
-    run fetch_flake_from_github
+    run clone_flake_repository
 
     [[ "$status" -ne 0 ]]
 }
@@ -1167,15 +960,17 @@ SCRIPT
     [[ "$status" -ne 0 ]]
 }
 
-@test "initialize_git_for_flake is NON-CRITICAL and logs warnings" {
+@test "initialize_flake_submodules is NON-CRITICAL and logs warnings" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    export MOCK_GIT_FAIL=1
+    export MOCK_SUBMODULE_STATUS=1
     cd "${WORK_DIR}"
+    clone_flake_repository
 
-    run initialize_git_for_flake
+    run initialize_flake_submodules
 
-    [[ "$output" =~ "WARN" || "$output" =~ "warn" || "$status" -eq 0 ]]
+    [[ "$output" =~ "WARN" || "$output" =~ "warn" ]]
+    [[ "$status" -eq 0 ]]
 }
 
 @test "run_nix_darwin_build is CRITICAL and exits on failure" {
@@ -1199,13 +994,13 @@ SCRIPT
     [[ "$status" -ne 0 ]]
 }
 
-@test "fetch_flake_from_github displays clear error messages" {
+@test "clone_flake_repository displays clear error messages" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    export MOCK_CURL_FAIL=1
+    export MOCK_CLONE_FAIL=1
     cd "${WORK_DIR}"
 
-    run fetch_flake_from_github
+    run clone_flake_repository
 
     [[ "$output" =~ "ERROR" || "$output" =~ "Failed" || "$output" =~ "failed" ]]
 }
@@ -1246,7 +1041,7 @@ SCRIPT
 @test "install_nix_darwin_phase provides actionable guidance on failures" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
-    export MOCK_CURL_FAIL=1
+    export MOCK_CLONE_FAIL=1
     cd "${WORK_DIR}"
 
     run install_nix_darwin_phase
@@ -1287,9 +1082,9 @@ SCRIPT
 
     # All phase functions should be defined
     declare -f install_nix_darwin_phase >/dev/null
-    declare -f fetch_flake_from_github >/dev/null
+    declare -f clone_flake_repository >/dev/null
     declare -f copy_user_config >/dev/null
-    declare -f initialize_git_for_flake >/dev/null
+    declare -f initialize_flake_submodules >/dev/null
     declare -f run_nix_darwin_build >/dev/null
     declare -f verify_nix_darwin_installed >/dev/null
 }
@@ -1314,7 +1109,6 @@ SCRIPT
 
     # Full phase should complete successfully
     [[ "$status" -eq 0 ]]
-    [[ -f "${WORK_DIR}/flake.nix" ]]
-    [[ -f "${WORK_DIR}/user-config.nix" ]]
-    [[ -d "${WORK_DIR}/.git" ]]
+    [[ -f "${FLAKE_REPO_DIR}/flake.nix" ]]
+    [[ -f "${FLAKE_REPO_DIR}/user-config.nix" ]]
 }

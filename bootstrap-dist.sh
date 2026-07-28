@@ -73,6 +73,10 @@ fi
 readonly WORK_DIR="${_NIX_BOOTSTRAP_WORK_DIR}"
 readonly USER_CONFIG_FILE="${WORK_DIR}/user-config.nix"
 
+# Phase 5 clones the configuration repository here and builds the first system
+# generation from it. Phase 7 later re-clones over SSH to the permanent location.
+readonly FLAKE_REPO_DIR="${WORK_DIR}/repo"
+
 # Bootstrap temp directory (alias for WORK_DIR — used by multiple phases)
 readonly BOOTSTRAP_TEMP_DIR="${WORK_DIR}"
 
@@ -83,6 +87,14 @@ readonly GITHUB_REPO_NAME="${NIX_INSTALL_REPO:-nix-install}"
 readonly GITHUB_BRANCH="${NIX_INSTALL_BRANCH:-main}"
 readonly GITHUB_RAW_URL="https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO_NAME}"
 readonly GITHUB_SSH_URL="git@github.com:${GITHUB_OWNER}/${GITHUB_REPO_NAME}.git"
+# HTTPS clone URL — Phase 5 runs before the SSH key exists (created in Phase 6)
+readonly GITHUB_HTTPS_URL="https://github.com/${GITHUB_OWNER}/${GITHUB_REPO_NAME}.git"
+
+# Git ref (release tag or branch) that Phase 5 clones for the first build.
+# setup.sh pins this to the release tag it was itself downloaded at; it falls
+# back to the tracking branch (`main` unless NIX_INSTALL_BRANCH overrides it)
+# so a development bootstrap keeps working from a checkout.
+readonly NIX_INSTALL_REF="${NIX_INSTALL_REF:-${GITHUB_BRANCH}}"
 
 # Repository clone directory (configurable via NIX_INSTALL_DIR environment variable)
 # Default: ~/.config/nix-install
@@ -1874,443 +1886,130 @@ configure_nix_phase() {
 # PHASE 5: NIX-DARWIN INSTALLATION (Story 01.5-001)
 # =============================================================================
 
-# Function: fetch_flake_from_github
-# Purpose: Download all required Nix configuration files from GitHub repository
-# Downloads: flake.nix, flake.lock, darwin/*.nix, home-manager/*.nix
-# Arguments: None (uses $WORK_DIR environment variable)
+# Function: clone_flake_repository
+# Purpose: Clone the configuration repository at a pinned ref into the work dir
+# Replaces the former per-file curl download list: a clone is atomic, always
+# complete, and cannot drift out of sync when new .nix modules are added.
+# Arguments: None (uses $FLAKE_REPO_DIR, $NIX_INSTALL_REF, $GITHUB_HTTPS_URL)
 # Returns: 0 on success, 1 on failure (CRITICAL - exits on failure)
-fetch_flake_from_github() {
-    local base_url="${GITHUB_RAW_URL}/${GITHUB_BRANCH}"
-
-    log_info "Fetching flake configuration from GitHub..."
+clone_flake_repository() {
+    log_info "Cloning configuration repository from GitHub..."
     log_info "Repository: ${GITHUB_OWNER}/${GITHUB_REPO_NAME}"
-    log_info "Branch: ${GITHUB_BRANCH}"
+    log_info "Ref: ${NIX_INSTALL_REF}"
+    log_info "Destination: ${FLAKE_REPO_DIR}"
     echo ""
 
-    # Create directory structure
-    log_info "Creating directory structure..."
-    mkdir -p "${WORK_DIR}/darwin" || {
-        log_error "Failed to create darwin/ directory"
-        return 1
-    }
-    mkdir -p "${WORK_DIR}/home-manager/modules" || {
-        log_error "Failed to create home-manager/modules/ directory"
-        return 1
-    }
-
-    # Change to work directory
-    cd "${WORK_DIR}" || {
-        log_error "Failed to change to work directory: ${WORK_DIR}"
-        return 1
-    }
-
-    # Fetch root-level files
-    log_info "Fetching flake.nix..."
-    if ! curl -fsSL -o flake.nix "${base_url}/flake.nix"; then
-        log_error "Failed to fetch flake.nix from GitHub"
+    # Phase 3 (Xcode CLI Tools) guarantees /usr/bin/git by this point, so a
+    # missing git means the phases ran out of order - fail loudly.
+    if ! command -v git >/dev/null 2>&1; then
+        log_error "git command not found"
+        log_error "Phase 3 (Xcode CLI Tools) must complete before Phase 5"
         return 1
     fi
-    [[ -s flake.nix ]] || {
-        log_error "Downloaded flake.nix is empty"
-        return 1
-    }
 
-    log_info "Fetching flake.lock..."
-    if ! curl -fsSL -o flake.lock "${base_url}/flake.lock"; then
-        log_error "Failed to fetch flake.lock from GitHub"
-        return 1
-    fi
-    [[ -s flake.lock ]] || {
-        log_error "Downloaded flake.lock is empty"
-        return 1
-    }
-
-    # Fetch darwin configuration files
-    log_info "Fetching darwin configuration files..."
-    local darwin_files=(
-        "configuration.nix"
-        "homebrew.nix"
-        "macos-defaults.nix"
-        "stylix.nix"
-        "maintenance.nix"
-        "health-api.nix"
-        "privacy-filter.nix"
-        "monitoring.nix"
-        "calibre.nix"
-        # Power profile only (downloaded for both but only used by power)
-        "smb-automount.nix"
-        "rsync-backup.nix"
-    )
-
-    for file in "${darwin_files[@]}"; do
-        log_info "  - darwin/${file}"
-        if ! curl -fsSL -o "darwin/${file}" "${base_url}/darwin/${file}"; then
-            log_error "Failed to fetch darwin/${file}"
+    # Idempotent: a re-run after an aborted bootstrap must not trip over a
+    # half-populated directory left behind by the previous attempt.
+    if [[ -e "${FLAKE_REPO_DIR}" ]]; then
+        log_info "Removing incomplete clone from a previous run..."
+        if ! rm -rf "${FLAKE_REPO_DIR}"; then
+            log_error "Failed to remove existing directory: ${FLAKE_REPO_DIR}"
             return 1
         fi
-        [[ -s "darwin/${file}" ]] || {
-            log_error "Downloaded darwin/${file} is empty"
-            return 1
-        }
+    fi
+
+    # HTTPS, not SSH: the SSH key is only generated in Phase 6.
+    # GIT_TERMINAL_PROMPT=0 so an unexpected auth challenge fails fast instead
+    # of hanging the installer on a credential prompt.
+    if ! GIT_TERMINAL_PROMPT=0 git clone --depth 1 --branch "${NIX_INSTALL_REF}" \
+            "${GITHUB_HTTPS_URL}" "${FLAKE_REPO_DIR}"; then
+        echo ""
+        log_error "Failed to clone ${GITHUB_HTTPS_URL} at ref ${NIX_INSTALL_REF}"
+        log_error ""
+        log_error "Troubleshooting:"
+        log_error "  1. Verify network connectivity: curl -Is https://github.com"
+        log_error "  2. Verify the ref exists: git ls-remote ${GITHUB_HTTPS_URL} ${NIX_INSTALL_REF}"
+        log_error "  3. Check disk space: df -h"
+        log_error "  4. Retry manually: git clone --depth 1 --branch ${NIX_INSTALL_REF} ${GITHUB_HTTPS_URL} ${FLAKE_REPO_DIR}"
+        echo ""
+        return 1
+    fi
+
+    # flake.nix is the one file the build cannot proceed without.
+    if [[ ! -s "${FLAKE_REPO_DIR}/flake.nix" ]]; then
+        log_error "Clone completed but flake.nix is missing or empty"
+        log_error "Expected: ${FLAKE_REPO_DIR}/flake.nix"
+        return 1
+    fi
+
+    log_success "Repository cloned at ${NIX_INSTALL_REF}"
+    echo ""
+
+    return 0
+}
+
+# Function: initialize_flake_submodules
+# Purpose: Initialize the submodules needed by the first build, one path at a time
+# The three oh-my-zsh submodules use HTTPS so they work before Phase 6 creates
+# an SSH key. config/claude-code-config is SSH-only and is therefore expected to
+# fail here; Phase 7 re-clones over SSH and initializes it then.
+# Arguments: None (uses $FLAKE_REPO_DIR)
+# Returns: 0 always (NON-CRITICAL - warns on failure)
+initialize_flake_submodules() {
+    log_info "Initializing submodules..."
+
+    # Per-path rather than --recursive so one unreachable submodule cannot
+    # abort the others. No --depth: a shallow submodule fetch fails whenever
+    # the pinned commit is not the branch tip.
+    local https_submodules=(
+        "config/oh-my-zsh-custom/plugins/zsh-autosuggestions"
+        "config/oh-my-zsh-custom/plugins/zsh-syntax-highlighting"
+        "config/oh-my-zsh-custom/themes/powerlevel10k"
+    )
+
+    local failed_count=0
+    local submodule_path
+    for submodule_path in "${https_submodules[@]}"; do
+        if GIT_TERMINAL_PROMPT=0 git -C "${FLAKE_REPO_DIR}" \
+                submodule update --init -- "${submodule_path}"; then
+            log_info "  ✓ ${submodule_path}"
+        else
+            failed_count=$((failed_count + 1))
+            log_warn "  ✗ ${submodule_path} (continuing)"
+        fi
     done
 
-    # Fetch home-manager configuration files
-    log_info "Fetching home-manager configuration files..."
-    log_info "  - home-manager/home.nix"
-    if ! curl -fsSL -o "home-manager/home.nix" "${base_url}/home-manager/home.nix"; then
-        log_error "Failed to fetch home-manager/home.nix"
-        return 1
+    # SSH-only submodule: a failure here is the normal case on a fresh machine.
+    # Mirrors the non-fatal handling in lib/repo-clone.sh - the rebuild can
+    # still proceed, and Phase 7 initializes it once the SSH key exists.
+    # BatchMode=yes so ssh reports "Permission denied" instead of blocking on
+    # the unknown-host prompt; without a key there is nothing to prompt for.
+    if GIT_TERMINAL_PROMPT=0 \
+            GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10" \
+            git -C "${FLAKE_REPO_DIR}" submodule update --init -- "config/claude-code-config"; then
+        log_info "  ✓ config/claude-code-config"
+    else
+        log_warn "  ⊘ config/claude-code-config skipped"
+        log_warn "    It is SSH-only and the SSH key is created in Phase 6."
+        log_warn "    Phase 7 clones over SSH and initializes it there."
     fi
-    [[ -s "home-manager/home.nix" ]] || {
-        log_error "Downloaded home-manager/home.nix is empty"
-        return 1
-    }
 
-    log_info "  - home-manager/modules/shell.nix"
-    if ! curl -fsSL -o "home-manager/modules/shell.nix" "${base_url}/home-manager/modules/shell.nix"; then
-        log_error "Failed to fetch home-manager/modules/shell.nix"
-        return 1
+    if [[ ${failed_count} -gt 0 ]]; then
+        log_warn "${failed_count} submodule(s) failed to initialize"
+        log_warn "Recover with:"
+        log_warn "  git -C ${FLAKE_REPO_DIR} submodule update --init"
+    else
+        log_success "Submodules initialized"
     fi
-    [[ -s "home-manager/modules/shell.nix" ]] || {
-        log_error "Downloaded home-manager/modules/shell.nix is empty"
-        return 1
-    }
-
-    log_info "  - home-manager/modules/git.nix"
-    if ! curl -fsSL -o "home-manager/modules/git.nix" "${base_url}/home-manager/modules/git.nix"; then
-        log_error "Failed to fetch home-manager/modules/git.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/git.nix" ]] || {
-        log_error "Downloaded home-manager/modules/git.nix is empty"
-        return 1
-    }
-
-    log_info "  - home-manager/modules/ssh.nix"
-    if ! curl -fsSL -o "home-manager/modules/ssh.nix" "${base_url}/home-manager/modules/ssh.nix"; then
-        log_error "Failed to fetch home-manager/modules/ssh.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/ssh.nix" ]] || {
-        log_error "Downloaded home-manager/modules/ssh.nix is empty"
-        return 1
-    }
-
-    log_info "  - home-manager/modules/zed.nix"
-    if ! curl -fsSL -o "home-manager/modules/zed.nix" "${base_url}/home-manager/modules/zed.nix"; then
-        log_error "Failed to fetch home-manager/modules/zed.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/zed.nix" ]] || {
-        log_error "Downloaded home-manager/modules/zed.nix is empty"
-        return 1
-    }
-
-    log_info "  - home-manager/modules/ghostty.nix"
-    if ! curl -fsSL -o "home-manager/modules/ghostty.nix" "${base_url}/home-manager/modules/ghostty.nix"; then
-        log_error "Failed to fetch home-manager/modules/ghostty.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/ghostty.nix" ]] || {
-        log_error "Downloaded home-manager/modules/ghostty.nix is empty"
-        return 1
-    }
-
-    log_info "  - home-manager/modules/claude-code.nix"
-    if ! curl -fsSL -o "home-manager/modules/claude-code.nix" "${base_url}/home-manager/modules/claude-code.nix"; then
-        log_error "Failed to fetch home-manager/modules/claude-code.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/claude-code.nix" ]] || {
-        log_error "Downloaded home-manager/modules/claude-code.nix is empty"
-        return 1
-    }
-
-    log_info "  - home-manager/modules/sdlc-controller.nix"
-    if ! curl -fsSL -o "home-manager/modules/sdlc-controller.nix" "${base_url}/home-manager/modules/sdlc-controller.nix"; then
-        log_error "Failed to fetch home-manager/modules/sdlc-controller.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/sdlc-controller.nix" ]] || {
-        log_error "Downloaded home-manager/modules/sdlc-controller.nix is empty"
-        return 1
-    }
-
-    log_info "  - home-manager/modules/python.nix"
-    if ! curl -fsSL -o "home-manager/modules/python.nix" "${base_url}/home-manager/modules/python.nix"; then
-        log_error "Failed to fetch home-manager/modules/python.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/python.nix" ]] || {
-        log_error "Downloaded home-manager/modules/python.nix is empty"
-        return 1
-    }
-
-    log_info "  - home-manager/modules/privacy-filter.nix"
-    if ! curl -fsSL -o "home-manager/modules/privacy-filter.nix" "${base_url}/home-manager/modules/privacy-filter.nix"; then
-        log_error "Failed to fetch home-manager/modules/privacy-filter.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/privacy-filter.nix" ]] || {
-        log_error "Downloaded home-manager/modules/privacy-filter.nix is empty"
-        return 1
-    }
-
-    log_info "  - home-manager/modules/docker.nix"
-    if ! curl -fsSL -o "home-manager/modules/docker.nix" "${base_url}/home-manager/modules/docker.nix"; then
-        log_error "Failed to fetch home-manager/modules/docker.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/docker.nix" ]] || {
-        log_error "Downloaded home-manager/modules/docker.nix is empty"
-        return 1
-    }
-
-    log_info "  - home-manager/modules/msmtp.nix"
-    if ! curl -fsSL -o "home-manager/modules/msmtp.nix" "${base_url}/home-manager/modules/msmtp.nix"; then
-        log_error "Failed to fetch home-manager/modules/msmtp.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/msmtp.nix" ]] || {
-        log_error "Downloaded home-manager/modules/msmtp.nix is empty"
-        return 1
-    }
-
-    # CLI tool configurations with Catppuccin theming
-    log_info "  - home-manager/modules/btop.nix"
-    if ! curl -fsSL -o "home-manager/modules/btop.nix" "${base_url}/home-manager/modules/btop.nix"; then
-        log_error "Failed to fetch home-manager/modules/btop.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/btop.nix" ]] || {
-        log_error "Downloaded home-manager/modules/btop.nix is empty"
-        return 1
-    }
-
-    log_info "  - home-manager/modules/bat.nix"
-    if ! curl -fsSL -o "home-manager/modules/bat.nix" "${base_url}/home-manager/modules/bat.nix"; then
-        log_error "Failed to fetch home-manager/modules/bat.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/bat.nix" ]] || {
-        log_error "Downloaded home-manager/modules/bat.nix is empty"
-        return 1
-    }
-
-    log_info "  - home-manager/modules/ripgrep.nix"
-    if ! curl -fsSL -o "home-manager/modules/ripgrep.nix" "${base_url}/home-manager/modules/ripgrep.nix"; then
-        log_error "Failed to fetch home-manager/modules/ripgrep.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/ripgrep.nix" ]] || {
-        log_error "Downloaded home-manager/modules/ripgrep.nix is empty"
-        return 1
-    }
-
-    log_info "  - home-manager/modules/fd.nix"
-    if ! curl -fsSL -o "home-manager/modules/fd.nix" "${base_url}/home-manager/modules/fd.nix"; then
-        log_error "Failed to fetch home-manager/modules/fd.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/fd.nix" ]] || {
-        log_error "Downloaded home-manager/modules/fd.nix is empty"
-        return 1
-    }
-
-    log_info "  - home-manager/modules/httpie.nix"
-    if ! curl -fsSL -o "home-manager/modules/httpie.nix" "${base_url}/home-manager/modules/httpie.nix"; then
-        log_error "Failed to fetch home-manager/modules/httpie.nix"
-        return 1
-    fi
-    [[ -s "home-manager/modules/httpie.nix" ]] || {
-        log_error "Downloaded home-manager/modules/httpie.nix is empty"
-        return 1
-    }
-
-    # Fetch maintenance scripts (Epic-06)
-    log_info "Fetching maintenance scripts..."
-    mkdir -p scripts
-
-    log_info "  - scripts/health-check.sh"
-    if ! curl -fsSL -o "scripts/health-check.sh" "${base_url}/scripts/health-check.sh"; then
-        log_error "Failed to fetch scripts/health-check.sh"
-        return 1
-    fi
-    [[ -s "scripts/health-check.sh" ]] || {
-        log_error "Downloaded scripts/health-check.sh is empty"
-        return 1
-    }
-    chmod +x "scripts/health-check.sh"
-
-    log_info "  - scripts/claude-cleanup.sh"
-    if ! curl -fsSL -o "scripts/claude-cleanup.sh" "${base_url}/scripts/claude-cleanup.sh"; then
-        log_error "Failed to fetch scripts/claude-cleanup.sh"
-        return 1
-    fi
-    [[ -s "scripts/claude-cleanup.sh" ]] || {
-        log_error "Downloaded scripts/claude-cleanup.sh is empty"
-        return 1
-    }
-    chmod +x "scripts/claude-cleanup.sh"
-
-    log_info "  - scripts/setup-msmtp-keychain.sh"
-    if ! curl -fsSL -o "scripts/setup-msmtp-keychain.sh" "${base_url}/scripts/setup-msmtp-keychain.sh"; then
-        log_error "Failed to fetch scripts/setup-msmtp-keychain.sh"
-        return 1
-    fi
-    [[ -s "scripts/setup-msmtp-keychain.sh" ]] || {
-        log_error "Downloaded scripts/setup-msmtp-keychain.sh is empty"
-        return 1
-    }
-    chmod +x "scripts/setup-msmtp-keychain.sh"
-
-    log_info "  - scripts/send-notification.sh"
-    if ! curl -fsSL -o "scripts/send-notification.sh" "${base_url}/scripts/send-notification.sh"; then
-        log_error "Failed to fetch scripts/send-notification.sh"
-        return 1
-    fi
-    [[ -s "scripts/send-notification.sh" ]] || {
-        log_error "Downloaded scripts/send-notification.sh is empty"
-        return 1
-    }
-    chmod +x "scripts/send-notification.sh"
-
-    log_info "  - scripts/maintenance-wrapper.sh"
-    if ! curl -fsSL -o "scripts/maintenance-wrapper.sh" "${base_url}/scripts/maintenance-wrapper.sh"; then
-        log_error "Failed to fetch scripts/maintenance-wrapper.sh"
-        return 1
-    fi
-    [[ -s "scripts/maintenance-wrapper.sh" ]] || {
-        log_error "Downloaded scripts/maintenance-wrapper.sh is empty"
-        return 1
-    }
-    chmod +x "scripts/maintenance-wrapper.sh"
-
-    log_info "  - scripts/weekly-maintenance-digest.sh"
-    if ! curl -fsSL -o "scripts/weekly-maintenance-digest.sh" "${base_url}/scripts/weekly-maintenance-digest.sh"; then
-        log_error "Failed to fetch scripts/weekly-maintenance-digest.sh"
-        return 1
-    fi
-    [[ -s "scripts/weekly-maintenance-digest.sh" ]] || {
-        log_error "Downloaded scripts/weekly-maintenance-digest.sh is empty"
-        return 1
-    }
-    chmod +x "scripts/weekly-maintenance-digest.sh"
-
-    # Fetch release monitor scripts (Feature 06.6)
-    log_info "Fetching release monitor scripts..."
-    log_info "  - scripts/fetch-release-notes.sh"
-    if ! curl -fsSL -o "scripts/fetch-release-notes.sh" "${base_url}/scripts/fetch-release-notes.sh"; then
-        log_error "Failed to fetch scripts/fetch-release-notes.sh"
-        return 1
-    fi
-    [[ -s "scripts/fetch-release-notes.sh" ]] || {
-        log_error "Downloaded scripts/fetch-release-notes.sh is empty"
-        return 1
-    }
-    chmod +x "scripts/fetch-release-notes.sh"
-
-    log_info "  - scripts/analyze-releases.sh"
-    if ! curl -fsSL -o "scripts/analyze-releases.sh" "${base_url}/scripts/analyze-releases.sh"; then
-        log_error "Failed to fetch scripts/analyze-releases.sh"
-        return 1
-    fi
-    [[ -s "scripts/analyze-releases.sh" ]] || {
-        log_error "Downloaded scripts/analyze-releases.sh is empty"
-        return 1
-    }
-    chmod +x "scripts/analyze-releases.sh"
-
-    log_info "  - scripts/create-release-issues.sh"
-    if ! curl -fsSL -o "scripts/create-release-issues.sh" "${base_url}/scripts/create-release-issues.sh"; then
-        log_error "Failed to fetch scripts/create-release-issues.sh"
-        return 1
-    fi
-    [[ -s "scripts/create-release-issues.sh" ]] || {
-        log_error "Downloaded scripts/create-release-issues.sh is empty"
-        return 1
-    }
-    chmod +x "scripts/create-release-issues.sh"
-
-    log_info "  - scripts/release-monitor.sh"
-    if ! curl -fsSL -o "scripts/release-monitor.sh" "${base_url}/scripts/release-monitor.sh"; then
-        log_error "Failed to fetch scripts/release-monitor.sh"
-        return 1
-    fi
-    [[ -s "scripts/release-monitor.sh" ]] || {
-        log_error "Downloaded scripts/release-monitor.sh is empty"
-        return 1
-    }
-    chmod +x "scripts/release-monitor.sh"
-
-    log_info "  - scripts/send-release-summary.sh"
-    if ! curl -fsSL -o "scripts/send-release-summary.sh" "${base_url}/scripts/send-release-summary.sh"; then
-        log_error "Failed to fetch scripts/send-release-summary.sh"
-        return 1
-    fi
-    [[ -s "scripts/send-release-summary.sh" ]] || {
-        log_error "Downloaded scripts/send-release-summary.sh is empty"
-        return 1
-    }
-    chmod +x "scripts/send-release-summary.sh"
-
-    # Fetch wallpaper for Stylix theming (Story 05.1-001)
-    log_info "Fetching wallpaper for Stylix theming..."
-    mkdir -p wallpaper
-    log_info "  - wallpaper/Ropey_Photo_by_Bob_Farrell.jpg"
-    if ! curl -fsSL -o "wallpaper/Ropey_Photo_by_Bob_Farrell.jpg" "${base_url}/wallpaper/Ropey_Photo_by_Bob_Farrell.jpg"; then
-        log_error "Failed to fetch wallpaper/Ropey_Photo_by_Bob_Farrell.jpg"
-        return 1
-    fi
-    [[ -s "wallpaper/Ropey_Photo_by_Bob_Farrell.jpg" ]] || {
-        log_error "Downloaded wallpaper/Ropey_Photo_by_Bob_Farrell.jpg is empty"
-        return 1
-    }
-
-    echo ""
-    log_success "All configuration files fetched successfully"
-    log_info "Files downloaded:"
-    log_info "  • flake.nix"
-    log_info "  • flake.lock"
-    log_info "  • darwin/configuration.nix"
-    log_info "  • darwin/homebrew.nix"
-    log_info "  • darwin/macos-defaults.nix"
-    log_info "  • darwin/stylix.nix"
-    log_info "  • darwin/maintenance.nix"
-    log_info "  • darwin/health-api.nix"
-    log_info "  • darwin/monitoring.nix"
-    log_info "  • darwin/calibre.nix"
-    log_info "  • darwin/smb-automount.nix"
-    log_info "  • darwin/rsync-backup.nix"
-    log_info "  • home-manager/home.nix"
-    log_info "  • home-manager/modules/shell.nix"
-    log_info "  • home-manager/modules/git.nix"
-    log_info "  • home-manager/modules/ssh.nix"
-    log_info "  • home-manager/modules/zed.nix"
-    log_info "  • home-manager/modules/ghostty.nix"
-    log_info "  • home-manager/modules/claude-code.nix"
-    log_info "  • home-manager/modules/python.nix"
-    log_info "  • home-manager/modules/docker.nix"
-    log_info "  • home-manager/modules/msmtp.nix"
-    log_info "  • scripts/health-check.sh"
-    log_info "  • scripts/setup-msmtp-keychain.sh"
-    log_info "  • scripts/send-notification.sh"
-    log_info "  • scripts/maintenance-wrapper.sh"
-    log_info "  • scripts/weekly-maintenance-digest.sh"
-    log_info "  • scripts/fetch-release-notes.sh"
-    log_info "  • scripts/analyze-releases.sh"
-    log_info "  • scripts/create-release-issues.sh"
-    log_info "  • scripts/release-monitor.sh"
-    log_info "  • scripts/send-release-summary.sh"
-    log_info "  • wallpaper/Ropey_Photo_by_Bob_Farrell.jpg"
     echo ""
 
     return 0
 }
 
 # Function: copy_user_config
-# Purpose: Copy user-config.nix to flake directory
-# Arguments: None (uses $USER_CONFIG_FILE and $WORK_DIR environment variables)
+# Purpose: Copy the Phase 2 user-config.nix into the cloned flake repository
+# The clone does not carry one - user-config.nix is gitignored - so the build
+# would throw "user-config.nix not found" without this step.
+# Arguments: None (uses $USER_CONFIG_FILE and $FLAKE_REPO_DIR environment variables)
 # Returns: 0 on success, 1 on failure (CRITICAL - exits on failure)
 copy_user_config() {
     log_info "Verifying user configuration in flake directory..."
@@ -2328,19 +2027,14 @@ copy_user_config() {
         return 1
     fi
 
-    # Check if source and destination are the same
-    local dest_path="${WORK_DIR}/user-config.nix"
-    if [[ "${USER_CONFIG_FILE}" == "${dest_path}" ]]; then
-        log_info "User configuration already in correct location: ${USER_CONFIG_FILE}"
-    else
-        # Copy to work directory
-        if ! cp "${USER_CONFIG_FILE}" "${dest_path}"; then
-            log_error "Failed to copy user-config.nix to ${WORK_DIR}"
-            return 1
-        fi
-        log_info "Copied from: ${USER_CONFIG_FILE}"
-        log_info "Copied to: ${dest_path}"
+    # Copy into the cloned repository, next to flake.nix
+    local dest_path="${FLAKE_REPO_DIR}/user-config.nix"
+    if ! cp "${USER_CONFIG_FILE}" "${dest_path}"; then
+        log_error "Failed to copy user-config.nix to ${FLAKE_REPO_DIR}"
+        return 1
     fi
+    log_info "Copied from: ${USER_CONFIG_FILE}"
+    log_info "Copied to: ${dest_path}"
 
     # Validate destination file exists and is readable
     if [[ ! -r "${dest_path}" ]]; then
@@ -2349,61 +2043,6 @@ copy_user_config() {
     fi
 
     log_success "User configuration verified successfully"
-    echo ""
-
-    return 0
-}
-
-# Function: initialize_git_for_flake
-# Purpose: Initialize Git repository in flake directory to satisfy nix-darwin requirements
-# Flakes require a Git repository to track changes and ensure reproducibility
-# Arguments: None (uses $WORK_DIR environment variable)
-# Returns: 0 always (NON-CRITICAL - logs warning on failure)
-initialize_git_for_flake() {
-    log_info "Initializing Git repository for flake..."
-
-    # Change to work directory
-    if ! cd "${WORK_DIR}"; then
-        log_warn "Failed to change to work directory: ${WORK_DIR}"
-        log_warn "Git initialization skipped (will use --impure flag)"
-        return 0
-    fi
-
-    # Check if Git is available
-    if ! command -v git >/dev/null 2>&1; then
-        log_warn "Git command not found"
-        log_warn "This is unexpected since Git was required for Xcode CLI Tools"
-        log_warn "nix-darwin build will use --impure flag as fallback"
-        return 0
-    fi
-
-    # Initialize Git repository (idempotent)
-    if [[ -d "${WORK_DIR}/.git" ]]; then
-        log_info "Git repository already initialized"
-    else
-        if ! git init; then
-            log_warn "Failed to initialize Git repository"
-            log_warn "nix-darwin build will use --impure flag as fallback"
-            return 0
-        fi
-        log_info "✓ Git repository initialized"
-    fi
-
-    # Add all files
-    if ! git add .; then
-        log_warn "Failed to add files to Git"
-        log_warn "nix-darwin build may fail, will use --impure flag as fallback"
-        return 0
-    fi
-
-    # Create initial commit
-    if ! git commit -m "Initial flake setup for nix-darwin installation" >/dev/null 2>&1; then
-        log_warn "Failed to create initial commit"
-        log_warn "This is non-critical, continuing anyway"
-        return 0
-    fi
-
-    log_success "Git repository initialized and files committed"
     echo ""
 
     return 0
@@ -2470,10 +2109,14 @@ backup_etc_files_for_darwin() {
 # Function: run_nix_darwin_build
 # Purpose: Execute initial nix-darwin build using flake configuration
 # This is the CORE operation of Phase 5 - builds system from declarative config
-# Arguments: None (uses $INSTALL_PROFILE and $WORK_DIR environment variables)
+# Arguments: None (uses $INSTALL_PROFILE and $FLAKE_REPO_DIR environment variables)
 # Returns: 0 on success, 1 on failure (CRITICAL - exits on failure)
 run_nix_darwin_build() {
-    local flake_ref=".#${INSTALL_PROFILE}"
+    # "path:" (rather than a bare path) makes Nix copy the directory verbatim
+    # instead of going through the Git fetcher. The clone is a Git repository,
+    # and the Git fetcher would drop both the gitignored user-config.nix and
+    # every submodule working tree. Phase 8 uses the same prefix.
+    local flake_ref="path:${FLAKE_REPO_DIR}#${INSTALL_PROFILE}"
 
     echo ""
     log_info "========================================"
@@ -2481,7 +2124,7 @@ run_nix_darwin_build() {
     log_info "========================================"
     log_info "Profile: ${INSTALL_PROFILE}"
     log_info "Flake reference: ${flake_ref}"
-    log_info "Work directory: ${WORK_DIR}"
+    log_info "Repository: ${FLAKE_REPO_DIR}"
     echo ""
     log_warn "⏱️  ESTIMATED TIME: 10-20 MINUTES"
     log_warn "This is normal for the first build"
@@ -2500,9 +2143,9 @@ run_nix_darwin_build() {
     # Backup /etc files that nix-darwin wants to manage
     backup_etc_files_for_darwin
 
-    # Change to work directory
-    if ! cd "${WORK_DIR}"; then
-        log_error "Failed to change to work directory: ${WORK_DIR}"
+    # Change to the cloned repository
+    if ! cd "${FLAKE_REPO_DIR}"; then
+        log_error "Failed to change to flake directory: ${FLAKE_REPO_DIR}"
         return 1
     fi
 
@@ -2527,8 +2170,8 @@ run_nix_darwin_build() {
         echo ""
         log_info "Troubleshooting:"
         log_info "  1. Check /var/log/nix-daemon.log for detailed errors"
-        log_info "  2. Verify flake syntax: cd ${WORK_DIR} && nix flake check"
-        log_info "  3. Try manual build: cd ${WORK_DIR} && sudo nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake ${flake_ref}"
+        log_info "  2. Verify flake syntax: cd ${FLAKE_REPO_DIR} && nix flake check"
+        log_info "  3. Try manual build: sudo nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake ${flake_ref}"
         echo ""
         return 1
     fi
@@ -2591,7 +2234,7 @@ verify_nix_darwin_installed() {
 
 # Function: install_nix_darwin_phase
 # Purpose: Orchestrate Phase 5 - nix-darwin installation from flake
-# Coordinates: fetch files, copy config, git init, build, verify
+# Coordinates: clone repo, init submodules, copy config, build, verify
 # Arguments: None
 # Returns: 0 on success, 1 on critical failure
 install_nix_darwin_phase() {
@@ -2600,30 +2243,30 @@ install_nix_darwin_phase() {
     log_phase 5 "Nix-Darwin Installation" "~10-25 minutes"
 
     log_info "This phase will:"
-    log_info "  1. Fetch flake configuration from GitHub"
-    log_info "  2. Copy user configuration"
-    log_info "  3. Initialize Git repository"
+    log_info "  1. Clone the configuration repository at ${NIX_INSTALL_REF}"
+    log_info "  2. Initialize submodules"
+    log_info "  3. Copy user configuration"
     log_info "  4. Run initial nix-darwin build"
     log_info "  5. Verify installation"
     echo ""
     log_warn "Most time is spent downloading and building packages"
     echo ""
 
-    # Step 1: Fetch flake configuration from GitHub (CRITICAL)
-    if ! fetch_flake_from_github; then
-        log_error "Failed to fetch flake configuration from GitHub"
+    # Step 1: Clone the configuration repository at the pinned ref (CRITICAL)
+    if ! clone_flake_repository; then
+        log_error "Failed to clone the configuration repository"
         return 1
     fi
 
-    # Step 2: Copy user configuration (CRITICAL)
+    # Step 2: Initialize submodules (NON-CRITICAL)
+    # config/claude-code-config is SSH-only and is expected to fail until Phase 6
+    initialize_flake_submodules || true
+
+    # Step 3: Copy user configuration into the clone (CRITICAL)
     if ! copy_user_config; then
         log_error "Failed to copy user configuration"
         return 1
     fi
-
-    # Step 3: Initialize Git repository (NON-CRITICAL)
-    # This helps satisfy nix-darwin's Git requirement but isn't essential
-    initialize_git_for_flake || true
 
     # Step 4: Run nix-darwin build (CRITICAL)
     if ! run_nix_darwin_build; then
@@ -2642,9 +2285,9 @@ install_nix_darwin_phase() {
     log_phase_complete 5 "Nix-Darwin Installation" $((phase_end - phase_start))
 
     log_info "What was accomplished:"
-    log_info "  ✓ Flake configuration fetched from GitHub"
+    log_info "  ✓ Configuration repository cloned at ${NIX_INSTALL_REF}"
+    log_info "  ✓ Submodules initialized"
     log_info "  ✓ User configuration integrated"
-    log_info "  ✓ Git repository initialized"
     log_info "  ✓ nix-darwin installed and activated"
     log_info "  ✓ Homebrew installed and configured"
     echo ""

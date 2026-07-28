@@ -70,14 +70,16 @@ readonly _MODULE_NAME_SH_LOADED=1
 - Sandbox configuration
 - **Dependencies**: common.sh
 
-**nix-darwin.sh** (1,090 lines, 13 functions)
+**nix-darwin.sh** (704 lines, 13 functions)
 - Phase 5: nix-darwin installation and validation
-- Download flake files from GitHub (50+ files)
-- Initialize Git repository for flake
+- Clone the repository at `NIX_INSTALL_REF` into `${WORK_DIR}/repo` (shallow, HTTPS)
+- Initialize submodules per path (the SSH-only `config/claude-code-config` is
+  expected to fail here and is initialized in Phase 7 instead)
+- Copy the Phase 2 `user-config.nix` into the clone
 - Backup /etc files
-- Run darwin-rebuild switch
+- Run darwin-rebuild switch against `path:${WORK_DIR}/repo#<profile>`
 - Validate installation (darwin-rebuild, Homebrew, core apps, nix-daemon)
-- **Dependencies**: common.sh, nix-install.sh
+- **Dependencies**: common.sh, nix-install.sh, git (from Phase 3 Xcode CLI Tools)
 
 **ssh-github.sh** (1,038 lines, 19 functions)
 - Phase 6: SSH key generation and GitHub authentication

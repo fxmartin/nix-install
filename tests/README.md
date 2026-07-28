@@ -869,35 +869,34 @@ FX should perform these manual tests in a VM to validate Nix configuration funct
 
 ### Phase 5: Nix-Darwin Installation
 
-The `bootstrap_nix_darwin.bats` test suite validates:
+`bootstrap_flake_clone.bats` is the gated suite for this phase (16 tests, listed
+in `tests/run-safe-suite.sh`). It stubs `git`, never reaches the network, and
+covers the pinned-tag clone, per-path submodule initialization, the
+`user-config.nix` copy, and the orchestration order.
+
+The quarantined `bootstrap_nix_darwin.bats` suite validates the same phase in
+more depth but is not part of the gate — see `tests/LEGACY.md`:
 
 1. **Function Existence** (6 tests)
-   - fetch_flake_from_github()
+   - clone_flake_repository()
    - copy_user_config()
-   - initialize_git_for_flake()
+   - initialize_flake_submodules()
    - run_nix_darwin_build()
    - verify_nix_darwin_installed()
    - install_nix_darwin_phase()
 
-2. **GitHub Fetch Logic** (15 tests)
-   - Creates darwin/ directory
-   - Creates home-manager/modules/ directory structure
-   - Fetches flake.nix from GitHub main branch
-   - Fetches flake.lock from GitHub main branch
-   - Fetches all darwin/*.nix configuration files
-   - Fetches all home-manager/*.nix files
-   - Validates all downloaded files are non-empty
-   - Handles curl failures gracefully with clear error messages
-   - Uses correct GitHub repository URLs (fxmartin/nix-install)
-   - Exits on fetch failure (CRITICAL)
-   - Logs progress messages during downloads
-   - Validates all required files present after fetch
-   - Fetches from main branch specifically
-   - Logs errors with actionable guidance
+2. **Repository Clone** (7 tests)
+   - Creates the clone at ${WORK_DIR}/repo
+   - Produces a non-empty flake.nix
+   - Clones the pinned ref over HTTPS (--depth 1 --branch $NIX_INSTALL_REF)
+   - Handles clone failures gracefully with clear error messages
+   - Logs an error with actionable troubleshooting on failure
+   - Logs progress messages during the clone
+   - Is idempotent across re-runs (removes a leftover partial clone)
 
 3. **User Config Copy** (10 tests)
    - Validates source file exists before copying
-   - Copies user-config.nix to flake directory correctly
+   - Copies user-config.nix into the cloned repository correctly
    - Preserves file permissions during copy
    - Validates destination file is readable
    - Handles missing source file with clear error
@@ -907,22 +906,19 @@ The `bootstrap_nix_darwin.bats` test suite validates:
    - Handles existing destination file (overwrites)
    - Logs error with helpful guidance on failure
 
-4. **Git Initialization** (8 tests)
-   - Runs git init in correct directory ($WORK_DIR)
-   - Adds all files with git add .
-   - Creates initial commit with descriptive message
-   - Handles git command not found (warning, not failure)
-   - Idempotent - safe to run multiple times
-   - Logs warning on git failure (NON-CRITICAL)
-   - Continues execution even if git fails
-   - Logs success message when git initialized
+4. **Submodule Initialization** (5 tests)
+   - Initializes each HTTPS oh-my-zsh submodule per path
+   - Tolerates the SSH-only config/claude-code-config failing (Phase 6 creates the key)
+   - Keeps going when one HTTPS submodule fails
+   - NON-CRITICAL - always returns 0
+   - Logs success when every submodule initializes
 
 5. **Nix-Darwin Build** (12 tests)
    - Uses correct profile (standard) from $INSTALL_PROFILE
    - Uses correct profile (power) from $INSTALL_PROFILE
-   - Changes to work directory before build
+   - Changes to the cloned repository before build
    - Runs nix run nix-darwin -- switch command
-   - Uses flake path format (.#standard or .#power)
+   - Uses the clone as the flake path (path:${WORK_DIR}/repo#standard)
    - Displays progress messages during 10-20 minute build
    - Shows Nix build output (not suppressed)
    - Exits on build failure (CRITICAL)
@@ -944,9 +940,9 @@ The `bootstrap_nix_darwin.bats` test suite validates:
    - Returns 0 only when all verifications succeed
 
 7. **Orchestration** (10 tests)
-   - Calls fetch_flake_from_github first
-   - Calls copy_user_config second
-   - Calls initialize_git_for_flake third
+   - Calls clone_flake_repository first
+   - Calls initialize_flake_submodules second
+   - Calls copy_user_config third
    - Calls run_nix_darwin_build fourth
    - Calls verify_nix_darwin_installed fifth
    - Logs phase start with timestamp
@@ -956,9 +952,9 @@ The `bootstrap_nix_darwin.bats` test suite validates:
    - Includes phase duration calculation and display
 
 8. **Error Handling** (10 tests)
-   - fetch_flake_from_github is CRITICAL (exits on failure)
+   - clone_flake_repository is CRITICAL (exits on failure)
    - copy_user_config is CRITICAL (exits on failure)
-   - initialize_git_for_flake is NON-CRITICAL (logs warning)
+   - initialize_flake_submodules is NON-CRITICAL (logs warning)
    - run_nix_darwin_build is CRITICAL (exits on failure)
    - verify_nix_darwin_installed is CRITICAL (exits on failure)
    - Clear error messages for all failure scenarios
@@ -1814,7 +1810,8 @@ FX should perform these manual tests in a VM to validate Phase 6 (continued) fun
 - Phase 3 (Xcode CLI Tools): 65 tests (bootstrap_xcode.bats)
 - Phase 4 (Nix Installation): 52 tests (bootstrap_nix.bats)
 - Phase 4 (Nix Configuration): 62 tests (bootstrap_nix_config.bats)
-- Phase 5 (Nix-Darwin Installation): 86 tests (bootstrap_nix_darwin.bats)
+- Phase 5 (Nix-Darwin Installation): 76 tests (bootstrap_nix_darwin.bats)
+- Phase 5 (Pinned-Tag Flake Clone): 16 tests (bootstrap_flake_clone.bats)
 - Phase 5 (Continued - Validation): 60 tests (bootstrap_darwin_validation.bats)
 - Phase 6 (SSH Key Generation): 100 tests (bootstrap_ssh_key.bats)
 - Phase 6 (Continued - GitHub Key Upload): 80 tests (bootstrap_github_key_upload.bats)

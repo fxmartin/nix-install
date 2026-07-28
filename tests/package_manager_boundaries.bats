@@ -8,7 +8,8 @@ setup() {
     HOME_CONFIG="${BATS_TEST_DIRNAME}/../home-manager/home.nix"
     GIT_CONFIG="${BATS_TEST_DIRNAME}/../home-manager/modules/git.nix"
     HOME_MANAGER_DIR="${BATS_TEST_DIRNAME}/../home-manager"
-    BOOTSTRAP_FETCHER="${BATS_TEST_DIRNAME}/../lib/nix-darwin.sh"
+    BOOTSTRAP_PHASE5="${BATS_TEST_DIRNAME}/../lib/nix-darwin.sh"
+    HOME_MANAGER_MODULES="${BATS_TEST_DIRNAME}/../home-manager/modules"
 }
 
 @test "Home Manager owned tools are absent from system packages" {
@@ -33,7 +34,16 @@ setup() {
     run rg -n 'programs\.gh|modules/github\.nix' "$HOME_CONFIG" "$HOME_MANAGER_DIR/modules"
     [ "$status" -eq 1 ]
 
-    run rg -n 'home-manager/modules/github\.nix' "$BOOTSTRAP_FETCHER"
+    [ ! -e "${HOME_MANAGER_MODULES}/github.nix" ]
+}
+
+@test "phase 5 installs the whole repository instead of a curated file list" {
+    # A per-file download list silently omits every module added after it was
+    # last edited. The pinned clone cannot drift that way.
+    run rg -n 'git clone --depth 1 --branch' "$BOOTSTRAP_PHASE5"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'curl .*-o ' "$BOOTSTRAP_PHASE5"
     [ "$status" -eq 1 ]
 }
 

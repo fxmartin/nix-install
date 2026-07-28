@@ -6,7 +6,7 @@ setup() {
     REPO_ROOT="${BATS_TEST_DIRNAME}/.."
     HOMEBREW_CONFIG="${REPO_ROOT}/darwin/homebrew.nix"
     HOME_CONFIG="${REPO_ROOT}/home-manager/home.nix"
-    BOOTSTRAP_FETCHER="${REPO_ROOT}/lib/nix-darwin.sh"
+    BOOTSTRAP_PHASE5="${REPO_ROOT}/lib/nix-darwin.sh"
 }
 
 @test "Homebrew no longer installs Visual Studio Code" {
@@ -15,8 +15,13 @@ setup() {
 }
 
 @test "Home Manager no longer imports the VS Code module" {
-    run rg -n 'modules/vscode\.nix' "$HOME_CONFIG" "$BOOTSTRAP_FETCHER"
+    run rg -n 'modules/vscode\.nix' "$HOME_CONFIG" "$BOOTSTRAP_PHASE5"
     [ "$status" -eq 1 ]
+
+    # Phase 5 installs whatever home-manager/home.nix imports, so the absent
+    # import above is the only place VS Code could re-enter the bootstrap.
+    run rg -n 'git clone --depth 1 --branch' "$BOOTSTRAP_PHASE5"
+    [ "$status" -eq 0 ]
 }
 
 @test "retired VS Code implementation files are absent" {

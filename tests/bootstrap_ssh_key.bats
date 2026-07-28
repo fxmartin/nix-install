@@ -717,6 +717,85 @@ teardown() {
     [[ "$output" == *"backed up"* ]] || [[ "$output" == *"backup"* ]]
 }
 
+@test "generate_ssh_key backs up private key only when no .pub sibling exists" {
+    mkdir -p "${HOME}/.ssh"
+    echo "OLD_PRIVATE_KEY" > "${HOME}/.ssh/id_ed25519"
+
+    ssh-keygen() {
+        echo "NEW_PRIVATE_KEY" > "${HOME}/.ssh/id_ed25519"
+        echo "NEW_PUBLIC_KEY" > "${HOME}/.ssh/id_ed25519.pub"
+        return 0
+    }
+    export -f ssh-keygen
+
+    run generate_ssh_key
+    [ "$status" -eq 0 ]
+
+    shopt -s nullglob
+    local backup_files=("${HOME}"/.ssh/id_ed25519.backup.*)
+    shopt -u nullglob
+
+    [ "${#backup_files[@]}" -eq 1 ]
+    [ "$(cat "${backup_files[0]}")" = "OLD_PRIVATE_KEY" ]
+}
+
+@test "generate_ssh_key aborts and does not call ssh-keygen when private key backup fails" {
+    mkdir -p "${HOME}/.ssh"
+    echo "OLD_PRIVATE_KEY" > "${HOME}/.ssh/id_ed25519"
+    echo "OLD_PUBLIC_KEY" > "${HOME}/.ssh/id_ed25519.pub"
+
+    cp() {
+        return 1
+    }
+    export -f cp
+
+    ssh-keygen() {
+        echo "SSH_KEYGEN_SHOULD_NOT_RUN" >&2
+        return 0
+    }
+    export -f ssh-keygen
+
+    run generate_ssh_key
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"Failed to back up existing private key"* ]]
+    [[ "$output" != *"SSH_KEYGEN_SHOULD_NOT_RUN"* ]]
+
+    shopt -s nullglob
+    local backup_files=("${HOME}"/.ssh/id_ed25519.backup.*)
+    shopt -u nullglob
+    [ "${#backup_files[@]}" -eq 0 ]
+}
+
+@test "generate_ssh_key aborts and does not call ssh-keygen when public key backup fails" {
+    mkdir -p "${HOME}/.ssh"
+    echo "OLD_PRIVATE_KEY" > "${HOME}/.ssh/id_ed25519"
+    echo "OLD_PUBLIC_KEY" > "${HOME}/.ssh/id_ed25519.pub"
+
+    cp() {
+        case "$1" in
+            *.pub) return 1 ;;
+            *) command cp "$@" ;;
+        esac
+    }
+    export -f cp
+
+    ssh-keygen() {
+        echo "SSH_KEYGEN_SHOULD_NOT_RUN" >&2
+        return 0
+    }
+    export -f ssh-keygen
+
+    run generate_ssh_key
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"Failed to back up existing public key"* ]]
+    [[ "$output" != *"SSH_KEYGEN_SHOULD_NOT_RUN"* ]]
+
+    shopt -s nullglob
+    local private_backup=("${HOME}"/.ssh/id_ed25519.backup.[0-9]*)
+    shopt -u nullglob
+    [ "${#private_backup[@]}" -eq 1 ]
+}
+
 # =============================================================================
 # PERMISSIONS SETTING TESTS (10 tests)
 # =============================================================================

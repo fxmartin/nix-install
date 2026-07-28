@@ -190,7 +190,7 @@ display_next_steps() {
     if [[ "${INSTALL_PROFILE:-standard}" == "power" ]]; then
         echo "  3. Verify Ollama models (Power profile):"
         echo "     ollama list"
-        echo "     Expected: gpt-oss:20b, qwen2.5-coder:32b, llama3.1:70b, deepseek-r1:32b"
+        echo "     Expected: gemma4:e4b, gemma4:26b, nomic-embed-text"
         echo ""
     fi
 

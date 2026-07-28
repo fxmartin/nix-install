@@ -238,18 +238,6 @@
           done
         '';
 
-      # Verify Xcode Command Line Tools are installed
-      xcodeCheck.text = ''
-        echo "Checking for Xcode Command Line Tools..."
-        if ! xcode-select -p &> /dev/null; then
-          echo "⚠️  Xcode Command Line Tools not found"
-          echo "Please install them using: xcode-select --install"
-          exit 1
-        else
-          echo "✓ Xcode Command Line Tools installed"
-        fi
-      '';
-
       # Sync maintenance scripts to ~/.local/bin (TCC-safe location for LaunchAgents)
       # macOS TCC blocks LaunchAgents from accessing ~/Documents, so we copy scripts
       # to ~/.local/bin which is not a protected folder

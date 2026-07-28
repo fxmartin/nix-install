@@ -79,13 +79,20 @@ in
         # --- Read password and generate /etc/auto_smb ---
         PASSWORD_FILE="${passwordFile}"
         if [[ -f "$PASSWORD_FILE" ]]; then
-          # Read password and URL-encode special characters
+          # Read password and URL-encode special characters.
+          # '%' is encoded first since it appears in the escape sequences
+          # produced by the other substitutions below; encoding it later
+          # would double-encode those sequences.
           RAW_PASSWORD=$(cat "$PASSWORD_FILE" | tr -d '\n')
-          # URL-encode: @ → %40, : → %3A, / → %2F, # → %23, ? → %3F, & → %26
-          ENCODED_PASSWORD=$(echo "$RAW_PASSWORD" | sed -e 's/@/%40/g' -e 's/:/%3A/g' -e 's/\//%2F/g' -e 's/#/%23/g' -e 's/?/%3F/g' -e 's/&/%26/g')
+          URL_ENCODE_SED='s/%/%25/g; s/@/%40/g; s/:/%3A/g; s/\//%2F/g; s/#/%23/g; s/?/%3F/g; s/&/%26/g; s/ /%20/g; s/+/%2B/g; s/;/%3B/g'
+          ENCODED_PASSWORD=$(echo "$RAW_PASSWORD" | sed -e "$URL_ENCODE_SED")
 
           echo "  Writing /etc/auto_smb (with credentials)..."
-          cat > /etc/auto_smb << AUTO_SMB_EOF
+          # umask 077 is set before the file is created so it is never
+          # briefly world- or group-readable while it holds the credential.
+          (
+            umask 077
+            cat > /etc/auto_smb << AUTO_SMB_EOF
     #
     # SMB automount configuration for NAS shares
     # Managed by nix-darwin - changes will be overwritten on rebuild
@@ -96,6 +103,7 @@ in
       "/Volumes/${share}\t-fstype=smbfs,soft,nodev,nosuid\t://${nasConfig.username}:\$ENCODED_PASSWORD@${nasConfig.host}/${share}"
     ) nasConfig.shares}
     AUTO_SMB_EOF
+          )
           chmod 600 /etc/auto_smb
           echo "  auto_smb configured with credentials (chmod 600)"
         else
@@ -109,8 +117,13 @@ in
           echo "    chmod 600 ~/.config/smb-nas/password"
           echo ""
 
-          # Write auto_smb without password (won't work but shows config)
-          cat > /etc/auto_smb << 'AUTO_SMB_EOF'
+          # Write auto_smb without password (won't work but shows config).
+          # No secret is present, so umask 022 (world-readable) is fine; the
+          # umask-then-content ordering is kept consistent with the
+          # credentialed branch above.
+          (
+            umask 022
+            cat > /etc/auto_smb << 'AUTO_SMB_EOF'
     #
     # SMB automount configuration for NAS shares
     # WARNING: No password configured - mounts will fail!
@@ -121,6 +134,7 @@ in
       "/Volumes/${share}\t-fstype=smbfs,soft,nodev,nosuid\t://${nasConfig.username}@${nasConfig.host}/${share}"
     ) nasConfig.shares}
     AUTO_SMB_EOF
+          )
           chmod 644 /etc/auto_smb
         fi
 

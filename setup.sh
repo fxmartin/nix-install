@@ -45,7 +45,9 @@ readonly REPO_NAME="nix-install"
 readonly BOOTSTRAP_SCRIPT="bootstrap-dist.sh"
 readonly USER_CONFIG_TEMPLATE="user-config.template.nix"
 readonly CHECKSUMS_FILE="SHA256SUMS"
-readonly TEMP_DIR="/tmp/nix-install-setup-$$"
+# Populated by create_temp_dir() via mktemp; declared here so `set -u` and
+# handle_error() can reference it safely even if called before creation.
+TEMP_DIR=""
 
 # Release version. scripts/bump-version.sh keeps this synchronized with VERSION.
 readonly SETUP_VERSION="2.0.33"
@@ -64,6 +66,12 @@ else
 fi
 readonly BOOTSTRAP_URL="${ARTIFACT_BASE_URL}/${BOOTSTRAP_SCRIPT}"
 readonly CHECKSUMS_URL="${ARTIFACT_BASE_URL}/${CHECKSUMS_FILE}"
+
+# BRANCH is empty by default (tagged-release installs don't set it), which
+# would otherwise leave a blank ref in the URLs printed by --help/--version
+# (a literal "nix-install//setup.sh" double slash). Display text always names
+# the branch setup.sh itself is fetched from in the documented one-liner (main).
+readonly DISPLAY_BRANCH="${BRANCH:-main}"
 
 # Minimum required macOS version
 readonly MIN_MACOS_VERSION=14
@@ -95,6 +103,14 @@ handle_error() {
 # Check if command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
+}
+
+# Create an unpredictable temp dir (mktemp, not a PID-based path a local
+# attacker could guess and race/plant files into) and guarantee its removal
+# on every exit path via a trap on EXIT.
+create_temp_dir() {
+    TEMP_DIR="$(mktemp -d /tmp/nix-install-setup.XXXXXX)" || return 1
+    trap 'rm -rf "${TEMP_DIR}"' EXIT
 }
 
 verify_checksum() {
@@ -278,8 +294,8 @@ main() {
     # ==========================================================================
 
     # Create temporary directory
-    log_info "Creating temporary directory: ${TEMP_DIR}"
-    mkdir -p "${TEMP_DIR}" || handle_error "Failed to create temporary directory"
+    create_temp_dir || handle_error "Failed to create temporary directory"
+    log_info "Created temporary directory: ${TEMP_DIR}"
 
     # Download bootstrap.sh
     log_info "Downloading bootstrap script..."
@@ -324,7 +340,11 @@ main() {
         handle_error "Downloaded template is empty or corrupted"
     fi
 
-    log_success "User config template downloaded successfully"
+    if ! verify_checksum "${TEMP_DIR}/${USER_CONFIG_TEMPLATE}" "${TEMP_DIR}/${CHECKSUMS_FILE}"; then
+        handle_error "User config template integrity verification failed; refusing to use it"
+    fi
+
+    log_success "User config template downloaded and verified successfully"
 
     # Display template information
     echo "  • Size: $(wc -c < "${TEMP_DIR}/${USER_CONFIG_TEMPLATE}") bytes"
@@ -369,16 +389,11 @@ main() {
     else
         local exit_code=$?
         log_error "Bootstrap installation failed with exit code: ${exit_code}"
-        log_info "The bootstrap script is available at: ${TEMP_DIR}/${BOOTSTRAP_SCRIPT}"
-        log_info "You can inspect it and run it manually if needed"
-        rm -rf "${TEMP_DIR}"
         exit "${exit_code}"
     fi
 
-    # Cleanup
-    log_info "Cleaning up temporary files..."
+    # Cleanup (the EXIT trap set in create_temp_dir removes ${TEMP_DIR} itself)
     cd "${HOME}" || true
-    rm -rf "${TEMP_DIR}"
 
     echo ""
     log_success "Setup complete! Your macOS system is now configured with Nix-Darwin"
@@ -407,10 +422,10 @@ case "${1:-}" in
         echo ""
         echo "Installation methods:"
         echo "  1. One-line install (recommended):"
-        echo "     curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/setup.sh | bash"
+        echo "     curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${DISPLAY_BRANCH}/setup.sh | bash"
         echo ""
         echo "  2. Download and inspect first:"
-        echo "     curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/setup.sh -o setup.sh"
+        echo "     curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${DISPLAY_BRANCH}/setup.sh -o setup.sh"
         echo "     less setup.sh  # Inspect the script"
         echo "     bash setup.sh"
         echo ""
@@ -419,7 +434,7 @@ case "${1:-}" in
     --version|-v)
         echo "Nix-Darwin Setup Wrapper v${SETUP_VERSION}"
         echo "Repository: https://github.com/${REPO_OWNER}/${REPO_NAME}"
-        echo "Branch: ${BRANCH}"
+        echo "Branch: ${DISPLAY_BRANCH}"
         exit 0
         ;;
 esac

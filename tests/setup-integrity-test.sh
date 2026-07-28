@@ -35,4 +35,45 @@ development_url="$({
 })"
 [[ "${development_url}" == "https://raw.githubusercontent.com/fxmartin/nix-install/feature/test/bootstrap-dist.sh" ]]
 
+# Temp dir must be created with an unpredictable mktemp template (not the
+# PID-predictable "-$$" suffix) and removed automatically once the shell that
+# created it exits, via a trap on EXIT.
+temp_dir_path="$(
+    bash -c '
+        source "$1/setup.sh"
+        create_temp_dir
+        printf "%s" "${TEMP_DIR}"
+    ' _ "${repo_root}"
+)"
+[[ "${temp_dir_path}" =~ ^/tmp/nix-install-setup\.[A-Za-z0-9]{6}$ ]]
+if [[ -d "${temp_dir_path}" ]]; then
+    echo "trap did not clean up temp dir after shell exit: ${temp_dir_path}" >&2
+    exit 1
+fi
+
+if grep -q 'nix-install-setup-\$\$' "${repo_root}/setup.sh"; then
+    echo "setup.sh still uses the PID-predictable temp dir naming pattern" >&2
+    exit 1
+fi
+
+# The user-config template must be checksum-verified the same way bootstrap-dist.sh is.
+if ! grep -q 'verify_checksum "\${TEMP_DIR}/\${USER_CONFIG_TEMPLATE}"' "${repo_root}/setup.sh"; then
+    echo "setup.sh does not verify the downloaded user-config template checksum" >&2
+    exit 1
+fi
+
+# Default (no NIX_INSTALL_BRANCH) help/version output must not print a
+# double-slash "nix-install//setup.sh" artifact or an empty Branch value.
+help_output="$(cd "${repo_root}" && env -u NIX_INSTALL_BRANCH bash setup.sh --help)"
+if grep -q '//setup.sh' <<<"${help_output}"; then
+    echo "help output contains a double-slash URL artifact" >&2
+    exit 1
+fi
+
+version_output="$(cd "${repo_root}" && env -u NIX_INSTALL_BRANCH bash setup.sh --version)"
+if grep -q '^Branch: $' <<<"${version_output}"; then
+    echo "version output has an empty Branch value" >&2
+    exit 1
+fi
+
 echo "setup-integrity-test OK"

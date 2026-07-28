@@ -68,6 +68,40 @@ child_visible_ref="$(
 )"
 [[ "${child_visible_ref}" == "v${version}" ]]
 
+# An empty (but explicitly set) NIX_INSTALL_BRANCH must behave like unset:
+# fall back to the tag-pinned default rather than exporting an empty ref.
+empty_branch_ref="$(
+    NIX_INSTALL_BRANCH='' bash -c '
+        source "$1/setup.sh"
+        export_bootstrap_ref
+        printf "%s" "${NIX_INSTALL_REF}"
+    ' _ "${repo_root}"
+)"
+[[ "${empty_branch_ref}" == "v${version}" ]]
+
+# main() must actually wire export_bootstrap_ref into the install flow (not
+# just define it), and call it before bootstrap-dist.sh is executed, so the
+# child process's environment carries NIX_INSTALL_REF.
+main_body="$(sed -n '/^main() {/,/^}/p' "${repo_root}/setup.sh")"
+if ! grep -q 'export_bootstrap_ref' <<<"${main_body}"; then
+    echo "main() never calls export_bootstrap_ref" >&2
+    exit 1
+fi
+
+export_call_line="$(grep -n 'export_bootstrap_ref' "${repo_root}/setup.sh" | tail -1 | cut -d: -f1)"
+bootstrap_exec_line="$(grep -n 'bash "\${BOOTSTRAP_SCRIPT}"' "${repo_root}/setup.sh" | head -1 | cut -d: -f1)"
+if (( export_call_line >= bootstrap_exec_line )); then
+    echo "export_bootstrap_ref must run before bootstrap-dist.sh is executed" >&2
+    exit 1
+fi
+
+# The pinned ref must be surfaced to the operator in the install log, so a
+# mismatch between the logged ref and the exported ref is visible at a glance.
+if ! grep -q 'Pinned ref: \${SOURCE_REF}' "${repo_root}/setup.sh"; then
+    echo "setup.sh does not log the pinned ref before bootstrapping" >&2
+    exit 1
+fi
+
 # Temp dir must be created with an unpredictable mktemp template (not the
 # PID-predictable "-$$" suffix) and removed automatically once the shell that
 # created it exits, via a trap on EXIT.

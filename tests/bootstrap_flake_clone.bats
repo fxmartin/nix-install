@@ -120,6 +120,22 @@ stub_git_success() {
     [ ! -e "${FLAKE_REPO_DIR}/stale-artifact" ]
 }
 
+@test "clone_flake_repository fails fast when git is not on PATH" {
+    load_phase5
+
+    local empty_bin="${TEST_ROOT}/emptybin"
+    mkdir -p "${empty_bin}"
+    local old_path="${PATH}"
+    PATH="${empty_bin}"
+
+    run clone_flake_repository
+
+    PATH="${old_path}"
+    [ "$status" -eq 1 ]
+    [[ "$output" =~ "git command not found" ]]
+    [[ "$output" =~ "Phase 3" ]]
+}
+
 @test "phase 5 no longer downloads individual configuration files" {
     run rg -n 'curl .*-o ' "${BATS_TEST_DIRNAME}/../lib/nix-darwin.sh"
     [ "$status" -eq 1 ]
@@ -200,6 +216,30 @@ stub_git_success() {
     [ "$status" -eq 0 ]
 }
 
+@test "initialize_flake_submodules reports success when every submodule initializes" {
+    load_phase5
+    stub_git_success
+
+    run initialize_flake_submodules
+    [ "$status" -eq 0 ]
+    [[ "$output" =~ "Submodules initialized" ]]
+}
+
+@test "initialize_flake_submodules warns with a failure count when an HTTPS submodule fails" {
+    load_phase5
+    git() {
+        echo "$*" >> "${GIT_CALLS}"
+        if [[ "$*" == *"powerlevel10k"* ]]; then
+            return 1
+        fi
+        return 0
+    }
+
+    run initialize_flake_submodules
+    [ "$status" -eq 0 ]
+    [[ "$output" =~ "1 submodule(s) failed to initialize" ]]
+}
+
 # =============================================================================
 # user-config.nix placement (AC 4)
 # =============================================================================
@@ -229,9 +269,42 @@ stub_git_success() {
     [[ "$output" =~ "not found" ]]
 }
 
+@test "copy_user_config fails when the phase-2 file is unreadable" {
+    load_phase5
+
+    mkdir -p "${FLAKE_REPO_DIR}"
+    printf '{ username = "testuser"; }\n' > "${USER_CONFIG_FILE}"
+    chmod 000 "${USER_CONFIG_FILE}"
+
+    run copy_user_config
+
+    chmod 644 "${USER_CONFIG_FILE}"
+    [ "$status" -eq 1 ]
+    [[ "$output" =~ "not readable" ]]
+}
+
 # =============================================================================
 # Orchestration
 # =============================================================================
+
+@test "install_nix_darwin_phase stops before submodules or config when the clone fails" {
+    load_phase5
+    git() {
+        echo "$*" >> "${GIT_CALLS}"
+        return 128
+    }
+    # install_nix_darwin_phase calls run_nix_darwin_build and beyond on
+    # success; stub them out so a bug in the short-circuit can't fall through
+    # into a real sudo/nix invocation.
+    run_nix_darwin_build() { echo "run_nix_darwin_build should not run"; return 0; }
+    verify_nix_darwin_installed() { echo "verify_nix_darwin_installed should not run"; return 0; }
+
+    run install_nix_darwin_phase
+    [ "$status" -eq 1 ]
+    [[ "$output" =~ "Failed to clone the configuration repository" ]]
+    [[ ! "$output" =~ "should not run" ]]
+    [ ! -e "${FLAKE_REPO_DIR}/user-config.nix" ]
+}
 
 @test "install_nix_darwin_phase clones, initializes submodules, then copies config" {
     local phase_source

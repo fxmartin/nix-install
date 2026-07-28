@@ -7,6 +7,21 @@ setup() {
     SMB_MODULE="${REPO_ROOT}/darwin/smb-automount.nix"
 }
 
+# Prints a path's permission bits in octal (e.g. "600").
+# The CI quality gate runs `make check` inside `nix develop`, whose stdenv puts
+# GNU coreutils ahead of /usr/bin on PATH -- so `stat` is GNU even on macOS,
+# where `-f` means --file-system rather than "format". Probe for the GNU
+# spelling first and discard the probe's stdout so the fallback can never
+# concatenate onto a partially successful first attempt.
+file_mode() {
+    local path="$1"
+    if stat -c '%a' "$path" >/dev/null 2>&1; then
+        stat -c '%a' "$path"
+    else
+        stat -f '%Lp' "$path"
+    fi
+}
+
 @test "credentialed auto_smb write sets umask 077 before the heredoc content" {
     run rg -n 'umask 077' "$SMB_MODULE"
     [ "$status" -eq 0 ]
@@ -79,7 +94,7 @@ run_credentialed_write_sequence() {
 
     run_credentialed_write_sequence "$target"
 
-    perm=$(stat -f '%Lp' "$target")
+    perm=$(file_mode "$target")
     run grep -q 'placeholder-map-line' "$target"
     local content_status="$status"
     rm -rf "$tmpdir"
@@ -95,7 +110,7 @@ run_credentialed_write_sequence() {
 
     run_credentialed_write_sequence "$target"
 
-    perm=$(stat -f '%Lp' "$target")
+    perm=$(file_mode "$target")
     rm -rf "$tmpdir"
     [ "$perm" = "600" ]
 }
@@ -111,7 +126,7 @@ run_credentialed_write_sequence() {
     chmod 644 "$target"
     ( umask 077; printf 'secret\n' > "$target" )
 
-    perm=$(stat -f '%Lp' "$target")
+    perm=$(file_mode "$target")
     rm -rf "$tmpdir"
     [ "$perm" = "644" ]
 }
@@ -194,7 +209,7 @@ run_credentialed_write_sequence() {
 
     tmpdir=$(mktemp -d)
     ( umask "$umask_val"; : > "$tmpdir/secretfile" )
-    perm=$(stat -f '%Lp' "$tmpdir/secretfile")
+    perm=$(file_mode "$tmpdir/secretfile")
     rm -rf "$tmpdir"
     [ "$perm" = "600" ]
 }

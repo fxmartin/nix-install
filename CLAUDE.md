@@ -309,7 +309,6 @@ environment.variables.HOMEBREW_NO_AUTO_UPDATE = "1";
 - **Progress**: `docs/development/progress.md` (metrics and milestones)
 - **Stories**: `STORIES.md` + `/stories/epic-*.md` (detailed stories)
 - **Apps**: `docs/apps/` (per-app configuration guides)
-- **Reference**: `mlgruby-repo-for-reference/dotfile-nix/` (production example)
 
 ## GitHub Labels
 

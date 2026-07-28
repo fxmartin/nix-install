@@ -121,7 +121,7 @@
 - Displays found config and prompts: "Reuse this configuration? (y/n)"
 - If reused: Sets global variables, skips prompt_user_info() (saves 30-60 seconds)
 - If declined or invalid: Runs normal prompts for fresh input
-- Pattern based on mlgruby-repo-for-reference/scripts/install/pre-nix-installation.sh (lines 239-289)
+- Pattern based on a local mlgruby dotfiles reference clone (historical; not part of this repository)
 - VM Testing: ✅ **ALL SCENARIOS PASSED** (fresh, retry, completed, corrupted, declined)
 - Integration: Phase 2 main() flow, line 2855 (before prompt_user_info call)
 
@@ -726,7 +726,7 @@
 - Minimal config should build successfully (even if it doesn't install many apps yet)
 
 **Technical Notes**:
-- Reference mlgruby-repo-for-reference/dotfile-nix/flake.nix for structure
+- Referenced a local mlgruby dotfiles reference clone's flake.nix for structure (historical; not part of this repository)
 - Standard profile: Essential system config, no Parallels, minimal apps
 - Power profile: Full system config, Parallels enabled, all apps
 - Use Stylix for theming support (configured in later stories)
@@ -997,7 +997,7 @@
 - Idempotent: Check if key already exists before uploading
 
 **Technical Notes**:
-- Reference implementation: `mlgruby-repo-for-reference/scripts/install/pre-nix-installation.sh` (Lines 291-399)
+- Reference implementation: a local mlgruby dotfiles reference clone's `pre-nix-installation.sh` (Lines 291-399) (historical; not part of this repository)
 - Check authentication: `gh auth status >/dev/null 2>&1`
 - Authenticate: `gh auth login --hostname github.com --git-protocol ssh --web`
 - Upload key: `gh ssh-key add ~/.ssh/id_ed25519.pub --title "$(hostname)-$(date +%Y%m%d)"`

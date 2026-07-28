@@ -227,7 +227,6 @@ graph TD
 
 ### Reference Materials
 - **Primary**: docs/REQUIREMENTS.md (comprehensive PRD)
-- **Reference**: mlgruby-repo-for-reference/dotfile-nix/ (production example)
 - **User preferences**: ~/.claude/CLAUDE.md, ~/.claude/docs/*.md
 - **Ghostty config**: config/config.ghostty (template for Home Manager)
 

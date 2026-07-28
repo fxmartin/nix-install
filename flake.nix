@@ -76,6 +76,7 @@
         "email"
         "fullName"
         "githubUsername"
+        "notificationEmail"
       ];
       missingAttrs = builtins.filter (attr: !(builtins.hasAttr attr userConfig)) requiredAttrs;
 

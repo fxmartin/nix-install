@@ -19,7 +19,7 @@ setup() {
 }
 
 teardown() {
-    unset -f git nix 2>/dev/null || true
+    unset -f git nix mktemp 2>/dev/null || true
     if [[ -n "${TEST_ROOT:-}" && -d "${TEST_ROOT}" ]]; then
         rm -rf "${TEST_ROOT}"
     fi
@@ -47,6 +47,11 @@ mock_git_clone_fails() {
     git() {
         echo "git $*" >> "${GIT_CALLS}"
         if [[ " $* " == *" clone "* ]]; then
+            # A real failed clone can leave a partially populated destination
+            # behind, so create it here too. Without it the script would stop
+            # merely because the later `cd` hit a missing directory, and the
+            # test would stay green even if clone's exit status were ignored.
+            mkdir -p "${*: -1}"
             return 128
         fi
         [[ " $* " == *" rev-parse "* ]] && echo "${FAKE_HEAD_SHA}"
@@ -76,6 +81,26 @@ mock_nix_fails_for() {
         return 0
     }
     export -f nix
+}
+
+# macOS `/usr/bin/mktemp` takes its default directory from
+# _CS_DARWIN_USER_TEMP_DIR and ignores $TMPDIR, so exporting TMPDIR cannot
+# steer the script's scratch directory. Mocking mktemp is what makes the
+# scratch path observable; asserting on a TMPDIR the script never honours is
+# vacuous and stays green even with the script's EXIT trap deleted.
+mock_mktemp() {
+    SCRATCH_PARENT="${TEST_ROOT}/scratch"
+    MKTEMP_LOG="${TEST_ROOT}/mktemp.log"
+    export SCRATCH_PARENT MKTEMP_LOG
+    mkdir -p "${SCRATCH_PARENT}"
+    : > "${MKTEMP_LOG}"
+    mktemp() {
+        local scratch="${SCRATCH_PARENT}/scratch.$$"
+        mkdir -p "${scratch}"
+        echo "${scratch}" >> "${MKTEMP_LOG}"
+        echo "${scratch}"
+    }
+    export -f mktemp
 }
 
 @test "smoke-test-clone.sh exists, is executable, and uses strict mode" {
@@ -176,25 +201,31 @@ mock_nix_fails_for() {
 @test "removes the scratch clone directory on exit, success or failure" {
     mock_git_success
     mock_nix_success
+    mock_mktemp
 
-    SCRATCH_TMPDIR="${TEST_ROOT}/scratch-tmp"
-    mkdir -p "${SCRATCH_TMPDIR}"
-
-    TMPDIR="${SCRATCH_TMPDIR}" run bash "${SCRIPT}" v2.0.33
+    run bash "${SCRIPT}" v2.0.33
     [ "$status" -eq 0 ]
-    [ -z "$(ls -A "${SCRATCH_TMPDIR}")" ]
+
+    # Non-empty log proves the script really took a scratch directory, so the
+    # removal assertion below cannot pass by never having created one.
+    scratch="$(cat "${MKTEMP_LOG}")"
+    [ -n "${scratch}" ]
+    [ ! -e "${scratch}" ]
+    [ -z "$(ls -A "${SCRATCH_PARENT}")" ]
 }
 
 @test "removes the scratch clone directory even when a profile eval fails" {
     mock_git_success
     mock_nix_fails_for standard
+    mock_mktemp
 
-    SCRATCH_TMPDIR="${TEST_ROOT}/scratch-tmp-fail"
-    mkdir -p "${SCRATCH_TMPDIR}"
-
-    TMPDIR="${SCRATCH_TMPDIR}" run bash "${SCRIPT}" v2.0.33
+    run bash "${SCRIPT}" v2.0.33
     [ "$status" -ne 0 ]
-    [ -z "$(ls -A "${SCRATCH_TMPDIR}")" ]
+
+    scratch="$(cat "${MKTEMP_LOG}")"
+    [ -n "${scratch}" ]
+    [ ! -e "${scratch}" ]
+    [ -z "$(ls -A "${SCRATCH_PARENT}")" ]
 }
 
 @test "prints a success message naming the ref once all profiles evaluate" {

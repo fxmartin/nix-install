@@ -23,15 +23,26 @@ setup() {
     export -f command
 
     # Mock curl for installer download
+    #
+    # Honours the caller's -o destination so the mock matches real curl now that
+    # download_nix_installer picks an unpredictable mktemp path (Story 10.2-002).
     curl() {
+        local output_path="${MOCK_INSTALLER_PATH:-/tmp/nix-installer.sh}"
+        local previous_arg=""
+        local arg
+        for arg in "$@"; do
+            [[ "${previous_arg}" == "-o" ]] && output_path="${arg}"
+            previous_arg="${arg}"
+        done
+
         if [[ "$*" == *"nixos.org"* ]]; then
             if [[ "${MOCK_CURL_FAIL:-0}" == "1" ]]; then
                 echo "curl: (6) Could not resolve host: nixos.org" >&2
                 return 6
             fi
             # Simulate successful download
-            echo "#!/bin/sh" > "${MOCK_INSTALLER_PATH:-/tmp/nix-installer.sh}"
-            echo "echo 'Mock Nix installer'" >> "${MOCK_INSTALLER_PATH:-/tmp/nix-installer.sh}"
+            echo "#!/bin/sh" > "${output_path}"
+            echo "echo 'Mock Nix installer'" >> "${output_path}"
             return 0
         fi
         # Fallback for other curl uses
@@ -94,6 +105,26 @@ setup() {
     export TEST_TMP_DIR=$(mktemp -d)
     export MOCK_INSTALLER_PATH="${TEST_TMP_DIR}/nix-installer.sh"
     export MOCK_NIX_CONF="${TEST_TMP_DIR}/nix.conf"
+
+    # Keep mktemp inside the sandbox so no test ever writes to the real /tmp
+    export TMPDIR="${TEST_TMP_DIR}"
+}
+
+# Stand in for a completed download_nix_installer run.
+#
+# install_nix_multi_user now refuses to execute anything unless a prior download
+# published a path (Story 10.2-002), so these tests must seed one. The stub exits
+# non-zero when MOCK_SUDO_FAIL=1 to model an installer that bails out.
+seed_mock_installer() {
+    NIX_INSTALLER_PATH="${TEST_TMP_DIR}/seeded-nix-installer.sh"
+
+    if [[ "${MOCK_SUDO_FAIL:-0}" == "1" ]]; then
+        printf '#!/bin/sh\nexit 1\n' > "${NIX_INSTALLER_PATH}"
+    else
+        printf '#!/bin/sh\nexit 0\n' > "${NIX_INSTALLER_PATH}"
+    fi
+
+    chmod +x "${NIX_INSTALLER_PATH}"
 }
 
 teardown() {
@@ -105,6 +136,10 @@ teardown() {
     unset MOCK_FLAKES_ENABLED
     unset MOCK_INSTALLER_PATH
     unset MOCK_NIX_CONF
+    unset MOCK_CURL_EXIT
+    unset MOCK_CURL_STDERR
+    unset MOCK_CURL_BODY
+    unset CURL_ARGS_FILE
     unset TESTING
 
     # Clean up temp directory
@@ -365,12 +400,246 @@ teardown() {
 }
 
 # =============================================================================
+# Download Hardening Tests (Story 10.2-002)
+# =============================================================================
+#
+# These tests replace the exported `curl` function mock with a recording shim on
+# PATH, because the assertions are about the exact flags the real curl receives.
+
+# Install a curl shim on PATH that records its arguments and behaves according to
+# MOCK_CURL_EXIT / MOCK_CURL_STDERR / MOCK_CURL_BODY.
+install_recording_curl() {
+    unset -f curl
+
+    local shim_dir="${TEST_TMP_DIR}/bin"
+    mkdir -p "${shim_dir}"
+
+    cat > "${shim_dir}/curl" <<'SHIM'
+#!/usr/bin/env bash
+printf '%s\n' "$*" > "${CURL_ARGS_FILE}"
+
+output_path=""
+previous_arg=""
+for arg in "$@"; do
+    [[ "${previous_arg}" == "-o" ]] && output_path="${arg}"
+    previous_arg="${arg}"
+done
+
+if [[ -n "${MOCK_CURL_STDERR:-}" ]]; then
+    printf '%s\n' "${MOCK_CURL_STDERR}" >&2
+fi
+
+if [[ "${MOCK_CURL_EXIT:-0}" != "0" ]]; then
+    exit "${MOCK_CURL_EXIT}"
+fi
+
+if [[ -z "${MOCK_CURL_BODY+set}" ]]; then
+    printf '#!/bin/sh\nexit 0\n' > "${output_path}"
+else
+    printf '%s' "${MOCK_CURL_BODY}" > "${output_path}"
+fi
+SHIM
+
+    chmod +x "${shim_dir}/curl"
+    export CURL_ARGS_FILE="${TEST_TMP_DIR}/curl-args"
+    export PATH="${shim_dir}:${PATH}"
+}
+
+@test "download_nix_installer pins the transport to TLS 1.2+ HTTPS" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    install_recording_curl
+
+    download_nix_installer
+
+    local recorded_args
+    recorded_args=$(< "${CURL_ARGS_FILE}")
+    [[ "${recorded_args}" == *"--proto =https"* ]]
+    [[ "${recorded_args}" == *"--tlsv1.2"* ]]
+}
+
+@test "download_nix_installer asks curl to fail on an HTTP error" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    install_recording_curl
+
+    download_nix_installer
+
+    local recorded_args
+    recorded_args=$(< "${CURL_ARGS_FILE}")
+    [[ "${recorded_args}" == *"-fsSL"* ]]
+}
+
+@test "download_nix_installer fails the phase when nixos.org returns an HTTP error" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    install_recording_curl
+    export MOCK_CURL_EXIT=22
+    export MOCK_CURL_STDERR="curl: (22) The requested URL returned error: 503"
+
+    run download_nix_installer
+    [ "$status" -eq 1 ]
+}
+
+@test "download_nix_installer leaves no file behind after an HTTP error" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    install_recording_curl
+    export MOCK_CURL_EXIT=22
+
+    run download_nix_installer
+    [ "$status" -eq 1 ]
+
+    # mktemp created the file; the failure path must have removed it again
+    local leftovers
+    leftovers=$(/usr/bin/find "${TEST_TMP_DIR}" -maxdepth 1 -name 'nix-installer.*' | wc -l)
+    [ "${leftovers}" -eq 0 ]
+}
+
+@test "download_nix_installer surfaces curl stderr instead of suppressing it" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    install_recording_curl
+    export MOCK_CURL_EXIT=35
+    export MOCK_CURL_STDERR="curl: (35) TLS connect error"
+
+    run download_nix_installer
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"TLS connect error"* ]]
+}
+
+@test "download_nix_installer rejects an empty download" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    install_recording_curl
+    export MOCK_CURL_BODY=""
+
+    run download_nix_installer
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"empty"* ]]
+}
+
+@test "download_nix_installer does not use the predictable /tmp/nix-installer.sh path" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    install_recording_curl
+
+    download_nix_installer
+
+    [ -n "${NIX_INSTALLER_PATH}" ]
+    [ "${NIX_INSTALLER_PATH}" != "/tmp/nix-installer.sh" ]
+    [ -x "${NIX_INSTALLER_PATH}" ]
+}
+
+@test "download_nix_installer picks a fresh path on every run" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    install_recording_curl
+
+    download_nix_installer
+    local first_path="${NIX_INSTALLER_PATH}"
+
+    download_nix_installer
+    local second_path="${NIX_INSTALLER_PATH}"
+
+    [ "${first_path}" != "${second_path}" ]
+}
+
+@test "download_nix_installer fails cleanly when mktemp cannot create the temp file" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    install_recording_curl
+
+    # Point TMPDIR at a directory that does not exist so mktemp itself fails,
+    # before curl is ever invoked (Story 10.2-002 - mktemp guard).
+    export TMPDIR="${TEST_TMP_DIR}/does-not-exist"
+
+    run download_nix_installer
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"temporary file"* ]]
+    [ -z "${NIX_INSTALLER_PATH}" ]
+    [ ! -f "${CURL_ARGS_FILE}" ]
+}
+
+@test "install_nix_multi_user refuses to run when no installer was downloaded" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    NIX_INSTALLER_PATH=""
+
+    run install_nix_multi_user
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"installer"* ]]
+}
+
+@test "install_nix_multi_user refuses to run when the installer path vanished" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    NIX_INSTALLER_PATH="${TEST_TMP_DIR}/never-created.sh"
+
+    run install_nix_multi_user
+    [ "$status" -eq 1 ]
+}
+
+@test "install_nix_multi_user removes the installer after a successful run" {
+    export MOCK_SUDO_FAIL=0
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    seed_mock_installer
+    local seeded_path="${NIX_INSTALLER_PATH}"
+
+    run install_nix_multi_user
+    [ "$status" -eq 0 ]
+    [ ! -e "${seeded_path}" ]
+}
+
+@test "install_nix_multi_user removes the installer after a failed run" {
+    export MOCK_SUDO_FAIL=1
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    seed_mock_installer
+    local seeded_path="${NIX_INSTALLER_PATH}"
+
+    run install_nix_multi_user
+    [ "$status" -eq 1 ]
+    [ ! -e "${seeded_path}" ]
+}
+
+@test "remove_nix_installer clears the published path" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    seed_mock_installer
+    local seeded_path="${NIX_INSTALLER_PATH}"
+
+    remove_nix_installer
+
+    [ ! -e "${seeded_path}" ]
+    [ -z "${NIX_INSTALLER_PATH}" ]
+}
+
+@test "remove_nix_installer is safe to call a second time" {
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    seed_mock_installer
+
+    remove_nix_installer
+    run remove_nix_installer
+
+    [ "$status" -eq 0 ]
+    [ -z "${NIX_INSTALLER_PATH}" ]
+}
+
+@test "install_nix_multi_user runs and removes the exact path download_nix_installer produced" {
+    export MOCK_SUDO_FAIL=0
+    source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+    install_recording_curl
+
+    download_nix_installer
+    local downloaded_path="${NIX_INSTALLER_PATH}"
+    [ -f "${downloaded_path}" ]
+
+    # run executes in a subshell, so NIX_INSTALLER_PATH resets are not visible
+    # here - the filesystem side effect (removal) is the observable contract.
+    run install_nix_multi_user
+    [ "$status" -eq 0 ]
+    [ ! -e "${downloaded_path}" ]
+}
+
+# =============================================================================
 # Installation Flow Tests (15 tests)
 # =============================================================================
 
 @test "install_nix_multi_user runs installer with --daemon flag" {
     export MOCK_SUDO_FAIL=0
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    seed_mock_installer
 
     run install_nix_multi_user
     [ "$status" -eq 0 ]
@@ -380,6 +649,8 @@ teardown() {
     export MOCK_SUDO_FAIL=0
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
+    seed_mock_installer
+
     run install_nix_multi_user
     [ "$status" -eq 0 ]
 }
@@ -387,6 +658,8 @@ teardown() {
 @test "install_nix_multi_user returns 1 on failure" {
     export MOCK_SUDO_FAIL=1
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    seed_mock_installer
 
     run install_nix_multi_user
     [ "$status" -eq 1 ]
@@ -396,6 +669,8 @@ teardown() {
     export MOCK_SUDO_FAIL=0
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
+    seed_mock_installer
+
     run install_nix_multi_user
     [ "$status" -eq 0 ]
 }
@@ -404,6 +679,8 @@ teardown() {
     export MOCK_SUDO_FAIL=0
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
+    seed_mock_installer
+
     run install_nix_multi_user
     [[ "$output" == *"sudo"* ]] || [[ "$output" == *"password"* ]] || [ "$status" -eq 0 ]
 }
@@ -411,6 +688,8 @@ teardown() {
 @test "install_nix_multi_user handles sudo password failure" {
     export MOCK_SUDO_FAIL=1
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    seed_mock_installer
 
     run install_nix_multi_user
     [ "$status" -eq 1 ]
@@ -421,6 +700,8 @@ teardown() {
     export MOCK_SUDO_FAIL=0
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
+    seed_mock_installer
+
     run install_nix_multi_user
     [ "$status" -eq 0 ]
 }
@@ -428,6 +709,8 @@ teardown() {
 @test "install_nix_multi_user provides progress feedback" {
     export MOCK_SUDO_FAIL=0
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    seed_mock_installer
 
     run install_nix_multi_user
     [[ "$output" == *"Installing"* ]] || [[ "$output" == *"install"* ]] || [ "$status" -eq 0 ]
@@ -437,6 +720,8 @@ teardown() {
     export MOCK_SUDO_FAIL=0
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
+    seed_mock_installer
+
     run install_nix_multi_user
     [[ "$output" == *"Nix"* ]] || [ "$status" -eq 0 ]
 }
@@ -444,6 +729,8 @@ teardown() {
 @test "install_nix_multi_user logs installation completion" {
     export MOCK_SUDO_FAIL=0
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    seed_mock_installer
 
     run install_nix_multi_user
     [ "$status" -eq 0 ]
@@ -453,6 +740,8 @@ teardown() {
     export MOCK_SUDO_FAIL=1
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
+    seed_mock_installer
+
     run install_nix_multi_user
     [ "$status" -eq 1 ]
 }
@@ -460,6 +749,8 @@ teardown() {
 @test "install_nix_multi_user creates nix daemon users" {
     export MOCK_SUDO_FAIL=0
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    seed_mock_installer
 
     run install_nix_multi_user
     [ "$status" -eq 0 ]
@@ -469,6 +760,8 @@ teardown() {
     export MOCK_SUDO_FAIL=0
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
+    seed_mock_installer
+
     run install_nix_multi_user
     [ "$status" -eq 0 ]
 }
@@ -476,6 +769,8 @@ teardown() {
 @test "install_nix_multi_user provides clear error on failure" {
     export MOCK_SUDO_FAIL=1
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    seed_mock_installer
 
     run install_nix_multi_user
     [ "$status" -eq 1 ]
@@ -485,6 +780,8 @@ teardown() {
 @test "install_nix_multi_user handles disk space issues gracefully" {
     export MOCK_SUDO_FAIL=1
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    seed_mock_installer
 
     run install_nix_multi_user
     [ "$status" -eq 1 ]
@@ -993,6 +1290,8 @@ teardown() {
     export MOCK_SUDO_FAIL=1
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
+    seed_mock_installer
+
     run install_nix_multi_user
     [ "$status" -eq 1 ]
     [[ "$output" == *"sudo"* ]] || [[ "$output" == *"failed"* ]]
@@ -1068,6 +1367,8 @@ teardown() {
 @test "error messages do not expose sensitive information" {
     export MOCK_SUDO_FAIL=1
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
+
+    seed_mock_installer
 
     run install_nix_multi_user
     [ "$status" -eq 1 ]

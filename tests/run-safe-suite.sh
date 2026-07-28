@@ -29,6 +29,7 @@ safe_bats_suites=(
     tests/monitoring_stack.bats
     tests/network_security.bats
     tests/office_apps.bats
+    tests/ollama_messaging_freshness.bats
     tests/package_manager_boundaries.bats
     tests/rebuild_regressions.bats
     tests/release_monitor.bats

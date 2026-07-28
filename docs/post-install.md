@@ -79,14 +79,13 @@ Activate apps requiring sign-in or license keys. See [Licensed Apps Guide](./lic
   ollama list
   ```
   Expected models:
-  - `gpt-oss:20b` (~12GB)
-  - `qwen2.5-coder:32b` (~20GB)
-  - `llama3.1:70b` (~40GB)
-  - `deepseek-r1:32b` (~20GB)
+  - `gemma4:e4b` (~3GB)
+  - `gemma4:26b` (~16GB)
+  - `nomic-embed-text` (~274MB)
 
 - [ ] **Test a model**
   ```bash
-  ollama run gpt-oss:20b "Hello, how are you?"
+  ollama run gemma4:e4b "Hello, how are you?"
   ```
 
 #### Managing Ollama model residency

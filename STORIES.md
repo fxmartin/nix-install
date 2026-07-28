@@ -52,6 +52,7 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 | Epic-06 | Maintenance & Monitoring | Self-maintaining system with monitoring | 18 | 97 | Must Have |
 | Epic-07 | Documentation & User Experience | Complete user documentation | 8 | 34 | Must Have |
 | Epic-08 | Resource Optimization & Deep Telemetry | Post-v1.0 disk/memory leaks closed and mactop-grade bar telemetry | 23 | 118 | Should Have |
+| Epic-10 | Bootstrap Integrity & Security Hardening | Fix broken fresh installs; tag-pinned clone-first bootstrap; P0 security fixes | 12 | 43 | Must Have |
 | NFR | Non-Functional Requirements | Performance, security, reliability | 15 | 79 | Must Have |
 
 ## Epic Navigation
@@ -63,6 +64,7 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 - **[Epic-06: Maintenance & Monitoring](./stories/epic-06-maintenance-monitoring.md)** - Automated garbage collection, optimization, and health monitoring
 - **[Epic-07: Documentation & User Experience](./stories/epic-07-documentation-user-experience.md)** - Complete documentation for installation, troubleshooting, and customization
 - **[Epic-08: Resource Optimization & Deep Telemetry](./stories/epic-08-resource-optimization.md)** - System-level GC, Huggingface/browser cache pruning, Ollama memory tuning, SketchyBar `/metrics` consolidation
+- **[Epic-10: Bootstrap Integrity & Security Hardening](./stories/epic-10-bootstrap-integrity-security.md)** - Clone-first tag-pinned bootstrap (fixes broken fresh installs), root-shell/credential hardening, CI & drift cleanup from the 2026-07-28 review
 - **[Non-Functional Requirements](./stories/non-functional-requirements.md)** - Performance, security, reliability, maintainability
 
 ## MVP Summary

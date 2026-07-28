@@ -69,18 +69,29 @@ in
       # AI & LLM Tools (Story 02.1-001, 02.1-002)
       "claude" # Claude Desktop - Anthropic's AI assistant
       "chatgpt" # ChatGPT Desktop - OpenAI's conversational AI
-      # OpenAI Codex CLI - terminal coding agent. no_quarantine because the cask
-      # vendors ad-hoc-signed helper binaries (codex-path/rg, codex-resources/zsh)
-      # that Gatekeeper rejects when quarantined — every adversarial-review run
-      # popped "Apple could not verify rg is free of malware" (fixed 2026-07-11).
-      # Note: brew applies args at (re)install time, so an already-installed cask
-      # stays quarantined until its next upgrade.
-      {
-        name = "codex";
-        args = {
-          no_quarantine = true;
-        };
-      }
+      # OpenAI Codex CLI - terminal coding agent.
+      #
+      # The cask vendors ad-hoc-signed helper binaries (codex-path/rg,
+      # codex-resources/zsh) that Gatekeeper rejects when quarantined — every
+      # adversarial-review run popped "Apple could not verify rg is free of
+      # malware". That was worked around on 2026-07-11 with `no_quarantine`.
+      #
+      # Homebrew 6.0 removed the `--no-quarantine` flag outright, so that arg
+      # now aborts the whole `brew bundle` run:
+      #   Error: invalid option: --no_quarantine
+      # It stayed hidden because brew only applies args at (re)install time and
+      # codex was already installed; a Caskroom wipe on 2026-07-28 forced a
+      # reinstall and surfaced it. Both the underscore and dashed spellings are
+      # rejected by brew 6.0.12 — this is not a spelling fix, the flag is gone.
+      #
+      # Partial mitigation already in place: the PATH ordering in
+      # home-manager/modules/shell.nix prefers /run/current-system/sw/bin and
+      # /opt/homebrew/bin over the cask's bundled codex-path/rg, so the common
+      # case no longer reaches a quarantined binary. If the Gatekeeper prompts
+      # return for a helper invoked by absolute path, strip the attribute by
+      # hand rather than reinstating a flag brew no longer accepts:
+      #   xattr -dr com.apple.quarantine /Applications/Codex.app
+      "codex"
 
       # Development Environment
       "zed" # Zed Editor - Fast, modern code editor with GPU acceleration

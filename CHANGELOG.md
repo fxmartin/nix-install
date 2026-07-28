@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.32] - 2026-07-28
+
+### Fixed
+
+- Stop tests deleting real /opt/homebrew and drop codex no_quarantine for Homebrew 6
+
 ## [2.0.31] - 2026-07-28
 
 ### Fixed

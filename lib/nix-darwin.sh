@@ -700,11 +700,19 @@ verify_nix_darwin_installed() {
         return 1
     fi
 
-    # Check Homebrew installation
-    if [[ -x /opt/homebrew/bin/brew ]]; then
-        log_info "✓ Homebrew installed at /opt/homebrew/bin/brew"
+    # Check Homebrew installation.
+    #
+    # The path is overridable via NIX_INSTALL_BREW_PATH so tests can point at a
+    # fixture. It was previously hardcoded, which left tests no way to exercise
+    # the missing-Homebrew branch except by deleting the real installation —
+    # tests/bootstrap_nix_darwin.bats did exactly that (`rm -rf /opt/homebrew`)
+    # and wiped a working machine's Homebrew on 2026-07-28. Never reintroduce a
+    # bare literal here; keep the seam so the tests stay host-safe.
+    local brew_path="${NIX_INSTALL_BREW_PATH:-/opt/homebrew/bin/brew}"
+    if [[ -x "${brew_path}" ]]; then
+        log_info "✓ Homebrew installed at ${brew_path}"
     else
-        log_warn "Homebrew not found at /opt/homebrew/bin/brew (may not be installed yet)"
+        log_warn "Homebrew not found at ${brew_path} (may not be installed yet)"
         log_warn "This is normal if your profile doesn't include Homebrew casks"
     fi
 

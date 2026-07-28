@@ -133,10 +133,13 @@ echo "darwin-rebuild version 1.0.0"
 SCRIPT
         chmod +x "${TEST_TMP_DIR}/bin/darwin-rebuild"
 
-        # Create mock Homebrew
-        mkdir -p "/opt/homebrew/bin"
-        touch "/opt/homebrew/bin/brew"
-        chmod +x "/opt/homebrew/bin/brew"
+        # Create mock Homebrew inside the test temp dir. This previously wrote
+        # to the real /opt/homebrew/bin/brew, which — paired with the teardown
+        # that deleted it — destroyed the host's Homebrew on 2026-07-28.
+        export NIX_INSTALL_BREW_PATH="${TEST_TMP_DIR}/homebrew/bin/brew"
+        mkdir -p "$(dirname "${NIX_INSTALL_BREW_PATH}")"
+        touch "${NIX_INSTALL_BREW_PATH}"
+        chmod +x "${NIX_INSTALL_BREW_PATH}"
 
         return 0
     }
@@ -207,12 +210,10 @@ teardown() {
         rm -rf "${TEST_TMP_DIR}"
     fi
 
-    # Clean up mock Homebrew
-    if [[ -d "/opt/homebrew/bin" ]]; then
-        rm -f "/opt/homebrew/bin/brew"
-        rmdir "/opt/homebrew/bin" 2>/dev/null || true
-        rmdir "/opt/homebrew" 2>/dev/null || true
-    fi
+    # No Homebrew cleanup needed: the mock now lives under TEST_TMP_DIR and is
+    # removed with it above. This block used to `rm -f /opt/homebrew/bin/brew`
+    # after every test, deleting the host's real brew binary 87 times per run.
+    unset NIX_INSTALL_BREW_PATH
 
     # Clean up environment
     unset TEST_TMP_DIR
@@ -824,9 +825,12 @@ SCRIPT
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     # Create mock Homebrew
-    mkdir -p /opt/homebrew/bin
-    touch /opt/homebrew/bin/brew
-    chmod +x /opt/homebrew/bin/brew
+    # Point the check at a fixture. Creating /opt/homebrew/bin/brew for real
+    # clobbers the host's actual brew binary with an empty file.
+    export NIX_INSTALL_BREW_PATH="${TEST_TMP_DIR}/homebrew/bin/brew"
+    mkdir -p "$(dirname "${NIX_INSTALL_BREW_PATH}")"
+    touch "${NIX_INSTALL_BREW_PATH}"
+    chmod +x "${NIX_INSTALL_BREW_PATH}"
 
     # Mock darwin-rebuild
     mkdir -p "${TEST_TMP_DIR}/bin"
@@ -859,8 +863,9 @@ SCRIPT
     chmod +x "${TEST_TMP_DIR}/bin/darwin-rebuild"
     export PATH="${TEST_TMP_DIR}/bin:$PATH"
 
-    # Ensure Homebrew doesn't exist
-    rm -rf /opt/homebrew/bin/brew
+    # Ensure Homebrew doesn't exist — by pointing the check at a path that was
+    # never created, NOT by deleting the host's real Homebrew.
+    export NIX_INSTALL_BREW_PATH="${TEST_TMP_DIR}/homebrew-absent/bin/brew"
 
     run verify_nix_darwin_installed
 
@@ -876,9 +881,12 @@ SCRIPT
     chmod +x "${TEST_TMP_DIR}/bin/darwin-rebuild"
     export PATH="${TEST_TMP_DIR}/bin:$PATH"
 
-    mkdir -p /opt/homebrew/bin
-    touch /opt/homebrew/bin/brew
-    chmod +x /opt/homebrew/bin/brew
+    # Point the check at a fixture. Creating /opt/homebrew/bin/brew for real
+    # clobbers the host's actual brew binary with an empty file.
+    export NIX_INSTALL_BREW_PATH="${TEST_TMP_DIR}/homebrew/bin/brew"
+    mkdir -p "$(dirname "${NIX_INSTALL_BREW_PATH}")"
+    touch "${NIX_INSTALL_BREW_PATH}"
+    chmod +x "${NIX_INSTALL_BREW_PATH}"
 
     run verify_nix_darwin_installed
 
@@ -893,16 +901,29 @@ SCRIPT
     chmod +x "${TEST_TMP_DIR}/bin/darwin-rebuild"
     export PATH="${TEST_TMP_DIR}/bin:$PATH"
 
-    mkdir -p /opt/homebrew/bin
-    touch /opt/homebrew/bin/brew
-    chmod +x /opt/homebrew/bin/brew
+    # Point the check at a fixture. Creating /opt/homebrew/bin/brew for real
+    # clobbers the host's actual brew binary with an empty file.
+    export NIX_INSTALL_BREW_PATH="${TEST_TMP_DIR}/homebrew/bin/brew"
+    mkdir -p "$(dirname "${NIX_INSTALL_BREW_PATH}")"
+    touch "${NIX_INSTALL_BREW_PATH}"
+    chmod +x "${NIX_INSTALL_BREW_PATH}"
 
     run verify_nix_darwin_installed
 
     [[ "$status" -eq 0 ]]
 }
 
-@test "verify_nix_darwin_installed checks Homebrew at /opt/homebrew/bin/brew" {
+@test "verify_nix_darwin_installed defaults to /opt/homebrew/bin/brew" {
+    # Asserts the production default by reading the source rather than by
+    # touching /opt/homebrew. The override exists for tests only; if someone
+    # changes the default, this catches it without risking the host.
+    run grep -q 'NIX_INSTALL_BREW_PATH:-/opt/homebrew/bin/brew' \
+        "${BATS_TEST_DIRNAME}/../lib/nix-darwin.sh"
+
+    [[ "$status" -eq 0 ]]
+}
+
+@test "verify_nix_darwin_installed succeeds with Homebrew present" {
     source "${BATS_TEST_DIRNAME}/../bootstrap.sh"
 
     mkdir -p "${TEST_TMP_DIR}/bin"
@@ -910,9 +931,12 @@ SCRIPT
     chmod +x "${TEST_TMP_DIR}/bin/darwin-rebuild"
     export PATH="${TEST_TMP_DIR}/bin:$PATH"
 
-    mkdir -p /opt/homebrew/bin
-    touch /opt/homebrew/bin/brew
-    chmod +x /opt/homebrew/bin/brew
+    # Point the check at a fixture. Creating /opt/homebrew/bin/brew for real
+    # clobbers the host's actual brew binary with an empty file.
+    export NIX_INSTALL_BREW_PATH="${TEST_TMP_DIR}/homebrew/bin/brew"
+    mkdir -p "$(dirname "${NIX_INSTALL_BREW_PATH}")"
+    touch "${NIX_INSTALL_BREW_PATH}"
+    chmod +x "${NIX_INSTALL_BREW_PATH}"
 
     run verify_nix_darwin_installed
 
@@ -937,7 +961,9 @@ SCRIPT
     chmod +x "${TEST_TMP_DIR}/bin/darwin-rebuild"
     export PATH="${TEST_TMP_DIR}/bin:$PATH"
 
-    rm -rf /opt/homebrew
+    # Absent Homebrew is simulated with an unused fixture path. This line used
+    # to be `rm -rf /opt/homebrew`, which destroyed the real installation.
+    export NIX_INSTALL_BREW_PATH="${TEST_TMP_DIR}/homebrew-absent/bin/brew"
 
     run verify_nix_darwin_installed
 
@@ -952,9 +978,12 @@ SCRIPT
     chmod +x "${TEST_TMP_DIR}/bin/darwin-rebuild"
     export PATH="${TEST_TMP_DIR}/bin:$PATH"
 
-    mkdir -p /opt/homebrew/bin
-    touch /opt/homebrew/bin/brew
-    chmod +x /opt/homebrew/bin/brew
+    # Point the check at a fixture. Creating /opt/homebrew/bin/brew for real
+    # clobbers the host's actual brew binary with an empty file.
+    export NIX_INSTALL_BREW_PATH="${TEST_TMP_DIR}/homebrew/bin/brew"
+    mkdir -p "$(dirname "${NIX_INSTALL_BREW_PATH}")"
+    touch "${NIX_INSTALL_BREW_PATH}"
+    chmod +x "${NIX_INSTALL_BREW_PATH}"
 
     run verify_nix_darwin_installed
 
@@ -1014,9 +1043,12 @@ SCRIPT
     chmod +x "${TEST_TMP_DIR}/bin/darwin-rebuild"
     export PATH="${TEST_TMP_DIR}/bin:$PATH"
 
-    mkdir -p /opt/homebrew/bin
-    touch /opt/homebrew/bin/brew
-    chmod +x /opt/homebrew/bin/brew
+    # Point the check at a fixture. Creating /opt/homebrew/bin/brew for real
+    # clobbers the host's actual brew binary with an empty file.
+    export NIX_INSTALL_BREW_PATH="${TEST_TMP_DIR}/homebrew/bin/brew"
+    mkdir -p "$(dirname "${NIX_INSTALL_BREW_PATH}")"
+    touch "${NIX_INSTALL_BREW_PATH}"
+    chmod +x "${NIX_INSTALL_BREW_PATH}"
 
     cd "${WORK_DIR}"
     run install_nix_darwin_phase
@@ -1041,9 +1073,12 @@ SCRIPT
     chmod +x "${TEST_TMP_DIR}/bin/darwin-rebuild"
     export PATH="${TEST_TMP_DIR}/bin:$PATH"
 
-    mkdir -p /opt/homebrew/bin
-    touch /opt/homebrew/bin/brew
-    chmod +x /opt/homebrew/bin/brew
+    # Point the check at a fixture. Creating /opt/homebrew/bin/brew for real
+    # clobbers the host's actual brew binary with an empty file.
+    export NIX_INSTALL_BREW_PATH="${TEST_TMP_DIR}/homebrew/bin/brew"
+    mkdir -p "$(dirname "${NIX_INSTALL_BREW_PATH}")"
+    touch "${NIX_INSTALL_BREW_PATH}"
+    chmod +x "${NIX_INSTALL_BREW_PATH}"
 
     cd "${WORK_DIR}"
     run install_nix_darwin_phase
@@ -1070,9 +1105,12 @@ SCRIPT
     chmod +x "${TEST_TMP_DIR}/bin/darwin-rebuild"
     export PATH="${TEST_TMP_DIR}/bin:$PATH"
 
-    mkdir -p /opt/homebrew/bin
-    touch /opt/homebrew/bin/brew
-    chmod +x /opt/homebrew/bin/brew
+    # Point the check at a fixture. Creating /opt/homebrew/bin/brew for real
+    # clobbers the host's actual brew binary with an empty file.
+    export NIX_INSTALL_BREW_PATH="${TEST_TMP_DIR}/homebrew/bin/brew"
+    mkdir -p "$(dirname "${NIX_INSTALL_BREW_PATH}")"
+    touch "${NIX_INSTALL_BREW_PATH}"
+    chmod +x "${NIX_INSTALL_BREW_PATH}"
 
     cd "${WORK_DIR}"
     run install_nix_darwin_phase
@@ -1088,9 +1126,12 @@ SCRIPT
     chmod +x "${TEST_TMP_DIR}/bin/darwin-rebuild"
     export PATH="${TEST_TMP_DIR}/bin:$PATH"
 
-    mkdir -p /opt/homebrew/bin
-    touch /opt/homebrew/bin/brew
-    chmod +x /opt/homebrew/bin/brew
+    # Point the check at a fixture. Creating /opt/homebrew/bin/brew for real
+    # clobbers the host's actual brew binary with an empty file.
+    export NIX_INSTALL_BREW_PATH="${TEST_TMP_DIR}/homebrew/bin/brew"
+    mkdir -p "$(dirname "${NIX_INSTALL_BREW_PATH}")"
+    touch "${NIX_INSTALL_BREW_PATH}"
+    chmod +x "${NIX_INSTALL_BREW_PATH}"
 
     cd "${WORK_DIR}"
     run install_nix_darwin_phase
@@ -1261,9 +1302,12 @@ SCRIPT
     chmod +x "${TEST_TMP_DIR}/bin/darwin-rebuild"
     export PATH="${TEST_TMP_DIR}/bin:$PATH"
 
-    mkdir -p /opt/homebrew/bin
-    touch /opt/homebrew/bin/brew
-    chmod +x /opt/homebrew/bin/brew
+    # Point the check at a fixture. Creating /opt/homebrew/bin/brew for real
+    # clobbers the host's actual brew binary with an empty file.
+    export NIX_INSTALL_BREW_PATH="${TEST_TMP_DIR}/homebrew/bin/brew"
+    mkdir -p "$(dirname "${NIX_INSTALL_BREW_PATH}")"
+    touch "${NIX_INSTALL_BREW_PATH}"
+    chmod +x "${NIX_INSTALL_BREW_PATH}"
 
     cd "${WORK_DIR}"
     run install_nix_darwin_phase

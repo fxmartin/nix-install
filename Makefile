@@ -30,7 +30,12 @@ fmt-check:
 shellcheck:
 	shellcheck --severity=warning bootstrap.sh lib/*.sh scripts/*.sh tests/*.sh
 
-test:
+# Ordered as a prerequisite of `test` so the guard runs before any suite does.
+# A suite that mutates the host must be caught before it gets the chance.
+test-host-safety:
+	./scripts/check-test-host-safety.sh
+
+test: test-host-safety
 	./tests/run-safe-suite.sh
 
 security-scan:
@@ -47,7 +52,7 @@ nix-eval:
 	done
 	git diff --exit-code -- flake.lock
 
-check: fmt-check shellcheck test security-scan check-generated verify-version nix-eval
+check: fmt-check shellcheck test-host-safety test security-scan check-generated verify-version nix-eval
 
 install-hooks:
 	./scripts/install-git-hooks.sh

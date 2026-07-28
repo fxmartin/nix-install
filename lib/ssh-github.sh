@@ -144,6 +144,33 @@ generate_ssh_key() {
     log_info "Proceeding with key generation..."
     echo ""
 
+    # Back up any existing keypair before ssh-keygen overwrites it (Story 10.2-003)
+    if [[ -f "${key_path}" ]]; then
+        local backup_timestamp
+        backup_timestamp=$(date +%Y%m%d%H%M%S)
+        local backup_path="${key_path}.backup.${backup_timestamp}"
+
+        log_info "Existing SSH key found: ${key_path}"
+        log_info "Backing up existing key before regeneration..."
+
+        if cp "${key_path}" "${backup_path}" && chmod 600 "${backup_path}"; then
+            log_success "✓ Existing private key backed up: ${backup_path}"
+        else
+            log_error "Failed to back up existing private key: ${key_path}"
+            return 1
+        fi
+
+        if [[ -f "${key_path}.pub" ]]; then
+            if cp "${key_path}.pub" "${backup_path}.pub" && chmod 600 "${backup_path}.pub"; then
+                log_success "✓ Existing public key backed up: ${backup_path}.pub"
+            else
+                log_error "Failed to back up existing public key: ${key_path}.pub"
+                return 1
+            fi
+        fi
+        echo ""
+    fi
+
     # Generate key with ssh-keygen
     log_info "Running: ssh-keygen -t ed25519 -C '${USER_EMAIL}' -f '${key_path}' -N ''"
     if ssh-keygen -t ed25519 -C "${USER_EMAIL}" -f "${key_path}" -N "" >/dev/null 2>&1; then

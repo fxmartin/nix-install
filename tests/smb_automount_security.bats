@@ -72,3 +72,75 @@ setup() {
     [ "$status" -eq 0 ]
     [ "$output" = "p%40ss%3Aw%2Ford%231%3Fa%26b%20100%25%2B%3Bfree" ]
 }
+
+@test "credentialed chmod 600 executes only after the umask 077 subshell closes" {
+    local umask_line close_line chmod_line
+    umask_line=$(rg -n 'umask 077' "$SMB_MODULE" | head -1 | cut -d: -f1)
+    close_line=$(rg -n '^\s*AUTO_SMB_EOF\s*$' "$SMB_MODULE" | awk -F: -v start="$umask_line" '$1 > start { print $1; exit }')
+    chmod_line=$(rg -n 'chmod 600 /etc/auto_smb' "$SMB_MODULE" | head -1 | cut -d: -f1)
+    [ -n "$umask_line" ]
+    [ -n "$close_line" ]
+    [ -n "$chmod_line" ]
+    [ "$umask_line" -lt "$close_line" ]
+    [ "$close_line" -lt "$chmod_line" ]
+}
+
+@test "no-password chmod 644 executes only after the umask 022 subshell closes" {
+    local umask_line close_line chmod_line
+    umask_line=$(rg -n 'umask 022' "$SMB_MODULE" | head -1 | cut -d: -f1)
+    close_line=$(rg -n '^\s*AUTO_SMB_EOF\s*$' "$SMB_MODULE" | awk -F: -v start="$umask_line" '$1 > start { print $1; exit }')
+    chmod_line=$(rg -n 'chmod 644 /etc/auto_smb' "$SMB_MODULE" | head -1 | cut -d: -f1)
+    [ -n "$umask_line" ]
+    [ -n "$close_line" ]
+    [ -n "$chmod_line" ]
+    [ "$umask_line" -lt "$close_line" ]
+    [ "$close_line" -lt "$chmod_line" ]
+}
+
+@test "umask 077 extracted from the credentialed branch actually strips group/other rwx on a real file" {
+    local umask_val tmpdir perm
+    umask_val=$(rg -o 'umask 0[0-7]{2,3}' "$SMB_MODULE" | head -1 | awk '{print $2}')
+    [ "$umask_val" = "077" ]
+
+    tmpdir=$(mktemp -d)
+    ( umask "$umask_val"; : > "$tmpdir/secretfile" )
+    perm=$(stat -f '%Lp' "$tmpdir/secretfile")
+    rm -rf "$tmpdir"
+    [ "$perm" = "600" ]
+}
+
+@test "URL-encode sed pipeline does not double-encode a literal percent sequence alongside a real @" {
+    local line sed_expr
+    line=$(rg "URL_ENCODE_SED='" "$SMB_MODULE")
+    sed_expr=$(echo "$line" | sed -E "s/^[^']*URL_ENCODE_SED='([^']*)'.*/\1/")
+    [ -n "$sed_expr" ]
+
+    # A password that already contains the literal text "%40" (which happens
+    # to be the escape sequence '@' encodes to) must have its '%' encoded to
+    # %25 without corrupting the trailing "40", and the real '@' must still
+    # be encoded to %40 -- proving % is encoded before the other rules run.
+    RAW_PASSWORD='user%40name@host'
+    run bash -c 'echo "$1" | sed -e "$2"' _ "$RAW_PASSWORD" "$sed_expr"
+    [ "$status" -eq 0 ]
+    [ "$output" = "user%2540name%40host" ]
+}
+
+@test "URL-encode sed pipeline handles an empty password without error" {
+    local line sed_expr
+    line=$(rg "URL_ENCODE_SED='" "$SMB_MODULE")
+    sed_expr=$(echo "$line" | sed -E "s/^[^']*URL_ENCODE_SED='([^']*)'.*/\1/")
+    [ -n "$sed_expr" ]
+
+    RAW_PASSWORD=''
+    run bash -c 'echo "$1" | sed -e "$2"' _ "$RAW_PASSWORD" "$sed_expr"
+    [ "$status" -eq 0 ]
+    [ -z "$output" ]
+}
+
+@test "no-password branch's SMB URL structurally omits the credential placeholder" {
+    local no_cred_count cred_count
+    no_cred_count=$(grep -Fc -- '${nasConfig.username}@${nasConfig.host}' "$SMB_MODULE")
+    cred_count=$(grep -Fc -- ':\$ENCODED_PASSWORD@' "$SMB_MODULE")
+    [ "$no_cred_count" -eq 1 ]
+    [ "$cred_count" -eq 1 ]
+}

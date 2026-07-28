@@ -23,6 +23,7 @@ safe_bats_suites=(
     tests/communication_tooling.bats
     tests/darwin_system_packages.bats
     tests/flake_ollama_activation.bats
+    tests/flake_validation_completeness.bats
     tests/font_stack.bats
     tests/gitleaks-secrets.bats
     tests/mlx_lm_inferencer.bats

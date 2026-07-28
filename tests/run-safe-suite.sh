@@ -16,6 +16,7 @@ for command_name in "${required_commands[@]}"; do
 done
 
 safe_bats_suites=(
+    tests/bootstrap_flake_clone.bats
     tests/bootstrap_preflight.bats
     tests/calibre_local_library.bats
     tests/claude_code_module.bats

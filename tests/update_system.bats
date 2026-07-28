@@ -5,6 +5,7 @@
 setup() {
     UPDATE_SCRIPT="${BATS_TEST_DIRNAME}/../scripts/update-system.sh"
     BOOTSTRAP_REBUILD_SCRIPT="${BATS_TEST_DIRNAME}/../lib/darwin-rebuild.sh"
+    BOOTSTRAP_PHASE5_SCRIPT="${BATS_TEST_DIRNAME}/../lib/nix-darwin.sh"
     STUB_BIN="${BATS_TEST_TMPDIR}/bin"
     GIT_ADD_MARKER="${BATS_TEST_TMPDIR}/git-add-called"
     mkdir -p "${STUB_BIN}"
@@ -48,6 +49,12 @@ EOF
 
     run rg -n 'local flake_ref="path:\$\{REPO_CLONE_DIR\}#\$\{INSTALL_PROFILE\}"' \
         "$BOOTSTRAP_REBUILD_SCRIPT"
+    [ "$status" -eq 0 ]
+
+    # Phase 5 builds from a real clone, so the Git fetcher would drop both the
+    # gitignored user-config.nix and every submodule working tree.
+    run rg -n 'local flake_ref="path:\$\{FLAKE_REPO_DIR\}#\$\{INSTALL_PROFILE\}"' \
+        "$BOOTSTRAP_PHASE5_SCRIPT"
     [ "$status" -eq 0 ]
 }
 

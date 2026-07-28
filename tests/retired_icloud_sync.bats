@@ -9,7 +9,7 @@ setup() {
     HEALTH_API="${REPO_ROOT}/scripts/health-api.py"
     HEALTH_CHECK="${REPO_ROOT}/scripts/health-check.sh"
     AGENT_AUDIT="${REPO_ROOT}/scripts/audit-launchagents.sh"
-    BOOTSTRAP_FETCHER="${REPO_ROOT}/lib/nix-darwin.sh"
+    BOOTSTRAP_PHASE5="${REPO_ROOT}/lib/nix-darwin.sh"
 }
 
 @test "Power profile no longer imports the iCloud sync module" {
@@ -31,9 +31,14 @@ setup() {
     [ "$status" -eq 1 ]
 }
 
-@test "bootstrap no longer fetches the retired module" {
-    run rg -n 'icloud-sync\.nix' "$BOOTSTRAP_FETCHER"
+@test "bootstrap no longer references the retired module" {
+    run rg -n 'icloud-sync\.nix' "$BOOTSTRAP_PHASE5"
     [ "$status" -eq 1 ]
+
+    # Phase 5 clones the repository, so a retired module can only come back by
+    # being restored to the tree - never through a stale download list.
+    run rg -n 'git clone --depth 1 --branch' "$BOOTSTRAP_PHASE5"
+    [ "$status" -eq 0 ]
 }
 
 @test "current profile documentation no longer advertises iCloud proposal sync" {

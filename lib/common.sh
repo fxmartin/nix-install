@@ -33,6 +33,10 @@ fi
 readonly WORK_DIR="${_NIX_BOOTSTRAP_WORK_DIR}"
 readonly USER_CONFIG_FILE="${WORK_DIR}/user-config.nix"
 
+# Phase 5 clones the configuration repository here and builds the first system
+# generation from it. Phase 7 later re-clones over SSH to the permanent location.
+readonly FLAKE_REPO_DIR="${WORK_DIR}/repo"
+
 # Bootstrap temp directory (alias for WORK_DIR — used by multiple phases)
 readonly BOOTSTRAP_TEMP_DIR="${WORK_DIR}"
 
@@ -43,6 +47,14 @@ readonly GITHUB_REPO_NAME="${NIX_INSTALL_REPO:-nix-install}"
 readonly GITHUB_BRANCH="${NIX_INSTALL_BRANCH:-main}"
 readonly GITHUB_RAW_URL="https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO_NAME}"
 readonly GITHUB_SSH_URL="git@github.com:${GITHUB_OWNER}/${GITHUB_REPO_NAME}.git"
+# HTTPS clone URL — Phase 5 runs before the SSH key exists (created in Phase 6)
+readonly GITHUB_HTTPS_URL="https://github.com/${GITHUB_OWNER}/${GITHUB_REPO_NAME}.git"
+
+# Git ref (release tag or branch) that Phase 5 clones for the first build.
+# setup.sh pins this to the release tag it was itself downloaded at; it falls
+# back to the tracking branch (`main` unless NIX_INSTALL_BRANCH overrides it)
+# so a development bootstrap keeps working from a checkout.
+readonly NIX_INSTALL_REF="${NIX_INSTALL_REF:-${GITHUB_BRANCH}}"
 
 # Repository clone directory (configurable via NIX_INSTALL_DIR environment variable)
 # Default: ~/.config/nix-install

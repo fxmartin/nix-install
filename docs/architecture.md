@@ -84,7 +84,7 @@ bootstrap-dist.sh (standalone, built from lib/*.sh)
     ├── Phase 2: lib/user-config.sh    Interactive user configuration
     ├── Phase 3: lib/xcode.sh          Xcode CLI tools
     ├── Phase 4: lib/nix-install.sh    Nix multi-user installation
-    ├── Phase 5: lib/nix-darwin.sh     Download flake, first darwin-rebuild
+    ├── Phase 5: lib/nix-darwin.sh     Clone repo at pinned ref, first darwin-rebuild
     ├── Phase 6: lib/ssh-github.sh     SSH key + GitHub authentication
     ├── Phase 7: lib/repo-clone.sh     Clone repository
     ├── Phase 8: lib/darwin-rebuild.sh  Final rebuild from cloned repo

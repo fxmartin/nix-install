@@ -119,7 +119,7 @@ nix-install/
 │   ├── user-config.sh        # Phase 2: User configuration
 │   ├── xcode.sh              # Phase 3: Xcode CLI tools
 │   ├── nix-install.sh        # Phase 4: Nix installation
-│   ├── nix-darwin.sh         # Phase 5: nix-darwin setup
+│   ├── nix-darwin.sh         # Phase 5: clone repo at NIX_INSTALL_REF, nix-darwin setup
 │   ├── ssh-github.sh         # Phase 6: SSH key and GitHub
 │   ├── repo-clone.sh         # Phase 7: Repository clone
 │   ├── darwin-rebuild.sh     # Phase 8: Final rebuild
@@ -205,9 +205,7 @@ Rule: end every such pipeline with `|| true`, or wrap in `if … ; then`. For va
 
 4. **Three profiles**: Standard (Air), Power (Pro M3 Max), AI-Assistant (older MacBook). Don't create additional profiles without approval.
 
-5. **Bootstrap synchronization**: When adding new .nix files, update the file download list in `lib/nix-darwin.sh`.
-
-6. **Submodule discipline**: Never commit a parent pointer that ends in `-dirty`. Always land changes inside the submodule first, then bump the parent pointer. See workflow below.
+5. **Submodule discipline**: Never commit a parent pointer that ends in `-dirty`. Always land changes inside the submodule first, then bump the parent pointer. See workflow below.
 
 ### Git Submodule Workflow
 

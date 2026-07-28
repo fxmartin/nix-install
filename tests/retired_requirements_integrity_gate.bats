@@ -16,6 +16,25 @@ setup() {
     [ "$status" -eq 1 ]
 }
 
+# The retirement deleted requirements-integrity.json, so any surviving mention
+# of it — or of the update-requirements-integrity.sh helper that never existed
+# in this repo — is a dangling instruction pointing at a file FX cannot run.
+@test "docs/REQUIREMENTS.md no longer points at the removed integrity manifest or updater" {
+    run rg -n 'requirements-integrity\.json|update-requirements-integrity\.sh' \
+        "${REPO_ROOT}/docs/REQUIREMENTS.md"
+    [ "$status" -eq 1 ]
+}
+
+# bootstrap-dist.sh is a generated artifact and setup.sh verifies it against
+# SHA256SUMS at install time. Hand-editing the artifact without regenerating the
+# manifest turns `make check-generated` red and breaks every curl-pipe install.
+@test "SHA256SUMS matches the generated artifacts it covers" {
+    cd "${REPO_ROOT}"
+
+    run shasum -a 256 -c SHA256SUMS
+    [ "$status" -eq 0 ]
+}
+
 @test "current documentation no longer points at the mlgruby reference repo" {
     run rg -n 'mlgruby-repo-for-reference' \
         "${REPO_ROOT}/CLAUDE.md" \
@@ -35,6 +54,27 @@ setup() {
 
     run rg -n 'privacy-filter' "${REPO_ROOT}/docs/architecture.md"
     [ "$status" -eq 0 ]
+}
+
+# The module diagram carries an explicit "(N LaunchAgents)" count next to the
+# maintenance.nix subtree. It drifted to 7 while the module grew to 13, so pin
+# both the count and the membership to what maintenance.nix actually declares.
+@test "architecture.md LaunchAgent count matches maintenance.nix" {
+    cd "${REPO_ROOT}"
+
+    agent_names=$(sed -n '/^  launchd\.user\.agents = {/,$p' darwin/maintenance.nix \
+        | sed -nE 's/^    ([a-z][a-z0-9-]*) = .*/\1/p')
+    [ -n "$agent_names" ]
+
+    declared_count=$(printf '%s\n' "$agent_names" | wc -l | tr -d ' ')
+
+    run rg -F "(${declared_count} LaunchAgents)" docs/architecture.md
+    [ "$status" -eq 0 ]
+
+    for agent in $agent_names; do
+        run rg -F -- "$agent" docs/architecture.md
+        [ "$status" -eq 0 ]
+    done
 }
 
 @test "README beszel-sensors listing names the actual script files" {

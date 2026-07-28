@@ -1762,7 +1762,9 @@ This PRD defines a comprehensive, automated MacBook configuration system using N
 **Previous Baseline Hash**: ce361319ff8ba7d2865cbe08942b64baf805a3cbbb5b5a33fc2df5d6ebc5cc51
 **New Baseline Hash**: ed51883bb71d31dbae500606ac42ed9e81f853ff8ed3e720c3e9a5ac1be6d5b0
 **Approval Timestamp**: 2025-11-08T20:23:31Z
-**Integrity Validation**: External hash validation updated in `requirements-integrity.json`
+**Integrity Validation**: Retired. The external hash manifest and its verify gate were
+removed in Story 10.4-004 — the hash had been permanently mismatched and nothing invoked
+the check. The hashes above remain as a historical record of the approval, not as a gate.
 
 ### Hash Generation Commands
 ```bash
@@ -1771,9 +1773,6 @@ sed '/^# STAKEHOLDER APPROVAL/,$d' REQUIREMENTS.md | shasum -a 256 | cut -d' ' -
 
 # Generate current timestamp
 date -u +"%Y-%m-%dT%H:%M:%SZ"
-
-# Update integrity validation
-./update-requirements-integrity.sh
 ```
 
 ### Change Control Protection

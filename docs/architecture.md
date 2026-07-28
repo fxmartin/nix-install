@@ -48,15 +48,23 @@ flake.nix
                       nix    mount    .nix     .nix
     │         │
     │         ├── darwin/maintenance.nix ──── mkScheduledAgent
-    │         │   ├── nix-gc           (7 LaunchAgents)
+    │         │   ├── nix-gc           (13 LaunchAgents)
     │         │   ├── nix-optimize
     │         │   ├── weekly-digest
+    │         │   ├── vitals-sampler       (StartInterval: 1h)
     │         │   ├── release-monitor
     │         │   ├── disk-cleanup
+    │         │   ├── docker-deep-prune
+    │         │   ├── ollama-lru           (enableOllamaLRU only)
     │         │   ├── claude-code-cleanup  (StartInterval: 90min)
-    │         │   └── ollama-serve
+    │         │   ├── claude-project-prune
+    │         │   ├── ollama-pressure-guard
+    │         │   ├── virt-vm-orphan-watch (StartInterval: 10min)
+    │         │   └── ollama-serve         (enableOllamaServeAgent only)
     │         │
     │         ├── darwin/health-api.nix
+    │         ├── darwin/monitoring.nix    (beszel-agent)
+    │         ├── darwin/privacy-filter.nix (Epic-09, 127.0.0.1:7790)
     │         ├── darwin/stylix.nix
     │         └── darwin/calibre.nix
     │

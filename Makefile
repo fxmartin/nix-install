@@ -1,7 +1,7 @@
 # ABOUTME: Release automation targets for nix-install
 # ABOUTME: Wraps version bumping, verification, tag creation, and hook install
 
-.PHONY: bump-major bump-minor bump-patch release-major release-minor release-patch verify-version fmt-check shellcheck test security-scan check-generated nix-eval check release-tag install-hooks
+.PHONY: bump-major bump-minor bump-patch release-major release-minor release-patch verify-version fmt-check shellcheck test security-scan check-generated nix-eval smoke-test-clone check release-tag install-hooks
 
 bump-major:
 	./scripts/bump-version.sh major "$${RELEASE_NOTE:?set RELEASE_NOTE='release summary'}"
@@ -51,6 +51,13 @@ nix-eval:
 		NIX_INSTALL_CI=1 nix eval --impure --raw "path:.#darwinConfigurations.$$profile.system.drvPath" >/dev/null; \
 	done
 	git diff --exit-code -- flake.lock
+
+# Clones the repo at REF (default: current HEAD) into a scratch directory and
+# eval-tests all 3 profiles from there — the same clone bootstrap.sh performs,
+# so this catches file-list drift that a local `nix-eval` run cannot see.
+# Run before tagging a release: make smoke-test-clone REF=v2.0.34
+smoke-test-clone:
+	./scripts/smoke-test-clone.sh $(REF)
 
 check: fmt-check shellcheck test-host-safety test security-scan check-generated verify-version nix-eval
 

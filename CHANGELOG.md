@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-07-29
+
+### Added
+
+- Epic-10 bootstrap integrity and security hardening: clone-first tag-pinned bootstrap fixes fresh installs; P0 root-shell, installer, SSH-key, Beszel-key and SMB-credential fixes
+
 ## [2.0.33] - 2026-07-28
 
 ### Fixed

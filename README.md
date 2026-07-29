@@ -1,6 +1,6 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.0% Complete (144/147 stories) | **Version**: 2.0.33 | **2 MacBooks deployed, M4 Air pending**
+> **Status**: 98.2% Complete (166/169 stories) | **Version**: 2.1.0 | **2 MacBooks deployed, M4 Air pending**
 
 **Two deployed MacBooks. One config. Controlled configuration drift.**
 
@@ -479,15 +479,15 @@ nix-install/
 
 | Category | Metric |
 |----------|--------|
-| **Commits** | 735 (+218 since v1.0.0) |
-| **Development** | ~20 active days (v1.0.0) + 2 days (Epic-08 sprint), ~96 hours total |
-| **Code** | 19K lines (Nix + Shell + Python) |
+| **Commits** | 935 (+418 since v1.0.0) |
+| **Development** | ~20 active days (v1.0.0) + 2 days (Epic-08 sprint), ~96 hours through Epic-08; Epic-09/Epic-10 not yet estimated |
+| **Code** | 21K lines (Nix + Shell + Python, excluding the generated `bootstrap-dist.sh`) |
 | **Tests** | 1,396 test cases (43 BATS files, 248 in the active gate) |
-| **Documentation** | 46K lines across 137 markdown files |
-| **GitHub Issues** | Epic-08 #236–#258 (23 stories) + follow-up fixes #269–#285 |
+| **Documentation** | 43K lines across 136 markdown files |
+| **GitHub Issues** | Epic-08 #236–#258 (23 stories) + fixes #269–#285 · Epic-09 #302–#303 · Epic-10 #388–#400 (13 stories) |
 | **Packages** | 35 casks (19 on AI-Assistant), 7 brews, 8 MAS, 50+ Nix |
 
-**Next**: MacBook Air M4 migration (Phase 11) · Story 08.3-008 (one-day mactop-free validation)
+**Next**: MacBook Air M4 migration (Phase 11) · Story 08.3-008 (one-day mactop-free validation) · Story 09.1-008 (Privacy Filter verification on hardware)
 
 ---
 

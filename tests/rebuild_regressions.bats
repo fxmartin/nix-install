@@ -8,6 +8,7 @@ setup() {
     SHELL_MODULE="${BATS_TEST_DIRNAME}/../home-manager/modules/shell.nix"
     BUILD_WORKFLOW="${BATS_TEST_DIRNAME}/../.github/workflows/build-bootstrap.yml"
     NIX_WORKFLOW="${BATS_TEST_DIRNAME}/../.github/workflows/nix-flake-check.yml"
+    SCRIPTS_WORKFLOW="${BATS_TEST_DIRNAME}/../.github/workflows/scripts-ci.yml"
     MAKEFILE="${BATS_TEST_DIRNAME}/../Makefile"
     BUMP_VERSION_SCRIPT="${BATS_TEST_DIRNAME}/../scripts/bump-version.sh"
     PYTHON_MODULE="${BATS_TEST_DIRNAME}/../home-manager/modules/python.nix"
@@ -59,11 +60,85 @@ setup() {
     [ "$status" -eq 1 ]
 }
 
-@test "Nix CI checks out and watches the Claude submodule" {
+@test "Nix CI checks out and watches CLAUDE.md, not the dead 'Claude' path" {
     run rg -n 'submodules: recursive' "$NIX_WORKFLOW"
     [ "$status" -eq 0 ]
 
+    run rg -n -- "- 'CLAUDE.md'" "$NIX_WORKFLOW"
+    [ "$status" -eq 0 ]
+
     run rg -n -- "- 'Claude'" "$NIX_WORKFLOW"
+    [ "$status" -eq 1 ]
+}
+
+@test "scripts CI lints setup.sh and scripts/** on every touching PR" {
+    run rg -n "^      - 'scripts/\*\*'" "$SCRIPTS_WORKFLOW"
+    [ "$status" -eq 0 ]
+
+    run rg -n "^      - 'setup\.sh'" "$SCRIPTS_WORKFLOW"
+    [ "$status" -eq 0 ]
+
+    run rg -n '^\s*pull_request:' "$SCRIPTS_WORKFLOW"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'shellcheck' "$SCRIPTS_WORKFLOW"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'bash -n' "$SCRIPTS_WORKFLOW"
+    [ "$status" -eq 0 ]
+}
+
+@test "scripts CI triggers on push and pull_request against main, plus manual dispatch" {
+    run rg -n '^\s*push:' "$SCRIPTS_WORKFLOW"
+    [ "$status" -eq 0 ]
+
+    run rg -n "^\s*branches: \[main\]" "$SCRIPTS_WORKFLOW"
+    [ "$status" -eq 0 ]
+    [ "$(wc -l <<< "$output")" -eq 2 ]
+
+    run rg -n '^\s*workflow_dispatch:' "$SCRIPTS_WORKFLOW"
+    [ "$status" -eq 0 ]
+}
+
+@test "scripts CI explicitly covers beszel-sensors since scripts/*.sh does not recurse" {
+    run rg -c "scripts/beszel-sensors/\*\.sh" "$SCRIPTS_WORKFLOW"
+    [ "$status" -eq 0 ]
+    [ "$output" -eq 2 ]
+}
+
+@test "scripts CI fails the job on syntax or shellcheck errors instead of swallowing them" {
+    run rg -n 'exit 1' "$SCRIPTS_WORKFLOW"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'shellcheck --severity=warning .*\|\| true' "$SCRIPTS_WORKFLOW"
+    [ "$status" -eq 1 ]
+}
+
+@test "make shellcheck covers setup.sh and beszel-sensors scripts" {
+    run rg -n 'shellcheck --severity=warning .*\bsetup\.sh\b' "$MAKEFILE"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'shellcheck --severity=warning .*scripts/beszel-sensors/\*\.sh' "$MAKEFILE"
+    [ "$status" -eq 0 ]
+}
+
+@test "make shellcheck retains its original bootstrap, lib, scripts, and tests scope" {
+    run rg -n 'shellcheck --severity=warning .*\bbootstrap\.sh\b' "$MAKEFILE"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'shellcheck --severity=warning .*lib/\*\.sh' "$MAKEFILE"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'shellcheck --severity=warning .*[^-]scripts/\*\.sh' "$MAKEFILE"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'shellcheck --severity=warning .*tests/\*\.sh' "$MAKEFILE"
+    [ "$status" -eq 0 ]
+}
+
+@test "make shellcheck actually passes over the current scripts/** and setup.sh tree" {
+    cd "${BATS_TEST_DIRNAME}/.."
+    run make shellcheck
     [ "$status" -eq 0 ]
 }
 

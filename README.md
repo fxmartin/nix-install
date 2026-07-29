@@ -482,7 +482,7 @@ nix-install/
 | **Commits** | 735 (+218 since v1.0.0) |
 | **Development** | ~20 active days (v1.0.0) + 2 days (Epic-08 sprint), ~96 hours total |
 | **Code** | 19K lines (Nix + Shell + Python) |
-| **Tests** | 1,389 test cases (43 BATS files, 241 in the active gate) |
+| **Tests** | 1,396 test cases (43 BATS files, 248 in the active gate) |
 | **Documentation** | 46K lines across 137 markdown files |
 | **GitHub Issues** | Epic-08 #236–#258 (23 stories) + follow-up fixes #269–#285 |
 | **Packages** | 35 casks (19 on AI-Assistant), 7 brews, 8 MAS, 50+ Nix |

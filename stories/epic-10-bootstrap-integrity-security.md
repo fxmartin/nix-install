@@ -11,7 +11,9 @@
 - shellcheck + `bash -n` run in CI for every PR touching `scripts/**` or `setup.sh`
 
 ## Epic Scope
-**Total Stories**: 12 | **Total Points**: 43 | **MVP Stories**: 8
+**Total Stories**: 13 | **Total Points**: 38 | **MVP Stories**: 8
+
+**Status**: ✅ Complete — 13/13 stories merged to `main` 2026-07-28 (SDLC run `a7493b3d`, PRs #362–#368 and #401–#406). Story 10.4-004 was added mid-epic; the point total was reconciled against the ledger at close.
 
 ## Features in This Epic
 

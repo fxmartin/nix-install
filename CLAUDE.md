@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repository implements an automated, declarative MacBook configuration system using Nix, nix-darwin, and Home Manager. The goal is to transform a fresh macOS install into a fully configured development environment in <30 minutes with zero manual intervention (except license activations).
 
-**Status**: ✅ **v2.0.33 Released** - All 7 epics complete, ~78 hours development effort
+**Status**: ✅ **v2.0.33 Released**; Epic-10 (Bootstrap Integrity & Security Hardening) shipped on `main` and awaiting a `v2.1.0` tag. Epics 01–08 and 10 complete; Epic-09 at 7/8 on its committed foundation.
 
 **Target User**: FX manages 4 MacBooks (1x MacBook Pro M3 Max, 1x MacBook Pro M1 2021, 2x MacBook Air) with periodic reinstalls. Split usage between Office 365 work and weekend Python development.
 
@@ -322,7 +322,8 @@ Labels are managed via `scripts/setup-github-labels.sh`. Key categories:
 
 | Date | Milestone |
 |------|-----------|
-| 2026-05-07 | Epic-09 Foundation in flight — 7/8 stories on branch `claude/add-openai-privacy-filter-EOYR7` (#303); MLX-backed Privacy Filter daemon on `127.0.0.1:7790`, `redact` / `redact-clip` shell helpers |
+| 2026-07-28 | Epic-10 Bootstrap Integrity & Security Hardening complete — 13/13 stories; clone-first tag-pinned bootstrap replaces the drift-prone per-file download list, all P0 security findings closed |
+| 2026-05-07 | Epic-09 Foundation merged to `main` (commit 5b4f984) — MLX-backed Privacy Filter daemon on `127.0.0.1:7790`, `redact` / `redact-clip` shell helpers. 7/8 stories; 09.1-008 on-hardware verification still open (#302) |
 | 2026-04-22 | Epic-08 deep telemetry shipped (Sprint 13, 7/8 stories; 08.3-008 validation pending) |
 | 2026-04-21 | Epic-08 Disk Optimization + Memory Mitigation + Observability Polish shipped (Sprints 11, 12, 14) |
 | 2025-12-07 | v1.0.0 Released - MacBook Pro M3 Max running Power profile |
@@ -343,7 +344,7 @@ Labels are managed via `scripts/setup-github-labels.sh`. Key categories:
 
 | Metric | Value |
 |--------|-------|
-| Total commits | 735 (+218 since v1.0.0) |
-| Active days | ~20 (v1.0.0) + 2 (Epic-08) |
-| Estimated hours | ~96 (78 v1.0.0 + 18 Epic-08) |
-| Issue completion | 83.3% (v1.0.0) / 96% (Epic-08) |
+| Total commits | 932 (+415 since v1.0.0) |
+| Active days | ~20 (v1.0.0) + 2 (Epic-08); Epic-09/Epic-10 not yet estimated |
+| Estimated hours | ~96 through Epic-08; Epic-09/Epic-10 not yet estimated |
+| Issue completion | 83.3% (v1.0.0) / 96% (Epic-08) / 100% (Epic-10) |

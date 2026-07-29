@@ -52,7 +52,8 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 | Epic-06 | Maintenance & Monitoring | Self-maintaining system with monitoring | 18 | 97 | Must Have |
 | Epic-07 | Documentation & User Experience | Complete user documentation | 8 | 34 | Must Have |
 | Epic-08 | Resource Optimization & Deep Telemetry | Post-v1.0 disk/memory leaks closed and mactop-grade bar telemetry | 23 | 118 | Should Have |
-| Epic-10 | Bootstrap Integrity & Security Hardening | Fix broken fresh installs; tag-pinned clone-first bootstrap; P0 security fixes | 12 | 43 | Must Have |
+| Epic-09 | Local PII Redaction (MLX Privacy Filter) | On-device PII scrubbing before text reaches a cloud LLM | 8 committed (+11 proposed) | TBD | Should Have |
+| Epic-10 | Bootstrap Integrity & Security Hardening | Fix broken fresh installs; tag-pinned clone-first bootstrap; P0 security fixes | 13 | 38 | Must Have |
 | NFR | Non-Functional Requirements | Performance, security, reliability | 15 | 79 | Must Have |
 
 ## Epic Navigation
@@ -64,6 +65,7 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 - **[Epic-06: Maintenance & Monitoring](./stories/epic-06-maintenance-monitoring.md)** - Automated garbage collection, optimization, and health monitoring
 - **[Epic-07: Documentation & User Experience](./stories/epic-07-documentation-user-experience.md)** - Complete documentation for installation, troubleshooting, and customization
 - **[Epic-08: Resource Optimization & Deep Telemetry](./stories/epic-08-resource-optimization.md)** - System-level GC, Huggingface/browser cache pruning, Ollama memory tuning, SketchyBar `/metrics` consolidation
+- **Epic-09: Local PII Redaction** - MLX-backed Privacy Filter daemon on `127.0.0.1:7790` with `redact` / `redact-clip` helpers. No story file yet (Story 09.4-001); scope lives in [issue #303](https://github.com/fxmartin/nix-install/issues/303)
 - **[Epic-10: Bootstrap Integrity & Security Hardening](./stories/epic-10-bootstrap-integrity-security.md)** - Clone-first tag-pinned bootstrap (fixes broken fresh installs), root-shell/credential hardening, CI & drift cleanup from the 2026-07-28 review
 - **[Non-Functional Requirements](./stories/non-functional-requirements.md)** - Performance, security, reliability, maintainability
 
@@ -101,16 +103,20 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 - **2025-11-16**: Epic-03 increased from 12 stories/68 points to 14 stories/76 points after adding Feature 03.7 (Time Machine Backup Configuration, 2 stories, 8 points)
 - **2026-04-21**: Epic-08 (Resource Optimization & Deep Telemetry) added — 23 stories / 118 points, post-v1.0 enhancement. MVP subset = Features 08.1 (disk) + 08.2 (memory) = 13 stories / 70 points, all P0.
 - **2026-04-22**: Epic-08 22/23 shipped (all P0 + all P2 + 7/8 P1). Only 08.3-008 (mactop retirement validation) outstanding.
+- **2026-05-07**: Epic-09 (Local PII Redaction) added — Feature 09.1 (8 stories) is the only committed scope; Features 09.2/09.3/09.4 (11 stories) are proposed sketches pending a scope decision, so the epic carries no point total yet.
+- **2026-07-28**: Epic-10 (Bootstrap Integrity & Security Hardening) added from the 2026-07-28 full-repo review — opened at 12 stories / 43 points, closed at 13 stories / 38 points after 10.4-004 was added and the estimates were reconciled against the ledger.
 
 ## Project Metrics
-- **Total Stories**: 148 (125 MVP + 23 Epic-08)
-- **Total Story Points**: 776 (658 MVP + 118 Epic-08)
-- **Average Story Size**: 5.2 points
-- **Completed Stories**: 146 (98.6%)
-- **Completed Points**: 772 (99.5%)
+- **Total Stories**: 169 (125 MVP + 23 Epic-08 + 8 Epic-09 committed + 13 Epic-10)
+- **Total Story Points**: 814 (658 MVP + 118 Epic-08 + 38 Epic-10; Epic-09 unestimated)
+- **Average Story Size**: 5.1 points
+- **Completed Stories**: 166 (98.2%)
+- **Completed Points**: 810 (99.5%)
 - **MVP Completion**: 99.2% by stories, 99.5% by points
 - **🎉 MILESTONE**: MacBook Pro M3 Max successfully running Power profile (2025-12-07)
 - **🎉 MILESTONE**: Epic-08 Resource Optimization & Deep Telemetry — 22/23 stories shipped over 18 hours (2026-04-21 to 2026-04-22)
+- **🎉 MILESTONE**: Epic-09 Feature 09.1 — MLX Privacy Filter daemon merged to `main` (2026-05-07); only the on-hardware verification story 09.1-008 remains
+- **🎉 MILESTONE**: Epic-10 Bootstrap Integrity & Security Hardening — 13/13 stories shipped (2026-07-28), fixing the broken fresh-install path and closing all P0 security findings
 - **CHANGELOG.md**: Created 2025-12-07 - v1.0.0 release documented
 
 ## Story Dependencies

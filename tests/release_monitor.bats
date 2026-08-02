@@ -90,5 +90,5 @@ setup() {
 
     run rg -n 'Umask = 63;' "$darwin_dir"
     [ "$status" -eq 0 ]
-    [ "${#lines[@]}" -eq 10 ]
+    [ "${#lines[@]}" -eq 11 ]
 }

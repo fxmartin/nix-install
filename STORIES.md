@@ -54,6 +54,7 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 | Epic-08 | Resource Optimization & Deep Telemetry | Post-v1.0 disk/memory leaks closed and mactop-grade bar telemetry | 23 | 118 | Should Have |
 | Epic-09 | Local PII Redaction (MLX Privacy Filter) | On-device PII scrubbing before text reaches a cloud LLM | 8 committed (+11 proposed) | TBD | Should Have |
 | Epic-10 | Bootstrap Integrity & Security Hardening | Fix broken fresh installs; tag-pinned clone-first bootstrap; P0 security fixes | 13 | 38 | Must Have |
+| Epic-11 | Cloud Archive Tier | B2 offsite archive pipeline (3-2-1) for irreplaceable cold data | 4 | 13 | Must Have |
 | NFR | Non-Functional Requirements | Performance, security, reliability | 15 | 79 | Must Have |
 
 ## Epic Navigation
@@ -67,6 +68,7 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 - **[Epic-08: Resource Optimization & Deep Telemetry](./stories/epic-08-resource-optimization.md)** - System-level GC, Huggingface/browser cache pruning, Ollama memory tuning, SketchyBar `/metrics` consolidation
 - **Epic-09: Local PII Redaction** - MLX-backed Privacy Filter daemon on `127.0.0.1:7790` with `redact` / `redact-clip` helpers. No story file yet (Story 09.4-001); scope lives in [issue #303](https://github.com/fxmartin/nix-install/issues/303)
 - **[Epic-10: Bootstrap Integrity & Security Hardening](./stories/epic-10-bootstrap-integrity-security.md)** - Clone-first tag-pinned bootstrap (fixes broken fresh installs), root-shell/credential hardening, CI & drift cleanup from the 2026-07-28 review
+- **[Epic-11: Cloud Archive Tier](./stories/epic-11-cloud-archive-tier.md)** - Backblaze B2 + rclone archive pipeline (bundle → upload → verify → ledger) for irreplaceable cold data identified in the 2026-08-02 storage audit
 - **[Non-Functional Requirements](./stories/non-functional-requirements.md)** - Performance, security, reliability, maintainability
 
 ## MVP Summary
@@ -105,13 +107,14 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 - **2026-04-22**: Epic-08 22/23 shipped (all P0 + all P2 + 7/8 P1). Only 08.3-008 (mactop retirement validation) outstanding.
 - **2026-05-07**: Epic-09 (Local PII Redaction) added — Feature 09.1 (8 stories) is the only committed scope; Features 09.2/09.3/09.4 (11 stories) are proposed sketches pending a scope decision, so the epic carries no point total yet.
 - **2026-07-28**: Epic-10 (Bootstrap Integrity & Security Hardening) added from the 2026-07-28 full-repo review — opened at 12 stories / 43 points, closed at 13 stories / 38 points after 10.4-004 was added and the estimates were reconciled against the ledger.
+- **2026-08-02**: Epic-11 (Cloud Archive Tier) added from the 2026-08-02 storage audit — 4 stories / 13 points. Driver: the 186GB LTIMindtree OneDrive final copy exists only on the NAS; B2 chosen over Glacier Deep Archive for restore ergonomics at ≤400GB scale.
 
 ## Project Metrics
-- **Total Stories**: 169 (125 MVP + 23 Epic-08 + 8 Epic-09 committed + 13 Epic-10)
-- **Total Story Points**: 814 (658 MVP + 118 Epic-08 + 38 Epic-10; Epic-09 unestimated)
+- **Total Stories**: 173 (125 MVP + 23 Epic-08 + 8 Epic-09 committed + 13 Epic-10 + 4 Epic-11)
+- **Total Story Points**: 827 (658 MVP + 118 Epic-08 + 38 Epic-10 + 13 Epic-11; Epic-09 unestimated)
 - **Average Story Size**: 5.1 points
-- **Completed Stories**: 166 (98.2%)
-- **Completed Points**: 810 (99.5%)
+- **Completed Stories**: 166 (96.0%)
+- **Completed Points**: 810 (97.9%)
 - **MVP Completion**: 99.2% by stories, 99.5% by points
 - **🎉 MILESTONE**: MacBook Pro M3 Max successfully running Power profile (2025-12-07)
 - **🎉 MILESTONE**: Epic-08 Resource Optimization & Deep Telemetry — 22/23 stories shipped over 18 hours (2026-04-21 to 2026-04-22)

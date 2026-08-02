@@ -1,6 +1,6 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.2% Complete (166/169 stories) | **Version**: 2.1.2 | **2 MacBooks deployed, M4 Air pending**
+> **Status**: 98.2% Complete (166/169 stories) | **Version**: 2.2.0 | **2 MacBooks deployed, M4 Air pending**
 
 **Two deployed MacBooks. One config. Controlled configuration drift.**
 
@@ -225,7 +225,7 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 
 **Security**: NordVPN, Tailscale, Little Snitch
 
-**System & Monitoring**: iStat Menus, btop, Beszel (macmon telemetry backend), Stream Deck **[S/P]**
+**System & Monitoring**: iStat Menus, mactop, Beszel (macmon telemetry backend), Stream Deck **[S/P]**
 
 **Remote Access**: RustDesk **[S/P]**
 

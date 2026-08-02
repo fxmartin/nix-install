@@ -31,7 +31,6 @@
     # Email notifications for maintenance (Feature 06.5)
     ./modules/msmtp.nix
     # CLI tool configurations with Catppuccin theming and sensible defaults
-    ./modules/btop.nix # System monitor with Catppuccin Mocha theme
     ./modules/bat.nix # Cat replacement with syntax highlighting
     ./modules/ripgrep.nix # Grep replacement with smart defaults
     ./modules/fd.nix # Find replacement with ignore patterns
@@ -61,7 +60,6 @@
     # - programs.git (git.nix - configuration for system-managed Git)
     # - programs.fzf (shell.nix - fuzzy finder)
     # - programs.bat (bat.nix - package and Catppuccin configuration)
-    # - programs.btop (btop.nix - package and Catppuccin configuration)
     # - programs.direnv (python.nix - directory environments)
     #
     # Implemented via config files:
@@ -78,9 +76,6 @@
     enableReleaseChecks = false;
 
     targets = {
-      # System monitoring - Stylix auto-themes btop with Catppuccin colors
-      btop.enable = true;
-
       # bat - Stylix can theme bat but we use custom Catppuccin theme
       bat.enable = false; # Using catppuccin/bat theme instead
 

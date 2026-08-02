@@ -140,6 +140,7 @@
 
       # System Monitoring (Story 02.4-006, Feature 06.3)
       macmon # Headless Apple Silicon telemetry backend for health-api
+      mactop # Interactive Apple Silicon terminal monitor (replaces btop, 2026-08-02)
 
       # Remote Access Tools
       mosh # Mobile shell - persistent SSH alternative with roaming support

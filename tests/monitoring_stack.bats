@@ -15,7 +15,12 @@ setup() {
     run rg -n '^[[:space:]]+gotop[[:space:]]*(#.*)?$' "$DARWIN_CONFIG"
     [ "$status" -eq 1 ]
 
+    # mactop is Nix-owned (darwin/configuration.nix) — never via Homebrew
     run rg -n '"mactop"' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 1 ]
+
+    # btop retired 2026-08-02 in favour of mactop
+    run rg -n './modules/btop\.nix' "$HOME_CONFIG"
     [ "$status" -eq 1 ]
 }
 
@@ -28,7 +33,7 @@ setup() {
 }
 
 @test "retained monitoring layers remain declared" {
-    run rg -n './modules/btop\.nix' "$HOME_CONFIG"
+    run rg -n '^[[:space:]]+mactop[[:space:]]*(#.*)?$' "$DARWIN_CONFIG"
     [ "$status" -eq 0 ]
 
     run rg -n '"istat-menus"' "$HOMEBREW_CONFIG"
@@ -39,9 +44,9 @@ setup() {
 }
 
 @test "README advertises only the rationalised stack" {
-    run rg -n 'System & Monitoring.*iStat Menus.*btop.*Beszel' "$README_FILE"
+    run rg -n 'System & Monitoring.*iStat Menus.*mactop.*Beszel' "$README_FILE"
     [ "$status" -eq 0 ]
 
-    run rg -n 'System & Monitoring.*(gotop|mactop)' "$README_FILE"
+    run rg -n 'System & Monitoring.*(gotop|btop)' "$README_FILE"
     [ "$status" -eq 1 ]
 }

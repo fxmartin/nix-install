@@ -4,8 +4,6 @@
 
 set -euo pipefail
 
-NAS_ARCHIVE_VERSION="1.0.0"
-
 # Staging directory can be overridden for testing; defaults to the NAS path
 # from the story's acceptance criteria.
 STAGING_DIR="${NAS_ARCHIVE_STAGING_DIR:-/Volume1/Data/Archives/_staging}"
@@ -69,12 +67,12 @@ cmd_bundle() {
 
     log "Computing source size for ${source_dir}"
     local source_size_kb
-    source_size_kb=$(du -sk "${source_dir}" | awk '{print $1}')
+    source_size_kb=$(du -sk "${source_dir}" | awk '{print $1}' || true)
     [[ -n "${source_size_kb}" ]] || die "could not determine source size for ${source_dir}"
 
     log "Checking staging free space in ${STAGING_DIR}"
     local free_kb
-    free_kb=$(df -k "${STAGING_DIR}" | awk 'NR==2 {print $4}')
+    free_kb=$(df -k "${STAGING_DIR}" | awk 'NR==2 {print $4}' || true)
     [[ -n "${free_kb}" ]] || die "could not determine free space for ${STAGING_DIR}"
 
     if (( free_kb < source_size_kb )); then

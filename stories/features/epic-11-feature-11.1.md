@@ -50,6 +50,7 @@
 **Priority**: Must Have
 **Story Points**: 5
 **Sprint**: Sprint 15
+**Status**: ✅ Code Complete (Pending FX NAS Validation) — `scripts/nas-archive.sh` `bundle` subcommand + `tests/nas_archive.bats` (arg validation, no-overwrite, free-space refusal); real bundling requires GNU `tar`/`sha256sum` on the NAS and has not been run against the NAS yet
 
 **Acceptance Criteria**:
 - **Given** `nas-archive.sh bundle <source-dir> <archive-name>` run on the NAS

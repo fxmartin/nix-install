@@ -30,6 +30,7 @@ printf 'browser cache\n' >"${codex_cache_dir}/Default/cache.bin"
 
 sqlite3 "${codex_dir}/logs_2.sqlite" >/dev/null <<'SQL'
 PRAGMA journal_mode=DELETE;
+PRAGMA auto_vacuum=NONE;
 CREATE TABLE logs (payload BLOB NOT NULL);
 WITH RECURSIVE sequence(value) AS (
     SELECT 1
@@ -97,7 +98,7 @@ if invalid_threshold_output="$(CODEX_CLEANUP_HOME="${test_home}" \
 fi
 [[ "${invalid_threshold_output}" == *"must be a non-negative integer"* ]]
 
-database_before="$(stat -f '%z' "${codex_dir}/logs_2.sqlite")"
+database_before="$(/usr/bin/stat -f '%z' "${codex_dir}/logs_2.sqlite")"
 if open_database_output="$(CODEX_CLEANUP_HOME="${test_home}" \
     CODEX_CLEANUP_LSOF_BIN="${mock_bin_dir}/open-lsof" \
     CODEX_CLEANUP_PGREP_BIN="${mock_bin_dir}/no-processes" \
@@ -107,10 +108,10 @@ if open_database_output="$(CODEX_CLEANUP_HOME="${test_home}" \
     exit 1
 fi
 [[ "${open_database_output}" == *"close Codex before compacting"* ]]
-[[ "$(stat -f '%z' "${codex_dir}/logs_2.sqlite")" -eq "${database_before}" ]]
+[[ "$(/usr/bin/stat -f '%z' "${codex_dir}/logs_2.sqlite")" -eq "${database_before}" ]]
 
 run_cleanup --compact-logs
-database_after="$(stat -f '%z' "${codex_dir}/logs_2.sqlite")"
+database_after="$(/usr/bin/stat -f '%z' "${codex_dir}/logs_2.sqlite")"
 [[ "${database_after}" -lt "${database_before}" ]]
 [[ "$(sqlite3 -readonly "${codex_dir}/logs_2.sqlite" 'PRAGMA integrity_check;')" == "ok" ]]
 assert_exists "${codex_dir}/sessions/2026/07/31/rollout.jsonl"

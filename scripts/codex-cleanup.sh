@@ -209,7 +209,7 @@ compact_logs() {
         return 0
     fi
 
-    before_bytes="$(stat -f '%z' "${CODEX_LOGS_DB}")"
+    before_bytes="$(/usr/bin/stat -f '%z' "${CODEX_LOGS_DB}")"
     ensure_compaction_space "${before_bytes}"
 
     printf 'Compacting %s (%s reclaimable)...\n' \
@@ -229,7 +229,7 @@ SQL
         return 1
     fi
 
-    after_bytes="$(stat -f '%z' "${CODEX_LOGS_DB}")"
+    after_bytes="$(/usr/bin/stat -f '%z' "${CODEX_LOGS_DB}")"
     printf 'Log database compacted: %s -> %s.\n' \
         "$(format_bytes "${before_bytes}")" "$(format_bytes "${after_bytes}")"
 }

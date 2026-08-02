@@ -113,7 +113,7 @@ render_activation_script() {
     [ "$status" -eq 0 ]
     [ -f "${CONFIG_FILE}" ]
 
-    run stat -f '%Lp' "${CONFIG_FILE}"
+    run /usr/bin/stat -f '%Lp' "${CONFIG_FILE}"
     [ "$status" -eq 0 ]
     [ "$output" = "600" ]
 
@@ -150,7 +150,7 @@ render_activation_script() {
     [ -f "${MOUNT_SCRIPT_DEST}" ]
     [[ "$output" == *"installed to"* ]]
 
-    run stat -f '%Lp' "${MOUNT_SCRIPT_DEST}"
+    run /usr/bin/stat -f '%Lp' "${MOUNT_SCRIPT_DEST}"
     [ "$status" -eq 0 ]
     [ "$output" = "755" ]
 }

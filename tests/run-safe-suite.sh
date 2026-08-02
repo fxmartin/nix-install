@@ -28,6 +28,7 @@ safe_bats_suites=(
     tests/gitleaks-secrets.bats
     tests/mlx_lm_inferencer.bats
     tests/monitoring_stack.bats
+    tests/nas_archive.bats
     tests/network_security.bats
     tests/office_apps.bats
     tests/ollama_messaging_freshness.bats

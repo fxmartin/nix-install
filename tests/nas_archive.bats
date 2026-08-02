@@ -121,3 +121,81 @@ EOF
     [ "$status" -eq 1 ]
     [ -d "${STAGING_DIR}" ]
 }
+
+@test "bundle aborts when du cannot determine source size" {
+    cat > "${STUB_BIN}/du" <<'EOF'
+#!/usr/bin/env bash
+echo ""
+EOF
+    chmod +x "${STUB_BIN}/du"
+
+    run_nas_archive bundle "${SOURCE_DIR}" my-archive
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"could not determine source size"* ]]
+}
+
+@test "bundle aborts when df cannot determine free space" {
+    cat > "${STUB_BIN}/df" <<'EOF'
+#!/usr/bin/env bash
+printf 'Filesystem 1024-blocks Used Available Capacity Mounted-on\n'
+EOF
+    chmod +x "${STUB_BIN}/df"
+
+    run_nas_archive bundle "${SOURCE_DIR}" my-archive
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"could not determine free space"* ]]
+}
+
+# =============================================================================
+# Happy path (bundle creation) - tar/zstd stubbed since BSD tar on the
+# macOS test host does not understand GNU tar's -I compress-program syntax;
+# the real GNU-tooling path runs on the NAS and is covered manually there.
+# =============================================================================
+
+stub_tar() {
+    cat > "${STUB_BIN}/tar" <<'EOF'
+#!/usr/bin/env bash
+args=("$@")
+for i in "${!args[@]}"; do
+    if [[ "${args[$i]}" == "-cf" ]]; then
+        touch "${args[$((i+1))]}"
+        exit 0
+    elif [[ "${args[$i]}" == "-tf" ]]; then
+        printf './file.txt\n'
+        exit 0
+    fi
+done
+exit 1
+EOF
+    chmod +x "${STUB_BIN}/tar"
+}
+
+@test "bundle happy path writes archive, checksum manifest, and filelist" {
+    stub_tar
+
+    run_nas_archive bundle "${SOURCE_DIR}" my-archive
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Bundle complete:"* ]]
+    [ -e "${STAGING_DIR}/my-archive.tar.zst" ]
+    [ -e "${STAGING_DIR}/my-archive.sha256" ]
+    [ -e "${STAGING_DIR}/my-archive.filelist.txt.zst" ]
+    grep -q 'my-archive.tar.zst' "${STAGING_DIR}/my-archive.sha256"
+}
+
+@test "bundle proceeds when free space exactly equals source size" {
+    cat > "${STUB_BIN}/du" <<'EOF'
+#!/usr/bin/env bash
+echo "100	fake-source"
+EOF
+    cat > "${STUB_BIN}/df" <<'EOF'
+#!/usr/bin/env bash
+printf 'Filesystem 1024-blocks Used Available Capacity Mounted-on\n'
+printf 'fake 1000 900 100 90%% /fake\n'
+EOF
+    chmod +x "${STUB_BIN}/du" "${STUB_BIN}/df"
+    stub_tar
+
+    run_nas_archive bundle "${SOURCE_DIR}" boundary-archive
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Bundle complete:"* ]]
+}

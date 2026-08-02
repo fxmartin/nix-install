@@ -89,8 +89,11 @@
         health-check = "bash ${dotfilesPath}/scripts/health-check.sh";
 
         # Disk cleanup (Feature 06.7 - Epic-06)
-        # Cleans uv, Homebrew, npm, pip, node-gyp, and Docker caches
+        # Cleans development caches and reports Codex storage separately
         disk-cleanup = "bash ${dotfilesPath}/scripts/disk-cleanup.sh";
+
+        # Codex storage analysis and explicit guarded cleanup
+        codex-cleanup = "bash ${dotfilesPath}/scripts/codex-cleanup.sh";
 
         # Weekly maintenance digest (Feature 06.5 - Epic-06)
         # Manual trigger for weekly digest email (normally runs Sunday 8 AM automatically)

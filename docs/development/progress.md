@@ -15,8 +15,8 @@
 | **Epic-08** | Resource Optimization & Deep Telemetry | 23 | 118 | 96% | 🟢 22/23 Shipped |
 | **Epic-09** | Local PII Redaction (MLX Privacy Filter) | 8 committed | TBD | 88% | 🟢 7/8 Shipped |
 | **Epic-10** | Bootstrap Integrity & Security Hardening | 13 | 38 | 100% | ✅ Complete |
-| **NFR** | Non-Functional Requirements | 15 | 79 | 87% | 🟢 Nearly Complete |
-| **TOTAL** | **All Epics** | **169** | **814** | **98.2%** | 🟢 **Epic-10 shipped, unreleased** |
+| **NFR** | Non-Functional Requirements | 15 | 79 | 93% | 🟢 14/15 Complete |
+| **TOTAL** | **All Epics** | **169** | **814** | **98.2%** | 🟢 **3 acceptance stories remain** |
 
 Epic-09 counts only Feature 09.1 (the committed foundation). Features 09.2/09.3/09.4
 add 11 proposed stories that are unestimated and pending a scope decision — see
@@ -25,10 +25,10 @@ so it is excluded from the points column of the total.
 
 ## Project Status
 
-- **Version**: 2.0.33 released; `main` carries 24 unreleased commits (all of Epic-10) awaiting a `v2.1.0` tag
+- **Version**: 2.1.1 released; local `main` is at tag `v2.1.1`
 - **Total Scope**: 169 stories, 814 story points (Epic-09 unestimated)
 - **Completed**: 166 stories (98.2%), 810 points (99.5%)
-- **Current Phase**: cut the Epic-10 release; then decide Epic-09 Features 09.2/09.3/09.4 scope
+- **Current Phase**: complete the three acceptance stories, deploy the MacBook Air M4, then decide Epic-09 Features 09.2/09.3/09.4 scope
 
 ### Milestones
 
@@ -54,14 +54,13 @@ so it is excluded from the points column of the total.
 
 | Epic | Story | Points | Priority | Notes |
 |------|-------|--------|----------|-------|
-| Release | Tag `v2.1.0` for Epic-10 | — | P0 | 24 unreleased commits on `main`; `make bump-minor` → `release-tag` → `smoke-test-clone` |
 | Epic-09 | 09.1-008 Verify daemon on first Mac | — | P1 | Confirm `OPENMED_PII_MODEL` name + `/pii/deidentify` schema ([#302](https://github.com/fxmartin/nix-install/issues/302)) |
 | Epic-09 | Features 09.2 / 09.3 / 09.4 | — | P2 | 11 proposed stories — promote or drop ([#303](https://github.com/fxmartin/nix-install/issues/303)) |
 | Epic-08 | 08.3-008 Retire mactop habit | 1 | P1 | Acceptance-only validation (one day mactop-free) |
 | Epic-08 | 4 optional enhancements | 21 | P2 | [#286](https://github.com/fxmartin/nix-install/issues/286) (blocked upstream), [#287](https://github.com/fxmartin/nix-install/issues/287), [#288](https://github.com/fxmartin/nix-install/issues/288), [#289](https://github.com/fxmartin/nix-install/issues/289) |
 | Epic-06 | ~45 release-monitor bumps | — | P2 | Mostly mechanical; 3 breaking (#296, #311, #339) and Chrome 150 security (#330) need judgement |
 | NFR | 1-week auto-update verification | 5 | P1 | Monitoring period |
-| NFR | MacBook Air M4 cross-machine test | 3 | P0 | Phase 11, not yet deployed |
+| Deployment | MacBook Air M4 cross-machine test | — | P0 | Phase 11 acceptance milestone; not counted as a separate story |
 
 ### Performance Metrics (MacBook Pro M3 Max)
 

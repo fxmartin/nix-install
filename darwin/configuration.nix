@@ -112,6 +112,7 @@
       # Required by Claude Code plugins such as codex@openai-codex, including
       # on ai-assistant where the heavier JS/TS language-server stack is omitted.
       nodejs
+      bun # JavaScript runtime, package manager, and test runner
       (writeShellApplication {
         name = "ccusage";
         runtimeInputs = [ nodejs ];
@@ -266,6 +267,7 @@
             "claude-cleanup.sh"
             "weekly-maintenance-digest.sh"
             "release-monitor.sh"
+            "codex-cleanup.sh"
             "disk-cleanup.sh"
             "fetch-release-notes.sh"
             "analyze-releases.sh"

@@ -136,6 +136,33 @@ mount_calls() {
     [ "$status" -eq 0 ]
 }
 
+@test "module parses as valid Nix syntax" {
+    # Grep-based assertions elsewhere in this suite only check for substrings,
+    # so a syntax break (e.g. a malformed lib.concatMapStringsSep) could still
+    # pass every other test here. --parse catches that without needing a full
+    # darwinConfiguration eval.
+    run nix-instantiate --parse "${SMB_MODULE}"
+    [ "$status" -eq 0 ]
+}
+
+@test "activation warns rather than silently skipping when the source script is missing" {
+    run grep -F 'smb-mount-nas.sh not found at' "${SMB_MODULE}"
+    [ "$status" -eq 0 ]
+}
+
+@test "activation warns when the password file has not been created yet" {
+    run grep -F 'WARNING: Password file not found' "${SMB_MODULE}"
+    [ "$status" -eq 0 ]
+}
+
+@test "LaunchAgent command guards against a missing installed script" {
+    run grep -F 'smb-mount-nas script not found' "${SMB_MODULE}"
+    [ "$status" -eq 0 ]
+
+    run grep -F -- '-x "$SCRIPT"' "${SMB_MODULE}"
+    [ "$status" -eq 0 ]
+}
+
 # ---------------------------------------------------------------------------
 # Happy path
 # ---------------------------------------------------------------------------
@@ -144,6 +171,7 @@ mount_calls() {
     run bash "${MOUNT_SCRIPT}"
     [ "$status" -eq 0 ]
     [ "$(mount_calls)" -eq 3 ]
+    [[ "$output" == *"All 3 share(s) mounted under ${HOME}/NAS"* ]]
 
     run grep -F "//fxmartin:secret@tnas.local/Photos ${HOME}/NAS/Photos" "${MOUNT_ARGS}"
     [ "$status" -eq 0 ]
@@ -276,4 +304,58 @@ mount_calls() {
     [ "$status" -eq 1 ]
     [ "$(mount_calls)" -eq 0 ]
     [[ "$output" == *"Incomplete config"* ]]
+}
+
+@test "config with the SHARES key entirely absent fails the same as an empty array" {
+    # Distinct from the empty-array case above: here `declare -p SHARES` itself
+    # fails (line 43-45 of the script), not just `${#SHARES[@]} -eq 0`.
+    {
+        echo 'NAS_HOST="tnas.local"'
+        echo 'SMB_USERNAME="fxmartin"'
+        echo "MOUNT_ROOT=\"${HOME}/NAS\""
+    } > "${SMB_MOUNT_CONFIG}"
+
+    run bash "${MOUNT_SCRIPT}"
+    [ "$status" -eq 1 ]
+    [ "$(mount_calls)" -eq 0 ]
+    [[ "$output" == *"Incomplete config"* ]]
+}
+
+@test "a mount point that cannot be created fails every share without aborting the run" {
+    # MOUNT_ROOT itself is a plain file, so `mkdir -p "$MOUNT_ROOT/<share>"` fails
+    # for every share - exercises the mkdir failure branch in mount_share().
+    : > "${HOME}/NAS"
+
+    run bash "${MOUNT_SCRIPT}"
+    [ "$status" -eq 0 ]
+    [ "$(mount_calls)" -eq 0 ]
+    [[ "$output" == *"✗ Photos: cannot create mount point"* ]]
+    [[ "$output" == *"✗ icloud: cannot create mount point"* ]]
+    [[ "$output" == *"✗ calibre: cannot create mount point"* ]]
+    [[ "$output" == *"3 failed mount(s) of 3"* ]]
+}
+
+@test "a failing mount with no captured output logs no blank detail line" {
+    # When mount_smbfs fails silently (empty stdout/stderr), the `[[ -n "${output}" ]]`
+    # guard must skip the detail log line entirely rather than printing an empty one.
+    stub_mount_smbfs 68 "" "icloud"
+
+    run bash "${MOUNT_SCRIPT}"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"✗ icloud: mount failed (rc=68)"* ]]
+
+    printf '%s\n' "$output" > "${BATS_TEST_TMPDIR}/run.log"
+    run grep -E '^\[.*\] {2}$' "${BATS_TEST_TMPDIR}/run.log"
+    [ "$status" -ne 0 ]
+}
+
+@test "a password file with an internal newline is concatenated before use" {
+    # tr -d '\n' strips every newline, not just a trailing one - "sec\nret\n"
+    # collapses to "secret" rather than erroring or truncating.
+    printf 'sec\nret\n' > "${SMB_MOUNT_PASSWORD_FILE}"
+
+    run bash "${MOUNT_SCRIPT}"
+    [ "$status" -eq 0 ]
+    run grep -F "//fxmartin:secret@tnas.local/Photos" "${MOUNT_ARGS}"
+    [ "$status" -eq 0 ]
 }

@@ -1,0 +1,25 @@
+# ABOUTME: Pins this repo's sdlc agent-harness routing (Story 20.7-005).
+# ABOUTME: Precedence: --harness flag > this file > registry default > built-in claude.
+#
+# Why pin to `claude` when `claude` is also the shipped registry default?
+# Because the registry (`sdlc/config/harnesses.yaml`) lives *inside* the installed
+# controller, so a `uv tool install --force` redeploy resets it. This file lives in
+# the repo and survives reinstalls, so the routing declared here is the one that
+# actually holds.
+#
+# Pinning is inert at dispatch: the registry's `claude` entry resolves to the same
+# argv as the built-in default (same deny baseline, same parser), so builds behave
+# identically to having no file at all. What it buys is that a flip of the registry
+# `default:` cannot silently move this repo onto another agent.
+#
+# Note this repo carries `config/claude-code-config` as a submodule, which pins
+# itself independently — a submodule is its own working tree, so the file here does
+# not govern runs launched from inside it.
+#
+# Per-role overrides are available if a single role should differ, e.g.:
+#   harness:
+#     default: claude
+#     roles:
+#       review: codex     # roles: build | coverage (alias: qa) | review | merge | docs
+harness:
+  default: claude

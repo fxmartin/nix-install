@@ -52,11 +52,12 @@
       };
 
       # NAS Luxembourg (TerraMaster) - Local network
+      # id_ed25519 since the TOS 6 reinstall (2026-08-02); id_nas_luxembourg is no longer authorized
       "nas-lux" = {
         HostName = "tnas.local";
         User = "fxmartin";
         Port = 2222;
-        IdentityFile = "~/.ssh/id_nas_luxembourg";
+        IdentityFile = "~/.ssh/id_ed25519";
       };
 
       # NAS Luxembourg via Tailscale (accessible from anywhere)
@@ -64,7 +65,7 @@
         HostName = "100.98.9.111"; # Tailscale IP
         User = "fxmartin";
         Port = 2222;
-        IdentityFile = "~/.ssh/id_nas_luxembourg";
+        IdentityFile = "~/.ssh/id_ed25519";
       };
 
       # MacBook Pro M1 via local network

@@ -1,6 +1,6 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.2% Complete (166/169 stories) | **Version**: 2.1.1 | **2 MacBooks deployed, M4 Air pending**
+> **Status**: 98.2% Complete (166/169 stories) | **Version**: 2.1.2 | **2 MacBooks deployed, M4 Air pending**
 
 **Two deployed MacBooks. One config. Controlled configuration drift.**
 
@@ -78,7 +78,8 @@ After installation, manage your system with these aliases:
 | `gc` | User-profile garbage collection |
 | `gc-system` | System-profile garbage collection (runs weekly as root LaunchDaemon) |
 | `cleanup` | Full cleanup (GC + store optimization) |
-| `disk-cleanup` | Prune Huggingface / browser / Docker / `~/.claude/projects` caches |
+| `disk-cleanup` | Prune development caches and report Codex storage opportunities |
+| `codex-cleanup` | Analyze Codex storage; compact logs or prune caches only with explicit flags |
 | `health-check` | System health report |
 | `curl localhost:7780/metrics` | Apple Silicon metrics (CPU per-cluster, GPU, ANE, memory, power, thermal, top-5 processes) |
 | `ollama-warm <model>` | Pin an Ollama model in RAM until evicted |
@@ -199,7 +200,7 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 - Podman (rootless containers, via Nix) + Docker Desktop **[S/P]**
 - TablePlus (database GUI) **[S/P]**
 - Git + Git LFS + GitHub CLI (`gh`)
-- Node.js (for npx/npm tooling)
+- Node.js (for npx/npm tooling) + Bun runtime and package manager
 - Go + `gopls` **[Power]**
 - Language servers (pyright, typescript, bash, yaml, etc.)
 
@@ -435,7 +436,8 @@ nix-install/
 │   ├── health-api.py         # /metrics endpoint (macmon background thread)
 │   ├── health-check.sh       # System health validation
 │   ├── release-monitor.sh    # AI-powered update checker
-│   ├── disk-cleanup.sh       # HF / browser / Docker / claude-projects pruning
+│   ├── disk-cleanup.sh       # Development-cache pruning + Codex storage report
+│   ├── codex-cleanup.sh      # Guarded Codex log compaction and cache pruning
 │   ├── ollama-lru.sh         # Stale Ollama model reporter / pruner
 │   ├── ollama-pressure-guard.sh  # Memory-pressure auto-unload
 │   ├── virt-vm-orphan-watch.sh   # Orphan Virtualization VM detector (notify-only)
@@ -462,7 +464,7 @@ nix-install/
 | **07** | Documentation & UX | ✅ 100% |
 | **08** | Resource Optimization & Deep Telemetry | 🟢 96% (22/23) |
 | **09** | Local PII Redaction (Privacy Filter via MLX) | 🟡 In flight (7/8 Foundation stories shipped, branch `claude/add-openai-privacy-filter-EOYR7`, [#303](https://github.com/fxmartin/nix-install/issues/303)) |
-| **NFR** | Non-Functional Requirements | 🟢 87% |
+| **NFR** | Non-Functional Requirements | 🟢 93% |
 
 **🎉 Milestone (2025-12-07)**: MacBook Pro M3 Max successfully running Power profile!
 - Shell startup: 259ms (target <500ms) ✅
@@ -482,7 +484,7 @@ nix-install/
 | **Commits** | 935 (+418 since v1.0.0) |
 | **Development** | ~20 active days (v1.0.0) + 2 days (Epic-08 sprint), ~96 hours through Epic-08; Epic-09/Epic-10 not yet estimated |
 | **Code** | 21K lines (Nix + Shell + Python, excluding the generated `bootstrap-dist.sh`) |
-| **Tests** | 1,411 test cases (44 BATS files, 263 in the active gate) |
+| **Tests** | 1,432 test cases (45 BATS files, 284 in the active gate) |
 | **Documentation** | 43K lines across 136 markdown files |
 | **GitHub Issues** | Epic-08 #236–#258 (23 stories) + fixes #269–#285 · Epic-09 #302–#303 · Epic-10 #388–#400 (13 stories) |
 | **Packages** | 35 casks (19 on AI-Assistant), 7 brews, 8 MAS, 50+ Nix |

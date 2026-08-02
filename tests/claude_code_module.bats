@@ -85,6 +85,22 @@
     [ "$status" -eq 0 ]
 }
 
+@test "codex cleanup is deployed and exposed through the shell" {
+    run rg -n -F '"codex-cleanup.sh"' \
+        "${BATS_TEST_DIRNAME}/../darwin/configuration.nix"
+    [ "$status" -eq 0 ]
+
+    run rg -n -F 'codex-cleanup = "bash ${dotfilesPath}/scripts/codex-cleanup.sh";' \
+        "${BATS_TEST_DIRNAME}/../home-manager/modules/shell.nix"
+    [ "$status" -eq 0 ]
+}
+
+@test "disk cleanup analyze mode includes the guarded Codex report" {
+    run rg -n -F '"${CODEX_CLEANUP}" --analyze' \
+        "${BATS_TEST_DIRNAME}/../scripts/disk-cleanup.sh"
+    [ "$status" -eq 0 ]
+}
+
 @test "qwen activation disables update telemetry prompt logging and usage stats" {
     module="${BATS_TEST_DIRNAME}/../home-manager/modules/claude-code.nix"
 

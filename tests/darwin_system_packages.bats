@@ -12,8 +12,10 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
-common_bats_package_lines() {
-    awk '
+common_package_lines() {
+    local package_name="$1"
+
+    awk -v package_name="$package_name" '
         /lib\.optionals/ {
             in_profile_specific_block = 1
         }
@@ -21,14 +23,20 @@ common_bats_package_lines() {
             in_profile_specific_block = 0
             next
         }
-        !in_profile_specific_block && /^[[:space:]]*bats([[:space:]]|#)/ {
+        !in_profile_specific_block && $0 ~ "^[[:space:]]*" package_name "([[:space:]]|#)" {
             print
         }
     ' "$DARWIN_CONFIG"
 }
 
 @test "bats is installed in shared system packages for every profile" {
-    run common_bats_package_lines
+    run common_package_lines bats
     [ "$status" -eq 0 ]
     [[ "$output" == *"bats"* ]]
+}
+
+@test "Bun is installed in shared system packages for every profile" {
+    run common_package_lines bun
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"bun"* ]]
 }

@@ -49,6 +49,7 @@ safe_bats_suites=(
 bats "${safe_bats_suites[@]}"
 python3 -m unittest tests/test_health_api.py
 bash tests/codex_sdlc_bridge_test.sh
+bash tests/codex_cleanup_test.sh
 bash tests/llm-inferencer-cleanup-test.sh
 bash tests/release-management-test.sh
 bash tests/setup-integrity-test.sh

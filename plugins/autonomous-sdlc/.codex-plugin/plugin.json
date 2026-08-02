@@ -1,6 +1,6 @@
 {
   "name": "autonomous-sdlc",
-  "version": "0.1.0",
+  "version": "0.1.0+codex.20260731202501",
   "description": "Codex-native SDLC workflows for project bootstrap, product discovery, epic/story planning, issue handling, review, coverage, and implementation orchestration.",
   "author": {
     "name": "FX Martin",
@@ -22,7 +22,6 @@
     "testing"
   ],
   "skills": "./skills/",
-  "hooks": "./hooks.json",
   "interface": {
     "displayName": "Autonomous SDLC",
     "shortDescription": "Plan, review, and execute SDLC workflows with Codex.",

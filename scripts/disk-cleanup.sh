@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ABOUTME: Comprehensive disk cleanup script for development caches (Feature 06.7)
-# ABOUTME: Cleans uv, Homebrew, npm, pip, node-gyp, and Docker caches with size reporting
+# ABOUTME: Cleans development caches and reports guarded Codex storage opportunities
 
 set -euo pipefail
 
@@ -17,12 +17,13 @@ BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 # Version
-DISK_CLEANUP_VERSION="1.0.0"
+DISK_CLEANUP_VERSION="1.1.0"
 
 # Email configuration
 NOTIFICATION_EMAIL="${NOTIFICATION_EMAIL:-}"
 SCRIPTS_DIR="${SCRIPTS_DIR:-$(dirname "$0")}"
 SEND_NOTIFICATION="${SCRIPTS_DIR}/send-notification.sh"
+CODEX_CLEANUP="${SCRIPTS_DIR}/codex-cleanup.sh"
 
 # Report buffer for email
 REPORT_BUFFER=""
@@ -124,6 +125,15 @@ analyze_caches() {
     total_kb=$((total_kb + hf_kb))
     print_status "info" "Huggingface cache: ${hf_size}"
 
+    # Codex storage is analyzed separately because sessions are never cleanable
+    # and log compaction/cache pruning require explicit guarded commands.
+    if [[ -x "${CODEX_CLEANUP}" ]]; then
+        echo ""
+        "${CODEX_CLEANUP}" --analyze
+    else
+        print_status "skip" "Codex storage analyzer not found at ${CODEX_CLEANUP}"
+    fi
+
     # Browser caches (Brave/Chrome) — roots, not cleanable subdirs
     local browser_kb_total=0
     for path in ~/Library/Caches/BraveSoftware/Brave-Browser \
@@ -147,9 +157,9 @@ analyze_caches() {
     local total_gb=$((total_kb / 1024 / 1024))
     local total_mb=$((total_kb / 1024))
     if [[ ${total_gb} -gt 0 ]]; then
-        print_status "info" "Total cleanable (excluding containers): ~${total_gb}GB"
+        print_status "info" "Total cleanable (excluding containers and Codex): ~${total_gb}GB"
     else
-        print_status "info" "Total cleanable (excluding containers): ~${total_mb}MB"
+        print_status "info" "Total cleanable (excluding containers and Codex): ~${total_mb}MB"
     fi
 }
 
@@ -429,6 +439,7 @@ main() {
     echo "• Time Machine snapshots can hold freed space hostage"
     echo "  → sudo tmutil deletelocalsnapshots /"
     echo "• Nix garbage collection: gc or gc-system"
+    echo "• Codex storage: codex-cleanup --analyze"
     echo "• Check large folders: du -sh ~/Library/* | sort -hr | head -10"
     echo ""
 }

@@ -88,7 +88,7 @@ in
       echo "  Removed stale /etc/auto_smb (autofs no longer used)"
     fi
     if [[ -f /etc/auto_master ]] && grep -q 'auto_smb' /etc/auto_master; then
-      sed -i ''' '/auto_smb/d' /etc/auto_master
+      sed -i.bak '/auto_smb/d' /etc/auto_master && rm -f /etc/auto_master.bak
       automount -vc >/dev/null 2>&1 || true
       echo "  Removed auto_smb entry from /etc/auto_master"
     fi

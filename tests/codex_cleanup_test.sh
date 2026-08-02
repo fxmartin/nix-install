@@ -30,6 +30,7 @@ printf 'browser cache\n' >"${codex_cache_dir}/Default/cache.bin"
 
 sqlite3 "${codex_dir}/logs_2.sqlite" >/dev/null <<'SQL'
 PRAGMA journal_mode=DELETE;
+PRAGMA auto_vacuum=NONE;
 CREATE TABLE logs (payload BLOB NOT NULL);
 WITH RECURSIVE sequence(value) AS (
     SELECT 1

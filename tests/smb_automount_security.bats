@@ -1,157 +1,161 @@
 #!/usr/bin/env bats
-# ABOUTME: Regression tests for the /etc/auto_smb credential write race (10.3-002)
-# ABOUTME: Verifies restrictive permissions from first byte and full URL-encoding
+# ABOUTME: Credential-handling tests for the SMB NAS mount path (10.3-002, #396, #407)
+# ABOUTME: The autofs map that used to hold the password is gone; nothing may replace it
+# ABOUTME: Verifies the credential stays in memory and the URL-encoding stays complete
 
 setup() {
     REPO_ROOT="${BATS_TEST_DIRNAME}/.."
     SMB_MODULE="${REPO_ROOT}/darwin/smb-automount.nix"
+    MOUNT_SCRIPT="${REPO_ROOT}/scripts/smb-mount-nas.sh"
+
+    export HOME="${BATS_TEST_TMPDIR}/home"
+    STUB_DIR="${BATS_TEST_TMPDIR}/stubs"
+    mkdir -p "${HOME}" "${STUB_DIR}"
+
+    export SMB_MOUNT_CONFIG="${BATS_TEST_TMPDIR}/shares.conf"
+    export SMB_MOUNT_PASSWORD_FILE="${BATS_TEST_TMPDIR}/password"
+    MOUNT_TABLE="${BATS_TEST_TMPDIR}/mount.table"
+    export PATH="${STUB_DIR}:${PATH}"
+
+    {
+        echo 'NAS_HOST="tnas.local"'
+        echo 'SMB_USERNAME="fxmartin"'
+        echo "MOUNT_ROOT=\"${HOME}/NAS\""
+        echo 'SHARES=('
+        echo '  "Photos"'
+        echo ')'
+    } > "${SMB_MOUNT_CONFIG}"
+
+    : > "${MOUNT_TABLE}"
+    {
+        echo '#!/usr/bin/env bash'
+        echo "cat '${MOUNT_TABLE}'"
+    } > "${STUB_DIR}/mount"
+    chmod +x "${STUB_DIR}/mount"
+
+    {
+        echo '#!/usr/bin/env bash'
+        echo 'exit 0'
+    } > "${STUB_DIR}/nc"
+    chmod +x "${STUB_DIR}/nc"
 }
 
-# Prints a path's permission bits in octal (e.g. "600").
-# The CI quality gate runs `make check` inside `nix develop`, whose stdenv puts
-# GNU coreutils ahead of /usr/bin on PATH -- so `stat` is GNU even on macOS,
-# where `-f` means --file-system rather than "format". Probe for the GNU
-# spelling first and discard the probe's stdout so the fallback can never
-# concatenate onto a partially successful first attempt.
-file_mode() {
-    local path="$1"
-    if stat -c '%a' "$path" >/dev/null 2>&1; then
-        stat -c '%a' "$path"
-    else
-        stat -f '%Lp' "$path"
-    fi
+# Extracts the shipped URL-encoding sed program so the assertions exercise the
+# real expression rather than a hand-copied imitation of it.
+url_encode_sed() {
+    rg "URL_ENCODE_SED='" "${MOUNT_SCRIPT}" \
+        | sed -E "s/^[^']*URL_ENCODE_SED='([^']*)'.*/\1/"
 }
 
-@test "credentialed auto_smb write sets umask 077 before the heredoc content" {
-    run rg -n 'umask 077' "$SMB_MODULE"
-    [ "$status" -eq 0 ]
-
-    local umask_line write_line
-    umask_line=$(rg -n 'umask 077' "$SMB_MODULE" | head -1 | cut -d: -f1)
-    write_line=$(rg -n 'cat > /etc/auto_smb << AUTO_SMB_EOF' "$SMB_MODULE" | head -1 | cut -d: -f1)
-    [ -n "$umask_line" ]
-    [ -n "$write_line" ]
-    [ "$umask_line" -lt "$write_line" ]
+# mount_smbfs stub that succeeds and records nothing.
+stub_mount_smbfs_ok() {
+    {
+        echo '#!/usr/bin/env bash'
+        echo 'exit 0'
+    } > "${STUB_DIR}/mount_smbfs"
+    chmod +x "${STUB_DIR}/mount_smbfs"
 }
 
-@test "credentialed auto_smb write no longer relies on chmod-after alone" {
-    # The umask must be the mechanism establishing the mode; chmod 600 may
-    # still run afterward for clarity/logging but must not be the only guard.
-    # A umask alone is NOT sufficient: '> file' on an existing path truncates
-    # in place and keeps the old mode, so the path must be unlinked first.
-    run rg -n 'umask 077' "$SMB_MODULE"
-    [ "$status" -eq 0 ]
-
-    local umask_line unlink_line write_line
-    umask_line=$(rg -n 'umask 077' "$SMB_MODULE" | head -1 | cut -d: -f1)
-    write_line=$(rg -n 'cat > /etc/auto_smb << AUTO_SMB_EOF' "$SMB_MODULE" | head -1 | cut -d: -f1)
-    unlink_line=$(rg -n 'rm -f /etc/auto_smb' "$SMB_MODULE" \
-        | awk -F: -v lo="$umask_line" -v hi="$write_line" '$1 > lo && $1 < hi { print $1; exit }')
-    [ -n "$unlink_line" ]
+# mount_smbfs stub that fails and echoes the URL it was handed back at the
+# caller — the real binary does this on some parse errors, and the URL carries
+# the credential.
+stub_mount_smbfs_echoes_url() {
+    {
+        echo '#!/usr/bin/env bash'
+        echo 'echo "mount_smbfs: could not parse $1"'
+        echo 'exit 68'
+    } > "${STUB_DIR}/mount_smbfs"
+    chmod +x "${STUB_DIR}/mount_smbfs"
 }
 
-@test "no-password auto_smb write also unlinks before creating" {
-    local umask_line unlink_line write_line
-    umask_line=$(rg -n 'umask 022' "$SMB_MODULE" | head -1 | cut -d: -f1)
-    write_line=$(rg -n "cat > /etc/auto_smb << 'AUTO_SMB_EOF'" "$SMB_MODULE" | head -1 | cut -d: -f1)
-    unlink_line=$(rg -n 'rm -f /etc/auto_smb' "$SMB_MODULE" \
-        | awk -F: -v lo="$umask_line" -v hi="$write_line" '$1 > lo && $1 < hi { print $1; exit }')
-    [ -n "$unlink_line" ]
+# ---------------------------------------------------------------------------
+# The credential must never reach disk
+# ---------------------------------------------------------------------------
+
+@test "module writes no credentialed map file at all" {
+    # /etc/auto_smb held the plaintext NAS password. macOS 26 ignores it, so it
+    # was pure liability; nothing may reintroduce a credential-bearing file.
+    run grep -F 'ENCODED_PASSWORD' "${SMB_MODULE}"
+    [ "$status" -ne 0 ]
+
+    run grep -F 'cat > /etc/auto_smb' "${SMB_MODULE}"
+    [ "$status" -ne 0 ]
 }
 
-# Extracts the credentialed branch's real command sequence (umask through the
-# opening 'cat >' line) from the module, retargets it at $1, and executes it so
-# the assertions below exercise the shipped ordering rather than a hand-copied
-# imitation of it.
-run_credentialed_write_sequence() {
-    local target="$1" script
-    script=$(mktemp)
-    # Anchor on the bare 'umask 077' command, not the comment that mentions it,
-    # so the extracted fragment starts inside the subshell and stays balanced.
-    awk '
-        /^[[:space:]]*umask 077[[:space:]]*$/ { capture = 1 }
-        capture                               { sub(/^[[:space:]]+/, ""); print }
-        /cat > \/etc\/auto_smb << AUTO_SMB_EOF/ { if (capture) exit }
-    ' "$SMB_MODULE" | sed "s#/etc/auto_smb#${target}#g" > "$script"
-    printf 'placeholder-map-line\nAUTO_SMB_EOF\n' >> "$script"
-    bash "$script"
-    rm -f "$script"
-}
-
-@test "credentialed write yields owner-only mode even when auto_smb already exists world-readable" {
-    # Regression guard for the actual race: /etc/auto_smb survives across
-    # rebuilds, so on every rebuild after the first -- and in particular after
-    # a rebuild that took the no-password branch and left the file at 644 --
-    # the credential is written onto a pre-existing path. A umask cannot fix
-    # the mode of an existing file, so this must be 600 from the first byte,
-    # before the trailing chmod ever runs.
-    local tmpdir target perm
-    tmpdir=$(mktemp -d)
-    target="${tmpdir}/auto_smb"
-
-    printf 'stale world-readable map\n' > "$target"
-    chmod 644 "$target"
-
-    run_credentialed_write_sequence "$target"
-
-    perm=$(file_mode "$target")
-    run grep -q 'placeholder-map-line' "$target"
-    local content_status="$status"
-    rm -rf "$tmpdir"
-
-    [ "$content_status" -eq 0 ]
-    [ "$perm" = "600" ]
-}
-
-@test "credentialed write yields owner-only mode when auto_smb does not yet exist" {
-    local tmpdir target perm
-    tmpdir=$(mktemp -d)
-    target="${tmpdir}/auto_smb"
-
-    run_credentialed_write_sequence "$target"
-
-    perm=$(file_mode "$target")
-    rm -rf "$tmpdir"
-    [ "$perm" = "600" ]
-}
-
-@test "the existing-file regression test has teeth: omitting the unlink leaves 644" {
-    # Negative control. If this ever reports 600, the assertion above has
-    # stopped proving anything and the guard must be re-derived.
-    local tmpdir target perm
-    tmpdir=$(mktemp -d)
-    target="${tmpdir}/auto_smb"
-
-    printf 'stale world-readable map\n' > "$target"
-    chmod 644 "$target"
-    ( umask 077; printf 'secret\n' > "$target" )
-
-    perm=$(file_mode "$target")
-    rm -rf "$tmpdir"
-    [ "$perm" = "644" ]
-}
-
-@test "no-password auto_smb write keeps a consistent umask-then-content ordering" {
-    run rg -n 'umask 022' "$SMB_MODULE"
-    [ "$status" -eq 0 ]
-
-    local umask_line write_line
-    umask_line=$(rg -n 'umask 022' "$SMB_MODULE" | head -1 | cut -d: -f1)
-    write_line=$(rg -n "cat > /etc/auto_smb << 'AUTO_SMB_EOF'" "$SMB_MODULE" | head -1 | cut -d: -f1)
-    [ -n "$umask_line" ]
-    [ -n "$write_line" ]
-    [ "$umask_line" -lt "$write_line" ]
-
-    run rg -n 'chmod 644 /etc/auto_smb' "$SMB_MODULE"
+@test "module removes the stale credentialed map left by earlier releases" {
+    run grep -F 'rm -f /etc/auto_smb' "${SMB_MODULE}"
     [ "$status" -eq 0 ]
 }
+
+@test "generated share config is owner-only and carries no credential" {
+    run grep -F 'chmod 600 "${configFile}"' "${SMB_MODULE}"
+    [ "$status" -eq 0 ]
+
+    # The generated heredoc describes host/user/mount-root/shares only. Anything
+    # password-shaped assigned inside it would be a credential on disk.
+    local heredoc
+    heredoc=$(awk '/SMB_SHARES_EOF.$/,/^ *SMB_SHARES_EOF$/' "${SMB_MODULE}")
+    [ -n "$heredoc" ]
+    [[ "$heredoc" == *'NAS_HOST='* ]]
+    [[ "$heredoc" == *'SHARES=('* ]]
+    [[ "$heredoc" != *'PASSWORD'* ]]
+    [[ "$heredoc" != *'password'* ]]
+}
+
+@test "a successful mount run leaves no copy of the credential on disk" {
+    stub_mount_smbfs_ok
+    printf 'tr0ub4dor-and-3\n' > "${SMB_MOUNT_PASSWORD_FILE}"
+
+    run bash "${MOUNT_SCRIPT}"
+    [ "$status" -eq 0 ]
+
+    # Everything the run touched lives under BATS_TEST_TMPDIR. The only file
+    # allowed to contain the password is the password file itself.
+    local hits
+    hits=$(grep -rlF 'tr0ub4dor-and-3' "${BATS_TEST_TMPDIR}" 2>/dev/null || true)
+    [ "$hits" = "${SMB_MOUNT_PASSWORD_FILE}" ]
+}
+
+@test "the credential never appears in the script's log output" {
+    stub_mount_smbfs_ok
+    printf 'tr0ub4dor-and-3\n' > "${SMB_MOUNT_PASSWORD_FILE}"
+
+    run bash "${MOUNT_SCRIPT}"
+    [ "$status" -eq 0 ]
+    [[ "$output" != *"tr0ub4dor-and-3"* ]]
+}
+
+@test "mount_smbfs output echoing the URL back is suppressed, not logged" {
+    stub_mount_smbfs_echoes_url
+    printf 'tr0ub4dor-and-3\n' > "${SMB_MOUNT_PASSWORD_FILE}"
+
+    run bash "${MOUNT_SCRIPT}"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"mount failed"* ]]
+    [[ "$output" == *"suppressed"* ]]
+    [[ "$output" != *"tr0ub4dor-and-3"* ]]
+}
+
+@test "credential containing glob characters is still suppressed" {
+    # A bash pattern match is only literal when the expansion is quoted. An
+    # unquoted one would let '*' in the password match everything (or nothing)
+    # and let the secret through.
+    stub_mount_smbfs_echoes_url
+    printf 'a*b[c]d\n' > "${SMB_MOUNT_PASSWORD_FILE}"
+
+    run bash "${MOUNT_SCRIPT}"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"suppressed"* ]]
+    [[ "$output" != *'a*b[c]d'* ]]
+}
+
+# ---------------------------------------------------------------------------
+# URL-encoding (carried over from the autofs implementation, hardened in #396)
+# ---------------------------------------------------------------------------
 
 @test "URL-encode sed pipeline encodes percent first" {
-    run rg -n "URL_ENCODE_SED='" "$SMB_MODULE"
-    [ "$status" -eq 0 ]
-
     local line pct_idx at_idx
-    line=$(rg "URL_ENCODE_SED='" "$SMB_MODULE")
+    line=$(rg "URL_ENCODE_SED='" "${MOUNT_SCRIPT}")
     pct_idx=$(awk -v l="$line" 'BEGIN{print index(l, "s/%/%25/g")}')
     at_idx=$(awk -v l="$line" 'BEGIN{print index(l, "s/@/%40/g")}')
     [ "$pct_idx" -gt 0 ]
@@ -161,91 +165,82 @@ run_credentialed_write_sequence() {
 
 @test "URL-encode sed pipeline covers space, plus, and semicolon" {
     for token in 's/%/%25/g' 's/ /%20/g' 's/+/%2B/g' 's/;/%3B/g'; do
-        run grep -F -- "$token" "$SMB_MODULE"
+        run grep -F -- "$token" "${MOUNT_SCRIPT}"
         [ "$status" -eq 0 ]
     done
 }
 
 @test "URL-encode sed pipeline correctly encodes a password with %, space, +, and ;" {
-    local line sed_expr
-    line=$(rg "URL_ENCODE_SED='" "$SMB_MODULE")
-    sed_expr=$(echo "$line" | sed -E "s/^[^']*URL_ENCODE_SED='([^']*)'.*/\1/")
+    local sed_expr
+    sed_expr=$(url_encode_sed)
     [ -n "$sed_expr" ]
 
-    RAW_PASSWORD='p@ss:w/ord#1?a&b 100%+;free'
-    run bash -c 'echo "$1" | sed -e "$2"' _ "$RAW_PASSWORD" "$sed_expr"
+    run bash -c 'echo "$1" | sed -e "$2"' _ 'p@ss:w/ord#1?a&b 100%+;free' "$sed_expr"
     [ "$status" -eq 0 ]
     [ "$output" = "p%40ss%3Aw%2Ford%231%3Fa%26b%20100%25%2B%3Bfree" ]
 }
 
-@test "credentialed chmod 600 executes only after the umask 077 subshell closes" {
-    local umask_line close_line chmod_line
-    umask_line=$(rg -n 'umask 077' "$SMB_MODULE" | head -1 | cut -d: -f1)
-    close_line=$(rg -n '^\s*AUTO_SMB_EOF\s*$' "$SMB_MODULE" | awk -F: -v start="$umask_line" '$1 > start { print $1; exit }')
-    chmod_line=$(rg -n 'chmod 600 /etc/auto_smb' "$SMB_MODULE" | head -1 | cut -d: -f1)
-    [ -n "$umask_line" ]
-    [ -n "$close_line" ]
-    [ -n "$chmod_line" ]
-    [ "$umask_line" -lt "$close_line" ]
-    [ "$close_line" -lt "$chmod_line" ]
-}
-
-@test "no-password chmod 644 executes only after the umask 022 subshell closes" {
-    local umask_line close_line chmod_line
-    umask_line=$(rg -n 'umask 022' "$SMB_MODULE" | head -1 | cut -d: -f1)
-    close_line=$(rg -n '^\s*AUTO_SMB_EOF\s*$' "$SMB_MODULE" | awk -F: -v start="$umask_line" '$1 > start { print $1; exit }')
-    chmod_line=$(rg -n 'chmod 644 /etc/auto_smb' "$SMB_MODULE" | head -1 | cut -d: -f1)
-    [ -n "$umask_line" ]
-    [ -n "$close_line" ]
-    [ -n "$chmod_line" ]
-    [ "$umask_line" -lt "$close_line" ]
-    [ "$close_line" -lt "$chmod_line" ]
-}
-
-@test "umask 077 extracted from the credentialed branch actually strips group/other rwx on a real file" {
-    local umask_val tmpdir perm
-    umask_val=$(rg -o 'umask 0[0-7]{2,3}' "$SMB_MODULE" | head -1 | awk '{print $2}')
-    [ "$umask_val" = "077" ]
-
-    tmpdir=$(mktemp -d)
-    ( umask "$umask_val"; : > "$tmpdir/secretfile" )
-    perm=$(file_mode "$tmpdir/secretfile")
-    rm -rf "$tmpdir"
-    [ "$perm" = "600" ]
-}
-
 @test "URL-encode sed pipeline does not double-encode a literal percent sequence alongside a real @" {
-    local line sed_expr
-    line=$(rg "URL_ENCODE_SED='" "$SMB_MODULE")
-    sed_expr=$(echo "$line" | sed -E "s/^[^']*URL_ENCODE_SED='([^']*)'.*/\1/")
+    local sed_expr
+    sed_expr=$(url_encode_sed)
     [ -n "$sed_expr" ]
 
-    # A password that already contains the literal text "%40" (which happens
-    # to be the escape sequence '@' encodes to) must have its '%' encoded to
-    # %25 without corrupting the trailing "40", and the real '@' must still
-    # be encoded to %40 -- proving % is encoded before the other rules run.
-    RAW_PASSWORD='user%40name@host'
-    run bash -c 'echo "$1" | sed -e "$2"' _ "$RAW_PASSWORD" "$sed_expr"
+    # A password already containing the literal text "%40" must have its '%'
+    # encoded to %25 without corrupting the trailing "40", and the real '@'
+    # must still become %40 — proving % is encoded before the other rules run.
+    run bash -c 'echo "$1" | sed -e "$2"' _ 'user%40name@host' "$sed_expr"
     [ "$status" -eq 0 ]
     [ "$output" = "user%2540name%40host" ]
 }
 
 @test "URL-encode sed pipeline handles an empty password without error" {
-    local line sed_expr
-    line=$(rg "URL_ENCODE_SED='" "$SMB_MODULE")
-    sed_expr=$(echo "$line" | sed -E "s/^[^']*URL_ENCODE_SED='([^']*)'.*/\1/")
+    local sed_expr
+    sed_expr=$(url_encode_sed)
     [ -n "$sed_expr" ]
 
-    RAW_PASSWORD=''
-    run bash -c 'echo "$1" | sed -e "$2"' _ "$RAW_PASSWORD" "$sed_expr"
+    run bash -c 'echo "$1" | sed -e "$2"' _ '' "$sed_expr"
     [ "$status" -eq 0 ]
     [ -z "$output" ]
 }
 
-@test "no-password branch's SMB URL structurally omits the credential placeholder" {
-    local no_cred_count cred_count
-    no_cred_count=$(grep -Fc -- '${nasConfig.username}@${nasConfig.host}' "$SMB_MODULE")
-    cred_count=$(grep -Fc -- ':\$ENCODED_PASSWORD@' "$SMB_MODULE")
-    [ "$no_cred_count" -eq 1 ]
-    [ "$cred_count" -eq 1 ]
+@test "a password with URL-special characters reaches mount_smbfs encoded" {
+    # End-to-end proof that the encoding is actually applied to the URL rather
+    # than merely defined: an unencoded '@' would truncate the host.
+    local args_file="${BATS_TEST_TMPDIR}/mount_smbfs.args"
+    {
+        echo '#!/usr/bin/env bash'
+        echo "printf '%s\\n' \"\$1\" > '${args_file}'"
+        echo 'exit 0'
+    } > "${STUB_DIR}/mount_smbfs"
+    chmod +x "${STUB_DIR}/mount_smbfs"
+
+    printf 'p@ss word\n' > "${SMB_MOUNT_PASSWORD_FILE}"
+
+    run bash "${MOUNT_SCRIPT}"
+    [ "$status" -eq 0 ]
+    [ "$(cat "${args_file}")" = "//fxmartin:p%40ss%20word@tnas.local/Photos" ]
+}
+
+# ---------------------------------------------------------------------------
+# Password-file contract (unchanged across the autofs -> LaunchAgent switch)
+# ---------------------------------------------------------------------------
+
+@test "password file path contract is still ~/.config/smb-nas/password" {
+    run grep -F '.config/smb-nas/password' "${SMB_MODULE}"
+    [ "$status" -eq 0 ]
+
+    run grep -F '.config/smb-nas/password' "${MOUNT_SCRIPT}"
+    [ "$status" -eq 0 ]
+}
+
+@test "the password file is read at mount time, not baked into the agent" {
+    # The credential must not be interpolated into the LaunchAgent plist, which
+    # is world-readable in ~/Library/LaunchAgents.
+    run grep -F 'cat "$PASSWORD_FILE"' "${SMB_MODULE}"
+    [ "$status" -ne 0 ]
+    run grep -F 'RAW_PASSWORD' "${SMB_MODULE}"
+    [ "$status" -ne 0 ]
+
+    run grep -F 'PASSWORD_FILE' "${MOUNT_SCRIPT}"
+    [ "$status" -eq 0 ]
 }

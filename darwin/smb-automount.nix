@@ -1,10 +1,17 @@
-# ABOUTME: SMB automount configuration for NAS shares via autofs
-# ABOUTME: Creates on-demand mounting - shares mount when accessed, unmount when idle
-# ABOUTME: Password read from ~/.config/smb-nas/password at activation time
+# ABOUTME: SMB NAS share mounting via a user LaunchAgent running mount_smbfs
+# ABOUTME: Replaces autofs, which macOS 26 silently stopped honoring (issue #407)
+# ABOUTME: Password read from ~/.config/smb-nas/password at mount time, never persisted
+#
+# WHY NOT AUTOFS ANYMORE:
+# macOS 26 no longer honors custom /etc/auto_master maps. `automount -vc` exits
+# 0, prints nothing, and creates no trigger directories, so /Volumes/<Share>
+# never mounted while every rebuild cheerfully reported success. Apple-internal
+# automount uses (Time Machine's /Volumes/.timemachine) still work; custom maps
+# do not. There is no configuration that makes the old mechanism work, so the
+# mechanism is gone.
 #
 # IMPORTANT: This module does NOT touch /etc/synthetic.conf
 # That file is managed by nix-darwin for the Nix store mount point.
-# SMB mounts go directly to /Volumes/ which already exists on macOS.
 #
 # SETUP (one-time):
 #   1. Create password file (not tracked in git):
@@ -34,132 +41,143 @@ let
     ];
   };
 
+  homeDir = "/Users/${userConfig.username}";
+
   # Password file location (not in git, user must create manually)
-  passwordFile = "/Users/${userConfig.username}/.config/smb-nas/password";
+  passwordFile = "${homeDir}/.config/smb-nas/password";
+
+  configDir = "${homeDir}/.config/smb-nas";
+  configFile = "${configDir}/shares.conf";
+
+  # Scripts live in ~/.local/bin to avoid macOS TCC restrictions on ~/Documents
+  scriptsDir = "${homeDir}/.local/bin";
+  mountScript = "${scriptsDir}/smb-mount-nas.sh";
+
+  # Mount under the user's home rather than /Volumes: a user LaunchAgent cannot
+  # create directories at the root of /Volumes without admin-group juggling,
+  # and ownership of the mount point stays unambiguous here.
+  mountRoot = "${homeDir}/NAS";
+
+  # /sbin and /usr/sbin are on PATH for mount_smbfs; /usr/bin supplies nc.
+  agentPath = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/sbin:/sbin:/usr/bin:/bin";
 
 in
 {
   # ===========================================================================
-  # AUTOFS CONFIGURATION VIA ACTIVATION SCRIPT
+  # CONFIG GENERATION VIA ACTIVATION SCRIPT
   # ===========================================================================
-  # We use activation scripts instead of environment.etc because:
-  # 1. environment.etc tries to stat/chmod files before creating them
-  # 2. This causes failures when files don't exist yet
-  # 3. Activation scripts give us full control over file creation
+  # The activation script generates the share list consumed by
+  # scripts/smb-mount-nas.sh and installs that script into the TCC-safe
+  # ~/.local/bin, mirroring darwin/rsync-backup.nix.
   #
-  # NOTE: We do NOT manage /etc/synthetic.conf here.
-  # nix-darwin handles it automatically for the Nix store.
-  # SMB mounts use /Volumes/ which is a standard macOS directory.
-  #
-  # Password is read from ${passwordFile} and embedded in auto_smb
-  # (URL-encoded). The auto_smb file is chmod 600 (root-only readable).
+  # No credential is written anywhere: the mount script reads
+  # ${passwordFile} at mount time and URL-encodes it in memory.
 
   system.activationScripts.postActivation.text = lib.mkAfter ''
-        # ========================================================================
-        # SMB AUTOMOUNT CONFIGURATION
-        # ========================================================================
-        echo "Configuring SMB automount for NAS shares..."
+    # ========================================================================
+    # SMB NAS MOUNT CONFIGURATION
+    # ========================================================================
+    echo "Configuring SMB NAS mounts..."
 
-        # --- /etc/auto_master ---
-        # Uses direct map (/-) so auto_smb can specify full mount paths
-        echo "  Writing /etc/auto_master..."
-        cat > /etc/auto_master << 'AUTO_MASTER_EOF'
-    #
-    # Automounter master map
-    # Managed by nix-darwin - changes will be overwritten on rebuild
-    #
-    +auto_master		# Use directory service
-    /home			auto_home	-nobrowse,hidefromfinder
-    /Network/Servers	-fstab
-    /-			-static
-    /-			auto_smb	-nosuid,nodev
-    AUTO_MASTER_EOF
-        chmod 644 /etc/auto_master
+    # --- Retire the dead autofs configuration ---
+    # Earlier releases wrote the NAS password into /etc/auto_smb. That map is
+    # inert on macOS 26 but the plaintext credential in it is not, so remove it
+    # on the first rebuild after the switch.
+    if [[ -f /etc/auto_smb ]]; then
+      rm -f /etc/auto_smb
+      echo "  Removed stale /etc/auto_smb (autofs no longer used)"
+    fi
+    if [[ -f /etc/auto_master ]] && grep -q 'auto_smb' /etc/auto_master; then
+      sed -i ''' '/auto_smb/d' /etc/auto_master
+      automount -vc >/dev/null 2>&1 || true
+      echo "  Removed auto_smb entry from /etc/auto_master"
+    fi
 
-        # --- Read password and generate /etc/auto_smb ---
-        PASSWORD_FILE="${passwordFile}"
-        if [[ -f "$PASSWORD_FILE" ]]; then
-          # Read password and URL-encode special characters.
-          # '%' is encoded first since it appears in the escape sequences
-          # produced by the other substitutions below; encoding it later
-          # would double-encode those sequences.
-          RAW_PASSWORD=$(cat "$PASSWORD_FILE" | tr -d '\n')
-          URL_ENCODE_SED='s/%/%25/g; s/@/%40/g; s/:/%3A/g; s/\//%2F/g; s/#/%23/g; s/?/%3F/g; s/&/%26/g; s/ /%20/g; s/+/%2B/g; s/;/%3B/g'
-          ENCODED_PASSWORD=$(echo "$RAW_PASSWORD" | sed -e "$URL_ENCODE_SED")
+    # --- Generate the share list ---
+    SMB_CONFIG_DIR="${configDir}"
+    mkdir -p "$SMB_CONFIG_DIR"
+    cat > "${configFile}" << 'SMB_SHARES_EOF'
+    # Auto-generated by nix-darwin from darwin/smb-automount.nix
+    # DO NOT EDIT - changes will be overwritten on rebuild
+    NAS_HOST="${nasConfig.host}"
+    SMB_USERNAME="${nasConfig.username}"
+    MOUNT_ROOT="${mountRoot}"
+    SHARES=(
+    ${lib.concatMapStringsSep "\n" (share: "  \"${share}\"") nasConfig.shares}
+    )
+    SMB_SHARES_EOF
+    chmod 600 "${configFile}"
+    chown -R ${userConfig.username}:staff "$SMB_CONFIG_DIR"
 
-          echo "  Writing /etc/auto_smb (with credentials)..."
-          # umask 077 is set before the file is created so it is never
-          # briefly world- or group-readable while it holds the credential.
-          # The unlink is what makes the umask effective: '> file' on an
-          # existing path truncates in place and keeps the OLD mode, so on
-          # every rebuild after the first (and especially after a rebuild
-          # that took the no-password branch and left the file at 644) the
-          # credential would land in a world-readable file and stay that way
-          # until the trailing chmod. Removing the path first forces a fresh
-          # create whose mode comes from the umask.
-          (
-            umask 077
-            rm -f /etc/auto_smb
-            cat > /etc/auto_smb << AUTO_SMB_EOF
-    #
-    # SMB automount configuration for NAS shares
-    # Managed by nix-darwin - changes will be overwritten on rebuild
-    # Password from: $PASSWORD_FILE
-    #
-    ${lib.concatMapStringsSep "\n" (
-      share:
-      "/Volumes/${share}\t-fstype=smbfs,soft,nodev,nosuid\t://${nasConfig.username}:\$ENCODED_PASSWORD@${nasConfig.host}/${share}"
-    ) nasConfig.shares}
-    AUTO_SMB_EOF
-          )
-          chmod 600 /etc/auto_smb
-          echo "  auto_smb configured with credentials (chmod 600)"
-        else
-          echo ""
-          echo "  WARNING: Password file not found: $PASSWORD_FILE"
-          echo "  SMB automount will NOT work without credentials."
-          echo ""
-          echo "  Create the password file (one-time setup):"
-          echo "    mkdir -p ~/.config/smb-nas"
-          echo "    echo 'YOUR_NAS_PASSWORD' > ~/.config/smb-nas/password"
-          echo "    chmod 600 ~/.config/smb-nas/password"
-          echo ""
+    # --- Mount root ---
+    mkdir -p "${mountRoot}"
+    chown ${userConfig.username}:staff "${mountRoot}"
 
-          # Write auto_smb without password (won't work but shows config).
-          # No secret is present, so umask 022 (world-readable) is fine; the
-          # unlink-then-umask-then-content ordering is kept consistent with
-          # the credentialed branch above so the resulting mode never depends
-          # on what a previous rebuild happened to leave behind.
-          (
-            umask 022
-            rm -f /etc/auto_smb
-            cat > /etc/auto_smb << 'AUTO_SMB_EOF'
-    #
-    # SMB automount configuration for NAS shares
-    # WARNING: No password configured - mounts will fail!
-    # Create ~/.config/smb-nas/password and run rebuild
-    #
-    ${lib.concatMapStringsSep "\n" (
-      share:
-      "/Volumes/${share}\t-fstype=smbfs,soft,nodev,nosuid\t://${nasConfig.username}@${nasConfig.host}/${share}"
-    ) nasConfig.shares}
-    AUTO_SMB_EOF
-          )
-          chmod 644 /etc/auto_smb
-        fi
+    # --- Install the mount script to the TCC-safe location ---
+    SMB_SCRIPT_SRC="${homeDir}/${userConfig.directories.dotfiles}/scripts/smb-mount-nas.sh"
+    if [[ -f "$SMB_SCRIPT_SRC" ]]; then
+      mkdir -p "${scriptsDir}"
+      cp "$SMB_SCRIPT_SRC" "${mountScript}"
+      chmod 755 "${mountScript}"
+      chown ${userConfig.username}:staff "${mountScript}"
+      echo "✓ smb-mount-nas.sh installed to ${mountScript}"
+    else
+      echo "⚠ smb-mount-nas.sh not found at $SMB_SCRIPT_SRC"
+    fi
 
-        # --- Reload autofs ---
-        echo "  Reloading autofs..."
-        if automount -vc 2>&1 | grep -v "^$" | head -5; then
-          echo "  autofs reloaded successfully"
-        else
-          echo "  Note: autofs reload completed (may need first access to trigger mount)"
-        fi
+    if [[ ! -f "${passwordFile}" ]]; then
+      echo ""
+      echo "  WARNING: Password file not found: ${passwordFile}"
+      echo "  NAS shares will NOT mount without credentials."
+      echo ""
+      echo "  Create the password file (one-time setup):"
+      echo "    mkdir -p ~/.config/smb-nas"
+      echo "    echo 'YOUR_NAS_PASSWORD' > ~/.config/smb-nas/password"
+      echo "    chmod 600 ~/.config/smb-nas/password"
+      echo ""
+    fi
 
-        echo "SMB automount configuration complete"
-        echo "  Shares: ${lib.concatStringsSep ", " (map (s: "/Volumes/${s}") nasConfig.shares)}"
-        echo "  Test with: ls /Volumes/Photos"
+    echo "SMB NAS mount configuration complete"
+    echo "  Shares: ${lib.concatStringsSep ", " (map (s: "${mountRoot}/${s}") nasConfig.shares)}"
+    echo "  Test with: ${mountScript}"
   '';
+
+  # ===========================================================================
+  # MOUNT LAUNCHAGENT
+  # ===========================================================================
+  # RunAtLoad mounts at login; StartInterval retries periodically so the shares
+  # come back after the laptop rejoins the network. Deliberately NOT KeepAlive:
+  # the script is a one-shot that exits, and KeepAlive would respawn it in a
+  # tight loop whenever the NAS is off.
+
+  launchd.user.agents.smb-mount-nas = {
+    serviceConfig = {
+      Label = "org.nixos.smb-mount-nas";
+      ProgramArguments = [
+        "/bin/bash"
+        "-c"
+        ''
+          SCRIPT="${mountScript}"
+          if [[ -x "$SCRIPT" ]]; then
+            "$SCRIPT"
+          else
+            echo "smb-mount-nas script not found: $SCRIPT" >> /tmp/smb-mount-nas.err
+            exit 1
+          fi
+        ''
+      ];
+      RunAtLoad = true;
+      StartInterval = 900; # Retry every 15 minutes
+      KeepAlive = false;
+      StandardOutPath = "/tmp/smb-mount-nas.log";
+      StandardErrorPath = "/tmp/smb-mount-nas.err";
+      EnvironmentVariables = {
+        PATH = agentPath;
+        HOME = homeDir;
+      };
+      Umask = 63; # Decimal representation of 0077 - owner-only mount points
+    };
+  };
 
   # ===========================================================================
   # ASSERTIONS

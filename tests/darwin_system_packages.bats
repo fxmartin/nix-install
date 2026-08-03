@@ -40,3 +40,11 @@ common_package_lines() {
     [ "$status" -eq 0 ]
     [[ "$output" == *"bun"* ]]
 }
+
+@test "gitlab-runner ships only with the Power profile" {
+    run bash -c "sed -n '/lib.optionals isPowerProfile \[/,/^[[:space:]]*\]/p' '$DARWIN_CONFIG' | rg '^[[:space:]]+gitlab-runner([[:space:]]|#)'"
+    [ "$status" -eq 0 ]
+
+    run common_package_lines gitlab-runner
+    [ "$output" = "" ]
+}

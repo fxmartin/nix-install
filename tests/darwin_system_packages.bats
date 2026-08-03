@@ -41,6 +41,14 @@ common_package_lines() {
     [[ "$output" == *"bun"* ]]
 }
 
+@test "Xcode ships via mas only on the Power profile" {
+    run bash -c "sed -n '/optionalAttrs (profileName == \"power\")/,/}/p' '$HOMEBREW_CONFIG' | rg '\"Xcode\" = 497799835'"
+    [ "$status" -eq 0 ]
+
+    run bash -c "sed -n '/masApps = /,/optionalAttrs/p' '$HOMEBREW_CONFIG' | rg '\"Xcode\"'"
+    [ "$status" -eq 1 ]
+}
+
 @test "gitlab-runner ships only with the Power profile" {
     run bash -c "sed -n '/lib.optionals isPowerProfile \[/,/^[[:space:]]*\]/p' '$DARWIN_CONFIG' | rg '^[[:space:]]+gitlab-runner([[:space:]]|#)'"
     [ "$status" -eq 0 ]

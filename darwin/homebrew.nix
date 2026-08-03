@@ -173,14 +173,22 @@ in
     #   mas install 302584613   # Kindle
     #   mas install 890031187   # Marked 2
     #   mas install 310633997   # WhatsApp
-    masApps = lib.mkIf (userConfig.enableMasApps or false) {
-      "1Password for Safari" = 1569813296; # Safari password manager extension
-      "Perplexity" = 6714467650; # AI search assistant
-      "Kindle" = 302584613; # Ebook reader
-      "Marked 2" = 890031187; # Markdown preview
-      "WhatsApp" = 310633997; # Messaging app
-      "reMarkable desktop" = 1276493162; # reMarkable tablet sync and screen share
-    };
+    masApps = lib.mkIf (userConfig.enableMasApps or false) (
+      {
+        "1Password for Safari" = 1569813296; # Safari password manager extension
+        "Perplexity" = 6714467650; # AI search assistant
+        "Kindle" = 302584613; # Ebook reader
+        "Marked 2" = 890031187; # Markdown preview
+        "WhatsApp" = 310633997; # Messaging app
+        "reMarkable desktop" = 1276493162; # reMarkable tablet sync and screen share
+      }
+      # Power-only: full Xcode IDE (~8GB download, ~40GB installed).
+      # First install requires the Apple ID to have "gotten" Xcode once in the
+      # App Store; after install run `sudo xcodebuild -license accept`.
+      // lib.optionalAttrs (profileName == "power") {
+        "Xcode" = 497799835; # Apple IDE - simulators, Instruments, SDKs
+      }
+    );
   };
 
   # Environment variable to prevent Homebrew auto-updates

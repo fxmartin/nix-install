@@ -192,6 +192,9 @@
     ++ lib.optionals isPowerProfile [
       go # Go programming language toolchain
       gopls # Go language server
+
+      # CI Tooling
+      gitlab-runner # GitLab CI runner - register/run manually, no launchd service
     ]
     ++ [
       # Cloud CLI Tools

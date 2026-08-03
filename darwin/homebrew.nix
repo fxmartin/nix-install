@@ -22,7 +22,6 @@ in
 
     # Homebrew taps (repositories)
     taps = [
-      "manaflow-ai/cmux" # cmux terminal - Ghostty-based terminal with vertical tabs for AI coding agents
       "asmvik/formulae" # skhd - simple hotkey daemon for macOS
     ];
 
@@ -65,7 +64,10 @@ in
     casks = [
       # === Core Apps (all profiles) ===
       "ghostty" # Modern GPU-accelerated terminal (Phase 5 validation test app)
-      "manaflow-ai/cmux/cmux" # cmux - Ghostty-based terminal with vertical tabs and notifications for AI coding agents
+      # cmux moved from the manaflow-ai/cmux tap into homebrew-core (2026-08).
+      # If the first rebuild after this change fails to resolve the cask, run:
+      #   brew uninstall --cask cmux && brew untap manaflow-ai/cmux && brew update && brew install --cask cmux
+      "cmux" # cmux - Ghostty-based terminal with vertical tabs and notifications for AI coding agents
 
       # AI & LLM Tools (Story 02.1-001, 02.1-002)
       "claude" # Claude Desktop - Anthropic's AI assistant

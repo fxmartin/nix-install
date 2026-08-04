@@ -13,17 +13,17 @@ setup() {
 }
 
 @test "summary.sh Ollama verification lists current Power profile models" {
-    run rg -n "Expected: gemma4:e4b, gemma4:26b, nomic-embed-text" "$SUMMARY_LIB"
+    run rg -n "Expected: gemma4:e4b, gemma4:26b, qwen3.6:35b-a3b-coding-nvfp4, nomic-embed-text" "$SUMMARY_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "darwin-rebuild.sh Ollama verification lists current Power profile models" {
-    run rg -n "Expected: gemma4:e4b, gemma4:26b, nomic-embed-text" "$DARWIN_REBUILD_LIB"
+    run rg -n "Expected: gemma4:e4b, gemma4:26b, qwen3.6:35b-a3b-coding-nvfp4, nomic-embed-text" "$DARWIN_REBUILD_LIB"
     [ "$status" -eq 0 ]
 }
 
 @test "bootstrap-dist.sh Ollama verification lists current Power profile models" {
-    run rg -c "Expected: gemma4:e4b, gemma4:26b, nomic-embed-text" "$BOOTSTRAP_DIST"
+    run rg -c "Expected: gemma4:e4b, gemma4:26b, qwen3.6:35b-a3b-coding-nvfp4, nomic-embed-text" "$BOOTSTRAP_DIST"
     [ "$status" -eq 0 ]
     # Both the summary and darwin-rebuild call sites are concatenated into the dist.
     [ "$output" -eq 2 ]

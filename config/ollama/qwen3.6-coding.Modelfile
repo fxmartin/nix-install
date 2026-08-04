@@ -1,0 +1,23 @@
+# ABOUTME: Derived Ollama model pinning Qwen3.6's recommended sampling parameters for agentic coding
+# ABOUTME: Carries top_k/min_p/repeat_penalty, which Ollama's OpenAI-compatible endpoint cannot express
+#
+# Parameters follow Qwen's published recommendations for the Qwen3.6 family
+# (temperature 0.6, top_p 0.95, top_k 20, min_p 0).
+#
+# repeat_penalty 1.0 is the one that matters most here: Ollama defaults to 1.1,
+# which penalises the legitimate repetition that source code is full of
+# (closing braces, repeated identifiers, boilerplate) and degrades codegen.
+#
+# num_ctx 48000 matches the reference llama-server deployment. It is baked in
+# rather than left to OLLAMA_CONTEXT_LENGTH so the window travels with the model
+# regardless of which client loads it.
+
+FROM qwen3.6:35b-a3b-coding-nvfp4
+
+PARAMETER num_ctx 48000
+PARAMETER temperature 0.6
+PARAMETER top_p 0.95
+PARAMETER top_k 20
+PARAMETER min_p 0.0
+PARAMETER repeat_penalty 1.0
+PARAMETER presence_penalty 0.0

@@ -38,6 +38,13 @@ let
       else
         "2m"
     );
+  # CONTEXT_LENGTH: agentic coding tools (OpenCode) need a large window for
+  # repository-level reasoning; Ollama's 4K default truncates tool call chains.
+  # Power only — a 64K window costs KV-cache memory the smaller profiles can't
+  # spare. Override with userConfig.ollamaContextLength.
+  ollamaContextLength =
+    userConfig.ollamaContextLength or (if profileName == "power" then "48000" else "8192");
+
   enableOllamaServeAgent = userConfig.enableOllamaServeAgent or false;
 
   # Standard PATH for scheduled LaunchAgents (includes per-user Nix profile)
@@ -567,6 +574,7 @@ in
         OLLAMA_MAX_LOADED_MODELS = ollamaMaxLoadedModels;
         OLLAMA_NUM_PARALLEL = ollamaNumParallel;
         OLLAMA_KEEP_ALIVE = ollamaKeepAlive;
+        OLLAMA_CONTEXT_LENGTH = ollamaContextLength;
         PATH = "/opt/homebrew/bin:/run/current-system/sw/bin:/usr/bin:/bin";
       };
       command = ''

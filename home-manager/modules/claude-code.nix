@@ -6,11 +6,31 @@
   pkgs,
   lib,
   userConfig,
+  profileName,
   findRepoRoot,
   mcp-servers-nix,
   ...
 }:
 let
+  # OpenCode → local Ollama (Story: local-first coding agent).
+  # Ollama binds loopback only (darwin/maintenance.nix ollamaHost), so the
+  # OpenAI-compatible endpoint must stay on 127.0.0.1.
+  ollamaBaseUrl = "http://127.0.0.1:11434/v1";
+
+  # 35B MoE with ~3B active params; ~22GB resident. Only the Power profile
+  # (M3 Max, 48GB unified) has the headroom, so only it gets the default.
+  # This is the derived model built by config/ollama/qwen3.6-coding.Modelfile,
+  # not the raw pull — the Modelfile carries top_k/min_p/repeat_penalty, which
+  # cannot be expressed over the OpenAI-compatible endpoint.
+  localCodingModel = "qwen3.6-coding:opencode";
+  opencodeDefaultsLocal = profileName == "power";
+
+  # Qwen3.6's published sampling recommendations. These are repeated here even
+  # though the Modelfile bakes them in: absent explicit config, OpenCode sends
+  # its own Qwen default (temperature 0.55), which overrides the model's own.
+  localCodingTemperature = "0.6";
+  localCodingTopP = "0.95";
+  localCodingContext = "48000";
   # Generate MCP server configuration using mcp-servers-nix.lib.mkConfig
   # This automatically handles package paths and server configuration
   mcpConfig = mcp-servers-nix.lib.mkConfig pkgs {
@@ -475,6 +495,23 @@ in
               ."$schema" = (."$schema" // "https://opencode.ai/config.json")
               | .autoupdate = false
               | .share = "disabled"
+              | .provider.ollama = {
+                  "npm": "@ai-sdk/openai-compatible",
+                  "name": "Ollama (local)",
+                  "options": { "baseURL": "${ollamaBaseUrl}" },
+                  "models": {
+                    "${localCodingModel}": {
+                      "name": "Qwen3.6 35B-A3B coding (local)",
+                      "options": {
+                        "temperature": ${localCodingTemperature},
+                        "top_p": ${localCodingTopP}
+                      },
+                      "limit": { "context": ${localCodingContext}, "output": 16384 }
+                    }
+                  }
+                }${lib.optionalString opencodeDefaultsLocal ''
+
+              | .model = "ollama/${localCodingModel}"''}
             ' "$OPENCODE_CONFIG" > "$OPENCODE_CONFIG_TMP"; then
               $DRY_RUN_CMD mv "$OPENCODE_CONFIG_TMP" "$OPENCODE_CONFIG"
               echo "✓ Disabled OpenCode auto-update and sharing"
@@ -487,7 +524,26 @@ in
     {
       "$schema": "https://opencode.ai/config.json",
       "autoupdate": false,
-      "share": "disabled"
+      "share": "disabled",${lib.optionalString opencodeDefaultsLocal ''
+
+      "model": "ollama/${localCodingModel}",''}
+      "provider": {
+        "ollama": {
+          "npm": "@ai-sdk/openai-compatible",
+          "name": "Ollama (local)",
+          "options": { "baseURL": "${ollamaBaseUrl}" },
+          "models": {
+            "${localCodingModel}": {
+              "name": "Qwen3.6 35B-A3B coding (local)",
+              "options": {
+                "temperature": ${localCodingTemperature},
+                "top_p": ${localCodingTopP}
+              },
+              "limit": { "context": ${localCodingContext}, "output": 16384 }
+            }
+          }
+        }
+      }
     }
     EOF
             $DRY_RUN_CMD mv "$OPENCODE_CONFIG_TMP" "$OPENCODE_CONFIG"

@@ -184,9 +184,9 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 **AI & LLM Tools**:
 - Claude Desktop, Claude Code CLI (from `claude-code-nix` flake)
 - ChatGPT, Codex CLI (OpenAI's terminal coding agent)
-- OpenCode and Qwen Code (open source AI coding agents for the terminal)
+- OpenCode and Qwen Code (open source AI coding agents for the terminal). On Power, OpenCode defaults to the **local** `qwen3.6-coding:opencode` model over Ollama — no cloud round-trip
 - Perplexity (MAS)
-- Ollama (Power: `gemma4:e4b` + `gemma4:26b` + `nomic-embed-text`; Standard: `ministral-3:14b` + `nomic-embed-text`; AI-Assistant: `nomic-embed-text`)
+- Ollama (Power: `gemma4:e4b` + `gemma4:26b` + `qwen3.6:35b-a3b-coding-nvfp4` + `nomic-embed-text`; Standard: `ministral-3:14b` + `nomic-embed-text`; AI-Assistant: `nomic-embed-text`)
 - MLX-LM 0.21.0 (Apple Silicon, isolated uv environment at `~/.local/share/mlx-lm/venv`)
 - **Privacy Filter** — on-device PII redaction (MLX port of OpenAI's open-weight Privacy Filter via OpenMed). Always-on LaunchAgent on `127.0.0.1:7790`; BF16 variant on Power, 8-bit on Standard / AI-Assistant. Workflow: `pbcopy` → `redact-clip` → paste into Claude/ChatGPT (Epic-09).
 
@@ -262,7 +262,7 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 |---------|-------------|----------|-------|
 | **Target** | Older MacBook (AI) | MacBook Air | MacBook Pro M3 Max |
 | **Casks** | 17 (core only) | 32 | 32 |
-| **Ollama Models** | 1 (embeddings) | 2 (~9GB) | 3 (~19GB) |
+| **Ollama Models** | 1 (embeddings) | 2 (~9GB) | 4 (~41GB, incl. local coding model) |
 | **Docker Desktop** | No | Yes | Yes |
 | **LSPs** | No | Yes | Yes |
 | **Office/Video Conf** | No | Yes | Yes |
@@ -484,7 +484,7 @@ nix-install/
 | **Commits** | 935 (+418 since v1.0.0) |
 | **Development** | ~20 active days (v1.0.0) + 2 days (Epic-08 sprint), ~96 hours through Epic-08; Epic-09/Epic-10 not yet estimated |
 | **Code** | 21K lines (Nix + Shell + Python, excluding the generated `bootstrap-dist.sh`) |
-| **Tests** | 1,449 test cases (46 BATS files, 301 in the active gate) |
+| **Tests** | 1,453 test cases (46 BATS files, 305 in the active gate) |
 | **Documentation** | 43K lines across 136 markdown files |
 | **GitHub Issues** | Epic-08 #236–#258 (23 stories) + fixes #269–#285 · Epic-09 #302–#303 · Epic-10 #388–#400 (13 stories) |
 | **Packages** | 35 casks (19 on AI-Assistant), 7 brews, 8 MAS, 50+ Nix |

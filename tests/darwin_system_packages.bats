@@ -49,6 +49,19 @@ common_package_lines() {
     [ "$status" -eq 1 ]
 }
 
+@test "the JDK ships only with the Power profile, with JAVA_HOME set" {
+    run bash -c "sed -n '/lib.optionals isPowerProfile \[/,/^[[:space:]]*\]/p' '$DARWIN_CONFIG' | rg '^[[:space:]]+jdk([[:space:]]|#)'"
+    [ "$status" -eq 0 ]
+
+    run common_package_lines jdk
+    [ "$output" = "" ]
+
+    # A JDK on PATH without JAVA_HOME half-works: java runs, but Maven/Gradle
+    # and IDE integrations that resolve the toolchain by env var do not.
+    run rg -n 'JAVA_HOME' "$DARWIN_CONFIG"
+    [ "$status" -eq 0 ]
+}
+
 @test "gitlab-runner ships only with the Power profile" {
     run bash -c "sed -n '/lib.optionals isPowerProfile \[/,/^[[:space:]]*\]/p' '$DARWIN_CONFIG' | rg '^[[:space:]]+gitlab-runner([[:space:]]|#)'"
     [ "$status" -eq 0 ]

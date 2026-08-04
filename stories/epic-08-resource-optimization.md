@@ -15,12 +15,12 @@
 - FX can retire `mactop` for day-to-day monitoring
 
 ## Epic Scope
-**Total Stories**: 23
-**Total Story Points**: 118
-**MVP Stories**: 13 (57% — Features 08.1 and 08.2)
+**Total Stories**: 24
+**Total Story Points**: 123
+**MVP Stories**: 13 (54% — Features 08.1 and 08.2)
 **Priority Level**: Should Have (post-v1.0 enhancement)
 **Target Release**: v1.1.0
-**Status**: 🟢 **22/23 stories shipped** (08.3-008 is acceptance-only, pending one-day mactop-free validation)
+**Status**: 🟢 **22/24 stories shipped** (08.3-008 is acceptance-only, pending one-day mactop-free validation; 08.2-006 added 2026-08-04 for the local-inference memory budget)
 
 ## Features in This Epic
 
@@ -34,8 +34,8 @@
 
 ### Feature 08.2: Memory Pressure Mitigation ✅
 **Feature Description**: Tune Ollama LaunchAgent environment (`OLLAMA_MAX_LOADED_MODELS`, `OLLAMA_KEEP_ALIVE`, `OLLAMA_NUM_PARALLEL`), memory-pressure-triggered model unload, LaunchAgent steady-state audit, swap alerting
-**Story Count**: 5 | **Story Points**: 26 | **Priority**: Must Have (P0) | **Complexity**: Medium
-**Status**: ✅ 5/5 shipped (PRs #260, #264, #265, #271, #272; follow-up fixes #273, #274; architecture snapshot commit 544d6cb)
+**Story Count**: 6 | **Story Points**: 31 | **Priority**: Must Have (P0) | **Complexity**: Medium
+**Status**: 🟢 5/6 shipped (PRs #260, #264, #265, #271, #272; follow-up fixes #273, #274; architecture snapshot commit 544d6cb). Story 08.2-006 (local inference memory budget) added 2026-08-04 — the 21GB coding model, its KV cache, and OpenCode's LSP servers now compete for the same headroom.
 👉 **[View detailed implementation](features/epic-08-feature-08.2.md)**
 
 ### Feature 08.3: SketchyBar Deep Telemetry 🟢

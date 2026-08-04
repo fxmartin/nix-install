@@ -45,13 +45,13 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 | Epic ID | Epic Name | Business Value | Story Count | Total Points | Priority |
 |---------|-----------|----------------|-------------|--------------|----------|
 | Epic-01 | Bootstrap & Installation System | Automated one-command installation | 19 | 113 | Must Have |
-| Epic-02 | Application Installation & Configuration | Declarative app management across profiles | 25 | 118 | Must Have |
+| Epic-02 | Application Installation & Configuration | Declarative app management across profiles | 26 | 121 | Must Have |
 | Epic-03 | System Configuration & macOS Preferences | Automated macOS system preferences | 14 | 76 | Must Have |
 | Epic-04 | Development Environment & Shell | Complete dev tooling setup | 19 | 105 | Must Have |
 | Epic-05 | Theming & Visual Consistency | System-wide consistent theming | 7 | 36 | Should Have |
 | Epic-06 | Maintenance & Monitoring | Self-maintaining system with monitoring | 18 | 97 | Must Have |
 | Epic-07 | Documentation & User Experience | Complete user documentation | 8 | 34 | Must Have |
-| Epic-08 | Resource Optimization & Deep Telemetry | Post-v1.0 disk/memory leaks closed and mactop-grade bar telemetry | 23 | 118 | Should Have |
+| Epic-08 | Resource Optimization & Deep Telemetry | Post-v1.0 disk/memory leaks closed and mactop-grade bar telemetry | 24 | 123 | Should Have |
 | Epic-09 | Local PII Redaction (MLX Privacy Filter) | On-device PII scrubbing before text reaches a cloud LLM | 8 committed (+11 proposed) | TBD | Should Have |
 | Epic-10 | Bootstrap Integrity & Security Hardening | Fix broken fresh installs; tag-pinned clone-first bootstrap; P0 security fixes | 13 | 38 | Must Have |
 | Epic-11 | Cloud Archive Tier | B2 offsite archive pipeline (3-2-1) for irreplaceable cold data | 4 | 13 | Must Have |
@@ -107,14 +107,15 @@ Comprehensive user story organization for the Nix-Darwin MacBook Setup System wi
 - **2026-04-22**: Epic-08 22/23 shipped (all P0 + all P2 + 7/8 P1). Only 08.3-008 (mactop retirement validation) outstanding.
 - **2026-05-07**: Epic-09 (Local PII Redaction) added — Feature 09.1 (8 stories) is the only committed scope; Features 09.2/09.3/09.4 (11 stories) are proposed sketches pending a scope decision, so the epic carries no point total yet.
 - **2026-07-28**: Epic-10 (Bootstrap Integrity & Security Hardening) added from the 2026-07-28 full-repo review — opened at 12 stories / 43 points, closed at 13 stories / 38 points after 10.4-004 was added and the estimates were reconciled against the ledger.
+- **2026-08-04**: Epic-02 reopened for Story 02.1-005 (OpenCode LSP diagnostics, 3 pts) and Epic-08 for Story 08.2-006 (local inference memory budget, 5 pts). Both follow the v2.4.0 local-model provider: 02.1-005 enables language-server feedback without OpenCode auto-downloading servers, 08.2-006 owns whether the model, its KV cache, and those servers fit in memory together.
 - **2026-08-02**: Epic-11 (Cloud Archive Tier) added from the 2026-08-02 storage audit — 4 stories / 13 points. Driver: the 186GB LTIMindtree OneDrive final copy exists only on the NAS; B2 chosen over Glacier Deep Archive for restore ergonomics at ≤400GB scale.
 
 ## Project Metrics
-- **Total Stories**: 173 (125 MVP + 23 Epic-08 + 8 Epic-09 committed + 13 Epic-10 + 4 Epic-11)
-- **Total Story Points**: 827 (658 MVP + 118 Epic-08 + 38 Epic-10 + 13 Epic-11; Epic-09 unestimated)
+- **Total Stories**: 175 (125 MVP + 1 Epic-02 follow-up + 24 Epic-08 + 8 Epic-09 committed + 13 Epic-10 + 4 Epic-11)
+- **Total Story Points**: 835 (658 MVP + 3 Epic-02 follow-up + 123 Epic-08 + 38 Epic-10 + 13 Epic-11; Epic-09 unestimated)
 - **Average Story Size**: 5.1 points
-- **Completed Stories**: 166 (96.0%)
-- **Completed Points**: 810 (97.9%)
+- **Completed Stories**: 166 (94.9%)
+- **Completed Points**: 810 (97.0%)
 - **MVP Completion**: 99.2% by stories, 99.5% by points
 - **🎉 MILESTONE**: MacBook Pro M3 Max successfully running Power profile (2025-12-07)
 - **🎉 MILESTONE**: Epic-08 Resource Optimization & Deep Telemetry — 22/23 stories shipped over 18 hours (2026-04-21 to 2026-04-22)

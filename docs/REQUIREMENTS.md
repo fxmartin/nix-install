@@ -315,7 +315,7 @@ Consistency: 100% (declarative config)
 #### 2. Application Installation
 
 **REQ-APP-001**: AI/LLM Tools
-- Standard + Power: Claude Desktop, ChatGPT Desktop, Perplexity, Ollama
+- Standard + Power: Claude Desktop, ChatGPT Desktop, Ollama
 - Standard: Ollama pull `gpt-oss:20b` only
 - Power: Additional models `qwen2.5-coder:32b`, `llama3.1:70b`, `deepseek-r1:32b`
 - Acceptance: Apps launch, Ollama models available via `ollama list`
@@ -715,7 +715,7 @@ Consistency: 100% (declarative config)
 - 1Password: Preferences → Advanced → Disable auto-update
 - Raycast: Preferences → Advanced → Disable auto-update
 - Ghostty: `auto-update = off` (already in config)
-- Claude Desktop, ChatGPT Desktop, Perplexity: Disable in app preferences if available
+- Claude Desktop, ChatGPT Desktop: Disable in app preferences if available
 - macOS system updates: Manual only (not automated)
 
 **Implementation:**
@@ -1201,7 +1201,6 @@ Consistency: 100% (declarative config)
 | **AI/LLM Tools** | | |
 | Claude Desktop | Homebrew Cask | GUI app |
 | ChatGPT Desktop | Homebrew Cask (chatgpt) | GUI app |
-| Perplexity | Homebrew Cask | GUI app |
 | Ollama | Homebrew (ollama CLI) | Better macOS integration |
 | **Productivity** | | |
 | Raycast | Homebrew Cask | GUI app |
@@ -1435,7 +1434,7 @@ Consistency: 100% (declarative config)
 | **Power-only modules** | None | NAS rsync backup, SMB automount |
 | **Ollama Models** | `ministral-3:14b`, `nomic-embed-text` (~9GB) | `gemma4:e4b`, `gemma4:26b`, `nomic-embed-text` (~19GB) |
 | **Development Tools** | ✅ Same (Python, Podman, Git LFS) | ✅ Same |
-| **AI Apps** | ✅ Same (Claude, ChatGPT, Perplexity) | ✅ Same |
+| **AI Apps** | ✅ Same (Claude, ChatGPT) | ✅ Same |
 | **Browsers** | ✅ Same (Safari, Firefox, Brave) | ✅ Same |
 | **Productivity** | ✅ Same (Raycast, 1Password, etc.) | ✅ Same |
 | **Communication** | ✅ Same (Telegram, WhatsApp) | ✅ Same |

@@ -15,7 +15,7 @@
 4. Complete authentication
 
 **Why this is required:**
-- Some apps (like Perplexity) are installed via Mac App Store using `mas` (Mac App Store CLI)
+- Some apps (like Kindle and WhatsApp) are installed via Mac App Store using `mas` (Mac App Store CLI)
 - `mas` cannot install apps unless you are signed into the App Store
 - darwin-rebuild will fail if trying to install mas apps without authentication
 
@@ -44,7 +44,7 @@ mas account
 
 **Solution - Manual First Install**:
 1. Open **App Store** app
-2. Search for any Mac App Store app (e.g., "Perplexity")
+2. Search for any Mac App Store app (e.g., "Kindle")
 3. Click the **cloud download icon** (☁️↓) or **GET** button
 4. Wait for installation to complete
 5. **Then** re-run bootstrap or darwin-rebuild
@@ -56,7 +56,6 @@ mas account
 - This is a macOS limitation, not a nix-darwin bug
 
 **Apps Requiring This Workaround**:
-- Perplexity (6714467650)
 - Kindle (302584613) - if added to masApps
 - WhatsApp (if using mas instead of Homebrew)
 - Any other Mac App Store apps in your masApps list

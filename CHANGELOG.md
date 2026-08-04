@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-08-04
+
+### Added
+
+- OpenCode routed to a local Ollama coding model on Power, with Qwen3.6 sampling parameters pinned via a derived Modelfile
+
 ## [2.3.0] - 2026-08-03
 
 ### Added

@@ -160,6 +160,15 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
+@test "nix-eval fails the build when any single profile fails to evaluate" {
+    # Without an explicit exit, the shell for-loop returns the status of its LAST
+    # iteration, so a broken Standard or Power profile passed both `make nix-eval`
+    # and the Validate Nix Flake CI job as long as ai-assistant still evaluated.
+    # Observed 2026-08-04: a type error in the Power profile evaluated to rc=0.
+    run rg -n 'darwinConfigurations\.\$\$profile\.system\.drvPath.*\|\| exit 1' "$MAKEFILE"
+    [ "$status" -eq 0 ]
+}
+
 @test "direnv Zsh hook uses the stable Home Manager profile path" {
     run rg -n 'enableZshIntegration = false;' "$PYTHON_MODULE"
     [ "$status" -eq 0 ]

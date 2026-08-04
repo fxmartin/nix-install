@@ -193,6 +193,11 @@
       go # Go programming language toolchain
       gopls # Go language server
 
+      # Java (Power profile only)
+      # nixpkgs `jdk` tracks the current LTS — Zulu 21 on Darwin today. Pin to
+      # jdk17/jdk21 here if a project needs a specific major version.
+      jdk # Java Development Kit (LTS)
+
       # CI Tooling
       gitlab-runner # GitLab CI runner - register/run manually, no launchd service
     ]
@@ -218,6 +223,13 @@
       actionlint # GitHub Actions workflow linter
       gitleaks # Secret detection in git repos (pre-commit + CI)
     ];
+
+  # JAVA_HOME for the Power profile's JDK. A JDK on PATH alone half-works:
+  # `java` runs, but build tools and IDEs that resolve the toolchain by env var
+  # do not. pkgs.jdk.home points at the macOS bundle's Contents/Home.
+  environment.variables = lib.mkIf isPowerProfile {
+    JAVA_HOME = "${pkgs.jdk.home}";
+  };
 
   # Application Management & System Configuration
   system = {

@@ -48,7 +48,7 @@ nix-eval:
 	NIX_INSTALL_CI=1 nix flake show --impure >/dev/null
 	@for profile in standard power ai-assistant; do \
 		echo "Evaluating $$profile system derivation"; \
-		NIX_INSTALL_CI=1 nix eval --impure --raw "path:.#darwinConfigurations.$$profile.system.drvPath" >/dev/null; \
+		NIX_INSTALL_CI=1 nix eval --impure --raw "path:.#darwinConfigurations.$$profile.system.drvPath" >/dev/null || exit 1; \
 	done
 	git diff --exit-code -- flake.lock
 

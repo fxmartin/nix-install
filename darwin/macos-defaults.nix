@@ -353,7 +353,6 @@
       # AI Tools (core productivity)
       "/Applications/Claude.app"
       "/Applications/ChatGPT.app"
-      "/Applications/Perplexity.app"
       # Development
       "/Applications/Ghostty.app"
       "/Applications/Brave Browser.app"
@@ -574,7 +573,7 @@
   # - [✅] Auto-correct disabled (Story 03.5-001)
 
   # Feature 03.6: Dock Configuration (Complete)
-  # - [✅] Persistent apps configured (Story 03.6-001) - Mail, Claude, Ghostty, WhatsApp, Perplexity, ChatGPT, 1Password, Brave, Settings, NordVPN
+  # - [✅] Persistent apps configured (Story 03.6-001) - Mail, Claude, Ghostty, WhatsApp, ChatGPT, 1Password, Brave, Settings, NordVPN
   # - [✅] Minimize to application icon (Story 03.6-001)
   # - [✅] Auto-hide enabled (Story 03.6-001)
   # - [✅] Fast auto-hide animation (Story 03.6-001)

@@ -274,3 +274,51 @@
 **Risk Level**: Low
 
 ---
+
+##### Story 08.2-006: Local Inference Memory Budget (Model + Context + LSPs)
+**User Story**: As FX, I want a defensible memory budget for local inference so that running the coding model, a 48k context, and language servers together does not push the Power machine into sustained swap
+
+**Priority**: Should Have
+**Story Points**: 5
+**Sprint**: TBD
+
+**Acceptance Criteria**:
+- **Given** the Power machine with `qwen3.6-coding:opencode` resident and an OpenCode session active
+- **When** memory is sampled over a representative working period
+- **Then** the resident cost of each component is recorded: model weights, KV cache at the configured context, and each live LSP server
+- **And** a recommended `ollamaContextLength` is chosen from measurement rather than assumption
+- **And** sustained swap stays below the `SWAP_WARNING_GB` threshold from Story 08.2-005 during normal agentic coding
+- **Given** the recommended context length differs from the shipped 48000
+- **When** the change is applied
+- **Then** `darwin/maintenance.nix` and `config/ollama/qwen3.6-coding.Modelfile` are updated together, since both carry the window
+- **And** the tokens/s baseline is re-measured so the memory/throughput trade-off is explicit
+
+**Additional Requirements**:
+- Baseline captured 2026-08-04 on the M3 Max (48 GB), for comparison rather than as a clean-room reference — it was taken with swap already at 5.65/6.14 GB:
+  - generation ~82–88 tok/s, prefill ~1,416 tok/s at 6.6k tokens, TTFT ~4.7 s
+- Components competing for the same headroom: 21 GB model weights, KV cache scaling with `num_ctx`, one LSP server per active language (a few hundred MB each), plus Docker/Parallels-class workloads
+- The context window is declared in **two** places and must not drift: `ollamaContextLength` in `darwin/maintenance.nix` and `PARAMETER num_ctx` in the Modelfile
+
+**Technical Notes**:
+- Measurement inputs already available: `ollama ps` (resident size, GPU share, context), `/metrics` (`memory.swap_used_gb`, per-process), `sysctl vm.swapusage`, and `audit-launchagents` for steady-state RSS
+- Ollama's API returns exact counters for the throughput half — `eval_count`/`eval_duration` for generation and `prompt_eval_*` for prefill; keep `load_duration` separate so a cold start is not charged to the model
+- If measurement says 48000 is too hungry, 32768 is the natural fallback (it was Ollama's own default here before the change)
+- Related: Story 02.1-005 enables LSP servers; this story owns whether their memory cost is affordable alongside the model
+
+**Definition of Done**:
+- [ ] Per-component memory costs measured and recorded
+- [ ] Context-length recommendation made from data
+- [ ] If changed, both declaration sites updated in one change with a test guarding they agree
+- [ ] Throughput re-baselined after any context change
+- [ ] Finding documented in `docs/apps/ai/ai-llm-tools.md`
+
+**Dependencies**:
+- Story 08.2-005 (swap threshold and `/metrics` flags)
+- Story 02.1-005 (LSP servers enabled — the other half of the budget)
+- OpenCode local-model configuration (shipped v2.4.0)
+
+**Risk Level**: Low
+**Risk Mitigation**:
+- Measurement-only until a change is justified; any context change is one `rebuild` from rollback
+
+---

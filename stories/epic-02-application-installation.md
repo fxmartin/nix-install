@@ -14,11 +14,11 @@
 - Email accounts (1 Gmail, 4 Gandi.net) configured and functional in macOS Mail.app
 
 ## Epic Scope
-**Total Stories**: 25
-**Total Story Points**: 118
-**Completed Stories**: 25 (100%)
-**Completed Points**: 118 (100%)
-**MVP Stories**: 25 (100% of epic)
+**Total Stories**: 26 (25 MVP shipped + 1 post-v1.0 follow-up)
+**Total Story Points**: 121 (118 MVP shipped + 3 follow-up)
+**Completed Stories**: 25 of 26 (96%)
+**Completed Points**: 118 of 121 (98%)
+**MVP Stories**: 25 (100% of MVP scope complete)
 **Priority Level**: Must Have
 **Target Release**: Phase 2-3 (Week 2-3)
 
@@ -27,9 +27,10 @@
 
 > **Note**: Detailed story implementations have been moved to feature-specific files in `stories/features/` for better maintainability. See links below.
 
-### Feature 02.1: AI & LLM Tools Installation ✅ COMPLETE
+### Feature 02.1: AI & LLM Tools Installation 🟢
 **Feature Description**: Install and configure AI/LLM applications and models
-**Story Count**: 4 (4/4 complete) | **Story Points**: 16 (16/16 complete) | **Priority**: High | **Complexity**: Medium
+**Story Count**: 5 (4/5 complete) | **Story Points**: 19 (16/19 complete) | **Priority**: High | **Complexity**: Medium
+**Note**: Reopened 2026-08-04 for Story 02.1-005 (OpenCode LSP diagnostics), a post-v1.0 follow-up to the local-model provider shipped in v2.4.0.
 👉 **[View detailed implementation](features/epic-02-feature-02.1.md)**
 
 ### Feature 02.2: Development Environment Applications ✅ COMPLETE

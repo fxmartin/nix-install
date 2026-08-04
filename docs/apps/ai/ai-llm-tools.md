@@ -1,5 +1,5 @@
 # ABOUTME: AI and LLM desktop applications configuration guide
-# ABOUTME: Covers Claude Desktop, ChatGPT Desktop, Perplexity, Ollama (CLI), and Open WebUI
+# ABOUTME: Covers Claude Desktop, ChatGPT Desktop, Ollama (CLI), OpenCode's local model, and Open WebUI
 
 # AI & LLM Tools
 
@@ -55,64 +55,6 @@
 
 ---
 
-## Perplexity
-
-**Status**: Installed via **Mac App Store** (App ID: 6714467650) - Story 02.1-001
-
-**⚠️ CRITICAL - FRESH MACHINE REQUIREMENT**: On brand new Macs, Perplexity MUST be installed manually via App Store GUI first, then darwin-rebuild can manage it.
-
-**First-Time Installation on Fresh Mac** (Issue #25, #26):
-1. Open **App Store** app
-2. Search for **"Perplexity"** or navigate to your Purchased apps
-3. Click the **cloud download icon** (☁️↓) to install manually
-4. Wait for installation to complete
-5. **Then** run darwin-rebuild (mas CLI will work after first manual install)
-
-**Why Manual Install Required**:
-- Fresh macOS installations require the first App Store install to be manual (GUI-based)
-- This initializes Mac App Store services and permissions
-- The `mas` CLI tool (used by nix-darwin) cannot install apps on completely fresh systems
-- Error: `Code=201 "The installation could not be started"`
-- After one manual install, `mas` works normally for all subsequent installs
-
-**⚠️ PREREQUISITE**: You must be signed into the Mac App Store BEFORE running darwin-rebuild (see [Mac App Store Requirements](../mac-app-store-requirements.md))
-
-**Important Notes**:
-- Perplexity is distributed via Mac App Store, not Homebrew
-- Released as native macOS app on October 24, 2024
-- **Installation requires**: Mac App Store sign-in (mas authentication)
-- **Fresh machines**: Manual GUI install required first (see above)
-- Auto-updates managed by App Store preferences (not app-level settings)
-
-**First Launch**:
-1. Launch Perplexity from Spotlight or Raycast
-2. Sign in with your Perplexity account (optional for basic features)
-3. Complete the onboarding flow
-4. Free tier: 5 Pro Searches per day
-5. Pro tier: $20/month for 600 Pro Searches daily
-
-**Auto-Update Configuration**:
-- **Managed by**: macOS App Store (system-level)
-- **To disable App Store auto-updates**:
-  1. Open **System Settings** → **App Store**
-  2. Uncheck **Automatic Updates** for all apps
-  3. Or manage per-app: Right-click app in Launchpad → **Options** → **Turn Off Automatic Updates**
-- **Note**: App Store updates are system-wide, not per-app for Mac App Store installations
-
-**Testing**:
-- [ ] Launch Perplexity successfully (installed from App Store)
-- [ ] Sign-in flow completes (optional, not required)
-- [ ] Accessible from Spotlight/Raycast
-- [ ] Verify App Store update settings are disabled system-wide
-
-**Features**:
-- Pro Search with advanced AI models (GPT-4, Claude 3)
-- Voice input for hands-free queries
-- Threaded conversations with context
-- Library feature for archived searches
-- All responses include cited sources
-
----
 
 ## Ollama (CLI + Optional LaunchAgent)
 

@@ -308,3 +308,57 @@
 
 ---
 
+
+##### Story 02.1-005: OpenCode LSP Diagnostics (Declarative, No Auto-Download)
+**User Story**: As FX, I want OpenCode to feed language-server diagnostics back to the local coding model so that it catches the type errors and hallucinated APIs it introduces, without OpenCode downloading language servers behind my back
+
+**Priority**: Should Have
+**Story Points**: 3
+**Sprint**: TBD
+
+**Acceptance Criteria**:
+- **Given** the Power profile is applied and `rebuild` has run
+- **When** OpenCode starts in a repository containing Python, TypeScript, Nix, Go, Bash, or YAML files
+- **Then** the OpenCode status pane no longer reports "LSPs are disabled"
+- **And** diagnostics from the matching language server are available to the agent as feedback
+- **And** every language server used resolves to a Nix-provided binary already on `PATH`
+- **And** `OPENCODE_DISABLE_LSP_DOWNLOAD` is exported, so no language server is fetched at runtime
+- **And** built-in servers whose only install path is a download (terraform, kotlin-ls, lua-ls, php, svelte, clangd, astro) are explicitly `disabled`
+- **And** `~/.local/share/opencode` gains no downloaded language-server binaries after a full session
+- **Given** a fresh `rebuild` on any profile
+- **When** activation rewrites `~/.config/opencode/opencode.json`
+- **Then** the `lsp` block is present and matches the declared configuration (no drift)
+
+**Additional Requirements**:
+- All required servers are already declared in `darwin/configuration.nix`: `pyright`, `typescript-language-server`, `bash-language-server`, `yaml-language-server`, `nixd`, `gopls`
+- The AI-Assistant profile omits the heavier JS/TS server stack (see `darwin/configuration.nix:113`) — the config must degrade gracefully rather than error when a server binary is absent
+- `jdtls` (Java) and `sourcekit-lsp` (Swift) became viable with the JDK (v2.5.0) and Xcode (v2.3.0) additions; enabling them is **out of scope** for this story
+- Do not hand-edit `~/.config/opencode/opencode.json` — activation owns it
+
+**Technical Notes**:
+- Config surface is the OpenCode activation block in `home-manager/modules/claude-code.nix`, which already writes the provider/model config via both a `jq` merge and a heredoc branch — the `lsp` key must be added to **both**
+- `"lsp": true` enables all built-ins; per-server opt-out is `"lsp": { "<name>": { "disabled": true } }`
+- `OPENCODE_DISABLE_LSP_DOWNLOAD` confirmed present in the OpenCode 1.18.10 binary
+- This directly serves the repo's "No Auto-Updates" constraint: OpenCode's built-in table lists servers that "auto-install" and one that fetches "from GitHub releases", which would introduce unversioned binaries invisible to `flake.lock`
+- **Open question (deferred to Epic-08 Story 08.5-001)**: each live LSP server costs a few hundred MB. At the time of writing the Power machine sits at swap 5.65/6.14 GB with a 21GB model and a 48k context resident. The memory budget for local inference plus language servers is tracked separately; if that story lowers the context window, revisit whether all servers should stay enabled.
+
+**Definition of Done**:
+- [ ] `lsp` configuration added to both branches of the OpenCode activation block
+- [ ] `OPENCODE_DISABLE_LSP_DOWNLOAD` exported declaratively
+- [ ] bats coverage: `lsp` present in both branches, download-disable env var set, download-only servers explicitly disabled
+- [ ] `make test` and `make nix-eval` green
+- [ ] Verified on hardware by FX: status pane shows LSPs active, `~/.local/share/opencode` gains no server binaries
+- [ ] `docs/apps/ai/ai-llm-tools.md` OpenCode section documents the LSP behaviour and the no-download guarantee
+
+**Dependencies**:
+- Story 02.1-002 (Ollama installed)
+- OpenCode local-model provider configuration (shipped v2.4.0)
+- Epic-04 language server installations (`pyright`, `nixd`, `gopls`, et al.)
+
+**Risk Level**: Low
+**Risk Mitigation**:
+- Additive configuration; if a server is missing OpenCode simply does not start it
+- Memory impact bounded by the companion Epic-08 story before enabling further servers
+- Rollback is a single `rebuild` away (previous generation restores the old config)
+
+---

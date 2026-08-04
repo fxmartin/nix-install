@@ -21,12 +21,11 @@ This directory contains step-by-step configuration guides for applications insta
 
 Desktop applications for AI-powered assistance and local language models.
 
-- [AI & LLM Tools Overview](ai/ai-llm-tools.md) - Claude Desktop, ChatGPT Desktop, Perplexity, Ollama, MLX-LM, Privacy Filter
+- [AI & LLM Tools Overview](ai/ai-llm-tools.md) - Claude Desktop, ChatGPT Desktop, Ollama, MLX-LM, Privacy Filter
 
 **Individual Apps Covered**:
 - Claude Desktop (Homebrew cask)
 - ChatGPT Desktop (Homebrew cask)
-- Perplexity (Mac App Store)
 - Ollama CLI (Homebrew formula)
 - MLX-LM (Apple-native, uv-managed Python environment)
 - Privacy Filter (uv-managed Python/MLX service)
@@ -118,7 +117,7 @@ docs/apps/
 ├── README.md                           # This file - Master index
 ├── mac-app-store-requirements.md       # Prerequisites for mas installations
 ├── ai/
-│   └── ai-llm-tools.md                 # 4 AI tools (Claude, ChatGPT, Perplexity, Ollama)
+│   └── ai-llm-tools.md                 # AI tools (Claude, ChatGPT, Ollama, MLX-LM, Privacy Filter)
 ├── dev/
 │   ├── zed-editor.md                   # Zed configuration
 │   ├── ghostty-terminal.md             # Terminal configuration

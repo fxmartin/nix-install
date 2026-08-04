@@ -126,3 +126,70 @@
     run rg -n 'share = "disabled"' "$module"
     [ "$status" -eq 0 ]
 }
+
+@test "opencode declares the local Ollama provider on the loopback endpoint" {
+    module="${BATS_TEST_DIRNAME}/../home-manager/modules/claude-code.nix"
+
+    # Provider must speak the OpenAI-compatible API against Ollama's loopback bind
+    run rg -n -F '@ai-sdk/openai-compatible' "$module"
+    [ "$status" -eq 0 ]
+
+    run rg -n -F 'http://127.0.0.1:11434/v1' "$module"
+    [ "$status" -eq 0 ]
+
+    # Every baseURL must route through the loopback constant asserted above —
+    # a literal URL here would let a non-loopback endpoint slip in unnoticed.
+    run bash -c "rg -n -o '\"baseURL\": \"http[^\"]*\"' '$module'"
+    [ "$status" -eq 1 ]
+}
+
+@test "opencode defaults to the local coding model only on the Power profile" {
+    module="${BATS_TEST_DIRNAME}/../home-manager/modules/claude-code.nix"
+
+    # Must point at the derived model (Modelfile-built), not the raw pull
+    run rg -n -F 'qwen3.6-coding:opencode' "$module"
+    [ "$status" -eq 0 ]
+
+    # The default-model assignment must be gated behind the power profile
+    run rg -n 'profileName == "power"' "$module"
+    [ "$status" -eq 0 ]
+}
+
+@test "opencode pins Qwen3.6 sampling params instead of inheriting OpenCode's Qwen default" {
+    module="${BATS_TEST_DIRNAME}/../home-manager/modules/claude-code.nix"
+
+    # Absent explicit config OpenCode sends temperature 0.55 for Qwen models,
+    # which would override the Modelfile's baked-in value.
+    run rg -n 'localCodingTemperature = "0.6"' "$module"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'localCodingTopP = "0.95"' "$module"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'localCodingContext = "48000"' "$module"
+    [ "$status" -eq 0 ]
+}
+
+@test "coding Modelfile carries the params the OpenAI-compatible API cannot express" {
+    modelfile="${BATS_TEST_DIRNAME}/../config/ollama/qwen3.6-coding.Modelfile"
+
+    [ -f "$modelfile" ]
+
+    # repeat_penalty must be 1.0 — Ollama defaults to 1.1, which penalises the
+    # legitimate repetition source code is made of.
+    run rg -n '^PARAMETER repeat_penalty 1.0$' "$modelfile"
+    [ "$status" -eq 0 ]
+
+    run rg -n '^PARAMETER top_k 20$' "$modelfile"
+    [ "$status" -eq 0 ]
+
+    run rg -n '^PARAMETER min_p 0.0$' "$modelfile"
+    [ "$status" -eq 0 ]
+
+    run rg -n '^PARAMETER num_ctx 48000$' "$modelfile"
+    [ "$status" -eq 0 ]
+
+    # Must build on the pulled base model, not a stale hardcoded tag
+    run rg -n '^FROM qwen3.6:35b-a3b-coding-nvfp4$' "$modelfile"
+    [ "$status" -eq 0 ]
+}

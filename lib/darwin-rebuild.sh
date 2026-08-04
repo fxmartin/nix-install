@@ -258,7 +258,7 @@ display_rebuild_success_message() {
     if [[ "${INSTALL_PROFILE}" == "power" ]]; then
         log_info "3. Verify Ollama models (Power profile):"
         log_info "   ollama list"
-        log_info "   Expected: gemma4:e4b, gemma4:26b, nomic-embed-text"
+        log_info "   Expected: gemma4:e4b, gemma4:26b, qwen3.6:35b-a3b-coding-nvfp4, nomic-embed-text"
         echo ""
     fi
 

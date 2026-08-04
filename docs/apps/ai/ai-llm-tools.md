@@ -150,6 +150,50 @@ curl http://localhost:11434/api/version
 
 ---
 
+## OpenCode → Local Ollama Model (Power profile)
+
+**Status**: On the Power profile, OpenCode defaults to a local model served by Ollama — coding sessions never leave the machine.
+
+**How it is wired**:
+- `home-manager/modules/claude-code.nix` writes an `ollama` provider into `~/.config/opencode/opencode.json`, using `@ai-sdk/openai-compatible` against `http://127.0.0.1:11434/v1` (loopback only, matching the daemon's bind)
+- The default model is `ollama/qwen3.6-coding:opencode` — set **only** on Power. Standard and AI-Assistant get the provider definition but keep their own default, since the 21GB model needs the M3 Max's 48GB of unified memory
+- Do not hand-edit `~/.config/opencode/opencode.json`; activation rewrites it on every rebuild
+
+**Why a derived model** (`config/ollama/qwen3.6-coding.Modelfile`):
+
+Qwen publishes recommended sampling parameters for the Qwen3.6 family, but Ollama's
+OpenAI-compatible endpoint can only express `temperature` and `top_p`. The remaining
+parameters must be baked into a model of their own, which the Power activation builds
+with `ollama create` after the pulls:
+
+| Parameter | Value | Why |
+|-----------|-------|-----|
+| `repeat_penalty` | 1.0 | **The important one.** Ollama defaults to 1.1, penalising the repetition source code is made of (closing braces, repeated identifiers, boilerplate) |
+| `top_k` | 20 | Qwen3.6 recommendation (Ollama default is 40) |
+| `min_p` | 0.0 | Disabled, per Qwen |
+| `num_ctx` | 48000 | Repository-level reasoning; Ollama's default truncates tool-call chains |
+| `temperature` / `top_p` | 0.6 / 0.95 | Qwen recommendation — **also** pinned in `opencode.json`, because absent explicit config OpenCode sends its own Qwen default of 0.55, which would override the model's own value |
+
+`ollama create` reuses the base model's blobs, so the derived model costs a manifest
+and a small parameter layer — not a second 21GB copy.
+
+**Context window**: `OLLAMA_CONTEXT_LENGTH` is set to 48000 on Power (8192 elsewhere) by the
+Ollama LaunchAgent in `darwin/maintenance.nix`. Override with `ollamaContextLength` in
+`user-config.nix`. A larger window grows the KV cache — watch memory pressure if you raise it.
+
+**Verification**:
+```bash
+ollama ps                              # expect 100% GPU, CONTEXT 48000
+ollama show qwen3.6-coding:opencode    # confirm the Parameters block
+opencode                               # no --model flag needed on Power
+```
+
+**Not portable from llama.cpp setups**: speculative decoding (`--spec-type draft-mtp`) is not
+exposed by Ollama, `--tensor-split` is meaningless on unified memory, flash attention is
+automatic, and `--host 0.0.0.0` must **never** be copied — Ollama has no authentication.
+
+---
+
 ## MLX-LM (Apple-Native Runtime)
 
 **Status**: MLX-LM 0.21.0 is provisioned on Apple Silicon by Home Manager in an isolated uv environment at `~/.local/share/mlx-lm/venv`.

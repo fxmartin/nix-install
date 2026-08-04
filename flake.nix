@@ -139,6 +139,11 @@
             size = "~16GB";
           }
           {
+            name = "qwen3.6:35b-a3b-coding-nvfp4";
+            desc = "Qwen3.6 35B MoE coding model (3B active) - OpenCode local backend";
+            size = "~22GB";
+          }
+          {
             name = "nomic-embed-text";
             desc = "Text embeddings model";
             size = "~274MB";
@@ -155,8 +160,12 @@
 
       # Generate Ollama model pull activation script for a given profile.
       # Disabled by default so rebuilds do not start Ollama or download models.
+      # derivedModels: [{ name; modelfile; }] built with `ollama create` after the
+      # pulls, while the activation daemon is still up. Used to bake sampling
+      # parameters that the OpenAI-compatible endpoint cannot carry (top_k,
+      # repeat_penalty, min_p) into a model of their own.
       mkOllamaModelScript =
-        profileName: models:
+        profileName: models: derivedModels:
         if userConfig.enableOllamaModelPulls or false then
           let
             modelCount = builtins.length models;
@@ -209,6 +218,19 @@
                   echo "✓ Ollama model $model already installed"
                 fi
               done
+
+              ${builtins.concatStringsSep "\n" (
+                builtins.map (d: ''
+                  # Always re-create: layers are reused, and this is what makes an
+                  # edited Modelfile actually take effect on the next rebuild.
+                  echo "Creating derived Ollama model ${d.name}..."
+                  if /opt/homebrew/bin/ollama create "${d.name}" -f "${d.modelfile}" > /dev/null 2>&1; then
+                    echo "✓ Derived Ollama model ready: ${d.name}"
+                  else
+                    echo "⚠️  Warning: Could not create ${d.name} (is its base model pulled?)"
+                  fi
+                '') derivedModels
+              )}
 
               echo "✓ Ollama model check complete for ${profileName} profile"
 
@@ -360,7 +382,7 @@
             # Use postActivation - one of the hardcoded script names that nix-darwin actually runs
             # See: https://github.com/nix-darwin/nix-darwin/issues/663
             system.activationScripts.postActivation.text = lib.mkAfter (
-              mkOllamaModelScript "Standard" ollamaModels.standard
+              mkOllamaModelScript "Standard" ollamaModels.standard [ ]
             );
           })
         ];
@@ -390,7 +412,12 @@
             # Use postActivation - one of the hardcoded script names that nix-darwin actually runs
             # See: https://github.com/nix-darwin/nix-darwin/issues/663
             system.activationScripts.postActivation.text = lib.mkAfter (
-              mkOllamaModelScript "Power" ollamaModels.power
+              mkOllamaModelScript "Power" ollamaModels.power [
+                {
+                  name = "qwen3.6-coding:opencode";
+                  modelfile = ./config/ollama/qwen3.6-coding.Modelfile;
+                }
+              ]
             );
           })
         ];
@@ -407,7 +434,7 @@
           ({ lib, ... }: {
             # AI-Assistant profile: embeddings-only Ollama model
             system.activationScripts.postActivation.text = lib.mkAfter (
-              mkOllamaModelScript "AI-Assistant" ollamaModels.ai-assistant
+              mkOllamaModelScript "AI-Assistant" ollamaModels.ai-assistant [ ]
             );
           })
         ];

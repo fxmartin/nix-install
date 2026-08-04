@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.0] - 2026-08-04
+
+### Added
+
+- JDK on the Power profile with JAVA_HOME, plus a nix-eval gate fix so a single failing profile can no longer pass CI
+
 ## [2.4.0] - 2026-08-04
 
 ### Added

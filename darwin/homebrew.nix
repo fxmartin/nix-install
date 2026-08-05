@@ -58,14 +58,6 @@ in
       # Note: yt-dlp broken in nixpkgs (curl-impersonate AppleIDN check fails on macOS 15.3)
       "yt-dlp" # YouTube/video downloader (active fork of youtube-dl)
 
-    ]
-    # === Power profile only ===
-    # 1Password CLI via Homebrew rather than nixpkgs `_1password-cli`. Both ship
-    # 1Password's own signed binary (TeamIdentifier 2BUA8C4S2C), but the brew
-    # formula is the vendor's documented macOS path and is the one verified
-    # working against the desktop app's biometric integration on this fleet.
-    ++ lib.optionals (profileName == "power") [
-      "1password-cli" # `op` - secret injection, vault access, biometric unlock via the 1Password app
     ];
 
     # GUI applications; fonts remain owned by Nix/Stylix.
@@ -163,6 +155,15 @@ in
     ++ lib.optionals (profileName == "power") [
       "fluidvoice" # FluidVoice - Local-first voice dictation with on-device speech models
       "qobuz" # Qobuz - Hi-Res music streaming and offline playback
+      # 1Password CLI via Homebrew rather than nixpkgs `_1password-cli`. Both
+      # ship 1Password's own signed binary (TeamIdentifier 2BUA8C4S2C), but
+      # Homebrew is the vendor's documented macOS path and the one verified
+      # working against the desktop app's biometric integration on this fleet.
+      #
+      # A cask, not a formula: upstream retired the `1password-cli` formula, so
+      # `brew bundle` fails the whole rebuild with "No formulae found for
+      # 1password-cli" while it is declared under `brews`.
+      "1password-cli" # `op` - secret injection, vault access, biometric unlock via the 1Password app
     ];
 
     # Global Homebrew options

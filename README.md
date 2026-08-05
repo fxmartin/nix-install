@@ -483,7 +483,7 @@ nix-install/
 | **Commits** | 935 (+418 since v1.0.0) |
 | **Development** | ~20 active days (v1.0.0) + 2 days (Epic-08 sprint), ~96 hours through Epic-08; Epic-09/Epic-10 not yet estimated |
 | **Code** | 21K lines (Nix + Shell + Python, excluding the generated `bootstrap-dist.sh`) |
-| **Tests** | 1,462 test cases (47 BATS files, 314 in the active gate) |
+| **Tests** | 1,460 test cases (47 BATS files, 312 in the active gate) |
 | **Documentation** | 43K lines across 136 markdown files |
 | **GitHub Issues** | Epic-08 #236–#258 (23 stories) + fixes #269–#285 · Epic-09 #302–#303 · Epic-10 #388–#400 (13 stories) |
 | **Packages** | 34 casks (18 on AI-Assistant), 8 brews, 6 MAS (7 on Power with Xcode), 50+ Nix |

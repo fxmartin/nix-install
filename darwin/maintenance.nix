@@ -45,8 +45,6 @@ let
   ollamaContextLength =
     userConfig.ollamaContextLength or (if profileName == "power" then "48000" else "8192");
 
-  enableOllamaServeAgent = userConfig.enableOllamaServeAgent or false;
-
   # Standard PATH for scheduled LaunchAgents (includes per-user Nix profile)
   agentPath = "/etc/profiles/per-user/${userConfig.username}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
   agentHome = "/Users/${userConfig.username}";
@@ -360,8 +358,8 @@ in
     # OLLAMA LRU PRUNE (Story 08.1-004) — OPT-IN
     # =========================================================================
     # Monthly non-interactive prune of stale Ollama models (>60 days idle).
-    # Profile-expected models (from flake.nix ollamaModels.*) are ALWAYS
-    # preserved; only extras get removed.
+    # The protected model families listed in `scripts/ollama-lru.sh` are
+    # ALWAYS preserved; only extras get removed.
     #
     # Opt-in to avoid surprising users who pull a model for a one-off task
     # and don't want it auto-removed. Enable with:
@@ -466,9 +464,9 @@ in
     # the configured threshold. Restores RAM to other workloads without the
     # user having to notice + intervene.
     #
-    # Complements ollama-serve tuning (Story 08.2-001) which shortens
-    # keep-alive by default — this catches the case where a user keeps
-    # requests coming and the keep-alive timer never expires.
+    # Complements the OLLAMA_KEEP_ALIVE default set in environment.variables
+    # (Story 08.2-001), which shortens keep-alive — this catches the case
+    # where a user keeps requests coming and the timer never expires.
     #
     # Uses StartInterval (not StartCalendarInterval) for periodic sampling.
     # Defined directly because the mkScheduledAgent helper doesn't cover
@@ -552,40 +550,6 @@ in
       };
     };
 
-  }
-  // lib.optionalAttrs enableOllamaServeAgent {
-    # =========================================================================
-    # OLLAMA SERVER (Network-accessible via Tailscale)
-    # =========================================================================
-    # Optional LaunchAgent for users who want Ollama always running.
-    # Disabled by default because models may live on an external drive.
-    ollama-serve = mkScheduledAgent {
-      name = "ollama-serve";
-      # Schedule unused for KeepAlive services but required by mkScheduledAgent
-      schedule = {
-        Hour = 0;
-        Minute = 0;
-      };
-      runAtLoad = true;
-      keepAlive = true;
-      env = {
-        OLLAMA_HOST = ollamaHost;
-        OLLAMA_ORIGINS = ollamaOrigins;
-        OLLAMA_MAX_LOADED_MODELS = ollamaMaxLoadedModels;
-        OLLAMA_NUM_PARALLEL = ollamaNumParallel;
-        OLLAMA_KEEP_ALIVE = ollamaKeepAlive;
-        OLLAMA_CONTEXT_LENGTH = ollamaContextLength;
-        PATH = "/opt/homebrew/bin:/run/current-system/sw/bin:/usr/bin:/bin";
-      };
-      command = ''
-        # Kill any existing Ollama server that may be bound to localhost only
-        /usr/bin/pkill -f "ollama serve" 2>/dev/null || true
-        /usr/bin/pkill -x ollama 2>/dev/null || true
-        sleep 2
-        # Start Ollama on loopback only via OLLAMA_HOST.
-        exec /opt/homebrew/bin/ollama serve
-      '';
-    };
   };
 
   # Global environment variables for Ollama

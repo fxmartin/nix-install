@@ -1,33 +1,33 @@
 #!/usr/bin/env bats
-# ABOUTME: Regression tests for Ollama activation behavior in flake.nix
+# ABOUTME: Regression tests asserting a rebuild never touches Ollama.
+#
+# Ollama's lifecycle and model provisioning belong to the Local AI menubar
+# app (home-manager/modules/local-ai-menubar.nix), which supervises
+# `ollama serve` and pulls models on demand. A rebuild that starts, stops, or
+# pulls behind the app's back would fight it: killing a supervised server
+# trips the app's crash detection, and a KeepAlive agent makes its Stop
+# button impossible to honour. These tests fail if any of that comes back.
 
 setup() {
     REPO_ROOT="${BATS_TEST_DIRNAME}/.."
     FLAKE_FILE="${REPO_ROOT}/flake.nix"
+    MAINTENANCE_FILE="${REPO_ROOT}/darwin/maintenance.nix"
 }
 
-@test "Ollama activation tracks daemon started during rebuild" {
-    run rg -n "OLLAMA_STARTED_BY_ACTIVATION=0|OLLAMA_STARTED_BY_ACTIVATION=1" "${FLAKE_FILE}"
+@test "flake.nix never pulls Ollama models during activation" {
+    run rg -n "ollama pull|ollamaModels|mkOllamaModelScript|enableOllamaModelPulls" "${FLAKE_FILE}"
 
-    [[ "${status}" -eq 0 ]]
-    [[ "${output}" == *"OLLAMA_STARTED_BY_ACTIVATION=0"* ]]
-    [[ "${output}" == *"OLLAMA_STARTED_BY_ACTIVATION=1"* ]]
+    [[ "${status}" -ne 0 ]]
 }
 
-@test "Ollama model pulls are disabled by default" {
-    run rg -n "enableOllamaModelPulls or false|Skipping Ollama model check" "${FLAKE_FILE}"
+@test "flake.nix never starts or kills an Ollama server" {
+    run rg -n "ollama serve|pkill -x ollama|OLLAMA_STARTED_BY_ACTIVATION" "${FLAKE_FILE}"
 
-    [[ "${status}" -eq 0 ]]
-    [[ "${output}" == *"enableOllamaModelPulls or false"* ]]
-    [[ "${output}" == *"Skipping Ollama model check"* ]]
+    [[ "${status}" -ne 0 ]]
 }
 
-@test "Ollama activation stops only temporary daemon after model check" {
-    run rg -n 'if \[ "\$OLLAMA_STARTED_BY_ACTIVATION" = "1" \]|Stopping temporary Ollama daemon|/usr/bin/pkill -f "ollama serve"|/usr/bin/pkill -x ollama' "${FLAKE_FILE}"
+@test "no always-on Ollama LaunchAgent is defined" {
+    run rg -n "ollama-serve|enableOllamaServeAgent" "${MAINTENANCE_FILE}"
 
-    [[ "${status}" -eq 0 ]]
-    [[ "${output}" == *'if [ "$OLLAMA_STARTED_BY_ACTIVATION" = "1" ]'* ]]
-    [[ "${output}" == *"Stopping temporary Ollama daemon"* ]]
-    [[ "${output}" == *'/usr/bin/pkill -f "ollama serve"'* ]]
-    [[ "${output}" == *"/usr/bin/pkill -x ollama"* ]]
+    [[ "${status}" -ne 0 ]]
 }

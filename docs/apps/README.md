@@ -22,6 +22,7 @@ This directory contains step-by-step configuration guides for applications insta
 Desktop applications for AI-powered assistance and local language models.
 
 - [AI & LLM Tools Overview](ai/ai-llm-tools.md) - Claude Desktop, ChatGPT Desktop, Ollama, MLX-LM, Privacy Filter
+- [Local AI Menubar](ai/local-ai-menubar.md) - Menubar control centre that owns the Ollama server lifecycle
 
 **Individual Apps Covered**:
 - Claude Desktop (Homebrew cask)
@@ -116,7 +117,8 @@ docs/apps/
 ├── README.md                           # This file - Master index
 ├── mac-app-store-requirements.md       # Prerequisites for mas installations
 ├── ai/
-│   └── ai-llm-tools.md                 # AI tools (Claude, ChatGPT, Ollama, MLX-LM, Privacy Filter)
+│   ├── ai-llm-tools.md                 # AI tools (Claude, ChatGPT, Ollama, MLX-LM, Privacy Filter)
+│   └── local-ai-menubar.md             # Menubar app supervising the Ollama server
 ├── dev/
 │   ├── zed-editor.md                   # Zed configuration
 │   ├── ghostty-terminal.md             # Terminal configuration

@@ -28,6 +28,8 @@
     ./modules/privacy-filter.nix
     # Apple-native local inference through a dedicated MLX-LM environment
     ./modules/mlx-lm.nix
+    # Menubar control centre for the local Ollama server (owns its lifecycle)
+    ./modules/local-ai-menubar.nix
     # Email notifications for maintenance (Feature 06.5)
     ./modules/msmtp.nix
     # CLI tool configurations with Catppuccin theming and sensible defaults

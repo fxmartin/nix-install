@@ -153,7 +153,8 @@ in
       "microsoft-powerpoint" # Presentation application
     ]
     ++ lib.optionals (profileName == "power") [
-      "fluidvoice" # FluidVoice - Local-first voice dictation with on-device speech models
+      # No `fluidvoice` cask: home-manager/modules/fluidvoice.nix builds FX's
+      # patched fork at activation, and two copies would race for the hotkey.
       "qobuz" # Qobuz - Hi-Res music streaming and offline playback
       # 1Password CLI via Homebrew rather than nixpkgs `_1password-cli`. Both
       # ship 1Password's own signed binary (TeamIdentifier 2BUA8C4S2C), but

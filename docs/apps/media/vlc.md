@@ -268,7 +268,7 @@ VLC provides comprehensive media playback capabilities:
 - [ ] Can stream online video (File → Open Network → paste URL)
 - [ ] Keyboard shortcuts functional (Space, arrows, etc.)
 - [ ] Can take screenshot (Cmd+Alt+S)
-- [ ] App accessible from Spotlight/Raycast
+- [ ] App accessible from Spotlight
 - [ ] Hardware acceleration enabled (Preferences → Input/Codecs)
 - [ ] Resume playback works (stop video → reopen → continues from last position)
 

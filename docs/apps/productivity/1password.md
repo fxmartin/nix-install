@@ -306,6 +306,5 @@ darwin-rebuild switch # Applies the updates
 ## Related Documentation
 
 - [Main Apps Index](../README.md) - Overview of all application documentation
-- [Raycast Configuration](./raycast.md) - Productivity launcher setup
 - [File Utilities Configuration](./file-utilities.md) - Calibre, Kindle, Keka, Marked 2
 - [System Utilities Configuration](./system-utilities.md) - Stream Deck

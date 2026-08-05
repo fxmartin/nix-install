@@ -103,7 +103,6 @@ in
       "google-chrome" # Google Chrome - Web browser (auto-update managed by Homebrew)
 
       # Productivity & Utilities
-      "raycast" # Raycast - Keyboard-first launcher and productivity tool (Story 02.4-001)
       "1password" # 1Password - Password manager and secure vault (Story 02.4-002)
       "obsidian" # Obsidian - Markdown-based knowledge base and note-taking app
       "plaud" # Plaud - AI voice recorder and transcription companion

@@ -718,6 +718,5 @@ Marked 2 is a **paid application** purchased via Mac App Store.
 ## Related Documentation
 
 - [Main Apps Index](../README.md) - Overview of all application documentation
-- [Raycast Configuration](./raycast.md) - Productivity launcher setup
 - [1Password Configuration](./1password.md) - Password manager setup
 - [System Utilities Configuration](./system-utilities.md) - Stream Deck

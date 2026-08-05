@@ -259,7 +259,7 @@ Consistency: 100% (declarative config)
 
 2. **Homebrew Casks** (for GUI apps that don't work well in Nix)
    - Applications: Firefox, Zed, Claude Desktop, etc.
-   - System tools: Raycast, 1Password, iStat Menus
+   - System tools: 1Password, iStat Menus
    - Managed declaratively via nix-darwin's homebrew module
 
 3. **Mac App Store (mas)** (only when no alternative)
@@ -342,7 +342,6 @@ Consistency: 100% (declarative config)
 - Acceptance: All browsers launch, set default browser (or prompt user)
 
 **REQ-APP-005**: Productivity & Utilities
-- Raycast (launcher)
 - 1Password (password manager) 🔒
 - Calibre (ebook manager)
 - Kindle (via mas)
@@ -591,11 +590,6 @@ Consistency: 100% (declarative config)
 - Default view per folder
 - Acceptance: Finder matches Mac-setup preferences exactly
 
-**REQ-P1-006**: Raycast Extensions & Snippets
-- Pre-configure Raycast extensions
-- Import snippets from existing setup
-- Acceptance: Raycast has useful extensions on first launch
-
 **REQ-P1-007**: Multi-Profile Support
 - Add more profiles: "Travel" (minimal apps), "Development-Only"
 - Allow profile switching post-install
@@ -713,7 +707,6 @@ Consistency: 100% (declarative config)
 - Zed: Disable auto-update in settings (`"auto_update": false` in config)
 - Firefox: `app.update.auto = false`
 - 1Password: Preferences → Advanced → Disable auto-update
-- Raycast: Preferences → Advanced → Disable auto-update
 - Ghostty: `auto-update = off` (already in config)
 - Claude Desktop, ChatGPT Desktop: Disable in app preferences if available
 - macOS system updates: Manual only (not automated)
@@ -1203,7 +1196,6 @@ Consistency: 100% (declarative config)
 | ChatGPT Desktop | Homebrew Cask (chatgpt) | GUI app |
 | Ollama | Homebrew (ollama CLI) | Better macOS integration |
 | **Productivity** | | |
-| Raycast | Homebrew Cask | GUI app |
 | 1Password | Homebrew Cask | GUI app, auto-updates |
 | Calibre | Homebrew Cask | GUI app |
 | Kindle | mas (Mac App Store) | Only available on App Store |
@@ -1436,7 +1428,7 @@ Consistency: 100% (declarative config)
 | **Development Tools** | ✅ Same (Python, Podman, Git LFS) | ✅ Same |
 | **AI Apps** | ✅ Same (Claude, ChatGPT) | ✅ Same |
 | **Browsers** | ✅ Same (Safari, Firefox, Brave) | ✅ Same |
-| **Productivity** | ✅ Same (Raycast, 1Password, etc.) | ✅ Same |
+| **Productivity** | ✅ Same (1Password, etc.) | ✅ Same |
 | **Communication** | ✅ Same (Telegram, WhatsApp) | ✅ Same |
 | **Media** | ✅ Same (VLC, GIMP) | ✅ Same |
 | **Monitoring** | ✅ Same (btop, iStat, Beszel/macmon backend) | ✅ Same |

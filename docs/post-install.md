@@ -110,12 +110,6 @@ ollama-evict               # Unload everything currently loaded
 Both commands refuse if the Ollama daemon isn't running on
 `localhost:11434`.
 
-### Raycast Configuration
-
-- [ ] **Set Raycast hotkey**
-  1. Launch Raycast (Spotlight: Cmd+Space, type "Raycast")
-  2. Preferences → General → Raycast Hotkey
-  3. Recommended: `Opt+Space` (keeps Cmd+Space for Spotlight)
 
 ### Default Browser
 

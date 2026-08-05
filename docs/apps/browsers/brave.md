@@ -8,7 +8,7 @@
 **Purpose**: Privacy-focused browser with built-in ad/tracker blocking via Brave Shields. No extensions needed for ad blocking.
 
 **First Launch**:
-1. Launch Brave Browser from Spotlight, Raycast, or `/Applications/Brave Browser.app`
+1. Launch Brave Browser from Spotlight or `/Applications/Brave Browser.app`
 2. Welcome screen appears with onboarding wizard
 3. Follow onboarding steps (optional):
    - Choose Brave as default browser (optional)
@@ -142,7 +142,7 @@ Brave Rewards allows earning BAT cryptocurrency for viewing privacy-respecting a
 - [ ] HTTPS upgrade working (visit HTTP site, check for HTTPS redirect)
 - [ ] Privacy settings accessible and configured
 - [ ] Can set as default browser (if desired)
-- [ ] Accessible from Spotlight/Raycast
+- [ ] Accessible from Spotlight
 
 **Common Use Cases**:
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 # ABOUTME: Guards retirement of redundant macOS desktop utilities
-# ABOUTME: Prevents f.lux, Amphetamine, and OnyX from returning to managed profiles
+# ABOUTME: Prevents f.lux, Amphetamine, OnyX, and Raycast from returning to managed profiles
 
 setup() {
     REPO_ROOT="${BATS_TEST_DIRNAME}/.."
@@ -10,6 +10,25 @@ setup() {
 @test "Homebrew no longer installs f.lux or OnyX" {
     run rg -n '"flux-app"|"onyx"' "$HOMEBREW_CONFIG"
     [ "$status" -eq 1 ]
+}
+
+@test "Homebrew no longer installs Raycast" {
+    run rg -n '"raycast"' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 1 ]
+}
+
+@test "current documentation no longer advertises Raycast" {
+    # The launcher is retired, so no doc should tell FX to launch anything from it
+    run rg -n -i 'raycast' \
+        "${REPO_ROOT}/README.md" \
+        "${REPO_ROOT}/docs/REQUIREMENTS.md" \
+        "${REPO_ROOT}/docs/apps/README.md" \
+        "${REPO_ROOT}/docs/post-install.md"
+    [ "$status" -eq 1 ]
+}
+
+@test "the retired Raycast app guide is gone" {
+    [ ! -f "${REPO_ROOT}/docs/apps/productivity/raycast.md" ]
 }
 
 @test "Mac App Store no longer installs Amphetamine" {

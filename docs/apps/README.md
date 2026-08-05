@@ -64,7 +64,6 @@ Web browsers for development and daily use.
 Apps for productivity, file management, and system utilities.
 
 ### Launchers & Password Management
-- [Raycast](productivity/raycast.md) - Keyboard-first launcher and command palette (Homebrew cask)
 - [1Password](productivity/1password.md) - Password manager and secure vault (Homebrew cask)
 
 ### File & Document Utilities
@@ -127,7 +126,6 @@ docs/apps/
 ├── browsers/
 │   └── brave.md                        # Brave browser
 ├── productivity/
-│   ├── raycast.md                      # Raycast launcher
 │   ├── 1password.md                    # Password manager
 │   ├── office-365.md                   # Microsoft Office 365 suite
 │   ├── file-utilities.md               # Calibre, Kindle, Keka, Marked 2

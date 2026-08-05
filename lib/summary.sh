@@ -186,13 +186,11 @@ display_next_steps() {
     echo "  2. Activate licensed applications (see list below)"
     echo ""
 
-    # Ollama verification step only for Power profile
-    if [[ "${INSTALL_PROFILE:-standard}" == "power" ]]; then
-        echo "  3. Verify Ollama models (Power profile):"
-        echo "     ollama list"
-        echo "     Expected: gemma4:e4b, gemma4:26b, qwen3.6:35b-a3b-coding-nvfp4, nomic-embed-text"
-        echo ""
-    fi
+    # Models are no longer provisioned by the rebuild — the Local AI menubar
+    # app pulls them on demand, so there is no expected list to verify against.
+    echo "  3. Pull the models you want from the Local AI menubar app's search"
+    echo "     (nothing is downloaded during a rebuild)"
+    echo ""
 
     return 0
 }

@@ -34,19 +34,16 @@
   # Uncomment to override — format matches Go duration strings.
   # ollamaKeepAlive = "10m";
 
-  # Ollama server LaunchAgent
-  # Disabled by default so Ollama does not start automatically at login,
-  # especially when models live on an external drive.
-  # enableOllamaServeAgent = true;
-
-  # Ollama model downloads during rebuild
-  # Disabled by default so rebuilds do not start Ollama or pull large models.
-  # enableOllamaModelPulls = true;
+  # Ollama server lifecycle and model downloads are NOT managed here.
+  # The Local AI menubar app owns both: it supervises `ollama serve`
+  # (start/stop/crash recovery) and pulls models on demand. A rebuild
+  # therefore never starts Ollama, never stops one the app is supervising,
+  # and never downloads models. See home-manager/modules/local-ai-menubar.nix.
 
   # Ollama LRU pruning (Story 08.1-004) — opt-in
   # When true, runs ollama-lru.sh --auto monthly (1st @ 05:00) to remove
-  # models idle >threshold days. Profile-expected models are ALWAYS
-  # preserved (see flake.nix ollamaModels.*). Manual control via
+  # models idle >threshold days. The protected model families listed in
+  # scripts/ollama-lru.sh are ALWAYS preserved. Manual control via
   # `ollama-lru` alias (--analyze / --prune / --auto).
   # enableOllamaLRU = true;
   # ollamaLRUThresholdDays = 60;  # default 60

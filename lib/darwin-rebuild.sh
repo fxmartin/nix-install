@@ -255,12 +255,9 @@ display_rebuild_success_message() {
     log_info "   • 1Password: Sign in and set up browser extensions"
     echo ""
 
-    if [[ "${INSTALL_PROFILE}" == "power" ]]; then
-        log_info "3. Verify Ollama models (Power profile):"
-        log_info "   ollama list"
-        log_info "   Expected: gemma4:e4b, gemma4:26b, qwen3.6:35b-a3b-coding-nvfp4, nomic-embed-text"
-        echo ""
-    fi
+    log_info "3. Pull the models you want from the Local AI menubar app's search"
+    log_info "   (nothing is downloaded during a rebuild)"
+    echo ""
 
     echo "════════════════════════════════════════════════════════════════════"
     log_info "USEFUL COMMANDS"

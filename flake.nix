@@ -112,143 +112,6 @@
       # Allow unfree packages (needed for many GUI apps)
       nixpkgsConfig.config.allowUnfree = true;
 
-      # Ollama model definitions — single source of truth for both profiles
-      # Standard models are included in Power profile via ollamaModels.power
-      ollamaModels = {
-        standard = [
-          {
-            name = "ministral-3:14b";
-            desc = "Mistral multilingual reasoning model";
-            size = "~9GB";
-          }
-          {
-            name = "nomic-embed-text";
-            desc = "Text embeddings model";
-            size = "~274MB";
-          }
-        ];
-        power = [
-          {
-            name = "gemma4:e4b";
-            desc = "Google Gemma 4 compact 4B coding/chat model";
-            size = "~3GB";
-          }
-          {
-            name = "gemma4:26b";
-            desc = "Google Gemma 4 large 26B reasoning model";
-            size = "~16GB";
-          }
-          {
-            name = "qwen3.6:35b-a3b-coding-nvfp4";
-            desc = "Qwen3.6 35B MoE coding model (3B active) - OpenCode local backend";
-            size = "~22GB";
-          }
-          {
-            name = "nomic-embed-text";
-            desc = "Text embeddings model";
-            size = "~274MB";
-          }
-        ];
-        ai-assistant = [
-          {
-            name = "nomic-embed-text";
-            desc = "Text embeddings model for RAG/search";
-            size = "~274MB";
-          }
-        ];
-      };
-
-      # Generate Ollama model pull activation script for a given profile.
-      # Disabled by default so rebuilds do not start Ollama or download models.
-      # derivedModels: [{ name; modelfile; }] built with `ollama create` after the
-      # pulls, while the activation daemon is still up. Used to bake sampling
-      # parameters that the OpenAI-compatible endpoint cannot carry (top_k,
-      # repeat_penalty, min_p) into a model of their own.
-      mkOllamaModelScript =
-        profileName: models: derivedModels:
-        if userConfig.enableOllamaModelPulls or false then
-          let
-            modelCount = builtins.length models;
-            totalSize = builtins.concatStringsSep ", " (builtins.map (m: "${m.name} (${m.size})") models);
-          in
-          ''
-            # Check if Ollama CLI is available (installed by Homebrew)
-            if [ -x /opt/homebrew/bin/ollama ]; then
-              echo "Checking Ollama models for ${profileName} profile..."
-              OLLAMA_STARTED_BY_ACTIVATION=0
-
-              # Check if Ollama daemon is running, start if needed
-              if ! pgrep -q ollama; then
-                echo "Starting temporary Ollama daemon for model check..."
-                /opt/homebrew/bin/ollama serve > /dev/null 2>&1 &
-                OLLAMA_STARTED_BY_ACTIVATION=1
-
-                # Wait for daemon to be ready (up to 10 seconds)
-                for _ in {1..10}; do
-                  if /opt/homebrew/bin/ollama list > /dev/null 2>&1; then
-                    echo "✓ Ollama daemon ready"
-                    break
-                  fi
-                  sleep 1
-                done
-              fi
-
-              # Define models to pull (${toString modelCount} models: ${totalSize})
-              MODELS=(
-                ${builtins.concatStringsSep "\n          " (
-                  builtins.map (m: ''"${m.name}"  # ${m.size} - ${m.desc}'') models
-                )}
-              )
-
-              # Pull each model sequentially with progress tracking
-              for model in "''${MODELS[@]}"; do
-                # Check if model already exists (idempotent)
-                if ! /opt/homebrew/bin/ollama list 2>/dev/null | grep -q "$model"; then
-                  echo "Pulling Ollama model: $model (this may take several minutes)..."
-
-                  # Pull model (requires network and running daemon)
-                  if /opt/homebrew/bin/ollama pull "$model" 2>&1; then
-                    echo "✓ Successfully pulled Ollama model: $model"
-                  else
-                    echo "⚠️  Warning: Failed to pull Ollama model $model"
-                    echo "   This may be due to network issues or Ollama daemon not starting."
-                    echo "   You can manually pull the model later with: ollama pull $model"
-                  fi
-                else
-                  echo "✓ Ollama model $model already installed"
-                fi
-              done
-
-              ${builtins.concatStringsSep "\n" (
-                builtins.map (d: ''
-                  # Always re-create: layers are reused, and this is what makes an
-                  # edited Modelfile actually take effect on the next rebuild.
-                  echo "Creating derived Ollama model ${d.name}..."
-                  if /opt/homebrew/bin/ollama create "${d.name}" -f "${d.modelfile}" > /dev/null 2>&1; then
-                    echo "✓ Derived Ollama model ready: ${d.name}"
-                  else
-                    echo "⚠️  Warning: Could not create ${d.name} (is its base model pulled?)"
-                  fi
-                '') derivedModels
-              )}
-
-              echo "✓ Ollama model check complete for ${profileName} profile"
-
-              if [ "$OLLAMA_STARTED_BY_ACTIVATION" = "1" ]; then
-                echo "Stopping temporary Ollama daemon..."
-                /usr/bin/pkill -f "ollama serve" 2>/dev/null || true
-                /usr/bin/pkill -x ollama 2>/dev/null || true
-              fi
-            else
-              echo "⚠️  Warning: Ollama CLI not found at /opt/homebrew/bin/ollama"
-              echo "   Model pull will be skipped. Install Ollama first."
-            fi
-          ''
-        else
-          ''
-            echo "Skipping Ollama model check for ${profileName} profile (enableOllamaModelPulls=false)"
-          '';
-
       # Common configuration modules shared by both profiles
       commonModules = [
         # Core System Configuration
@@ -367,25 +230,13 @@
     in
     {
       # Standard Profile - MacBook Air
-      # Minimal configuration: Core apps, single Ollama model
+      # Minimal configuration: Core apps
       # Profile differentiation: modules can check `isPowerProfile` from specialArgs
       darwinConfigurations.standard = mkDarwinConfiguration {
         system = "aarch64-darwin"; # Apple Silicon (can also support x86_64-darwin)
         isPowerProfile = false;
         profileName = "standard";
-        modules = [
-          ({ lib, ... }: {
-            # Standard profile specific settings
-            # - Ollama models: defined in ollamaModels.standard
-
-            # Story 02.1-003: Automatically pull Ollama models for Standard profile
-            # Use postActivation - one of the hardcoded script names that nix-darwin actually runs
-            # See: https://github.com/nix-darwin/nix-darwin/issues/663
-            system.activationScripts.postActivation.text = lib.mkAfter (
-              mkOllamaModelScript "Standard" ollamaModels.standard [ ]
-            );
-          })
-        ];
+        modules = [ ];
       };
 
       # Power Profile - MacBook Pro M3 Max
@@ -403,41 +254,17 @@
           # rsync Backup to NAS (Power profile only)
           # Automated backup of configured folders to TerraMaster NAS
           ./darwin/rsync-backup.nix
-
-          ({ lib, ... }: {
-            # Power profile specific settings
-            # - Ollama models: defined in ollamaModels.power
-
-            # Story 02.1-004: Automatically pull Ollama models for Power profile
-            # Use postActivation - one of the hardcoded script names that nix-darwin actually runs
-            # See: https://github.com/nix-darwin/nix-darwin/issues/663
-            system.activationScripts.postActivation.text = lib.mkAfter (
-              mkOllamaModelScript "Power" ollamaModels.power [
-                {
-                  name = "qwen3.6-coding:opencode";
-                  modelfile = ./config/ollama/qwen3.6-coding.Modelfile;
-                }
-              ]
-            );
-          })
         ];
       };
 
       # AI-Assistant Profile - Older MacBook for personal AI assistant
       # Lightweight: No containers, no LSPs, minimal GUI apps
-      # Focus: Claude Code, Ollama embeddings, terminal-centric workflow
+      # Focus: Claude Code, terminal-centric workflow
       darwinConfigurations.ai-assistant = mkDarwinConfiguration {
         system = "aarch64-darwin"; # Apple Silicon
         isPowerProfile = false;
         profileName = "ai-assistant";
-        modules = [
-          ({ lib, ... }: {
-            # AI-Assistant profile: embeddings-only Ollama model
-            system.activationScripts.postActivation.text = lib.mkAfter (
-              mkOllamaModelScript "AI-Assistant" ollamaModels.ai-assistant [ ]
-            );
-          })
-        ];
+        modules = [ ];
       };
 
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);

@@ -17,9 +17,11 @@ OLLAMA_MANIFESTS="${HOME}/.ollama/models/manifests/registry.ollama.ai/library"
 # Default retention window (can be overridden per invocation)
 DEFAULT_THRESHOLD_DAYS=30
 
-# Profile-expected models (mirror flake.nix ollamaModels.* and health-api.py).
-# These are NEVER auto-removed in --auto mode, but can be manually selected
-# via --prune.  Keep in sync with flake.nix.
+# Protected model families, per profile. These are NEVER auto-removed in
+# --auto mode, but can be manually selected via --prune. This list is
+# standalone now: model provisioning left the Nix rebuild (the Local AI
+# menubar app pulls on demand), so there is no flake.nix list to mirror —
+# edit it here directly.
 PROFILE_STANDARD=(ministral-3 nomic-embed-text)
 PROFILE_POWER=(gemma4 nomic-embed-text)
 PROFILE_AI_ASSISTANT=(nomic-embed-text)

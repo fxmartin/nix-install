@@ -23,8 +23,6 @@ flake.nix
 ├── darwinConfigurations.ai-assistant ───┘
 │
 └── helpers
-    ├── ollamaModels { standard, power, ai-assistant }
-    ├── mkOllamaModelScript (generates pull scripts)
     └── mkDarwinConfiguration (shared builder, passes profileName)
 ```
 
@@ -48,7 +46,7 @@ flake.nix
                       nix    mount    .nix     .nix
     │         │
     │         ├── darwin/maintenance.nix ──── mkScheduledAgent
-    │         │   ├── nix-gc           (13 LaunchAgents)
+    │         │   ├── nix-gc           (12 LaunchAgents)
     │         │   ├── nix-optimize
     │         │   ├── weekly-digest
     │         │   ├── vitals-sampler       (StartInterval: 1h)
@@ -59,8 +57,7 @@ flake.nix
     │         │   ├── claude-code-cleanup  (StartInterval: 90min)
     │         │   ├── claude-project-prune
     │         │   ├── ollama-pressure-guard
-    │         │   ├── virt-vm-orphan-watch (StartInterval: 10min)
-    │         │   └── ollama-serve         (enableOllamaServeAgent only)
+    │         │   └── virt-vm-orphan-watch (StartInterval: 10min)
     │         │
     │         ├── darwin/health-api.nix
     │         ├── darwin/monitoring.nix    (beszel-agent)
@@ -172,7 +169,6 @@ _Snapshot captured 2026-04-21 on Power profile (MacBook Pro M3 Max). Median RSS 
 
 | Agent | Scope | Running samples | Median RSS (MB) | Notes |
 |-------|-------|-----------------|-----------------|-------|
-| `ollama-serve` | user | 10/10 | 31 | Always-on LLM server; stays light because models load into GPU/Metal, not resident RSS |
 | `health-api` | user | 10/10 | 14 | Python stdlib `http.server`, threaded handler — no framework overhead |
 | `beszel-agent` | user | 10/10 | 6 | Go binary, shipped upstream; negligible |
 | `privacy-filter` | user | not yet audited | — | Always-on MLX PII redaction service (Epic-09, 127.0.0.1:7790); added after this snapshot — re-run `audit-launchagents` to capture RSS |

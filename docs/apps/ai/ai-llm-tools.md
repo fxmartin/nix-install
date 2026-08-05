@@ -62,14 +62,20 @@
 
 The Ollama GUI app (`ollama-app` cask) has been removed to eliminate the port conflict where two Ollama servers competed for port 11434. This repo also disables Homebrew's `homebrew.mxcl.ollama` LaunchAgent during rebuilds so the formula does not auto-start a background daemon.
 
-**Daemon Management**:
-- Default: no Ollama daemon is auto-started
+**Daemon Management**: owned by the **Local AI menubar app**, not this repo.
+The app starts, stops, and crash-recovers `ollama serve` as a supervised child
+process — see [local-ai-menubar](local-ai-menubar.md).
+
+- No Ollama daemon is ever auto-started by a rebuild, and no always-on
+  LaunchAgent exists. A rebuild that killed or resurrected the server would
+  fight the app's supervision (its Stop button could not be honoured, and its
+  crash detection would see phantom restarts). `tests/flake_ollama_activation.bats`
+  pins this.
 - Homebrew LaunchAgent `homebrew.mxcl.ollama` is unloaded and disabled by activation
-- Manual control: use `start-ollama` and `stop-ollama`
-- Optional always-on mode: set `enableOllamaServeAgent = true` in `user-config.nix`
-- The optional nix-darwin LaunchAgent binds to `127.0.0.1:11434` only
+- Manual control without the app: `start-ollama` and `stop-ollama`
+- `OLLAMA_HOST` defaults to loopback via `environment.variables`; the app
+  overrides it per-launch when its "Expose Ollama to containers" setting is on
 - OLLAMA_ORIGINS permits only local browser clients; remote access requires an authenticated proxy and explicit ACL
-- The optional LaunchAgent kills any existing Ollama process before starting to avoid conflicts
 
 **CLI Verification**:
 ```bash
@@ -86,7 +92,7 @@ curl http://localhost:11434/api/version
 **Model Storage**:
 - Models stored in: `~/.ollama/models`
 - Can be large (12GB-70GB per model)
-- Model downloads during `darwin-rebuild` are disabled by default; set `enableOllamaModelPulls = true` to opt in
+- Models are pulled on demand from the Local AI menubar app's search; a `darwin-rebuild` never downloads models
 
 **Web Interface**: Use **Open WebUI** (see below) for a browser-based chat interface.
 
@@ -105,8 +111,13 @@ curl http://localhost:11434/api/version
 
 Qwen publishes recommended sampling parameters for the Qwen3.6 family, but Ollama's
 OpenAI-compatible endpoint can only express `temperature` and `top_p`. The remaining
-parameters must be baked into a model of their own, which the Power activation builds
-with `ollama create` after the pulls:
+parameters must be baked into a model of their own. A rebuild no longer builds it —
+create it by hand once, after pulling the base model from the menubar app:
+
+```bash
+ollama create qwen3.6-coding:opencode -f config/ollama/qwen3.6-coding.Modelfile
+```
+
 
 | Parameter | Value | Why |
 |-----------|-------|-----|
@@ -119,8 +130,9 @@ with `ollama create` after the pulls:
 `ollama create` reuses the base model's blobs, so the derived model costs a manifest
 and a small parameter layer — not a second 21GB copy.
 
-**Context window**: `OLLAMA_CONTEXT_LENGTH` is set to 48000 on Power (8192 elsewhere) by the
-Ollama LaunchAgent in `darwin/maintenance.nix`. Override with `ollamaContextLength` in
+**Context window**: `OLLAMA_CONTEXT_LENGTH` is set to 48000 on Power (8192 elsewhere) via
+`environment.variables` in `darwin/maintenance.nix`, so any Ollama server inherits it —
+including the one the menubar app supervises. Override with `ollamaContextLength` in
 `user-config.nix`. A larger window grows the KV cache — watch memory pressure if you raise it.
 
 **Verification**:

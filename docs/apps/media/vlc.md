@@ -275,7 +275,6 @@ VLC provides comprehensive media playback capabilities:
 **Documentation**:
 - VLC Official Site: https://www.videolan.org/vlc/
 - User Guide: https://www.videolan.org/support/
-- Keyboard Shortcuts: https://wiki.videolan.org/Mac_OS_X_shortcuts/
 - Format Support: https://wiki.videolan.org/VLC_Features_Formats/
 
 ---
@@ -283,5 +282,3 @@ VLC provides comprehensive media playback capabilities:
 ## Related Documentation
 
 - [Main Apps Index](../README.md)
-- [GIMP - Image Editor](./gimp.md)
-- [Media Tools Overview](./README.md)

@@ -539,7 +539,7 @@ with full knowledge that updates are no longer managed by `rebuild`.
 After activating licensed apps:
 
 1. **Verify functionality**: Launch each app and confirm sign-in successful
-2. **Configure settings**: See `docs/app-post-install-configuration.md` for detailed setup
+2. **Configure settings**: See the per-app guides under `docs/apps/` for detailed setup
 3. **Test core features**: Ensure licenses unlock the expected features
 4. **Store credentials safely**: Save license keys, Emergency Kits, and recovery codes in secure location
 5. **Set calendar reminders**: Add renewal reminders 30 days before subscription expiration

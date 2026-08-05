@@ -30,6 +30,8 @@
     ./modules/mlx-lm.nix
     # Menubar control centre for the local Ollama server (owns its lifecycle)
     ./modules/local-ai-menubar.nix
+    # Local FluidVoice fork with Auto-Enter allowlist (replaces the Homebrew cask)
+    ./modules/fluidvoice.nix
     # Email notifications for maintenance (Feature 06.5)
     ./modules/msmtp.nix
     # CLI tool configurations with Catppuccin theming and sensible defaults

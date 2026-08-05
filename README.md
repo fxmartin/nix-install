@@ -1,6 +1,6 @@
 # Nix-Darwin MacBook Setup System
 
-> **Status**: 98.2% Complete (166/169 stories) | **Version**: 2.9.0 | **2 MacBooks deployed, M4 Air pending**
+> **Status**: 98.2% Complete (166/169 stories) | **Version**: 2.10.0 | **2 MacBooks deployed, M4 Air pending**
 
 **Two deployed MacBooks. One config. Controlled configuration drift.**
 
@@ -486,7 +486,7 @@ nix-install/
 | **Tests** | 1,461 test cases (47 BATS files, 313 in the active gate) |
 | **Documentation** | 43K lines across 136 markdown files |
 | **GitHub Issues** | Epic-08 #236–#258 (23 stories) + fixes #269–#285 · Epic-09 #302–#303 · Epic-10 #388–#400 (13 stories) |
-| **Packages** | 34 casks (18 on AI-Assistant), 8 brews (9 on Power with 1Password CLI), 6 MAS (7 on Power with Xcode), 50+ Nix |
+| **Packages** | 30 casks (15 on AI-Assistant, 30 on Power), 11 brews, 6 MAS (5 on non-Power; Xcode is Power-only), 50+ Nix |
 
 **Next**: MacBook Air M4 migration (Phase 11) · Story 08.3-008 (one-day mactop-free validation) · Story 09.1-008 (Privacy Filter verification on hardware)
 

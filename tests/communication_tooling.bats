@@ -6,6 +6,7 @@ setup() {
     REPO_ROOT="${BATS_TEST_DIRNAME}/.."
     DARWIN_CONFIG="${REPO_ROOT}/darwin/configuration.nix"
     HOMEBREW_CONFIG="${REPO_ROOT}/darwin/homebrew.nix"
+    HOME_CONFIG="${REPO_ROOT}/home-manager/home.nix"
 }
 
 @test "Hugging Face Hub CLI is installed globally from Nix" {
@@ -14,14 +15,15 @@ setup() {
     [ "${#lines[@]}" -eq 1 ]
 }
 
-@test "FluidVoice is installed only for the Power profile" {
-    run rg -U -n '\+\+ lib\.optionals \(profileName == "power"\) \[\n[[:space:]]+"fluidvoice"' \
-        "$HOMEBREW_CONFIG"
-    [ "$status" -eq 0 ]
+@test "FluidVoice comes from the local fork, never the Homebrew cask" {
+    # home-manager/modules/fluidvoice.nix builds FX's patched fork at activation.
+    # Installing the cask alongside it would put two copies of the app on disk
+    # racing for the same global hotkey — see that module's header.
+    run rg -n '"fluidvoice"' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 1 ]
 
-    run rg -n '^[[:space:]]+"fluidvoice"' "$HOMEBREW_CONFIG"
+    run rg -n './modules/fluidvoice\.nix' "$HOME_CONFIG"
     [ "$status" -eq 0 ]
-    [ "${#lines[@]}" -eq 1 ]
 }
 
 @test "Qobuz is installed only for the Power profile" {

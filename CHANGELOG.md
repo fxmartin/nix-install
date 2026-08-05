@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.7.0] - 2026-08-05
+
+### Added
+
+- Raycast retired from the managed app set and uninstalled; dead documentation links repaired
+
 ## [2.6.0] - 2026-08-04
 
 ### Added

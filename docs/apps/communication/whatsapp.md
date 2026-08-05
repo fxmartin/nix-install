@@ -278,7 +278,7 @@ WhatsApp supports **up to 4 linked devices** simultaneously (in addition to your
 - [ ] Notifications work (send message to self → notification appears)
 - [ ] Can create new group chat
 - [ ] Can search messages (click search → type query → results appear)
-- [ ] App accessible from Spotlight/Raycast
+- [ ] App accessible from Spotlight
 - [ ] App stays synced when phone is locked (messages still deliver)
 
 **Documentation**:

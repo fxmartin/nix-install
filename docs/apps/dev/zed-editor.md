@@ -16,7 +16,7 @@
 4. Zed has full write access (symlink points to working directory, not read-only /nix/store)
 
 **First Launch**:
-1. Launch Zed from Spotlight, Raycast, or `/Applications/Zed.app`
+1. Launch Zed from Spotlight or `/Applications/Zed.app`
 2. Settings already configured from template
 3. No sign-in required (Zed is free and open source)
 

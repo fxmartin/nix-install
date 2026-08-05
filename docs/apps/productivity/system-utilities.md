@@ -39,6 +39,5 @@
 ## Related Documentation
 
 - [Main Apps Index](../README.md) - Overview of all application documentation
-- [Raycast Configuration](./raycast.md) - Productivity launcher setup
 - [1Password Configuration](./1password.md) - Password manager setup
 - [File Utilities Configuration](./file-utilities.md) - Calibre, Kindle, Keka, Marked 2

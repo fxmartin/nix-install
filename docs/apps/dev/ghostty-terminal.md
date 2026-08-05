@@ -16,7 +16,7 @@
 4. Ghostty can read config from working directory (not read-only /nix/store)
 
 **First Launch**:
-1. Launch Ghostty from Spotlight, Raycast, or `/Applications/Ghostty.app`
+1. Launch Ghostty from Spotlight or `/Applications/Ghostty.app`
 2. Config already loaded from `~/.config/ghostty/config`
 3. No sign-in required, ready to use immediately
 

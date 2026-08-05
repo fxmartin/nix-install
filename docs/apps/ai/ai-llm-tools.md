@@ -8,7 +8,7 @@
 **Status**: Installed via Homebrew cask `claude` (Story 02.1-001)
 
 **First Launch**:
-1. Launch Claude Desktop from Spotlight or Raycast
+1. Launch Claude Desktop from Spotlight
 2. Sign in with your Anthropic account
 3. Complete the onboarding flow
 
@@ -24,7 +24,7 @@
 **Testing**:
 - [ ] Launch Claude Desktop successfully
 - [ ] Sign-in flow completes
-- [ ] Accessible from Spotlight/Raycast
+- [ ] Accessible from Spotlight
 - [ ] Check for auto-update setting in preferences
 
 ---
@@ -34,7 +34,7 @@
 **Status**: Installed via Homebrew cask `chatgpt` (Story 02.1-001)
 
 **First Launch**:
-1. Launch ChatGPT Desktop from Spotlight or Raycast
+1. Launch ChatGPT Desktop from Spotlight
 2. Sign in with your OpenAI account
 3. Complete the onboarding flow
 
@@ -50,7 +50,7 @@
 **Testing**:
 - [ ] Launch ChatGPT Desktop successfully
 - [ ] Sign-in flow completes
-- [ ] Accessible from Spotlight/Raycast
+- [ ] Accessible from Spotlight
 - [ ] Check for auto-update setting in preferences
 
 ---

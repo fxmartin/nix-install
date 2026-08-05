@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.9.0] - 2026-08-05
+
+### Added
+
+- 1Password CLI on the Power profile with Touch ID unlock via the desktop app
+
 ## [2.8.0] - 2026-08-05
 
 ### Added

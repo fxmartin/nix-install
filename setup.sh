@@ -60,7 +60,7 @@ readonly CHECKSUMS_FILE="SHA256SUMS"
 TEMP_DIR=""
 
 # Release version. scripts/bump-version.sh keeps this synchronized with VERSION.
-readonly SETUP_VERSION="2.8.0"
+readonly SETUP_VERSION="2.9.0"
 
 # Tagged releases are the secure default. Branch installs are available only as
 # an explicit development override and use files from the same requested ref.

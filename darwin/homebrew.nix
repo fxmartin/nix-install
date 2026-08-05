@@ -58,6 +58,14 @@ in
       # Note: yt-dlp broken in nixpkgs (curl-impersonate AppleIDN check fails on macOS 15.3)
       "yt-dlp" # YouTube/video downloader (active fork of youtube-dl)
 
+    ]
+    # === Power profile only ===
+    # 1Password CLI via Homebrew rather than nixpkgs `_1password-cli`. Both ship
+    # 1Password's own signed binary (TeamIdentifier 2BUA8C4S2C), but the brew
+    # formula is the vendor's documented macOS path and is the one verified
+    # working against the desktop app's biometric integration on this fleet.
+    ++ lib.optionals (profileName == "power") [
+      "1password-cli" # `op` - secret injection, vault access, biometric unlock via the 1Password app
     ];
 
     # GUI applications; fonts remain owned by Nix/Stylix.
@@ -189,5 +197,14 @@ in
   };
 
   # Environment variable to prevent Homebrew auto-updates
-  environment.variables.HOMEBREW_NO_AUTO_UPDATE = "1";
+  # OP_BIOMETRIC_UNLOCK_ENABLED lets `op` authorise through the 1Password desktop
+  # app (Touch ID) instead of prompting for a password every session. Power-only,
+  # matching the CLI itself. Still requires the one-time GUI toggle:
+  # 1Password → Settings → Developer → "Integrate with 1Password CLI".
+  environment.variables = {
+    HOMEBREW_NO_AUTO_UPDATE = "1";
+  }
+  // lib.optionalAttrs (profileName == "power") {
+    OP_BIOMETRIC_UNLOCK_ENABLED = "true";
+  };
 }

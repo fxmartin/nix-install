@@ -49,6 +49,20 @@ common_package_lines() {
     [ "$status" -eq 1 ]
 }
 
+@test "1Password CLI ships via Homebrew on the Power profile only" {
+    # Homebrew, not Nix: FX verified the brew formula works with the desktop
+    # app's biometric integration, and it is 1Password's own documented path.
+    run bash -c "sed -n '/optionals (profileName == \"power\")/,/\]/p' '$HOMEBREW_CONFIG' | rg '\"1password-cli\"'"
+    [ "$status" -eq 0 ]
+
+    # Must not leak into the Nix system package set
+    run rg -n '_1password-cli' "$DARWIN_CONFIG"
+    [ "$status" -eq 1 ]
+
+    run rg -n 'OP_BIOMETRIC_UNLOCK_ENABLED' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 0 ]
+}
+
 @test "the JDK ships only with the Power profile, with JAVA_HOME set" {
     run bash -c "sed -n '/lib.optionals isPowerProfile \[/,/^[[:space:]]*\]/p' '$DARWIN_CONFIG' | rg '^[[:space:]]+jdk([[:space:]]|#)'"
     [ "$status" -eq 0 ]

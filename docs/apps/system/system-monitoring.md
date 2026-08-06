@@ -1,5 +1,5 @@
 # ABOUTME: Documents the rationalised interactive and remote monitoring stack
-# ABOUTME: Covers btop, iStat Menus, Beszel, and the macmon telemetry backend
+# ABOUTME: Covers mactop, Stats, Beszel, and the macmon telemetry backend
 
 # System Monitoring
 
@@ -7,13 +7,13 @@ The repository deliberately keeps one tool for each monitoring role:
 
 | Role | Tool | Manager |
 |---|---|---|
-| Terminal diagnostics | btop | Home Manager |
-| Native menu-bar overview | iStat Menus | Homebrew cask |
+| Terminal diagnostics | mactop | Nix (system packages) |
+| Native menu-bar overview | Stats | Homebrew cask |
 | Remote history and alerts | Beszel agent | nixpkgs/nix-darwin |
 | Apple Silicon metrics backend | macmon | nixpkgs/nix-darwin |
 
 `gotop` and `mactop` are intentionally not installed. Their interactive
-features overlap with btop and iStat Menus. macmon remains installed only
+features overlap with mactop and Stats. macmon remains installed only
 because the health API uses its JSON output for cached Apple Silicon metrics.
 
 ## Data flow
@@ -26,40 +26,39 @@ macmon -> health-api /metrics -> vitals sampler / health checks
 The health API runs macmon on a bounded background interval and serves cached
 results. Requests never start their own macmon subprocess.
 
-## btop
+## mactop
 
-btop is the default terminal monitor for live CPU, memory, process, disk, and
-network diagnostics. Home Manager owns both the package and its Catppuccin
-configuration.
+mactop is the terminal monitor for live Apple Silicon diagnostics: per-cluster
+E/P CPU, GPU, ANE, power draw, and thermals. Nix owns the package (Power and
+Standard profiles). It replaced btop in v2.3.0 — btop's generic Linux-style
+view could not see Apple Silicon's cluster topology or power counters.
 
 ```sh
-btop
+sudo mactop
 ```
+
+`sudo` is required to read the SMC power and thermal counters.
 
 Key controls:
 
 - `q`: quit
-- `1`–`4`: switch panels
-- `f`: filter processes
-- `k`: terminate the selected process
-- `m`: change process sorting
+- `l`: change layout
+- `c`: change colour scheme
+- `/`: search the process list
+- `F9`: terminate the selected process
 
-Configuration is generated at `~/.config/btop/btop.conf`.
+## Stats
 
-## iStat Menus
-
-iStat Menus provides the always-visible native macOS overview. It requires a
-license or trial and is installed as the `istat-menus` Homebrew cask.
+Stats provides the always-visible native menu-bar overview. It is open source
+(github.com/exelban/stats) and installed as the `stats` Homebrew cask — it
+replaced the commercial iStat Menus in v2.11.0, removing a licence key from the
+post-install path.
 
 After installation:
 
-1. Launch iStat Menus and activate the license or trial.
-2. Import `config/istat-menus/iStat Menus Settings.ismp7` if desired.
-3. Disable automatic update checks so upgrades remain controlled by the repo.
-4. Grant requested macOS permissions for the sensors you enable.
-
-See [Licensed Applications](../../licensed-apps.md#istat-menus) for activation
-and troubleshooting details.
+1. Launch Stats and choose which modules appear in the menu bar.
+2. Grant the macOS permissions requested for the sensors you enable.
+3. The cask declares `auto_updates`, so Stats updates itself outside `rebuild`.
 
 ## Beszel
 
@@ -107,15 +106,15 @@ Relevant services and scripts:
 
 ## Verification checklist
 
-- [ ] `command -v btop` resolves through the Home Manager user profile.
-- [ ] `/Applications/iStat Menus.app` exists and the menu-bar items appear.
-- [ ] `gotop` and `mactop` are not found in `PATH`.
+- [ ] `command -v mactop` resolves through the system profile.
+- [ ] `/Applications/Stats.app` exists and the menu-bar items appear.
+- [ ] `gotop` and `btop` are not found in `PATH`.
 - [ ] `/metrics` returns cached CPU, memory, thermal, and process data.
 - [ ] The Beszel agent is loaded and connected when a hub key is configured.
 
 ## Troubleshooting
 
-If btop is missing, rebuild the active profile and start a new shell.
+If mactop is missing, rebuild the active profile and start a new shell.
 
 If `/metrics` reports that macmon is unavailable, confirm the system profile
 contains `/run/current-system/sw/bin/macmon` and inspect

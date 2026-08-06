@@ -50,7 +50,6 @@ Activate apps requiring sign-in or license keys. See [Licensed Apps Guide](./lic
 - [ ] **NordVPN** - Sign in, grant network extension permission
 
 **License Key Apps** (~2 minutes):
-- [ ] **iStat Menus** - Enter license key (or start 14-day trial)
 - [ ] **Little Snitch** - Enter license key (or start trial)
 
 **Disable Auto-Updates** (CRITICAL):

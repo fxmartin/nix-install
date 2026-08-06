@@ -36,17 +36,21 @@ setup() {
     run rg -n '^[[:space:]]+mactop[[:space:]]*(#.*)?$' "$DARWIN_CONFIG"
     [ "$status" -eq 0 ]
 
-    run rg -n '"istat-menus"' "$HOMEBREW_CONFIG"
+    # Stats (open source) replaced the licensed iStat Menus on 2026-08-06
+    run rg -n '"stats"' "$HOMEBREW_CONFIG"
     [ "$status" -eq 0 ]
+
+    run rg -n '"istat-menus"' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 1 ]
 
     run rg -n '\$\{pkgs\.beszel\}/bin/beszel-agent' "$MONITORING_MODULE"
     [ "$status" -eq 0 ]
 }
 
 @test "README advertises only the rationalised stack" {
-    run rg -n 'System & Monitoring.*iStat Menus.*mactop.*Beszel' "$README_FILE"
+    run rg -n 'System & Monitoring.*Stats.*mactop.*Beszel' "$README_FILE"
     [ "$status" -eq 0 ]
 
-    run rg -n 'System & Monitoring.*(gotop|btop)' "$README_FILE"
+    run rg -n 'System & Monitoring.*(gotop|btop|iStat)' "$README_FILE"
     [ "$status" -eq 1 ]
 }

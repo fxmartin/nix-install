@@ -17,7 +17,6 @@ This document provides guidance for applications that require licenses, subscrip
 |-----|------|------|----------|
 | **1Password** | Sign-in | 2 min | High (password access) |
 | **NordVPN** | Sign-in | 2 min | Medium (VPN access) |
-| **iStat Menus** | License key | 1 min | Low (trial available) |
 | **Little Snitch** | License key | 2 min | Low (trial available) |
 | **Office 365** | Sign-in | 3 min | If needed |
 
@@ -37,7 +36,6 @@ The following apps require manual setup after installation:
 - **NordVPN**: Requires active subscription (NO free tier, $3.99-$12.99/month)
 
 **System Monitoring**:
-- **iStat Menus**: Commercial software ($11.99 USD) with 14-day free trial
 
 **Development Tools**:
 - None currently (all dev tools are free/open source)
@@ -135,152 +133,6 @@ The following apps require manual setup after installation:
 
 ---
 
-### iStat Menus
-
-**Installation**: Installed via Homebrew cask `istat-menus` (Story 02.4-006)
-
-**License Requirement**: iStat Menus is **commercial software** requiring a paid license. Offers a 14-day free trial with full features.
-
-**License Options**:
-
-1. **Free Trial** (14 days):
-   - Full features unlocked for 14 days
-   - No credit card required
-   - No account sign-up needed
-   - Trial countdown visible in Preferences → License
-   - After expiration: App becomes read-only (settings locked, displays still visible)
-
-2. **Paid License** (One-time purchase):
-   - **Price**: $11.99 USD (one-time, no subscription)
-   - **Lifetime license**: No recurring fees
-   - **Free updates**: Lifetime updates for current major version
-   - **Multi-Mac**: Use on all your Macs (personal use)
-   - **Purchase**: https://bjango.com/mac/istatmenus/
-
-**Activation Steps**:
-
-**Option A: Start Free Trial**
-1. Launch iStat Menus from Spotlight (`Cmd+Space`, type "iStat Menus") or `/Applications/iStat Menus.app`
-2. Welcome screen appears on first launch
-3. Click **Start Free Trial** button
-4. Trial activates immediately (no sign-up or credit card required)
-5. All features unlocked for 14 days
-6. Menubar icons appear for enabled sensors (CPU, Memory, Network, etc.)
-7. Check trial status: Click any menubar icon → Preferences → License → "XX days remaining"
-
-**Option B: Enter Existing License**
-1. Launch iStat Menus
-2. Welcome screen appears → Click **Enter License** button
-3. Enter **License Name** (your name or email used during purchase, case-sensitive)
-4. Enter **License Key** (from purchase confirmation email)
-5. Click **Activate** button
-6. License validates → App is permanently activated
-7. Verify: Preferences → License → "Licensed to: [Your Name]"
-
-**Option C: Purchase License**
-
-**During Trial**:
-1. Click any iStat Menus menubar icon (CPU, Memory, etc.)
-2. Click **Preferences** at bottom of dropdown
-3. Click **License** tab
-4. Click **Buy Now** button
-5. Browser opens to https://bjango.com/mac/istatmenus/
-6. Complete purchase ($11.99 USD via credit card or PayPal)
-7. License key sent to email within minutes
-8. Return to iStat Menus → Enter license (see Option B above)
-
-**From Website**:
-1. Visit https://bjango.com/mac/istatmenus/ in browser
-2. Click **Buy** button (top right or in pricing section)
-3. Complete purchase ($11.99 USD)
-4. License key sent to purchase email
-5. Launch iStat Menus → Click **Enter License** → Enter details (see Option B)
-
-**License Verification**:
-```bash
-# Check license status
-# Click any iStat Menus menubar icon → Preferences → License tab
-# Should show one of:
-# - "Trial: XX days remaining" (trial period active)
-# - "Licensed to: [Your Name]" (license activated)
-# - "Trial expired - Purchase required" (trial ended, need license)
-```
-
-**Auto-Update Disable** (CRITICAL):
-iStat Menus has automatic updates **enabled by default**. You **MUST** disable auto-update:
-
-1. Click any iStat Menus menubar icon → **Preferences**
-2. Click **General** tab (top of Preferences window)
-3. Scroll down to **Updates** section
-4. **Uncheck** "Automatically check for updates"
-5. Close Preferences → Setting is saved
-6. Verify: Reopen Preferences → General → Updates → Checkbox should remain unchecked
-
-**Why disable auto-update**:
-- All app updates controlled by `darwin-rebuild switch` (Homebrew version pinning)
-- Ensures reproducible system state (no surprise updates)
-- Prevents automatic app restarts during updates
-
-**What Happens After Trial Expires**:
-- iStat Menus becomes **read-only**:
-  - Menubar displays **still visible** (can view stats)
-  - **Cannot change settings** (Preferences menu locked)
-  - **Cannot customize** sensors or display format
-- To regain full functionality:
-  - Purchase license ($11.99 USD)
-  - Enter license key (see Option B above)
-  - All settings immediately unlocked
-
-**License Benefits**:
-- **Lifetime license**: Pay once, use forever (no subscription)
-- **Free updates**: All updates for current major version (iStat Menus 7.x)
-- **Multiple Macs**: Install on all your personal Macs (license allows personal use across devices)
-- **Offline activation**: License verified offline after initial activation (no internet required)
-- **Support**: Email support at support@bjango.com
-
-**Common Issues**:
-
-**License Key Not Accepted**:
-- **Cause**: Typo in license name or key, extra spaces
-- **Solution**:
-  - Verify license name matches purchase email **exactly** (case-sensitive)
-  - Copy license key from email (avoid manual typing)
-  - Check for spaces at start/end of license name/key
-  - Try entering on different Mac (license is multi-Mac compatible)
-
-**License Key Lost**:
-- **Solution**: Contact Bjango support
-  - Email: support@bjango.com
-  - Subject: "License key recovery"
-  - Include: Purchase email address, transaction ID (if available)
-  - Response time: Usually within 24 hours
-  - Bjango will resend license key to purchase email
-
-**Trial Expired, Can't Afford License**:
-- **No free alternative in iStat Menus** (commercial software)
-- **Free alternatives** (if license not feasible):
-  - **btop**: Free terminal system monitor (installed via Home Manager)
-  - **Activity Monitor**: Built-in macOS app (Utilities → Activity Monitor)
-  - **Note**: Free alternatives lack menubar integration and some advanced features
-
-**Auto-Update Still Enabled After Disabling**:
-- **Solution**:
-  - Verify: Preferences → General → Updates → "Automatically check for updates" is **unchecked**
-  - If checked: Uncheck again → Close Preferences → Reopen to confirm persistence
-  - Also check: System Settings → App Store → Uncheck "Automatic Updates" (system-wide)
-  - If installed via Homebrew (our setup): Updates only via `darwin-rebuild switch`
-
-**Menubar Icons Not Appearing**:
-- **Cause**: Sensors disabled in Preferences
-- **Solution**:
-  - Preferences → Menubar Items
-  - Enable desired sensors: CPU, Memory, Network, Disk, Battery, Sensors
-  - Check "Show in menubar" for each enabled sensor
-  - Icons appear immediately after enabling
-
-**Documentation**: For full iStat Menus usage and configuration, see `docs/apps/system/system-monitoring.md` → iStat Menus section.
-
----
 
 ## Office & Productivity Suites
 
@@ -528,7 +380,6 @@ with full knowledge that updates are no longer managed by `rebuild`.
 | App | Installation | Account Type | Cost | Activation Required |
 |-----|-------------|--------------|------|---------------------|
 | **1Password** | Homebrew cask | Subscription or License | $2.99+/month or legacy | Yes (required) |
-| **iStat Menus** | Homebrew cask | One-time purchase | $11.99 USD (14-day trial) | Yes (trial or license) |
 | **NordVPN** | Homebrew cask | Subscription | $3.99-$12.99/month | Yes (required) |
 | **Office 365** | Manual install | Subscription | $69.99+/year or company | Yes (required) |
 

@@ -108,7 +108,7 @@ in
       "plaud" # Plaud - AI voice recorder and transcription companion
 
       # System Monitoring
-      "istat-menus" # iStat Menus - Professional menubar system monitoring (licensed app)
+      "stats" # Stats - Open-source menubar system monitor (replaced the licensed iStat Menus, 2026-08)
 
       # Messaging
       "telegram" # Telegram - Cross-platform messaging with cloud sync

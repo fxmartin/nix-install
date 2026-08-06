@@ -72,6 +72,10 @@ in
       # AI & LLM Tools (Story 02.1-001, 02.1-002)
       "claude" # Claude Desktop - Anthropic's AI assistant
       "chatgpt" # ChatGPT Desktop - OpenAI's conversational AI
+      # Usage/spend tracker for Claude Code, Codex, Copilot et al. All profiles,
+      # since Claude Code runs on every one. Declares auto_updates, so it
+      # self-updates outside `rebuild` (same exception as cmux and stats).
+      "openusage" # OpenUsage - AI coding-agent usage tracker
       # OpenAI Codex CLI - terminal coding agent.
       #
       # The cask vendors ad-hoc-signed helper binaries (codex-path/rg,

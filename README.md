@@ -183,6 +183,7 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 **AI & LLM Tools**:
 - Claude Desktop, Claude Code CLI (from `claude-code-nix` flake)
 - ChatGPT, Codex CLI (OpenAI's terminal coding agent)
+- OpenUsage (usage/spend tracker for Claude Code, Codex, Copilot et al.)
 - OpenCode and Qwen Code (open source AI coding agents for the terminal). On Power, OpenCode defaults to the **local** `qwen3.6-coding:opencode` model over Ollama — no cloud round-trip
 - Ollama (Power: `gemma4:e4b` + `gemma4:26b` + `qwen3.6:35b-a3b-coding-nvfp4` + `nomic-embed-text`; Standard: `ministral-3:14b` + `nomic-embed-text`; AI-Assistant: `nomic-embed-text`)
 - MLX-LM 0.21.0 (Apple Silicon, isolated uv environment at `~/.local/share/mlx-lm/venv`)
@@ -486,7 +487,7 @@ nix-install/
 | **Tests** | 1,461 test cases (47 BATS files, 313 in the active gate) |
 | **Documentation** | 43K lines across 136 markdown files |
 | **GitHub Issues** | Epic-08 #236–#258 (23 stories) + fixes #269–#285 · Epic-09 #302–#303 · Epic-10 #388–#400 (13 stories) |
-| **Packages** | 30 casks (15 on AI-Assistant, 30 on Power), 11 brews, 6 MAS (5 on non-Power; Xcode is Power-only), 50+ Nix |
+| **Packages** | 31 casks (16 on AI-Assistant, 31 on Power), 11 brews, 6 MAS (5 on non-Power; Xcode is Power-only), 50+ Nix |
 
 **Next**: MacBook Air M4 migration (Phase 11) · Story 08.3-008 (one-day mactop-free validation) · Story 09.1-008 (Privacy Filter verification on hardware)
 

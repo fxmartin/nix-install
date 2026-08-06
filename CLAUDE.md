@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repository implements an automated, declarative MacBook configuration system using Nix, nix-darwin, and Home Manager. The goal is to transform a fresh macOS install into a fully configured development environment in <30 minutes with zero manual intervention (except license activations).
 
-**Status**: ✅ **v2.13.0 Released** - Epic-10 (Bootstrap Integrity & Security Hardening) shipped. Epics 01–08 and 10 complete; Epic-09 at 7/8 on its committed foundation.
+**Status**: ✅ **v2.13.1 Released** - Epic-10 (Bootstrap Integrity & Security Hardening) shipped. Epics 01–08 and 10 complete; Epic-09 at 7/8 on its committed foundation.
 
 **Target User**: FX manages 4 MacBooks (1x MacBook Pro M3 Max, 1x MacBook Pro M1 2021, 2x MacBook Air) with periodic reinstalls. Split usage between Office 365 work and weekend Python development.
 

@@ -172,7 +172,7 @@ Consistency: 100% (declarative config)
    - Daily garbage collection (cleanup old Nix generations)
    - Daily Nix store optimization (deduplication)
    - Health check commands
-   - System monitoring (btop, iStat Menus, Beszel with macmon telemetry)
+   - System monitoring (Stats, mactop, Beszel with macmon telemetry)
 
 5. **Version Control & Rollback**
    - Entire system configuration in Git
@@ -259,7 +259,7 @@ Consistency: 100% (declarative config)
 
 2. **Homebrew Casks** (for GUI apps that don't work well in Nix)
    - Applications: Firefox, Zed, Claude Desktop, etc.
-   - System tools: 1Password, iStat Menus
+   - System tools: 1Password, Stats
    - Managed declaratively via nix-darwin's homebrew module
 
 3. **Mac App Store (mas)** (only when no alternative)
@@ -346,7 +346,7 @@ Consistency: 100% (declarative config)
 - Calibre (ebook manager)
 - Kindle (via mas)
 - Keka (archiver)
-- iStat Menus 🔒
+- Stats (open source)
 - Beszel monitoring with macmon as its headless telemetry backend
 - Acceptance: Apps installed, 🔒 apps documented as needing manual license activation
 
@@ -521,10 +521,10 @@ Consistency: 100% (declarative config)
 
 **REQ-MAINT-003**: System Monitoring Tools
 - btop (CLI system monitor)
-- iStat Menus (GUI menubar monitor) 🔒
+- Stats (GUI menubar monitor, open source)
 - Beszel agent (remote/time-series monitoring)
 - macmon (headless telemetry backend for the health API; not a user-facing monitor)
-- Acceptance: btop shows CPU/memory, iStat appears in the menubar, and health API metrics feed Beszel
+- Acceptance: mactop shows CPU/memory, Stats appears in the menubar, and health API metrics feed Beszel
 
 **REQ-MAINT-004**: Health Check Commands
 - `health-check` alias: validates system state
@@ -543,7 +543,7 @@ Consistency: 100% (declarative config)
 - Acceptance: Non-technical user can follow and complete install
 
 **REQ-DOC-002**: Licensed App Activation Guide
-- List of apps requiring manual activation: 1Password, iStat Menus, Little Snitch, NordVPN
+- List of apps requiring manual activation: 1Password, Little Snitch, NordVPN
 - Step-by-step for each app
 - Acceptance: User can activate all licenses within 15 minutes
 
@@ -896,7 +896,7 @@ Consistency: 100% (declarative config)
 
 - [ ] Daily garbage collection (launchd job)
 - [ ] Daily store optimization (launchd job)
-- [ ] Install btop and iStat Menus; configure Beszel with the macmon telemetry backend
+- [ ] Install Stats; configure Beszel with the macmon telemetry backend
 - [ ] Health check alias/script
 - [ ] Test: GC runs overnight, health-check reports status
 
@@ -950,7 +950,7 @@ Consistency: 100% (declarative config)
 - [ ] Fresh macOS reinstall on MacBook Pro M3 Max
 - [ ] Run bootstrap script (should be identical to VM experience)
 - [ ] Verify all workflows functional (work + dev)
-- [ ] Activate licensed apps (1Password, iStat Menus, NordVPN, Little Snitch, Office 365, etc.)
+- [ ] Activate licensed apps (1Password, NordVPN, Little Snitch, Office 365, etc.)
 - [ ] Use as daily driver for 1 week minimum
 - [ ] Document any hardware-specific issues (vs VM)
 
@@ -1202,7 +1202,7 @@ Consistency: 100% (declarative config)
 | Keka | Homebrew Cask | GUI app |
 | **Monitoring** | | |
 | btop | Home Manager (programs.btop) | Owns both package and user configuration |
-| iStat Menus | Homebrew Cask | GUI app |
+| Stats | Homebrew Cask | GUI app |
 | Beszel agent | Nix (nixpkgs.beszel) | Remote/time-series monitoring |
 | macmon | Nix (nixpkgs.macmon) | Headless health API telemetry backend |
 | **Communication** | | |
@@ -1395,7 +1395,7 @@ Consistency: 100% (declarative config)
 │  │  2. Activate licensed apps:                          │  │
 │  │     - 1Password (sign in)                            │  │
 │  │     - NordVPN (sign in)                              │  │
-│  │     - iStat Menus (enter license)                    │  │
+│  │     - Little Snitch (enter license)                  │  │
 │  │     - Office 365 (sign in with Microsoft account)    │  │
 │  │     - [Full list: ~/Documents/nix-install/docs/       │  │
 │  │        licensed-apps.md]                             │  │
@@ -1431,7 +1431,7 @@ Consistency: 100% (declarative config)
 | **Productivity** | ✅ Same (1Password, etc.) | ✅ Same |
 | **Communication** | ✅ Same (Telegram, WhatsApp) | ✅ Same |
 | **Media** | ✅ Same (VLC, GIMP) | ✅ Same |
-| **Monitoring** | ✅ Same (btop, iStat, Beszel/macmon backend) | ✅ Same |
+| **Monitoring** | ✅ Same (mactop, Stats, Beszel/macmon backend) | ✅ Same |
 | **System Config** | ✅ Same (Finder, trackpad, security) | ✅ Same |
 | **Shell Environment** | ✅ Same (Zsh, Oh My Zsh, Ghostty) | ✅ Same |
 | **Theming** | ✅ Same (Catppuccin) | ✅ Same |

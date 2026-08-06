@@ -139,7 +139,7 @@ docs/apps/
 ├── security/
 │   └── nordvpn.md                      # NordVPN VPN service
 └── system/
-    └── system-monitoring.md            # btop, iStat Menus, Beszel/macmon telemetry
+    └── system-monitoring.md            # mactop, Stats, Beszel/macmon telemetry
 ```
 
 ---
@@ -159,7 +159,7 @@ docs/apps/
 - [REQUIREMENTS.md](../REQUIREMENTS.md) - Full project requirements and app inventory
 - [Development Progress](../development/README.md) - Story implementation status
 - [Homebrew Configuration](../../darwin/homebrew.nix) - App installation declarations
-- [Licensed Apps Guide](../licensed-apps.md) - Office 365 and licensed-app activation (1Password, iStat Menus, NordVPN, etc.)
+- [Licensed Apps Guide](../licensed-apps.md) - Office 365 and licensed-app activation (1Password, NordVPN, Little Snitch, etc.)
 
 ---
 

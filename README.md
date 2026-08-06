@@ -11,7 +11,7 @@ One git repo defines everything. Push a change, rebuild, and all machines stay p
 The stack: **Nix + nix-darwin + Home Manager** for declarative, atomic, rollback-capable configuration — plus an AI-powered release monitor that opens GitHub issues before I even know updates exist.
 
 ![Rebuild in action](./docs/images/rebuild-screenshot.png)
-*A `rebuild` in action — Ghostty terminal with Catppuccin theme, iStat Menus monitoring, and system-wide consistency.*
+*A `rebuild` in action — Ghostty terminal with Catppuccin theme, menubar system monitoring, and system-wide consistency.*
 
 ---
 
@@ -61,7 +61,7 @@ execution. Branch installs require the explicit `NIX_INSTALL_BRANCH` override.
    ```
 4. **Activate licenses** — See [Licensed Apps Guide](./docs/licensed-apps.md):
    - 1Password, NordVPN (sign in)
-   - iStat Menus, Little Snitch (enter license key)
+   - Little Snitch (enter license key)
    - Office 365 (Microsoft account sign-in)
 
 ---
@@ -224,7 +224,7 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 
 **Security**: NordVPN, Tailscale, Little Snitch
 
-**System & Monitoring**: iStat Menus, mactop, Beszel (macmon telemetry backend), Stream Deck **[S/P]**
+**System & Monitoring**: Stats (open source), mactop, Beszel (macmon telemetry backend), Stream Deck **[S/P]**
 
 **Remote Access**: RustDesk **[S/P]**
 

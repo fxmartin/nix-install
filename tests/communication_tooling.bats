@@ -26,6 +26,17 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
+@test "FluidVoice build can reach the system tools it shells out to" {
+    module="${BATS_TEST_DIRNAME}/../home-manager/modules/fluidvoice.nix"
+
+    # Home Manager's activation PATH is Nix-only. install-app.sh calls awk to
+    # pick a signing identity, and SwiftPM needs unzip to unpack the
+    # CTranscribe xcframework - both live in /usr/bin. Without it the build
+    # dies during dependency resolution (observed 2026-08-06).
+    run rg -n 'PATH=.*(/usr/bin)' "$module"
+    [ "$status" -eq 0 ]
+}
+
 @test "Qobuz is installed only for the Power profile" {
     run rg -U -n '\+\+ lib\.optionals \(profileName == "power"\) \[[^;]+"qobuz"' \
         "$HOMEBREW_CONFIG"

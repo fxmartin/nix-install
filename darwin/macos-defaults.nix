@@ -316,6 +316,30 @@
   # Story 03.4-001: Auto Light/Dark Mode and Icon/Widget Style
   # CustomUserPreferences allows setting options not directly supported by nix-darwin
   system.defaults.CustomUserPreferences = {
+    # ==========================================================================
+    # SELF-UPDATING CASK LOCKDOWN
+    # ==========================================================================
+    # cmux, Stats and OpenUsage all ship `auto_updates`, which lets them update
+    # themselves and bypass `rebuild` — the one mechanism this repo says owns
+    # app versions. Disabling it in each app's settings panel works but is
+    # machine-local: it does not survive a fresh install, an app reinstall, or
+    # propagate to the other MacBooks. Declaring it here does.
+    #
+    # cmux and OpenUsage use the Sparkle framework; Stats has its own key.
+    "com.cmuxterm.app" = {
+      SUEnableAutomaticChecks = false;
+      SUAutomaticallyUpdate = false;
+    };
+
+    "com.robinebers.openusage" = {
+      SUEnableAutomaticChecks = false;
+      SUAutomaticallyUpdate = false;
+    };
+
+    "eu.exelban.Stats" = {
+      "update-interval" = "Never";
+    };
+
     # Enable automatic appearance switching (Light/Dark mode)
     # macOS will switch based on sunrise/sunset times
     NSGlobalDomain = {

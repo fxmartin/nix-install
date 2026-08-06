@@ -56,10 +56,17 @@ in
       echo "• FluidVoice: full Xcode not available — skipping (Power profile installs it)"
     else
       echo "Building FluidVoice from $APP_SRC..."
+      # Home Manager's activation PATH is Nix-only, but this build shells out
+      # to system tools: install-app.sh runs `awk` to pick a signing identity,
+      # and SwiftPM needs `unzip` to unpack the CTranscribe xcframework. Both
+      # live in /usr/bin, and without them the build dies part-way through
+      # dependency resolution (observed 2026-08-06). Appended rather than
+      # prepended so Nix-provided tools still win where they exist.
+      #
       # Invoked inside `if` so a non-zero exit is absorbed: activation runs
       # under `set -e`, and a failed optional app build must never take down
       # the whole rebuild.
-      if $DRY_RUN_CMD bash "$APP_SRC/scripts/install-app.sh" "${config.home.homeDirectory}/Applications"; then
+      if PATH="$PATH:/usr/bin:/bin" $DRY_RUN_CMD bash "$APP_SRC/scripts/install-app.sh" "${config.home.homeDirectory}/Applications"; then
         echo "✓ FluidVoice installed to ~/Applications"
       else
         echo "⚠ FluidVoice build failed — the app was left as-is" >&2

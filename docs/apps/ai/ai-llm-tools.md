@@ -1,5 +1,5 @@
 # ABOUTME: AI and LLM desktop applications configuration guide
-# ABOUTME: Covers Claude Desktop, ChatGPT Desktop, Ollama (CLI), OpenCode's local model, and Open WebUI
+# ABOUTME: Covers Claude Desktop, ChatGPT Desktop, Ollama, llama.cpp, OpenCode's local model, MLX-LM, and the Privacy Filter
 
 # AI & LLM Tools
 
@@ -148,6 +148,34 @@ automatic, and `--host 0.0.0.0` must **never** be copied — Ollama has no authe
 
 ---
 
+## llama.cpp (GGUF Inference Engine)
+
+**Status**: Installed via Homebrew formula `llama.cpp` — provides `llama-server`, `llama-cli`, and the GGUF tooling.
+
+**Why Homebrew, not nixpkgs**: nixpkgs ships `llama-cpp`, but the formula tracks
+upstream far more closely (10250 vs 10133 when this was added) — llama.cpp
+releases several times a day, and the bottle is built with Metal enabled.
+Declaring both would place two `llama-server` binaries on `PATH`; the
+package-boundary test in `tests/package_manager_boundaries.bats` guards against
+that.
+
+**Relationship to Ollama**: they overlap but are not redundant. Ollama manages a
+model library and a persistent daemon (and OpenCode's local model runs through
+it — see above). llama.cpp is the lower-level engine: direct GGUF files, full
+control over sampling and context flags, and a server whose parameters are set
+per launch rather than baked into a Modelfile.
+
+**Basic use**:
+```bash
+llama-cli -m model.gguf -p "prompt"          # one-shot
+llama-server -m model.gguf --host 127.0.0.1  # OpenAI-compatible API
+```
+
+**Keep the server on loopback.** `llama-server` has no authentication, exactly
+like Ollama — `--host 0.0.0.0` exposes an unauthenticated inference endpoint to
+the network.
+
+---
 ## MLX-LM (Apple-Native Runtime)
 
 **Status**: MLX-LM 0.21.0 is provisioned on Apple Silicon by Home Manager in an isolated uv environment at `~/.local/share/mlx-lm/venv`.

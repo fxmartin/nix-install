@@ -186,6 +186,7 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 - OpenUsage (usage/spend tracker for Claude Code, Codex, Copilot et al.)
 - OpenCode and Qwen Code (open source AI coding agents for the terminal). On Power, OpenCode defaults to the **local** `qwen3.6-coding:opencode` model over Ollama — no cloud round-trip
 - Ollama (Power: `gemma4:e4b` + `gemma4:26b` + `qwen3.6:35b-a3b-coding-nvfp4` + `nomic-embed-text`; Standard: `ministral-3:14b` + `nomic-embed-text`; AI-Assistant: `nomic-embed-text`)
+- llama.cpp (`llama-server`, `llama-cli` — GGUF inference with Metal)
 - MLX-LM 0.21.0 (Apple Silicon, isolated uv environment at `~/.local/share/mlx-lm/venv`)
 - **Privacy Filter** — on-device PII redaction (MLX port of OpenAI's open-weight Privacy Filter via OpenMed). Always-on LaunchAgent on `127.0.0.1:7790`; BF16 variant on Power, 8-bit on Standard / AI-Assistant. Workflow: `pbcopy` → `redact-clip` → paste into Claude/ChatGPT (Epic-09).
 
@@ -484,10 +485,10 @@ nix-install/
 | **Commits** | 935 (+418 since v1.0.0) |
 | **Development** | ~20 active days (v1.0.0) + 2 days (Epic-08 sprint), ~96 hours through Epic-08; Epic-09/Epic-10 not yet estimated |
 | **Code** | 21K lines (Nix + Shell + Python, excluding the generated `bootstrap-dist.sh`) |
-| **Tests** | 1,464 test cases (48 BATS files, 316 in the active gate) |
+| **Tests** | 1,465 test cases (48 BATS files, 317 in the active gate) |
 | **Documentation** | 43K lines across 136 markdown files |
 | **GitHub Issues** | Epic-08 #236–#258 (23 stories) + fixes #269–#285 · Epic-09 #302–#303 · Epic-10 #388–#400 (13 stories) |
-| **Packages** | 31 casks (16 on AI-Assistant, 31 on Power), 11 brews, 6 MAS (5 on non-Power; Xcode is Power-only), 50+ Nix |
+| **Packages** | 31 casks (16 on AI-Assistant, 31 on Power), 12 brews, 6 MAS (5 on non-Power; Xcode is Power-only), 50+ Nix |
 
 **Next**: MacBook Air M4 migration (Phase 11) · Story 08.3-008 (one-day mactop-free validation) · Story 09.1-008 (Privacy Filter verification on hardware)
 

@@ -27,6 +27,17 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
+@test "llama.cpp is owned only by Homebrew" {
+    # nixpkgs also ships llama-cpp; declaring both would put two `llama-server`
+    # binaries on PATH. Homebrew wins here because it tracks the project far
+    # more closely (10250 vs 10133 at time of writing) and llama.cpp moves fast.
+    run rg -n '"llama\.cpp"' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 0 ]
+
+    run rg -n '^[[:space:]]+llama-cpp([[:space:]]|#)' "$DARWIN_CONFIG"
+    [ "$status" -eq 1 ]
+}
+
 @test "GitHub CLI is owned only by Homebrew" {
     run rg -n '"gh"[[:space:]]+# GitHub CLI' "$HOMEBREW_CONFIG"
     [ "$status" -eq 0 ]

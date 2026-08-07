@@ -46,6 +46,12 @@ in
       "pkgconf" # pkg-config implementation required by native Python extension builds
 
       # AI & LLM Tools
+      # llama.cpp via Homebrew rather than nixpkgs `llama-cpp`: the formula
+      # tracks upstream far more closely (10250 vs nixpkgs 10133 when added),
+      # which matters for a project releasing several times a day, and the
+      # bottle ships with Metal enabled. Declaring both would put two
+      # `llama-server` binaries on PATH — see the package-boundary test.
+      "llama.cpp" # llama.cpp - GGUF inference engine (llama-server, llama-cli)
       "ollama" # Ollama CLI - Local LLM server (replaces ollama-app cask)
       "opencode" # OpenCode - Open source AI coding agent for the terminal
       "qwen-code" # Qwen Code - Open source AI coding agent for the terminal

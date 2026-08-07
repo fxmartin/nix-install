@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.14.0] - 2026-08-07
+
+### Added
+
+- llama.cpp formula added for direct GGUF work; retired-inferencer guard narrowed rather than removed
+
 ## [2.13.1] - 2026-08-06
 
 ### Fixed

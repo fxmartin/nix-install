@@ -17,6 +17,14 @@ let
   # OpenAI-compatible endpoint must stay on 127.0.0.1.
   ollamaBaseUrl = "http://127.0.0.1:11434/v1";
 
+  # The other two local servers OpenCode can talk to. All three speak the
+  # OpenAI-compatible API and none of them has any authentication, so every one
+  # stays pinned to loopback.
+  #   llama-server  8080 (llama.cpp default)  — GGUF, one model per process
+  #   oMLX          8000 (~/.omlx/settings.json) — MLX, many models from --model-dir
+  llamaCppBaseUrl = "http://127.0.0.1:8080/v1";
+  omlxBaseUrl = "http://127.0.0.1:8000/v1";
+
   # 35B MoE with ~3B active params; ~22GB resident. Only the Power profile
   # (M3 Max, 48GB unified) has the headroom, so only it gets the default.
   # This is the derived model built by config/ollama/qwen3.6-coding.Modelfile,
@@ -509,6 +517,26 @@ in
                       "limit": { "context": ${localCodingContext}, "output": 16384 }
                     }
                   }
+                }
+              | .provider.llamacpp = {
+                  "npm": "@ai-sdk/openai-compatible",
+                  "name": "llama.cpp (local)",
+                  "options": { "baseURL": "${llamaCppBaseUrl}" },
+                  "models": {
+                    "local-gguf": {
+                      "name": "Loaded GGUF (llama-server)"
+                    }
+                  }
+                }
+              | .provider.omlx = {
+                  "npm": "@ai-sdk/openai-compatible",
+                  "name": "oMLX (local)",
+                  "options": { "baseURL": "${omlxBaseUrl}" },
+                  "models": {
+                    "local-mlx": {
+                      "name": "Loaded MLX model (oMLX)"
+                    }
+                  }
                 }${lib.optionalString opencodeDefaultsLocal ''
 
               | .model = "ollama/${localCodingModel}"''}
@@ -541,6 +569,22 @@ in
               },
               "limit": { "context": ${localCodingContext}, "output": 16384 }
             }
+          }
+        },
+        "llamacpp": {
+          "npm": "@ai-sdk/openai-compatible",
+          "name": "llama.cpp (local)",
+          "options": { "baseURL": "${llamaCppBaseUrl}" },
+          "models": {
+            "local-gguf": { "name": "Loaded GGUF (llama-server)" }
+          }
+        },
+        "omlx": {
+          "npm": "@ai-sdk/openai-compatible",
+          "name": "oMLX (local)",
+          "options": { "baseURL": "${omlxBaseUrl}" },
+          "models": {
+            "local-mlx": { "name": "Loaded MLX model (oMLX)" }
           }
         }
       }

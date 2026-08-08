@@ -1,0 +1,21 @@
+# ABOUTME: Derived Ollama model pinning Qwen3.6's recommended sampling parameters for agentic coding
+# ABOUTME: Dense-27B MLX sibling of qwen3.6-coding.Modelfile — same parameters, different base
+#
+# One-line swap of qwen3.6-coding.Modelfile: FROM the dense 27B MLX base
+# instead of the 35B-A3B MoE coding tune, for comparing dense vs MoE codegen
+# on Apple Silicon. Parameters are identical — see qwen3.6-coding.Modelfile
+# for the rationale behind each value (notably repeat_penalty 1.0 vs Ollama's
+# code-hostile 1.1 default).
+#
+# Build once after `ollama pull qwen3.6:27b-mlx`:
+#   ollama create qwen3.6-coding:dense -f config/ollama/qwen3.6-dense-coding.Modelfile
+
+FROM qwen3.6:27b-mlx
+
+PARAMETER num_ctx 48000
+PARAMETER temperature 0.6
+PARAMETER top_p 0.95
+PARAMETER top_k 20
+PARAMETER min_p 0.0
+PARAMETER repeat_penalty 1.0
+PARAMETER presence_penalty 0.0

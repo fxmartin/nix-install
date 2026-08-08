@@ -63,6 +63,23 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
+@test "oMLX sampling profile matches the Qwen coding Modelfiles" {
+    OMLX_MODULE="${BATS_TEST_DIRNAME}/../darwin/omlx.nix"
+
+    # oMLX's server-wide sampling defaults must mirror the parameters pinned
+    # in config/ollama/qwen3.6-*.Modelfile — OpenCode's omlx provider sends no
+    # per-request sampling, so these defaults are what oc-omlx actually gets.
+    # Notably temperature: the app ships 1.0, hostile to codegen.
+    run rg -n 'sampling\.temperature = 0\.6' "$OMLX_MODULE"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'sampling\.top_k = 20' "$OMLX_MODULE"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'sampling\.max_context_window = 48000' "$OMLX_MODULE"
+    [ "$status" -eq 0 ]
+}
+
 @test "llama.cpp is owned only by Homebrew" {
     # nixpkgs also ships llama-cpp; declaring both would put two `llama-server`
     # binaries on PATH. Homebrew wins here because it tracks the project far

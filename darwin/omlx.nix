@@ -97,17 +97,38 @@ lib.mkIf (profileName == "power") {
     OMLX_TARGET_DIR="${homeDir}/models/mlx"
     /bin/mkdir -p "$OMLX_TARGET_DIR"
     /usr/sbin/chown ${userConfig.username}:staff "${homeDir}/models" "$OMLX_TARGET_DIR"
+    # Also converge the server-wide sampling defaults onto Qwen3.6's
+    # recommended profile — the same values config/ollama/qwen3.6-*.Modelfile
+    # pins for Ollama. OpenCode's omlx provider sends no per-request sampling,
+    # so these defaults are what oc-omlx sessions actually get; the app ships
+    # temperature 1.0, which is hostile to codegen. Global for every model
+    # oMLX serves (the catalogue is Qwen-dominated; clients can still
+    # override per request). The jq -e gate leaves an already-converged file
+    # untouched — the app rewrites settings.json on quit, so needless churn
+    # would race it.
     if [ -f "$OMLX_SETTINGS" ]; then
-      OMLX_CURRENT=$(${pkgs.jq}/bin/jq -r '.model.model_dir // ""' "$OMLX_SETTINGS" 2>/dev/null || echo "")
-      if [ "$OMLX_CURRENT" != "$OMLX_TARGET_DIR" ]; then
+      if ! ${pkgs.jq}/bin/jq -e --arg dir "$OMLX_TARGET_DIR" '
+             .model.model_dir == $dir
+             and .sampling.temperature == 0.6
+             and .sampling.top_k == 20
+             and .sampling.top_p == 0.95
+             and .sampling.repetition_penalty == 1.0
+             and .sampling.max_context_window == 48000
+           ' "$OMLX_SETTINGS" >/dev/null 2>&1; then
         OMLX_SETTINGS_TMP=$(/usr/bin/mktemp)
-        if ${pkgs.jq}/bin/jq --arg dir "$OMLX_TARGET_DIR" \
-             '.model.model_dir = $dir | .model.model_dirs = [$dir]' \
-             "$OMLX_SETTINGS" > "$OMLX_SETTINGS_TMP" 2>/dev/null; then
+        if ${pkgs.jq}/bin/jq --arg dir "$OMLX_TARGET_DIR" '
+             .model.model_dir = $dir
+             | .model.model_dirs = [$dir]
+             | .sampling.temperature = 0.6
+             | .sampling.top_k = 20
+             | .sampling.top_p = 0.95
+             | .sampling.repetition_penalty = 1.0
+             | .sampling.max_context_window = 48000
+           ' "$OMLX_SETTINGS" > "$OMLX_SETTINGS_TMP" 2>/dev/null; then
           # cat-over, not mv: preserves the file's owner and 0600 mode
           /bin/cat "$OMLX_SETTINGS_TMP" > "$OMLX_SETTINGS"
-          echo "✓ oMLX model_dir repointed at $OMLX_TARGET_DIR (was: ''${OMLX_CURRENT:-unset})"
-          echo "  Quit oMLX, then move existing weights: mv ~/.omlx/models/* $OMLX_TARGET_DIR/"
+          echo "✓ oMLX settings converged: model_dir $OMLX_TARGET_DIR + Qwen sampling profile"
+          echo "  Restart oMLX to pick them up (quit it first if running)"
         else
           echo "⚠ Could not patch oMLX settings.json — leaving it as-is"
         fi

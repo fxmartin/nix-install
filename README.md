@@ -77,7 +77,7 @@ After installation, manage your system with these aliases:
 | `gc` | User-profile garbage collection |
 | `gc-system` | System-profile garbage collection (runs weekly as root LaunchDaemon) |
 | `cleanup` | Full cleanup (GC + store optimization) |
-| `disk-cleanup` | Prune development caches and report Codex storage opportunities |
+| `disk-cleanup` | Prune development caches; reports local model store (`--prune-models` to sweep it) |
 | `codex-cleanup` | Analyze Codex storage; compact logs or prune caches only with explicit flags |
 | `health-check` | System health report |
 | `curl localhost:7780/metrics` | Apple Silicon metrics (CPU per-cluster, GPU, ANE, memory, power, thermal, top-5 processes) |
@@ -187,6 +187,7 @@ Ground truth lives in [`darwin/homebrew.nix`](./darwin/homebrew.nix). Sections b
 - OpenCode and Qwen Code (open source AI coding agents for the terminal). On Power, OpenCode defaults to the **local** `qwen3.6-coding:opencode` model over Ollama — no cloud round-trip
 - Ollama (Power: `gemma4:e4b` + `gemma4:26b` + `qwen3.6:35b-a3b-coding-nvfp4` + `nomic-embed-text`; Standard: `ministral-3:14b` + `nomic-embed-text`; AI-Assistant: `nomic-embed-text`)
 - llama.cpp (`llama-server`, `llama-cli` — GGUF inference with Metal)
+- oMLX **[Power]** — menubar MLX inference server, installed from its notarized DMG (`darwin/omlx.nix`)
 - MLX-LM 0.21.0 (Apple Silicon, isolated uv environment at `~/.local/share/mlx-lm/venv`)
 - **Privacy Filter** — on-device PII redaction (MLX port of OpenAI's open-weight Privacy Filter via OpenMed). Always-on LaunchAgent on `127.0.0.1:7790`; BF16 variant on Power, 8-bit on Standard / AI-Assistant. Workflow: `pbcopy` → `redact-clip` → paste into Claude/ChatGPT (Epic-09).
 
@@ -485,7 +486,7 @@ nix-install/
 | **Commits** | 935 (+418 since v1.0.0) |
 | **Development** | ~20 active days (v1.0.0) + 2 days (Epic-08 sprint), ~96 hours through Epic-08; Epic-09/Epic-10 not yet estimated |
 | **Code** | 21K lines (Nix + Shell + Python, excluding the generated `bootstrap-dist.sh`) |
-| **Tests** | 1,465 test cases (48 BATS files, 317 in the active gate) |
+| **Tests** | 1,468 test cases (48 BATS files, 320 in the active gate) |
 | **Documentation** | 43K lines across 136 markdown files |
 | **GitHub Issues** | Epic-08 #236–#258 (23 stories) + fixes #269–#285 · Epic-09 #302–#303 · Epic-10 #388–#400 (13 stories) |
 | **Packages** | 31 casks (16 on AI-Assistant, 31 on Power), 12 brews, 6 MAS (5 on non-Power; Xcode is Power-only), 50+ Nix |

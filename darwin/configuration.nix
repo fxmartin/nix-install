@@ -12,6 +12,11 @@
   profileName,
   ...
 }:
+let
+  # Single root for every local model store a runtime can be pointed at, so
+  # disk-cleanup and the weekly digest have one path to sweep and report.
+  localModelRoot = "/Users/${userConfig.username}/models";
+in
 {
   # Nix package manager settings
   nix.enable = true;
@@ -227,8 +232,21 @@
   # JAVA_HOME for the Power profile's JDK. A JDK on PATH alone half-works:
   # `java` runs, but build tools and IDEs that resolve the toolchain by env var
   # do not. pkgs.jdk.home points at the macOS bundle's Contents/Home.
+  #
+  # LLAMA_CACHE / OMLX_MODEL_DIR put both local model stores under one root.
+  # They hold *different artefacts* — llama.cpp downloads GGUF files, oMLX wants
+  # MLX safetensors directories — so this saves no disk. The point is that one
+  # retention rule and one digest line can then cover all local model storage;
+  # left at their defaults (~/.cache/llama.cpp and ~/.omlx/models) they grow
+  # unbounded and invisibly, and GGUF/MLX weights run to tens of GB.
+  #
+  # Ollama deliberately does not join them: its models are content-addressed
+  # tensor blobs plus JSON manifests under ~/.ollama/models, not a plain
+  # directory any other runtime can read. `ollama-lru` prunes that store.
   environment.variables = lib.mkIf isPowerProfile {
     JAVA_HOME = "${pkgs.jdk.home}";
+    LLAMA_CACHE = "${localModelRoot}/gguf";
+    OMLX_MODEL_DIR = "${localModelRoot}/mlx";
   };
 
   # Application Management & System Configuration

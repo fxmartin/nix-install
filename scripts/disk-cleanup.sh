@@ -119,6 +119,13 @@ analyze_caches() {
     total_kb=$((total_kb + nodegyp_kb))
     print_status "info" "node-gyp cache: ${nodegyp_size}"
 
+    # Local model stores (llama.cpp GGUF + oMLX MLX), shared root from
+    # LLAMA_CACHE / OMLX_MODEL_DIR. Reported, never auto-pruned by size alone —
+    # these are deliberate downloads, not caches.
+    local models_root="${LOCAL_MODEL_ROOT:-$HOME/models}"
+    local local_models_size=$(get_size "${models_root}")
+    [[ "${local_models_size}" != "0B" ]] && print_status "info" "Local model store (${models_root}): ${local_models_size}"
+
     # Huggingface cache
     local hf_size=$(get_size ~/.cache/huggingface)
     local hf_kb=$(get_size_bytes ~/.cache/huggingface)
@@ -269,6 +276,40 @@ cleanup_huggingface() {
     fi
 }
 
+cleanup_local_models() {
+    # Prunes GGUF/MLX weights not read for LOCAL_MODEL_RETENTION_DAYS.
+    # Unlike the HF blob cache these are chosen downloads, so the window is
+    # generous and the default is report-only: pass --prune-models to delete.
+    print_header "Local Model Store"
+    local models_root="${LOCAL_MODEL_ROOT:-$HOME/models}"
+
+    if [[ ! -d "${models_root}" ]]; then
+        print_status "skip" "No local model store at ${models_root}"
+        return 0
+    fi
+
+    local retention="${LOCAL_MODEL_RETENTION_DAYS:-120}"
+    local before
+    before=$(get_size "${models_root}")
+
+    # GGUF are single files; MLX models are directories of safetensors, so the
+    # two are counted separately rather than with one find expression.
+    local stale_gguf
+    stale_gguf=$(find "${models_root}" -type f -name '*.gguf' -mtime "+${retention}" 2>/dev/null | wc -l | tr -d ' ')
+    local stale_mlx
+    stale_mlx=$(find "${models_root}" -mindepth 2 -maxdepth 3 -type d -mtime "+${retention}" 2>/dev/null | wc -l | tr -d ' ')
+
+    if [[ "${PRUNE_MODELS:-false}" == "true" ]]; then
+        find "${models_root}" -type f -name '*.gguf' -mtime "+${retention}" -delete 2>/dev/null || true
+        find "${models_root}" -mindepth 2 -maxdepth 3 -type d -mtime "+${retention}" -exec rm -rf {} + 2>/dev/null || true
+        print_status "cleaned" "Local models: ${stale_gguf} GGUF + ${stale_mlx} MLX pruned (was: ${before}, now: $(get_size "${models_root}"))"
+    elif [[ "${stale_gguf}" == "0" && "${stale_mlx}" == "0" ]]; then
+        print_status "info" "Local models: nothing unused for ${retention}d (${before})"
+    else
+        print_status "warn" "Local models: ${stale_gguf} GGUF + ${stale_mlx} MLX unused >${retention}d (${before}) — re-run with --prune-models to remove"
+    fi
+}
+
 cleanup_browsers() {
     # Cleans browser cache subdirs (Cache/, Code Cache/, GPUCache/) but never
     # touches profile data, bookmarks, cookies, or sessions.
@@ -403,6 +444,9 @@ main() {
 
     # Check for --dry-run or --analyze flag
     local dry_run=false
+    for arg in "$@"; do
+        [[ "${arg}" == "--prune-models" ]] && export PRUNE_MODELS=true
+    done
     if [[ "${1:-}" == "--dry-run" ]] || [[ "${1:-}" == "--analyze" ]] || [[ "${1:-}" == "-n" ]]; then
         dry_run=true
         echo ""
@@ -424,6 +468,7 @@ main() {
         cleanup_pip
         cleanup_nodegyp
         cleanup_huggingface
+        cleanup_local_models
         cleanup_browsers
         cleanup_containers
 

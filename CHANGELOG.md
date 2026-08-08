@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.17.0] - 2026-08-08
+
+### Added
+
+- Single shared local model root: oMLX settings repoint, model-shelf shelf_root pin, all-profile LLAMA_CACHE/OMLX_MODEL_DIR, digest coverage, and the start-ollama external-drive fix
+
 ## [2.16.0] - 2026-08-08
 
 ### Added

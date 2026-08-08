@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.16.0] - 2026-08-08
+
+### Added
+
+- OpenCode wired to Ollama, llama-server and oMLX with per-backend launchers; retired-inferencers guardrail removed
+
 ## [2.15.0] - 2026-08-08
 
 ### Added

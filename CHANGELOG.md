@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.15.0] - 2026-08-08
+
+### Added
+
+- oMLX installed from its notarized DMG on Power; llama.cpp and oMLX model stores share one root that disk-cleanup now sweeps
+
 ## [2.14.1] - 2026-08-07
 
 ### Fixed

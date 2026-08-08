@@ -148,6 +148,30 @@ automatic, and `--host 0.0.0.0` must **never** be copied — Ollama has no authe
 
 ---
 
+### Three local backends, one client
+
+OpenCode declares a provider for each local server. All are loopback-only —
+none of the three has authentication:
+
+| Provider | Port | Format | Notes |
+|----------|------|--------|-------|
+| `ollama` | 11434 | MLX tensors | Model library + daemon; the Power default |
+| `llamacpp` | 8080 | GGUF | One model per `llama-server` process, so the model id is a placeholder |
+| `omlx` | 8000 | MLX safetensors | Many models from its model-dir; pass a real id to override the placeholder |
+
+Launchers (`home-manager/modules/shell.nix`) check the endpoint before starting
+OpenCode — otherwise it starts, takes a prompt, and only then fails on a refused
+connection:
+
+```bash
+oc-ollama      # OpenCode → Ollama
+oc-llama       # OpenCode → llama-server
+oc-omlx        # OpenCode → oMLX
+```
+
+Each prints the command to start its server if nothing is listening.
+
+
 ## llama.cpp (GGUF Inference Engine)
 
 **Status**: Installed via Homebrew formula `llama.cpp` — provides `llama-server`, `llama-cli`, and the GGUF tooling.

@@ -160,6 +160,15 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
+@test "opencode launcher aliases exist for each local backend" {
+    shell="${BATS_TEST_DIRNAME}/../home-manager/modules/shell.nix"
+
+    for alias_name in oc-ollama oc-llama oc-omlx; do
+        run rg -n "$alias_name" "$shell"
+        [ "$status" -eq 0 ]
+    done
+}
+
 @test "nix-eval fails the build when any single profile fails to evaluate" {
     # Without an explicit exit, the shell for-loop returns the status of its LAST
     # iteration, so a broken Standard or Power profile passed both `make nix-eval`

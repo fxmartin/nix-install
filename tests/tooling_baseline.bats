@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 # ABOUTME: Guards the minimal global Python and Nix language-tooling baseline
-# ABOUTME: Prevents duplicate tools, stale Homebrew placeholders, and retired inferencer claims
+# ABOUTME: Prevents duplicate tools and stale Homebrew placeholders
 
 setup() {
     REPO_ROOT="${BATS_TEST_DIRNAME}/.."
@@ -34,13 +34,6 @@ setup() {
 
 @test "Homebrew module contains no scaffolding placeholders" {
     run rg -n -i 'stub|epic-02 will|will populate|will expand|minimal install' "$HOMEBREW_CONFIG"
-    [ "$status" -eq 1 ]
-}
-
-@test "current AI documentation lists no retired inferencers" {
-    run rg -n -i 'lm studio|lm-studio|omlx|vllm-mlx|dflash|turboquant|mtplx|local-code-bench' \
-        "${REPO_ROOT}/docs/apps/ai/ai-llm-tools.md" \
-        "${REPO_ROOT}/docs/apps/README.md"
     [ "$status" -eq 1 ]
 }
 

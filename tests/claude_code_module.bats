@@ -155,6 +155,25 @@
     [ "$status" -eq 0 ]
 }
 
+@test "opencode declares all three local inference backends on loopback" {
+    module="${BATS_TEST_DIRNAME}/../home-manager/modules/claude-code.nix"
+
+    # Ollama 11434, llama-server 8080, oMLX 8000 — all loopback-only, since
+    # none of the three has any authentication.
+    run rg -n -F 'http://127.0.0.1:11434/v1' "$module"
+    [ "$status" -eq 0 ]
+
+    run rg -n -F 'http://127.0.0.1:8080/v1' "$module"
+    [ "$status" -eq 0 ]
+
+    run rg -n -F 'http://127.0.0.1:8000/v1' "$module"
+    [ "$status" -eq 0 ]
+
+    # No literal baseURL may point anywhere but loopback
+    run bash -c "rg -n -o '\"baseURL\": \"http[^\"]*\"' '$module' | rg -v '127\\.0\\.0\\.1'"
+    [ "$status" -eq 1 ]
+}
+
 @test "opencode pins Qwen3.6 sampling params instead of inheriting OpenCode's Qwen default" {
     module="${BATS_TEST_DIRNAME}/../home-manager/modules/claude-code.nix"
 

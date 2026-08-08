@@ -401,6 +401,47 @@
       }
 
       # =============================================================================
+      # OPENCODE LOCAL BACKEND LAUNCHERS
+      # =============================================================================
+      # OpenCode declares three local providers (home-manager/modules/claude-code.nix):
+      #   ollama    :11434  MLX tensors, model library + daemon
+      #   llamacpp  :8080   GGUF, one model per llama-server process
+      #   omlx      :8000   MLX safetensors, many models from its model-dir
+      #
+      # Each launcher checks the endpoint first: without this OpenCode starts,
+      # accepts a prompt, and only then fails on a refused connection.
+      _oc_launch() {
+        local provider="$1" port="$2" model="$3" hint="$4"
+        shift 4
+        if ! /usr/bin/curl -fsS --max-time 2 "http://127.0.0.1:$port/v1/models" >/dev/null 2>&1; then
+          echo "✗ no server answering on 127.0.0.1:$port ($provider)" >&2
+          echo "  start it with: $hint" >&2
+          return 1
+        fi
+        opencode --model "$provider/$model" "$@"
+      }
+
+      # OpenCode against Ollama (the Power-profile default model).
+      oc-ollama() {
+        _oc_launch ollama 11434 "qwen3.6-coding:opencode" \
+          "start-ollama, or the Local AI menubar app" "$@"
+      }
+
+      # OpenCode against llama-server. Serves one GGUF per process, so the model
+      # id is a placeholder — llama.cpp answers with whatever it has loaded.
+      oc-llama() {
+        _oc_launch llamacpp 8080 "local-gguf" \
+          "llama-server -m <model.gguf> --host 127.0.0.1" "$@"
+      }
+
+      # OpenCode against oMLX. Pass a real model id to override the placeholder,
+      # e.g. oc-omlx --model omlx/mlx-community/<model>
+      oc-omlx() {
+        _oc_launch omlx 8000 "local-mlx" \
+          "open -a oMLX, or omlx serve" "$@"
+      }
+
+      # =============================================================================
       # OLLAMA MODEL RESIDENCY HELPERS (Story 08.2-003)
       # =============================================================================
       # Explicit control over Ollama model in-RAM residency, complementing the

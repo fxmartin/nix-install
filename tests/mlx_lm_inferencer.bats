@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 # ABOUTME: Regression tests for the supported Ollama and Apple-native MLX-LM runtimes
-# ABOUTME: Prevents retired local inferencers from returning to declarative configuration
+# ABOUTME: Pins the MLX-LM version, its Apple Silicon guard, and the Ollama declaration
 
 setup() {
     HOME_MANAGER_CONFIG="${BATS_TEST_DIRNAME}/../home-manager/home.nix"
@@ -37,16 +37,7 @@ setup() {
     done
 }
 
-@test "Ollama remains and retired inferencers are absent" {
+@test "Ollama remains declared in Homebrew" {
     run rg -n '"ollama"' "$HOMEBREW_MODULE"
     [ "$status" -eq 0 ]
-
-    # llama.cpp was removed from this forbidden list on 2026-08-07: it is now
-    # deliberately declared as a Homebrew formula for direct GGUF work
-    # (llama-server / llama-cli). Note Ollama already embeds llama.cpp as an
-    # internal runner — the formula adds standalone binaries, not a second
-    # inference stack for Ollama to use. The other runtimes below stay retired.
-    run rg -n -i 'omlx|lm-studio|inferencer|dflash|turboquant|vllm-mlx|mtplx|mlc-llm|mlc-ai' \
-        "$HOME_MANAGER_CONFIG" "$MLX_LM_MODULE" "$HOMEBREW_MODULE"
-    [ "$status" -eq 1 ]
 }

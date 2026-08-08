@@ -81,6 +81,7 @@ After installation, manage your system with these aliases:
 | `codex-cleanup` | Analyze Codex storage; compact logs or prune caches only with explicit flags |
 | `health-check` | System health report |
 | `curl localhost:7780/metrics` | Apple Silicon metrics (CPU per-cluster, GPU, ANE, memory, power, thermal, top-5 processes) |
+| `oc-ollama` / `oc-llama` / `oc-omlx` | Launch OpenCode against Ollama (:11434), llama-server (:8080) or oMLX (:8000); refuses early if that server is down |
 | `ollama-warm <model>` | Pin an Ollama model in RAM until evicted |
 | `ollama-evict [model]` | Unload one model (or all loaded) |
 | `ollama-lru` | Report Ollama models not used in >30 days (opt-in `--prune`) |
@@ -486,7 +487,7 @@ nix-install/
 | **Commits** | 935 (+418 since v1.0.0) |
 | **Development** | ~20 active days (v1.0.0) + 2 days (Epic-08 sprint), ~96 hours through Epic-08; Epic-09/Epic-10 not yet estimated |
 | **Code** | 21K lines (Nix + Shell + Python, excluding the generated `bootstrap-dist.sh`) |
-| **Tests** | 1,468 test cases (48 BATS files, 320 in the active gate) |
+| **Tests** | 1,469 test cases (48 BATS files, 321 in the active gate) |
 | **Documentation** | 43K lines across 136 markdown files |
 | **GitHub Issues** | Epic-08 #236–#258 (23 stories) + fixes #269–#285 · Epic-09 #302–#303 · Epic-10 #388–#400 (13 stories) |
 | **Packages** | 31 casks (16 on AI-Assistant, 31 on Power), 12 brews, 6 MAS (5 on non-Power; Xcode is Power-only), 50+ Nix |

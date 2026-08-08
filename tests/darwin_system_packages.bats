@@ -49,7 +49,7 @@ common_package_lines() {
     [ "$status" -eq 1 ]
 }
 
-@test "local model stores share one root and are Power-gated" {
+@test "local model stores share one root on every profile" {
     # llama.cpp (GGUF) and oMLX (MLX safetensors) hold different artefacts, so a
     # shared root saves no disk - it exists so one retention rule and one digest
     # line can cover all local model storage. Ollama cannot join: its models are
@@ -62,6 +62,43 @@ common_package_lines() {
 
     # Both must sit under the same parent so disk-cleanup can sweep one path
     run rg -n 'localModelRoot' "$DARWIN_CONFIG"
+    [ "$status" -eq 0 ]
+
+    # llama.cpp ships on every profile (homebrew.nix base brews), so the cache
+    # vars must not be Power-gated or the other Macs grow an invisible default
+    # cache the digest never sees. Only JAVA_HOME stays behind the Power gate.
+    run rg -n 'environment\.variables = lib\.mkIf' "$DARWIN_CONFIG"
+    [ "$status" -eq 1 ]
+
+    run bash -c "rg -A3 'optionalAttrs isPowerProfile' '$DARWIN_CONFIG' | rg 'JAVA_HOME'"
+    [ "$status" -eq 0 ]
+}
+
+@test "weekly digest reports the local model root and legacy model-shelf store" {
+    digest="${BATS_TEST_DIRNAME}/../scripts/weekly-maintenance-digest.sh"
+
+    # The shared root exists so "one digest line can cover all local model
+    # storage" — without these consumers the promise is empty.
+    run rg -n '"local_models"' "$digest"
+    [ "$status" -eq 0 ]
+
+    run rg -n '"model_shelf"' "$digest"
+    [ "$status" -eq 0 ]
+}
+
+@test "start-ollama.sh points Ollama at the external model directory" {
+    script="${BATS_TEST_DIRNAME}/../scripts/start-ollama.sh"
+
+    # The script's whole purpose is keeping weights off the internal disk; if
+    # OLLAMA_MODELS is not exported, ollama serve silently uses ~/.ollama/models
+    # and the mounted-volume checks are theater.
+    run rg -n 'OLLAMA_MODELS=.*MODEL_DIR' "$script"
+    [ "$status" -eq 0 ]
+
+    # And it must survive into the launchd-submitted environment. Match the
+    # submit line's OLLAMA_MODELS='...' directly (single-quoted, unlike the
+    # export) — piping rg context lines breaks under max-columns truncation.
+    run rg "OLLAMA_MODELS='" "$script"
     [ "$status" -eq 0 ]
 }
 

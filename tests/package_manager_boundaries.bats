@@ -50,6 +50,19 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
+@test "oMLX model directory is repointed at the shared local model root" {
+    OMLX_MODULE="${BATS_TEST_DIRNAME}/../darwin/omlx.nix"
+
+    # The OMLX_MODEL_DIR env var never reaches the menubar app — launchd does
+    # not source /etc/zshenv — so activation must patch ~/.omlx/settings.json,
+    # the app's authoritative config, to the shared root instead.
+    run rg -n 'model_dir' "$OMLX_MODULE"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'models/mlx' "$OMLX_MODULE"
+    [ "$status" -eq 0 ]
+}
+
 @test "llama.cpp is owned only by Homebrew" {
     # nixpkgs also ships llama-cpp; declaring both would put two `llama-server`
     # binaries on PATH. Homebrew wins here because it tracks the project far

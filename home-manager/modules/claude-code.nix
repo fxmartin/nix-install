@@ -102,6 +102,24 @@ in
   #
   # All MCP servers use Nix-installed binaries (managed by mkConfig, not npx/npm)
 
+  # Model Shelf (skills/model-shelf in the claude-code-config submodule)
+  # downloads GGUF/MLX/safetensors weights into shelf_root/{gguf,mlx,safetensors}.
+  # Pin shelf_root to the shared local model root (darwin/configuration.nix
+  # localModelRoot) so llama.cpp, oMLX, and model-shelf all read one tree that
+  # disk-cleanup sweeps and the weekly digest reports. Left unpinned it falls
+  # back to ~/.cache/model-shelf/models — a fourth, invisible model store.
+  # Pinning deliberately bypasses the /Volumes/*/ModelShelf auto-discovery
+  # fallback; no machine uses an external shelf today.
+  home.file.".config/model-shelf/config.toml" = {
+    force = true; # replace the hand-written pre-v2.17 config
+    text = ''
+      # ABOUTME: Model Shelf config — managed by home-manager/modules/claude-code.nix
+      # ABOUTME: Pins shelf_root to the shared local model root swept by disk-cleanup
+      shelf_root = "${config.home.homeDirectory}/models"
+      allow_downloads = true
+    '';
+  };
+
   # Activation script to set up Claude Code configuration and symlink files to repo
   home.activation.claudeCodeSetup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         # Find nix-install repo root (shared helper from flake.nix extraSpecialArgs)
@@ -539,7 +557,7 @@ in
                   }
                 }${lib.optionalString opencodeDefaultsLocal ''
 
-              | .model = "ollama/${localCodingModel}"''}
+                  | .model = "ollama/${localCodingModel}"''}
             ' "$OPENCODE_CONFIG" > "$OPENCODE_CONFIG_TMP"; then
               $DRY_RUN_CMD mv "$OPENCODE_CONFIG_TMP" "$OPENCODE_CONFIG"
               echo "✓ Disabled OpenCode auto-update and sharing"
@@ -554,7 +572,7 @@ in
       "autoupdate": false,
       "share": "disabled",${lib.optionalString opencodeDefaultsLocal ''
 
-      "model": "ollama/${localCodingModel}",''}
+        "model": "ollama/${localCodingModel}",''}
       "provider": {
         "ollama": {
           "npm": "@ai-sdk/openai-compatible",

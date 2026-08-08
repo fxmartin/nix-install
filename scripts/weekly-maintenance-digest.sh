@@ -101,6 +101,12 @@ collect_disk_sizes() {
     pf_large=$(du_kb "${HOME}/.cache/huggingface/hub/models--OpenMed--OpenMed-PII-SuperClinical-Large-434M-v1")
     printf '%s\t%s\n' "privacy_filter" "$((pf_small + pf_large))"
     printf '%s\t%s\n' "docker"       "$(du_kb "${HOME}/Library/Containers/com.docker.docker")"
+    # Shared local model root (llama.cpp GGUF, oMLX MLX, model-shelf) — the
+    # "one digest line" darwin/configuration.nix's localModelRoot exists for.
+    printf '%s\t%s\n' "local_models" "$(du_kb "${HOME}/models")"
+    # Legacy model-shelf store; should trend to zero once weights move under
+    # ~/models (shelf_root pinned in home-manager/modules/claude-code.nix).
+    printf '%s\t%s\n' "model_shelf"  "$(du_kb "${HOME}/.cache/model-shelf")"
     printf '%s\t%s\n' "library_caches" "$(du_kb "${HOME}/Library/Caches")"
     printf '%s\t%s\n' "claude"       "$(du_kb "${HOME}/.claude")"
 }

@@ -19,6 +19,19 @@
     [ "$status" -eq 0 ]
 }
 
+@test "model-shelf config pins shelf_root to the shared local model root" {
+    module="${BATS_TEST_DIRNAME}/../home-manager/modules/claude-code.nix"
+
+    # Without a pinned shelf_root, model-shelf falls back to
+    # ~/.cache/model-shelf/models — a fourth model store that disk-cleanup and
+    # the weekly digest never sweep. Pin it to the shared ~/models root.
+    run rg -n -F '".config/model-shelf/config.toml"' "$module"
+    [ "$status" -eq 0 ]
+
+    run bash -c "rg -A12 'model-shelf/config.toml' '$module' | rg 'shelf_root'"
+    [ "$status" -eq 0 ]
+}
+
 @test "claude-code activation marks autonomous-sdlc installed by default" {
     run rg -n '"installation": "INSTALLED_BY_DEFAULT"' \
         "${BATS_TEST_DIRNAME}/../home-manager/modules/claude-code.nix"

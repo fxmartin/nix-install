@@ -49,6 +49,33 @@ common_package_lines() {
     [ "$status" -eq 1 ]
 }
 
+@test "local model stores share one root and are Power-gated" {
+    # llama.cpp (GGUF) and oMLX (MLX safetensors) hold different artefacts, so a
+    # shared root saves no disk - it exists so one retention rule and one digest
+    # line can cover all local model storage. Ollama cannot join: its models are
+    # content-addressed blobs in ~/.ollama/models, not a plain directory.
+    run rg -n 'LLAMA_CACHE' "$DARWIN_CONFIG"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'OMLX_MODEL_DIR' "$DARWIN_CONFIG"
+    [ "$status" -eq 0 ]
+
+    # Both must sit under the same parent so disk-cleanup can sweep one path
+    run rg -n 'localModelRoot' "$DARWIN_CONFIG"
+    [ "$status" -eq 0 ]
+}
+
+@test "disk-cleanup prunes the local model root" {
+    cleanup="${BATS_TEST_DIRNAME}/../scripts/disk-cleanup.sh"
+
+    run rg -n 'cleanup_local_models' "$cleanup"
+    [ "$status" -eq 0 ]
+
+    # Reported in the analyze pass too, or it stays invisible until it is huge
+    run rg -n 'local_models_size|Local model' "$cleanup"
+    [ "$status" -eq 0 ]
+}
+
 @test "1Password CLI ships via Homebrew on the Power profile only" {
     # Homebrew, not Nix: FX verified the brew formula works with the desktop
     # app's biometric integration, and it is 1Password's own documented path.

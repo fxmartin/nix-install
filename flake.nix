@@ -254,6 +254,11 @@
           # rsync Backup to NAS (Power profile only)
           # Automated backup of configured folders to TerraMaster NAS
           ./darwin/rsync-backup.nix
+
+          # oMLX menubar inference server (Power profile only)
+          # Installed from its notarized DMG - no cask exists, and its Homebrew
+          # formula sits in an untrusted tap whose trust state is undeclarable
+          ./darwin/omlx.nix
         ];
       };
 

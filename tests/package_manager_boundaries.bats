@@ -27,6 +27,29 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
+@test "oMLX is installed from the notarized DMG, never Homebrew" {
+    OMLX_MODULE="${BATS_TEST_DIRNAME}/../darwin/omlx.nix"
+
+    [ -f "$OMLX_MODULE" ]
+
+    # The Homebrew formula lives in an untrusted third-party tap whose trust
+    # state (~/.homebrew/trust.json) cannot be declared, so a fresh machine
+    # would fail at `brew bundle`. The notarized DMG carries an Apple-verified
+    # Developer ID instead, and its checksum is pinned here.
+    run rg -n '"omlx"' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 1 ]
+
+    run rg -n 'jundot' "$HOMEBREW_CONFIG"
+    [ "$status" -eq 1 ]
+
+    # The download must be pinned by checksum and verified before install
+    run rg -n 'omlxSha256' "$OMLX_MODULE"
+    [ "$status" -eq 0 ]
+
+    run rg -n 'spctl' "$OMLX_MODULE"
+    [ "$status" -eq 0 ]
+}
+
 @test "llama.cpp is owned only by Homebrew" {
     # nixpkgs also ships llama-cpp; declaring both would put two `llama-server`
     # binaries on PATH. Homebrew wins here because it tracks the project far
